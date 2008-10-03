@@ -12,32 +12,32 @@ if sys.platform == "win32":
                 "comdlg32", "advapi32", "shell32", "ole32", "oleaut32",
                 "uuid", "odbc32", "odbccp32"]
 
-    extensions = [Extension( "wininst.wininst",
-                             sources = ["wininst/wininst.c"],
-                             include_dirs = ["wininst"],
+    extensions = [Extension( "appinst.appinst",
+                             sources = ["appinst/appinst.c"],
+                             include_dirs = ["appinst"],
                              libraries = win_libs,
                              )]
 else:
     extensions = []
 
 
-setup( name = "wininst",
-       version = "1.2.3",
+setup(
+    author = "Greg Ward, Thomas Heller",
+    author_email = "gward@python.net",
+    description = "Python API used during windows installers",
+    extras_require = {},
+    ext_modules = extensions,
+    include_package_data = True,
+    install_requires = [],
+    license = "BSD",
+    maintainer = "Enthought, Inc.",
+    maintainer_email = "info@enthought.com",
+    name = "AppInst",
+    namespace_packages = [],
+    packages = find_packages(),
+    package_data = {"appinst" : ["*.txt"], },
+    version = "1.2.3",
+    url = "http://www.python.org/sigs/distutils-sig",
+    zip_safe = False,
+    )
 
-       description  = "Python API used during windows installers",
-       author       = "Greg Ward, Thomas Heller",
-       author_email = "gward@python.net",
-       url          = "http://www.python.org/sigs/distutils-sig",
-       license      = "BSD",
-
-       packages = find_packages(),
-       include_package_data = True,
-       zip_safe = False,
-       ext_modules = extensions,
-       package_data = {"wininst" : ["*.txt"],
-                       },
-       
-       install_requires = [],
-       extras_require = {},
-       namespace_packages = [],
-)
