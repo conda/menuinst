@@ -1,13 +1,12 @@
 # Copyright (c) 2008 by Enthought, Inc.
 # All rights reserved.
 
-wininst
+appinst
 =======
 
 NOTE:
-    This package was developed by Enthought.  The name wininst is
-    misleading since this is a post-install script used on other 
-    platforms as well.
+    This package was developed by Enthought.  The name appinst is
+    a rename of what used to be called 'wininst'.
 
 
 

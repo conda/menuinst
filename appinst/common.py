@@ -6,7 +6,7 @@ import _winreg
 import sys
 import os
 import platform
-import wininst
+import appinst
 
 CURRENT_USER=0
 ALL_USERS=1
@@ -74,9 +74,9 @@ def _get_install_type():
 def _get_all_users_programs_start_menu():
     # TODO: support Linux installs too
     if platform.version().startswith('5'):
-        return wininst.get_special_folder_path('CSIDL_COMMON_PROGRAMS')
+        return appinst.get_special_folder_path('CSIDL_COMMON_PROGRAMS')
     if platform.version().startswith('6'):
-        return wininst.get_special_folder_path('FOLDERID_CommonPrograms')
+        return appinst.get_special_folder_path('FOLDERID_CommonPrograms')
     else:
         #hmm, not XP or Vista
         raise InstallError('Unsupported Windows Version: %s' % platform.version())
@@ -84,9 +84,9 @@ def _get_all_users_programs_start_menu():
 def _get_current_user_programs_start_menu():
     # TODO: support Linux installs too
     if platform.version().startswith('5'):
-        return wininst.get_special_folder_path('CSIDL_PROGRAMS')
+        return appinst.get_special_folder_path('CSIDL_PROGRAMS')
     if platform.version().startswith('6'):
-        return wininst.get_special_folder_path('FOLDERID_Programs')
+        return appinst.get_special_folder_path('FOLDERID_Programs')
     else:
         #hmm, not XP or Vista
         raise InstallError('Unsupported Windows Version: %s' % platform.version())
@@ -94,9 +94,9 @@ def _get_current_user_programs_start_menu():
 def _get_all_users_desktop_directory():
     # TODO: support Linux installs too
     if platform.version().startswith('5'):
-        return wininst.get_special_folder_path('CSIDL_COMMON_DESKTOPDIRECTORY')
+        return appinst.get_special_folder_path('CSIDL_COMMON_DESKTOPDIRECTORY')
     if platform.version().startswith('6'):
-        return wininst.get_special_folder_path('FOLDERID_PublicDesktop')
+        return appinst.get_special_folder_path('FOLDERID_PublicDesktop')
     else:
         #hmm, not XP or Vista
         raise InstallError('Unsupported Windows Version: %s' % platform.version())
@@ -104,9 +104,9 @@ def _get_all_users_desktop_directory():
 def _get_current_user_desktop_directory():
     # TODO: support Linux installs too
     if platform.version().startswith('5'):
-        return wininst.get_special_folder_path('CSIDL_DESKTOPDIRECTORY')
+        return appinst.get_special_folder_path('CSIDL_DESKTOPDIRECTORY')
     if platform.version().startswith('6'):
-        return wininst.get_special_folder_path('FOLDERID_Desktop')
+        return appinst.get_special_folder_path('FOLDERID_Desktop')
     else:
         #hmm, not XP or Vista
         raise InstallError('Unsupported Windows Version: %s' % platform.version())
@@ -117,10 +117,10 @@ def _get_all_users_quick_launch_directory():
 def _get_current_user_quick_launch_directory():
     # TODO: support Linux installs too
     if platform.version().startswith('5'):
-        appdata = wininst.get_special_folder_path('CSIDL_APPDATA')
+        appdata = appinst.get_special_folder_path('CSIDL_APPDATA')
         return os.path.join(appdata, "Microsoft", "Internet Explorer", "Quick Launch")
     if platform.version().startswith('6'):
-        return wininst.get_special_folder_path('FOLDERID_QuickLaunch')
+        return appinst.get_special_folder_path('FOLDERID_QuickLaunch')
     else:
         #hmm, not XP or Vista
         raise InstallError('Unsupported Windows Version: %s' % platform.version())
@@ -363,10 +363,10 @@ def add_shortcut(target,description,link_file,*args,**kw):
     """
     if not os.path.isfile(link_file):
         try:
-            wininst.create_shortcut(target, description, link_file,*args,**kw)
+            appinst.create_shortcut(target, description, link_file,*args,**kw)
             file_created(link_file)
         except:
-            print "shortcut not created, wininst module probably missing"        
+            print "shortcut not created, appinst module probably missing"        
 
 def get_enthought_start_menu():
     """ Find the Enthought menu in the start menu.
