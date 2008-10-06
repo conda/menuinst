@@ -4,6 +4,7 @@
 
 import os
 import platform
+import sys
 import warnings
 
 from appinst.shortcuts.shortcut_creation_error import ShortcutCreationError
@@ -32,7 +33,7 @@ else:
     user_gnome = user_kde = system_gnome = system_kde = dummy
 
 
-def add_menu_links(enthought_dir, desktop):
+def _add_menu_links(enthought_dir, desktop):
     """
     Create the application links needed by EPD.
 
@@ -100,18 +101,18 @@ def create_shortcuts(install_mode='user'):
     # Try installing KDE shortcuts.
     try:
         if install_mode == 'user':
-            user_kde(add_menu_links)
+            user_kde(_add_menu_links)
         else:
-            system_kde(add_menu_links)
+            system_kde(_add_menu_links)
     except ShortcutCreationError, ex:
         print >>sys.stderr, ex.message
 
     # Try a Gnome install
     try:
         if install_mode == 'user':
-            user_gnome(add_menu_links)
+            user_gnome(_add_menu_links)
         else:
-            system_gnome(add_menu_links)
+            system_gnome(_add_menu_links)
     except ShortcutCreationError, ex:
         print >>sys.stderr, ex.message
 
