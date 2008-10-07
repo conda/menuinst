@@ -22,7 +22,7 @@ if PLAT.lower().startswith('redhat'):
 if PLAT=='rhel' and PVER=='3':
     from appinst.shortcuts.rh3 import (user_gnome, user_kde, system_gnome,
         system_kde)
-elif PLAT == 'rhel' and PYVER == '4':
+elif PLAT == 'rhel' and PVER == '4':
     from appinst.shortcuts.rh4 import (user_gnome, user_kde, system_gnome,
         system_kde)
 else:
@@ -37,8 +37,10 @@ def _add_menu_links(enthought_dir, desktop):
     """
     Create the application links needed by EPD.
 
-    This function documents the desired layout of the Enthought menu created
-    by EPD.   It is used by both KDE and Gnome2.
+    This function creates application short-cuts for the desired layout of the
+    Enthought menu in EPD.  It assumes that application short-cuts follow the
+    format of the Desktop Entry Specification by freedesktop.org.  See:
+        http://freedesktop.org/Standards/desktop-entry-spec
 
     """
 
