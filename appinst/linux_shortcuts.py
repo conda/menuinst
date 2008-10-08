@@ -7,117 +7,77 @@ import platform
 import sys
 import warnings
 
-from appinst.shortcuts.shortcut_creation_error import ShortcutCreationError
-from appinst.shortcuts.util import make_desktop_entry, make_directory_entry
 
-
-# Determine our platform and version.
-PLAT, PVER = platform.dist()[:2]
-if PLAT.lower().startswith('redhat'):
-    PLAT = 'rhel'
-    if len(PVER) and PVER[0] in ['3', '4', '5']:
-        PVER = PVER[0]
-
-# Define shortcut methods based on the platform.
-if PLAT=='rhel' and PVER=='3':
-    from appinst.shortcuts.rh3 import (user_gnome, user_kde, system_gnome,
-        system_kde)
-elif PLAT == 'rhel' and PVER == '4':
-    from appinst.shortcuts.rh4 import (user_gnome, user_kde, system_gnome,
-        system_kde)
-else:
-    warnings.warn('Unknown platform (%s) and version (%s). Unable '
-        'to create shortcuts.' % (PLAT, PVER))
-    def dummy(callback):
-        return
-    user_gnome = user_kde = system_gnome = system_kde = dummy
-
-
-def _add_menu_links(enthought_dir, desktop):
-    """
-    Create the application links needed by EPD.
-
-    This function creates application short-cuts for the desired layout of the
-    Enthought menu in EPD.  It assumes that application short-cuts follow the
-    format of the Desktop Entry Specification by freedesktop.org.  See:
-        http://freedesktop.org/Standards/desktop-entry-spec
-
-    """
-
-    if desktop=="kde":
-       file_browser = "kfmclient openURL"
-    if desktop=='gnome2':
-       file_browser = "nautilus"
-
-    # PyLab (IPython)
-    bin_dir = os.path.join(sys.prefix, "bin")
-    make_desktop_entry(type='Application', name='PyLab (IPython)',
-        comment='PyLab in an IPython shell',
-        exe=os.path.join(bin_dir, "ipython") + " -pylab", terminal='true',
-        menu_dir=enthought_dir)
-
-    # Mayavi
-    make_desktop_entry(type='Application', name='Mayavi',
-        comment='Envisage plugin for 3D visualization',
-        exe=os.path.join(bin_dir, "mayavi2"), terminal='false',
-        menu_dir=enthought_dir)
-
-    # Documentation
-    docs_dir = os.path.join(sys.prefix, "Docs")
-    import webbrowser
-    docs_exe = "%s %s " % (webbrowser.get().name, os.path.join(docs_dir,
-        "index.html"))
-    make_desktop_entry(type='Application', name='Documentation (HTML)',
-        comment='EPD Documentation', exe=docs_exe, terminal='false',
-        menu_dir=enthought_dir)
-
-    # Examples
-    examples_dir = os.path.join(sys.prefix, "Examples")
-    examples_folder = os.path.join(enthought_dir, 'Examples')
-    if not os.path.exists(examples_folder):
-        os.mkdir(examples_folder)
-    for dir in os.listdir(examples_dir):
-        make_desktop_entry(type='Application', name=dir, comment=dir,
-            exe="%s %s" % (file_browser, os.path.join(examples_dir, dir)),
-            terminal='false', menu_dir=examples_folder,
-            categories="Enthought;Examples;")
-
-    return
-
-
-def create_shortcuts(install_mode='user'):
+def install_application_menu(menus, shortcuts, install_mode='user'):
     """
     Creates application shortcuts for an installation.
 
     Shortcuts will be created for both Gnome and KDE if they're both available.
 
-    install_mode: should be either 'user' or 'system'.
+    menus: A list of menu descriptions that will be added/merged into the OS's
+        application menu.   A menu description is a dictionary containing the
+        following keys and meanings:
+            category: An identifier used to locate application link icons
+                within a menu.  Note that the string you specify for a sub-menu
+                is not the full category as this code will prefix the specified
+                string with the parent menu's category, using a '.' as a
+                separator char.  For example, if a menu with category 'Abc'
+                contains a sub-menu who's category is 'Def', then the full
+                category for the sub-menu will be 'Abc.Def'.
+            id: A string that can be used to represent the resources needed to
+                represent the menu.  i.e. on Linux, the id is used for the name
+                of the '.directory' file.  If no category is explicitly
+                specified, the id is also capitalized and used as the category
+                specification.
+            name: The display name of the menu.
+            sub-menus: A list of menu descriptions that make up sub-menus of
+                this menu.
+    shortcuts: A list of shortcut specifications to be created within the
+        previously specified menus.   A shortcut specification is a dictionary
+        consisting of the following keys and values:
+            categories: The menu categories this shortcut should appear in.  We
+                only support your own menus at this time due to cross-platform
+                issues.
+            cmd: A list of strings where the first item in the list is the
+                executable command and the other items are arguments to be
+                passed to that command.   Each argument should be a separate
+                item in the list.
+            comment: A description for the shortcut.
+            name: The display name for the shortcut.
+            terminal: A boolean value representing whether the shortcut should
+                run within a shell / terminal.
+    install_mode: should be either 'user' or 'system' and controls where the
+        menus and shortcuts are installed on the system, depending on platform.
 
     """
 
+    # Validate we have a valid install mode.
     if install_mode != 'user' and install_mode != 'system':
         warnings.warn('Unknown install mode.  Must be either "user" or '
             '"system" but got "%s"' % install_mode)
         return
 
-    # Try installing KDE shortcuts.
-    try:
-        if install_mode == 'user':
-            user_kde(_add_menu_links)
-        else:
-            system_kde(_add_menu_links)
-    except ShortcutCreationError, ex:
-        print >>sys.stderr, ex.message
+    # Determine our current platform and version.  This needs to distinguish
+    # between different Linux distributions and versions.
+    PLAT, PVER = platform.dist()[:2]
+    if PLAT.lower().startswith('redhat'):
+        PLAT = 'rhel'
+        if len(PVER) and PVER[0] in ['3', '4', '5']:
+            PVER = PVER[0]
 
-    # Try a Gnome install
-    try:
-        if install_mode == 'user':
-            user_gnome(_add_menu_links)
-        else:
-            system_gnome(_add_menu_links)
-    except ShortcutCreationError, ex:
-        print >>sys.stderr, ex.message
+    # Dispatch for RedHat 3.
+    if PLAT=='rhel' and PVER=='3':
+        from appinst.shortcuts.rh3 import install_application_menu
+        create_application_menu(menus, shortcuts, install_mode)
 
+    # Dispatch for RedHat 4.
+    elif PLAT == 'rhel' and PVER == '4':
+        from appinst.shortcuts.rh4 import install_application_menu
+        create_application_menu(menus, shortcuts, install_mode)
 
-if __name__ == "__main__":
-    create_shortcuts()
+    # Handle all other platforms with a warning until we implement for them.
+    else:
+        warnings.warn('Unknown platform (%s) and version (%s). Unable '
+            'to create shortcuts.' % (PLAT, PVER))
+
+    return

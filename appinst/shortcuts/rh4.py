@@ -11,24 +11,6 @@ from appinst.shortcuts.shortcut_creation_error import ShortcutCreationError
 from appinst.shortcuts.util import make_directory_entry
 
 
-    # Try installing KDE shortcuts.
-    try:
-        if install_mode == 'user':
-            user_kde(_add_menu_links)
-        else:
-            system_kde(_add_menu_links)
-    except ShortcutCreationError, ex:
-        print >>sys.stderr, ex.message
-
-    # Try a Gnome install
-    try:
-        if install_mode == 'user':
-            user_gnome(_add_menu_links)
-        else:
-            system_gnome(_add_menu_links)
-    except ShortcutCreationError, ex:
-        print >>sys.stderr, ex.message
-
 def _add_menu_links(menus, shortcuts, enthought_dir, desktop):
     """
     Create the application links needed by EPD.
