@@ -80,7 +80,8 @@ class RH3(object):
         return element
 
 
-    def _install_desktop_entry(self, shortcuts, category_map, filebrowser):
+    def _install_desktop_entry(self, shortcuts, category_map, filebrowser,
+        write_categories = False):
         """
         Create a desktop entry for the specified shortcut spec.
 
@@ -95,6 +96,11 @@ class RH3(object):
             cmd[0] = cmd[0].replace('{{FILEBROWSER}}', filebrowser)
             cmd = ' '.join(cmd)
 
+            # Create the category string to be included in the desktop entry.
+            categories = ';'.join(spec['categories'])
+            if not write_categories:
+                categories = None
+
             # Handle the situation where the shortcut is supposed to be in
             # multiple categories.
             for category in spec['categories']:
@@ -105,7 +111,9 @@ class RH3(object):
                     comment = spec.get('comment', ''),
                     exe = cmd,
                     terminal = str(spec.get('terminal', False)).lower(),
-                    location = location)
+                    location = location,
+                    categories = categories,
+                    )
 
         return
 
@@ -198,7 +206,8 @@ class RH3(object):
             self._ensure_child_element(cur_element, 'Directory',
                 fs_dir_entry_name)
             query_element = self._ensure_child_element(cur_element, 'Query')
-            self._ensure_child_element(query_element, 'Keyword', category)
+            and_element = self._ensure_child_element(query_element, 'And')
+            self._ensure_child_element(and_element, 'Keyword', category)
 
             # Add any child sub-menus onto the queue.
             for child_spec in menu_spec.get('sub-menus', []):
@@ -209,7 +218,8 @@ class RH3(object):
 
         # Write out any shortcuts
         file_browser = "nautilus"
-        self._install_desktop_entry(shortcuts, category_map, file_browser)
+        self._install_desktop_entry(shortcuts, category_map, file_browser,
+            write_categories = True)
 
         return
 
