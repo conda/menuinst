@@ -75,7 +75,7 @@ class RH3(object):
 
         # If specified, set its text
         if text is not None:
-            element.text = test
+            element.text = text
 
         return element
 
@@ -92,7 +92,7 @@ class RH3(object):
             # single string.  Also, replace any FILEBROWSER placeholders in the
             # spec's command.
             cmd = spec['cmd']
-            cmd[0] = cmd[0].replace('{{FILEBROWSER}}', file_browser)
+            cmd[0] = cmd[0].replace('{{FILEBROWSER}}', filebrowser)
             cmd = ' '.join(cmd)
 
             # Handle the situation where the shortcut is supposed to be in
@@ -104,7 +104,7 @@ class RH3(object):
                     name = spec['name'],
                     comment = spec.get('comment', ''),
                     exe = cmd,
-                    terminal = str(soec.get('terminal', False)).lower(),
+                    terminal = str(spec.get('terminal', False)).lower(),
                     location = location)
 
         return
@@ -174,7 +174,8 @@ class RH3(object):
                 os.mkdir(path)
 
             # Map the category for this menu to its directory path.
-            category = menu_spec.get('category', menu_spec.get('id'))
+            category = menu_spec.get('category',
+                menu_spec.get('id').capitalize())
             if len(parent_category) > 1:
                 category = '%s.%s' % (parent_category, category)
             category_map[category] = path
@@ -182,10 +183,9 @@ class RH3(object):
             # Create a directory entry file for the current menu.  Because we
             # put all these directly in the vfolder_dir, we base the filename
             # off the category which is more likely to be unique.
-            fs_dir_entry = '%s.directory' % filesystem_escape(category)
-            make_directory_entry(name, '', vfolder_dir, filename=fs_dir_entry)
-            dir_entry_path = os.path.abspath(os.path.join(vfolder_dir,
-                fs_dir_entry))
+            dir_entry_name = '%s' % filesystem_escape(category)
+            make_directory_entry(name, '', vfolder_dir, filename=dir_entry_name)
+            fs_dir_entry_name = '%s.directory' % dir_entry_name
 
             # Ensure a Folder element exists for the current menu.
             for element in parent_element.findall('Folder'):
@@ -195,12 +195,13 @@ class RH3(object):
             else:
                 cur_element = ElementTree.SubElement(parent_element, 'Folder')
             self._ensure_child_element(cur_element, 'Name', name)
-            self._ensure_child_element(cur_element, 'Directory', dir_entry_path)
+            self._ensure_child_element(cur_element, 'Directory',
+                fs_dir_entry_name)
             query_element = self._ensure_child_element(cur_element, 'Query')
             self._ensure_child_element(query_element, 'Keyword', category)
 
             # Add any child sub-menus onto the queue.
-            for child_spec in menu_spec['sub-menus']:
+            for child_spec in menu_spec.get('sub-menus', []):
                 queue.append((child_spec, cur_element, path, category))
 
         # We are done with the vfolder, write it back out
@@ -208,7 +209,7 @@ class RH3(object):
 
         # Write out any shortcuts
         file_browser = "nautilus"
-        self._install_desktop_entry(shortcuts, category_map, filebrowser)
+        self._install_desktop_entry(shortcuts, category_map, file_browser)
 
         return
 
@@ -305,18 +306,19 @@ class RH3(object):
                 os.mkdir(path)
 
             # Map the category for this menu to its directory path.
-            category = menu_spec.get('category', menu_spec.get('id'))
+            category = menu_spec.get('category',
+                menu_spec.get('id').capitalize())
             if len(parent_category) > 1:
                 category = '%s.%s' % (parent_category, category)
             category_map[category] = path
 
             # Add any child sub-menus onto the queue.
-            for child_spec in menu_spec['sub-menus']:
+            for child_spec in menu_spec.get('sub-menus', []):
                 queue.append((path, child_spec, category))
 
         # Write out any shortcuts
         file_browser = "kfmclient openURL"
-        self._install_desktop_entry(shortcuts, category_map, filebrowser)
+        self._install_desktop_entry(shortcuts, category_map, file_browser)
 
         # Force the menus to refresh.
         retcode = os.system('kbuildsycoca')
@@ -343,58 +345,5 @@ class RH3(object):
 
         # Create our shortcuts under the share dir.
         return self._install_kde_application_menus(share_dir, menus, shortcuts)
-
-
-def _add_menu_links(menus, shortcuts, enthought_dir, desktop):
-    """
-    Create the application links needed by EPD.
-
-    This function creates application short-cuts for the desired layout of
-    the Enthought menu in EPD.  It assumes that application short-cuts follow the
-    format of the Desktop Entry Specification by freedesktop.org.  See:
-        http://freedesktop.org/Standards/desktop-entry-spec
-
-    """
-
-    if desktop=="kde":
-       file_browser = "kfmclient openURL"
-    if desktop=='gnome2':
-       file_browser = "nautilus"
-
-    # PyLab (IPython)
-    bin_dir = os.path.join(sys.prefix, "bin")
-    make_desktop_entry(type='Application', name='PyLab (IPython)',
-        comment='PyLab in an IPython shell',
-        exe=os.path.join(bin_dir, "ipython") + " -pylab", terminal='true',
-        menu_dir=enthought_dir)
-
-    # Mayavi
-    make_desktop_entry(type='Application', name='Mayavi',
-        comment='Envisage plugin for 3D visualization',
-        exe=os.path.join(bin_dir, "mayavi2"), terminal='false',
-        menu_dir=enthought_dir)
-
-    # Documentation
-    docs_dir = os.path.join(sys.prefix, "Docs")
-    import webbrowser
-    docs_exe = "%s %s " % (webbrowser.get().name, os.path.join(docs_dir,
-        "index.html"))
-    make_desktop_entry(type='Application', name='Documentation (HTML)',
-        comment='EPD Documentation', exe=docs_exe, terminal='false',
-        menu_dir=enthought_dir)
-
-    # Examples
-    examples_dir = os.path.join(sys.prefix, "Examples")
-    examples_folder = os.path.join(enthought_dir, 'Examples')
-    if not os.path.exists(examples_folder):
-        os.mkdir(examples_folder)
-    for dir in os.listdir(examples_dir):
-        make_desktop_entry(type='Application', name=dir, comment=dir,
-            exe="%s %s" % (file_browser, os.path.join(examples_dir, dir)),
-            terminal='false', menu_dir=examples_folder,
-            categories="Enthought;Examples;")
-
-    return
-
 
 

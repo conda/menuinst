@@ -12,7 +12,11 @@ def filesystem_escape(name):
 
     """
 
-    return name.replace(' ', '_').replace('(', '-').replace(')', '-')
+    # Replace spaces, periods, and parenthesis with underscores.
+    result = name.replace(' ', '_').replace('.', '_').replace('(', '_'). \
+        replace(')', '_')
+
+    return result
 
 
 def make_desktop_entry(type, name, comment, exe, terminal, location,
@@ -78,7 +82,7 @@ Comment=%s
     # Ensure we have a filepath for the .directory file.
     if filename is None:
         filename = filesystem_escape(name)
-    filename = os.path.abspath(os.path.join(location, filename))
+    filename = os.path.join(location, '%s.directory' % filename)
 
     # Create the desktop entry file.
     f = open(filename, "w")
