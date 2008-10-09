@@ -2,17 +2,21 @@
 # All rights reserved.
 
 
-import os
 import platform
-import sys
 import warnings
 
 
-def install_application_menu(menus, shortcuts, install_mode='user'):
+def install(menus, shortcuts, install_mode='user'):
     """
-    Creates application shortcuts for an installation.
+    Install an application menu according to the specified mode.
 
-    Shortcuts will be created for both Gnome and KDE if they're both available.
+    This call is meant to work on all platforms.  If done on Linux, the menu
+    will be installed to both Gnome and KDE desktops if they're available.
+
+    Note that the information required is sufficient to install application
+    menus on systems that follow the format of the Desktop Entry Specification
+    by freedesktop.org.  See:
+            http://freedesktop.org/Standards/desktop-entry-spec
 
     menus: A list of menu descriptions that will be added/merged into the OS's
         application menu.   A menu description is a dictionary containing the
@@ -35,19 +39,25 @@ def install_application_menu(menus, shortcuts, install_mode='user'):
     shortcuts: A list of shortcut specifications to be created within the
         previously specified menus.   A shortcut specification is a dictionary
         consisting of the following keys and values:
-            categories: The menu categories this shortcut should appear in.  We
-                only support your own menus at this time due to cross-platform
-                issues.
+            categories: A list of the menu categories this shortcut should
+                appear in.  We only support your own menus at this time due to
+                cross-platform difficulties with identifying "standard"
+                locations.
             cmd: A list of strings where the first item in the list is the
                 executable command and the other items are arguments to be
                 passed to that command.   Each argument should be a separate
-                item in the list.
+                item in the list.   Note that you can use the special text
+                '{{FILEBROWSER}}' within the first argument to specify that
+                the command should use the local file browser command. (It
+                differs per desktop, OS, etc.)
             comment: A description for the shortcut.
             name: The display name for the shortcut.
             terminal: A boolean value representing whether the shortcut should
                 run within a shell / terminal.
     install_mode: should be either 'user' or 'system' and controls where the
         menus and shortcuts are installed on the system, depending on platform.
+
+    FIXME: We need to add icon support.
 
     """
 
@@ -58,7 +68,8 @@ def install_application_menu(menus, shortcuts, install_mode='user'):
         return
 
     # Determine our current platform and version.  This needs to distinguish
-    # between different Linux distributions and versions.
+    # between, not only different OSes, but also different OS flavors
+    # (i.e Linux distributions) and versions of OSes.
     PLAT, PVER = platform.dist()[:2]
     if PLAT.lower().startswith('redhat'):
         PLAT = 'rhel'
@@ -67,17 +78,17 @@ def install_application_menu(menus, shortcuts, install_mode='user'):
 
     # Dispatch for RedHat 3.
     if PLAT=='rhel' and PVER=='3':
-        from appinst.shortcuts.rh3 import install_application_menu
-        create_application_menu(menus, shortcuts, install_mode)
+        from appinst.platforms.rh3 import RH3
+        RH3().install_application_menus(menus, shortcuts, install_mode)
 
     # Dispatch for RedHat 4.
     elif PLAT == 'rhel' and PVER == '4':
-        from appinst.shortcuts.rh4 import install_application_menu
+        from appinst.platforms.rh4 import install_application_menu
         create_application_menu(menus, shortcuts, install_mode)
 
     # Handle all other platforms with a warning until we implement for them.
     else:
         warnings.warn('Unknown platform (%s) and version (%s). Unable '
-            'to create shortcuts.' % (PLAT, PVER))
+            'to create application menu(s).' % (PLAT, PVER))
 
     return
