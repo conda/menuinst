@@ -88,32 +88,23 @@ class RH3(object):
         """
 
         for spec in shortcuts:
+            dict = spec.copy()
 
-            # Format the command for use in a .desktop file where it must be a
-            # single string.  Also, replace any FILEBROWSER placeholders in the
-            # spec's command.
+            # Replace any 'FILEBROWSER' placeholder in the command with the
+            # specified value.
             cmd = spec['cmd']
             cmd[0] = cmd[0].replace('{{FILEBROWSER}}', filebrowser)
-            cmd = ' '.join(cmd)
+            dict['cmd'] = cmd
 
-            # Create the category string to be included in the desktop entry.
-            categories = ';'.join(spec['categories'])
+            # Remove the categories if they weren't desired.
             if not write_categories:
-                categories = None
+                del dict['categories']
 
             # Handle the situation where the shortcut is supposed to be in
             # multiple categories.
             for category in spec['categories']:
-                location = category_map[category]
-                make_desktop_entry(
-                    type = 'Application',
-                    name = spec['name'],
-                    comment = spec.get('comment', ''),
-                    exe = cmd,
-                    terminal = str(spec.get('terminal', False)).lower(),
-                    location = location,
-                    categories = categories,
-                    )
+                dict['location'] = category_map[category]
+                make_desktop_entry(dict)
 
         return
 
@@ -191,9 +182,9 @@ class RH3(object):
             # Create a directory entry file for the current menu.  Because we
             # put all these directly in the vfolder_dir, we base the filename
             # off the category which is more likely to be unique.
-            dir_entry_name = '%s' % filesystem_escape(category)
-            make_directory_entry(name, '', vfolder_dir, filename=dir_entry_name)
-            fs_dir_entry_name = '%s.directory' % dir_entry_name
+            entry_name = os.path.basename(make_directory_entry(
+                {'name': name, 'location': vfolder_dir,
+                'filename': '%s' % filesystem_escape(category)}))
 
             # Ensure a Folder element exists for the current menu.
             for element in parent_element.findall('Folder'):
@@ -203,8 +194,7 @@ class RH3(object):
             else:
                 cur_element = ElementTree.SubElement(parent_element, 'Folder')
             self._ensure_child_element(cur_element, 'Name', name)
-            self._ensure_child_element(cur_element, 'Directory',
-                fs_dir_entry_name)
+            self._ensure_child_element(cur_element, 'Directory', entry_name)
             query_element = self._ensure_child_element(cur_element, 'Query')
             and_element = self._ensure_child_element(query_element, 'And')
             self._ensure_child_element(and_element, 'Keyword', category)
@@ -282,6 +272,7 @@ class RH3(object):
             menu should be generated wtihin.
 
         """
+
         # Safety check to ensure the share dir actually exists.
         if not os.path.exists(share_dir):
             raise ShortcutCreationError('No %s directory found' % share_dir)

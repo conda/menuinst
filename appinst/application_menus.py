@@ -51,6 +51,10 @@ def install(menus, shortcuts, install_mode='user'):
                 the command should use the local file browser command. (It
                 differs per desktop, OS, etc.)
             comment: A description for the shortcut.
+            id: A string that can be used to represent the resources needed to
+                represent the shortcut.  i.e. on Linux, the id is used for the
+                name of the '.desktop' file.  If no id is provided, the name
+                is lowercased and used as the id.
             name: The display name for the shortcut.
             terminal: A boolean value representing whether the shortcut should
                 run within a shell / terminal.
@@ -83,8 +87,8 @@ def install(menus, shortcuts, install_mode='user'):
 
     # Dispatch for RedHat 4.
     elif PLAT == 'rhel' and PVER == '4':
-        from appinst.platforms.rh4 import install_application_menu
-        create_application_menu(menus, shortcuts, install_mode)
+        from appinst.platforms.rh4 import RH4
+        RH4().install_application_menus(menus, shortcuts, install_mode)
 
     # Handle all other platforms with a warning until we implement for them.
     else:

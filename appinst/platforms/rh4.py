@@ -5,284 +5,286 @@
 import os
 import shutil
 import sys
-from xml.etree import ElementTree
+import warnings
+import xml.etree.ElementTree as et
 
-from appinst.shortcuts.shortcut_creation_error import ShortcutCreationError
-from appinst.shortcuts.util import make_directory_entry
+from appinst.platforms.freedesktop import (filesystem_escape,
+    make_desktop_entry, make_directory_entry)
+from appinst.platforms.shortcut_creation_error import ShortcutCreationError
 
 
-def _add_menu_links(menus, shortcuts, enthought_dir, desktop):
+class RH4(object):
     """
-    Create the application links needed by EPD.
-
-    This function creates application short-cuts for the desired layout of the
-    Enthought menu in EPD.  It assumes that application short-cuts follow the
-    format of the Desktop Entry Specification by freedesktop.org.  See:
-        http://freedesktop.org/Standards/desktop-entry-spec
+    A class for application installation operations on RH3.
 
     """
 
-    if desktop=="kde":
-       file_browser = "kfmclient openURL"
-    if desktop=='gnome2':
-       file_browser = "nautilus"
-
-    # PyLab (IPython)
-    bin_dir = os.path.join(sys.prefix, "bin")
-    make_desktop_entry(type='Application', name='PyLab (IPython)',
-        comment='PyLab in an IPython shell',
-        exe=os.path.join(bin_dir, "ipython") + " -pylab", terminal='true',
-        menu_dir=enthought_dir)
-
-    # Mayavi
-    make_desktop_entry(type='Application', name='Mayavi',
-        comment='Envisage plugin for 3D visualization',
-        exe=os.path.join(bin_dir, "mayavi2"), terminal='false',
-        menu_dir=enthought_dir)
-
-    # Documentation
-    docs_dir = os.path.join(sys.prefix, "Docs")
-    import webbrowser
-    docs_exe = "%s %s " % (webbrowser.get().name, os.path.join(docs_dir,
-        "index.html"))
-    make_desktop_entry(type='Application', name='Documentation (HTML)',
-        comment='EPD Documentation', exe=docs_exe, terminal='false',
-        menu_dir=enthought_dir)
+    #==========================================================================
+    # Public API methods
+    #==========================================================================
 
-    # Examples
-    examples_dir = os.path.join(sys.prefix, "Examples")
-    examples_folder = os.path.join(enthought_dir, 'Examples')
-    if not os.path.exists(examples_folder):
-        os.mkdir(examples_folder)
-    for dir in os.listdir(examples_dir):
-        make_desktop_entry(type='Application', name=dir, comment=dir,
-            exe="%s %s" % (file_browser, os.path.join(examples_dir, dir)),
-            terminal='false', menu_dir=examples_folder,
-            categories="Enthought;Examples;")
+    def install_application_menus(self, menus, shortcuts, mode):
+        """
+        Install application menus according to the install mode.
 
-    return
+        We install into both KDE and Gnome desktops.  If the mode isn't
+        exactly 'system', a user install is done.
 
+        """
 
+        # Try installing KDE shortcuts.
+        try:
+            if mode == 'system':
+                self._install_kde_system_application_menus(menus, shortcuts)
+            else:
+                self._install_kde_user_application_menus(menus, shortcuts)
+        except ShortcutCreationError, ex:
+            warnings.warn(ex.message)
 
-#############################################################################
-# KDE-specific methods
-#############################################################################
-
-def _create_kde_shortcuts(share_dir, callback):
-    """
-    Create KDE shortcuts in the specified share dir.
-
-    The specified callback is called once we know what directory to create
-    links within.
-
-    """
-
-    # Safety check to ensure the share dir actually exists.
-    if not os.path.exists(share_dir):
-        raise ShortcutCreationError('No %s directory found' % share_dir)
-
-    # Find applnk directory.
-    # FIXME: We should be using the 'kde-config' command to find either the
-    # paths where it looks for 'apps' resources (i.e. kde-config --path apps)
-    # or to get the prefix to install resource files to.
-    # (i.e. kde-config --install apps)
-    applnk_dir = None
-    for dir in os.listdir(share_dir):
-        if dir.startswith("applnk"):
-            applnk_dir = os.path.join(share_dir, dir)
-    if applnk_dir is None:
-        raise ShortcutCreationError('Cannot find KDE applnk directory')
-
-    # Ensure a top-level Enthought folder exists, then create the menu links
-    # in it by calling the callback method.
-    enthought_dir = os.path.join(applnk_dir, "Enthought")
-    if not os.path.exists(enthought_dir):
-        os.mkdir(enthought_dir)
-    callback(enthought_dir, 'kde')
-
-    # Force the menus to refresh.
-    os.system('kbuildsycoca')
-
-    return
-
-
-def system_kde(callback):
-    """
-    Creates the sytem KDE shortcuts
-
-    The specified callback is called once we know what directory to create
-    links within.
-
-    """
-
-    _create_kde_shortcuts('/usr/share', callback)
-
-    return
-
-
-def user_kde(callback):
-    """
-    Creates the user KDE shortcuts
-
-    The specified callback is called once we know what directory to create
-    links within.
-
-    """
-
-    # Check if the user uses KDE by checking if the '.kde/share' dir exists
-    share_dir = os.path.abspath(os.path.join(os.path.expanduser('~'), '.kde',
-        'share'))
-    if not os.path.exists(share_dir):
-        raise ShortcutCreationError('No user .kde directory found')
-
-    # Create our shortcuts under the share dir.
-    _create_kde_shortcuts(share_dir, callback)
-
-    return
-
-
-#############################################################################
-# Gnome2-specific methods
-#############################################################################
-
-def _create_gnome_shortcuts(vfolder_dir, apps_vfolder, callback):
-    """
-    Create Gnome2 shortcuts in the specified location.
-
-    The specified callback is called once we know what directory to create
-    links within.
-
-    vfolder_dir: Location to place .directory files
-    apps_vfolder: Configuration file; either applications.menu or
-        applications.vfolder-info file
-    """
-
-    app_vfolder_tree = ElementTree.parse(apps_vfolder)
-    app_vfolder_root = app_vfolder_tree.getroot()
-
-    # Create MergeDirs but only after we clean up from any previous install by
-    # deleteing existing MergeDirs.
-    enthought_vfolder_dir = os.path.abspath(os.path.join(vfolder_dir,
-        'Enthought'))
-    for element in app_vfolder_root.findall('MergeDir'):
-        if element.text == enthought_vfolder_dir:
-            app_vfolder_root.getchildren().remove(element)
-    merge_dir_element = ElementTree.SubElement(app_vfolder_root, 'MergeDir')
-    merge_dir_element.text = os.path.abspath(enthought_vfolder_dir)
-
-    # Find the location for the Enthought folder.   Clean out any previous
-    # content there.
-    applications_folder_element = None
-    for element in app_vfolder_root.findall('Folder'):
-        if element.find('Name').text == 'Applications':
-            applications_folder_element = element
-            break
-    if applications_folder_element is None:
-        raise ShortcutCreationMenu('Cannot find Gnome applications menu')
-    for element in applications_folder_element.findall('Folder'):
-        if element.find('Name').text == 'Enthought':
-            applications_folder_element.getchildren().remove(element)
-            break
-
-    # Add the Enthought Folder
-    enthought_dir_element = ElementTree.SubElement(applications_folder_element,
-        'Folder')
-    ElementTree.SubElement(enthought_dir_element, 'Name').text = 'Enthought'
-    ElementTree.SubElement(enthought_dir_element, 'Directory').text = \
-        'Enthought.directory'
-    query_element = ElementTree.SubElement(enthought_dir_element, 'Query')
-    and_element = ElementTree.SubElement(query_element, 'And')
-    ElementTree.SubElement(and_element, 'Keyword').text = 'Enthought'
-    not_element = ElementTree.SubElement(and_element, 'Not')
-    ElementTree.SubElement(not_element, 'Keyword').text = 'Demo'
-
-    # Add the demo sub-menu
-    demo_dir_element = ElementTree.SubElement(enthought_dir_element, 'Folder')
-    ElementTree.SubElement(demo_dir_element, 'Name').text = 'Demos'
-    ElementTree.SubElement(demo_dir_element, 'Directory').text = \
-        'Enthought-demos.directory'
-    query_element = ElementTree.SubElement(demo_dir_element, 'Query')
-    and_element = ElementTree.SubElement(query_element, 'And')
-    ElementTree.SubElement(and_element, 'Keyword').text = 'Enthought'
-    ElementTree.SubElement(and_element, 'Keyword').text = 'Demo'
-
-    # We are done with the vfolder, write it back out
-    app_vfolder_tree.write(apps_vfolder)
-
-    # make the .directory files
-    make_directory_entry("Enthought", "", vfolder_dir)
-    make_directory_entry("Enthought-demos", "", vfolder_dir)
-
-    # make the .desktop files in the new directory
-    if not os.path.exists(enthought_vfolder_dir):
-        os.mkdir(enthought_vfolder_dir)
-
-    callback(enthought_vfolder_dir, "gnome2")
-
-    return
-
-
-def system_gnome(callback):
-    """
-    Creates the sytem Gnome2 shortcuts
-
-    The specified callback is called once we know what directory to create
-    links within.
-
-    """
-
-    # Ensure the folder directory exists.
-    vfolder_dir = '/usr/share/desktop-menu-files'
-    if not os.path.exists(vfolder_dir):
-        raise ShortcutCreationError('Could not find %s' % vfolder_dir)
-
-    # Ensure the applications menu exists.
-    apps_vfolder = '/etc/X11/desktop-menus/applications.menu'
-    if not os.path.exists(apps_vfolder):
-        raise ShortcutCreationError('Could not find %s' % apps_vfolder)
-
-    # Create the shortcuts.
-    _create_gnome_shortcuts(vfolder_dir, apps_vfolder, callback)
-
-    return
-
-
-def user_gnome(callback):
-    """
-    Creates the user Gnome2 shortcuts
-
-    The specified callback is called once we know what directory to create
-    links within.
-
-    """
-
-    # Check if the user uses Gnome by checking if the '.gnome2' dir exists
-    gnome_dir = os.path.abspath(os.path.join(os.path.expanduser("~"),
-        ".gnome2"))
-    if not os.path.exists(gnome_dir):
-        raise ShortcutCreationError('No user .gnome2 directory found')
-
-    # Make sure a folders directory exists.
-    vfolder_dir = os.path.join(gnome_dir, "vfolders")
-    if not os.path.exists(vfolder_dir):
-        os.mkdir(vfolder_dir)
-
-    # Ensure an application folder exists, creating one if it didn't already
-    # exist.
-    apps_vfolder = os.path.join(vfolder_dir, 'applications.vfolder-info')
-    if not os.path.exists(apps_vfolder):
-        sys_apps_vfolder = '/etc/X11/desktop-menus/applications.menu'
-        if not os.path.exists(sys_apps_vfolder):
-            raise ShortcutCreationError('Cannot find template '
-            '"applications.menu" file to create user apps folder from.')
-        shutil.copyfile(sys_apps_vfolder, apps_vfolder)
-
-    # Create the shortcuts.
-    _create_gnome_shortcuts(vfolder_dir, apps_vfolder, callback)
-
-    return
-
-
-
-if __name__ == "__main__":
-    create_shortcuts()
+        # Try a Gnome install
+        try:
+            if mode == 'system':
+                self._install_gnome_system_application_menus(menus, shortcuts)
+            else:
+                self._install_gnome_user_application_menus(menus, shortcuts)
+        except ShortcutCreationError, ex:
+            warnings.warn(ex.message)
+
+        return
+
+
+    #==========================================================================
+    # Internal API methods
+    #==========================================================================
+
+    def _ensure_child_element(self, parent_element, tag, text=None):
+        """
+        Ensure there is a sub-element of the specified tag type.
+
+        The sub-element is given the specified text content if text is not
+        None.
+
+        The sub-element is returned.
+
+        """
+
+        # Ensure the element exists.
+        element = parent_element.find(tag)
+        if element is None:
+            element = et.SubElement(parent_element, tag)
+
+        # If specified, set its text
+        if text is not None:
+            element.text = text
+
+        return element
+
+
+    def _install_desktop_entry(self, shortcuts, location, filebrowser):
+        """
+        Create a desktop entry for the specified shortcut spec.
+
+        """
+
+        for spec in shortcuts:
+            dict = spec.copy()
+
+            # Replace any 'FILEBROWSER' placeholder in the command with the
+            # specified value.
+            cmd = spec['cmd']
+            cmd[0] = cmd[0].replace('{{FILEBROWSER}}', filebrowser)
+            dict['cmd'] = cmd
+
+            # Store the desired target location for the entry file.
+            dict['location'] = location
+
+            # Make it.
+            make_desktop_entry(dict)
+
+        return
+
+
+    def _install_gnome_application_menus(self, vfolder_dir, vfolder_info, menus,
+         shortcuts):
+        """
+        Create Gnome2 application menus.
+
+        vfolder_dir: the location to place .directory files within.
+        vfolder_info: the configuration file to store the menu info within.
+
+        """
+
+        # FIXME: Finish implementation!
+
+        return
+
+
+    def _install_gnome_system_application_menus(self, menus, shortcuts):
+
+        # FIXME: Finish implementation!
+
+        return
+
+
+    def _install_gnome_user_application_menus(self, menus, shortcuts):
+
+        # FIXME: Finish implementation!
+
+        return
+
+
+    def _install_kde_application_menus(self, datadir, sysconfdir, menus,
+        shortcuts):
+        """
+        Create KDE application menus.
+
+        datadir: the directory that should contain the desktop and directory
+            entries.
+        sysconfdir: the directory that should contain the XML menu files.
+
+        """
+
+        # Safety check to ensure the data and sysconf dirs actually exist.
+        for dir in [datadir, sysconfdir]:
+            if not os.path.exists(dir):
+                raise ShortcutCreationError('Cannot install KDE menus and '
+                    'shortcuts due to missing directory: %s' % dir)
+
+        # Ensure the three directories we're going to write menu and shortcut
+        # resources to all exist.
+        for dirs in [[sysconfdir, 'menus', 'applications-merged'], [datadir,
+            'applications'], [datadir, 'desktop-directories']]:
+            for i in xrange(1, len(dirs)+1):
+                cur_dirs = dirs[:i]
+                dir = os.path.join(*cur_dirs)
+                if not os.path.isdir(dir):
+                    os.mkdir(dir)
+
+        # Create a menu file for just the top-level menus.  Later on, we will
+        # add the sub-menus to them, which means we need to record where each
+        # one was on the disk, plus its tree (to be able to write it), plus the
+        # parent menu element.
+        # FIXME: xml.etree doesn't seem to support preserving or setting of
+        # DOCTYPE.   We may have to switch to a different xml lib?
+        menu_dir = os.path.join(sysconfdir, 'menus', 'applications-merged')
+        menu_map = {}
+        for menu_spec in menus:
+            menu_file = os.path.join(menu_dir, '%s.menu' % menu_spec['id'])
+
+            # Ensure any existing version is a file.
+            if os.path.exists(menu_file) and not os.path.isfile(menu_file):
+                shutil.rmtree(menu_file)
+
+            # Ensure any existing file is actually a menu file.
+            if os.path.isfile(menu_file):
+                try:
+                    tree = et.parse(menu_file)
+                    root = tree.getroot()
+                    if root is None or root.tag != 'Menu':
+                        raise Exception('Not a menu file')
+                except:
+                    os.remove(menu_file)
+
+            # Create a new menu file if one doesn't yet exist.
+            if not os.path.exists(menu_file):
+                root = et.XML('<Menu/>')
+                tree = et.ElementTree(root)
+                tree.write(menu_file)
+
+            # Record info about the menu file for use when actually creating the
+            # menu records.  We need the path to the file, the tree (so
+            # xml.etree can write to the file), and the parent element to create
+            # our menu data off of.
+            menu_map[id(menu_spec)] = (menu_file, tree, root)
+
+        # Create all menu and sub-menu resources.  Note that the .directory
+        # files all go in the same directory, so to help ensure uniqueness of
+        # filenames we base them on the category, rather than the menu's ID.
+        desktop_dir = os.path.join(datadir, 'desktop-directories')
+        queue = [(menu_spec, '') for menu_spec in menus]
+        while len(queue) > 0:
+            menu_spec, parent_category = queue.pop(0)
+
+            # Create the category string for this menu.
+            category = menu_spec.get('category',
+                menu_spec.get('id').capitalize())
+            if len(parent_category) > 1:
+                category = '%s.%s' % (parent_category, category)
+
+            # Create the .directory entry file and record what it's name was
+            # for our later use.
+            dict = menu_spec.copy()
+            dict['location'] = desktop_dir
+            dict['filename'] = filesystem_escape(category)
+            entry_path = make_directory_entry(dict)
+            entry_filename = os.path.basename(entry_path)
+
+            # Ensure the menu file documents this menu.  We do this by updating
+            # any existing menu of the same name.
+            name = menu_spec['name']
+            menu_file, tree, parent_element = menu_map[id(menu_spec)]
+            for element in parent_element.findall('Menu'):
+                if element.find('Name').text == name:
+                    menu_element = element
+                    break
+            else:
+                menu_element = et.SubElement(parent_element, 'Menu')
+            self._ensure_child_element(menu_element, 'Name', name)
+            self._ensure_child_element(menu_element, 'Directory',
+                entry_filename)
+            include_element = self._ensure_child_element(menu_element,
+                'Include')
+            self._ensure_child_element(include_element, 'Category', category)
+            tree.write(menu_file)
+
+            # Add any child sub-menus onto the queue.
+            for child_spec in menu_spec.get('sub-menus', []):
+                menu_map[id(child_spec)] = (menu_file, tree, menu_element)
+                queue.append((child_spec, category))
+
+        # Write out any shortcuts
+        location = os.path.join(datadir, 'applications')
+        file_browser = "kfmclient openURL"
+        self._install_desktop_entry(shortcuts, location, file_browser)
+
+        # Force the menus to refresh.
+        retcode = os.system('kbuildsycoca')
+        if retcode != 0:
+            raise ShortcutCreationError('Unable to rebuild KDE desktop.  '
+                'Application mmenu may not have been installed correctly.')
+
+        return
+
+
+    def _install_kde_system_application_menus(self, menus, shortcuts):
+
+        datadir = '/usr/share'
+        sysconfdir = '/etc/xdg'
+
+        return self._install_kde_application_menus(datadir, sysconfdir, menus,
+            shortcuts)
+
+
+    def _install_kde_user_application_menus(self, menus, shortcuts):
+
+        # Prefer env variable specifications over default values.  The
+        # environment variable names are per the Desktop Menu Specification
+        # at:
+        #     http://standards.freedesktop.org/menu-spec/latest/apcs02.html
+        datadir = os.environ.get('XDG_DATA_HOME', os.path.abspath(
+            os.path.join(os.path.expanduser('~'), '.local', 'share')))
+        sysconfdir = os.environ.get('XDG_CONFIG_HOME', os.path.abspath(
+            os.path.join(os.path.expanduser('~'), '.config')))
+
+        # Make sure the target directories exist.
+        for dir in [datadir, sysconfdir]:
+            if not os.path.isdir(dir):
+                if os.path.isfile(dir):
+                    os.remove(dir)
+                os.makedirs(dir)
+
+        # Create our shortcuts.
+        return self._install_kde_application_menus(datadir, sysconfdir, menus,
+            shortcuts)
+
+
