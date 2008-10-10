@@ -32,21 +32,14 @@ class RH4(object):
 
         """
 
-        # Try installing KDE shortcuts.
-        try:
-            if mode == 'system':
-                self._install_kde_system_application_menus(menus, shortcuts)
-            else:
-                self._install_kde_user_application_menus(menus, shortcuts)
-        except ShortcutCreationError, ex:
-            warnings.warn(ex.message)
+        # NOTE: Our installation mechanism works for both KDE and Gnome as
+        # shipped with RH 4.
 
-        # Try a Gnome install
         try:
             if mode == 'system':
-                self._install_gnome_system_application_menus(menus, shortcuts)
+                self._install_system_application_menus(menus, shortcuts)
             else:
-                self._install_gnome_user_application_menus(menus, shortcuts)
+                self._install_user_application_menus(menus, shortcuts)
         except ShortcutCreationError, ex:
             warnings.warn(ex.message)
 
@@ -80,63 +73,10 @@ class RH4(object):
         return element
 
 
-    def _install_desktop_entry(self, shortcuts, location, filebrowser):
-        """
-        Create a desktop entry for the specified shortcut spec.
-
-        """
-
-        for spec in shortcuts:
-            dict = spec.copy()
-
-            # Replace any 'FILEBROWSER' placeholder in the command with the
-            # specified value.
-            cmd = spec['cmd']
-            cmd[0] = cmd[0].replace('{{FILEBROWSER}}', filebrowser)
-            dict['cmd'] = cmd
-
-            # Store the desired target location for the entry file.
-            dict['location'] = location
-
-            # Make it.
-            make_desktop_entry(dict)
-
-        return
-
-
-    def _install_gnome_application_menus(self, vfolder_dir, vfolder_info, menus,
-         shortcuts):
-        """
-        Create Gnome2 application menus.
-
-        vfolder_dir: the location to place .directory files within.
-        vfolder_info: the configuration file to store the menu info within.
-
-        """
-
-        # FIXME: Finish implementation!
-
-        return
-
-
-    def _install_gnome_system_application_menus(self, menus, shortcuts):
-
-        # FIXME: Finish implementation!
-
-        return
-
-
-    def _install_gnome_user_application_menus(self, menus, shortcuts):
-
-        # FIXME: Finish implementation!
-
-        return
-
-
-    def _install_kde_application_menus(self, datadir, sysconfdir, menus,
+    def _install_application_menus(self, datadir, sysconfdir, menus,
         shortcuts):
         """
-        Create KDE application menus.
+        Create application menus.
 
         datadir: the directory that should contain the desktop and directory
             entries.
@@ -147,7 +87,7 @@ class RH4(object):
         # Safety check to ensure the data and sysconf dirs actually exist.
         for dir in [datadir, sysconfdir]:
             if not os.path.exists(dir):
-                raise ShortcutCreationError('Cannot install KDE menus and '
+                raise ShortcutCreationError('Cannot install menus and '
                     'shortcuts due to missing directory: %s' % dir)
 
         # Ensure the three directories we're going to write menu and shortcut
@@ -250,22 +190,46 @@ class RH4(object):
         # Force the menus to refresh.
         retcode = os.system('kbuildsycoca')
         if retcode != 0:
-            raise ShortcutCreationError('Unable to rebuild KDE desktop.  '
+            raise ShortcutCreationError('Unable to rebuild desktop.  '
                 'Application mmenu may not have been installed correctly.')
 
         return
 
 
-    def _install_kde_system_application_menus(self, menus, shortcuts):
+    def _install_desktop_entry(self, shortcuts, location, filebrowser):
+        """
+        Create a desktop entry for the specified shortcut spec.
+
+        """
+
+        for spec in shortcuts:
+            dict = spec.copy()
+
+            # Replace any 'FILEBROWSER' placeholder in the command with the
+            # specified value.
+            cmd = spec['cmd']
+            cmd[0] = cmd[0].replace('{{FILEBROWSER}}', filebrowser)
+            dict['cmd'] = cmd
+
+            # Store the desired target location for the entry file.
+            dict['location'] = location
+
+            # Make it.
+            make_desktop_entry(dict)
+
+        return
+
+
+    def _install_system_application_menus(self, menus, shortcuts):
 
         datadir = '/usr/share'
         sysconfdir = '/etc/xdg'
 
-        return self._install_kde_application_menus(datadir, sysconfdir, menus,
+        return self._install_application_menus(datadir, sysconfdir, menus,
             shortcuts)
 
 
-    def _install_kde_user_application_menus(self, menus, shortcuts):
+    def _install_user_application_menus(self, menus, shortcuts):
 
         # Prefer env variable specifications over default values.  The
         # environment variable names are per the Desktop Menu Specification
@@ -284,7 +248,7 @@ class RH4(object):
                 os.makedirs(dir)
 
         # Create our shortcuts.
-        return self._install_kde_application_menus(datadir, sysconfdir, menus,
+        return self._install_application_menus(datadir, sysconfdir, menus,
             shortcuts)
 
 
