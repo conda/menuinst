@@ -1,0 +1,16 @@
+-----------------------------------------------------------------------------
+This file contains a log of significant changes made to the project
+especially API changes.  The log refers to changesets in the trac format
+[#revno], for example to view the changeset [18702] use the following
+URL:
+    https://svn.enthought.com/enthought/changeset/18702
+-----------------------------------------------------------------------------
+
+10 October, 2008 (DP):
+    - API: Finished refactoring that created the application_menus.py module
+        which allows data-driven creation of application menus for both KDE
+        and Gnome on RH3, RH4, and probably other modern Linux distributions.
+        The RH4 implementation creates application menu files that conform to
+        FreeDesktop.org's Desktop Menu Specification 1.0.  Though users may
+        need to modify the application_menus.py module to get it to try that
+        implementation on another distribution or version. [22265]
