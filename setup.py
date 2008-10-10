@@ -36,7 +36,7 @@ setup(
     namespace_packages = [],
     packages = find_packages(),
     package_data = {"appinst" : ["*.txt"], },
-    version = "1.2.3",
+    version = "2.0.0",
     url = "http://www.python.org/sigs/distutils-sig",
     zip_safe = False,
     )
