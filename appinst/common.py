@@ -364,7 +364,7 @@ def add_shortcut(target,description,link_file,*args,**kw):
     if not os.path.isfile(link_file):
         try:
             appinst.create_shortcut(target, description, link_file,*args,**kw)
-            file_created(link_file)
+            appinst.file_created(link_file)
         except:
             print "shortcut not created, appinst module probably missing"        
 
