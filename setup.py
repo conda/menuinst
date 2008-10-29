@@ -12,8 +12,8 @@ if sys.platform == "win32":
                 "comdlg32", "advapi32", "shell32", "ole32", "oleaut32",
                 "uuid", "odbc32", "odbccp32"]
 
-    extensions = [Extension( "appinst.appinst",
-                             sources = ["appinst/appinst.c"],
+    extensions = [Extension( "appinst.platforms.wininst",
+                             sources = ["appinst/platforms/wininst.c"],
                              include_dirs = ["appinst"],
                              libraries = win_libs,
                              )]
