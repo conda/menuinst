@@ -90,6 +90,11 @@ def install(menus, shortcuts, install_mode='user'):
         from appinst.platforms.rh4 import RH4
         RH4().install_application_menus(menus, shortcuts, install_mode)
 
+    # Dispatch for Windows
+    elif platform.system().lower() == 'windows':
+        from appinst.platforms.win32 import win32
+        win32.install_application_menus(menus, shortcuts)
+
     # Handle all other platforms with a warning until we implement for them.
     else:
         warnings.warn('Unknown platform (%s) and version (%s). Unable '
