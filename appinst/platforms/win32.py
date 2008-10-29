@@ -31,7 +31,7 @@ class Win32(object):
     # Internal API methods
     #==========================================================================
 
-    def _install_application_menus(menus, shortcuts):
+    def _install_application_menus(self, menus, shortcuts):
         # This determines where the shortcuts will go by checking it the install
         # was for 'All Users' or not
         dir_path = common.get_programs_start_menu()
