@@ -62,8 +62,8 @@ class win32(object):
             for mapped_category in shortcut['categories']:
                 cmd = shortcut['cmd']
                 args = []
-                # The FILEBROWSER placeholder is linux-specific, so it can be removed
-                # and the '' is the result of getwebbrowser
+                # The FILEBROWSER placeholder is linux-specific, so it can be 
+                # removed and the '' is the result of getwebbrowser
                 if cmd[0] == '{{FILEBROWSER}}' or cmd[0] == '':
                     del cmd[0]
                 # In case the command has arguements, e.g. ipython -pylab
@@ -71,5 +71,6 @@ class win32(object):
                     args = cmd[1:]
                 target_name = os.path.basename(cmd[0])
                 common.add_shortcut(cmd[0], shortcut['comment'],
-                    os.path.join(category_map[mapped_category], target_name + ".lnk"),
+                    os.path.join(category_map[mapped_category],
+                        target_name + ".lnk"),
                     *args)
