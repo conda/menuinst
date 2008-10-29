@@ -1,6 +1,7 @@
 from appinst import common
 import os
 import sys
+from appinst.platforms.shortcut_creation_error import ShortcutCreationError
 
 class Win32(object):
     """
@@ -62,8 +63,11 @@ class Win32(object):
             for mapped_category in shortcut['categories']:
                 cmd = shortcut['cmd']
                 args = []
-                # The FILEBROWSER placeholder is linux-specific, so it can be 
-                # removed and the '' is the result of getwebbrowser
+                # Windows explorer is automatically launched when a folder link
+                # is selected, so {{FILEBROWSER}} (which specifies the file
+                # manager on linux) can be removed.
+                # There is also a webbrowser check which returns '' on windows,
+                # so we should check for that as well.
                 if cmd[0] == '{{FILEBROWSER}}' or cmd[0] == '':
                     del cmd[0]
                 # In case the command has arguements, e.g. ipython -pylab
