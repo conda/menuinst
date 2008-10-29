@@ -2,7 +2,7 @@ from appinst import common
 import os
 import sys
 
-class win32(object):
+class Win32(object):
     """
     A class for application installation operations on windows.
 

@@ -92,8 +92,8 @@ def install(menus, shortcuts, install_mode='user'):
 
     # Dispatch for Windows
     elif platform.system().lower() == 'windows':
-        from appinst.platforms.win32 import win32
-        win32.install_application_menus(menus, shortcuts)
+        from appinst.platforms.win32 import Win32
+        Win32().install_application_menus(menus, shortcuts)
 
     # Handle all other platforms with a warning until we implement for them.
     else:
