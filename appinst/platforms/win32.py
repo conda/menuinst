@@ -1,4 +1,4 @@
-from appinst import common
+import appinst.platforms.win32_common as common
 import os
 import sys
 from appinst.platforms.shortcut_creation_error import ShortcutCreationError
@@ -13,15 +13,18 @@ class Win32(object):
     # Public API methods
     #==========================================================================
 
-    def install_application_menus(self, menus, shortcuts):
+    def install_application_menus(self, menus, shortcuts, mode):
         """
-        Install application menus. Install mode is determined by the 
-        common module.
+        Install application menus.
 
         """
 
         try:
-            self._install_application_menus(menus, shortcuts)
+            if mode == 'system':
+                start_menu = common._get_all_users_programs_start_menu()
+            else:
+                start_menu = common._get_current_user_programs_start_menu()
+            self._install_application_menus(menus, shortcuts, start_menu)
         except ShortcutCreationError, ex:
             warnings.warn(ex.message)
 
@@ -31,11 +34,8 @@ class Win32(object):
     # Internal API methods
     #==========================================================================
 
-    def _install_application_menus(self, menus, shortcuts):
-        # This determines where the shortcuts will go by checking it the install
-        # was for 'All Users' or not
-        dir_path = common.get_programs_start_menu()
-
+    def _install_application_menus(self, menus, shortcuts, start_menu):
+        dir_path = start_menu
         queue = [(menu_spec, '') for menu_spec in menus]
         category_map = {}
         while len(queue) > 0:
