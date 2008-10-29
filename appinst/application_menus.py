@@ -93,7 +93,7 @@ def install(menus, shortcuts, install_mode='user'):
     # Dispatch for Windows, tested on XP only.
     elif platform.system().lower() == 'windows':
         from appinst.platforms.win32 import Win32
-        Win32().install_application_menus(menus, shortcuts)
+        Win32().install_application_menus(menus, shortcuts, install_mode)
 
     # Handle all other platforms with a warning until we implement for them.
     else:
