@@ -90,7 +90,7 @@ def install(menus, shortcuts, install_mode='user'):
         from appinst.platforms.rh4 import RH4
         RH4().install_application_menus(menus, shortcuts, install_mode)
 
-    # Dispatch for Windows
+    # Dispatch for Windows, tested on XP only.
     elif platform.system().lower() == 'windows':
         from appinst.platforms.win32 import Win32
         Win32().install_application_menus(menus, shortcuts)
