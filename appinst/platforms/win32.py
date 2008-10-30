@@ -36,10 +36,10 @@ class Win32(object):
 
     def _install_application_menus(self, menus, shortcuts, start_menu):
         dir_path = start_menu
-        queue = [(menu_spec, '') for menu_spec in menus]
+        queue = [(dir_path, menu_spec, '') for menu_spec in menus]
         category_map = {}
         while len(queue) > 0:
-            menu_spec, parent_category = queue.pop(0)
+            dir_path, menu_spec, parent_category = queue.pop(0)
             
             # Directory name should match the menu name
             dir_path = os.path.join(dir_path, menu_spec['name'])
@@ -58,8 +58,10 @@ class Win32(object):
 
             category_map[category] = dir_path
 
+            # For every sub-menu, append the directory containing the sub-menu,
+            # the sub-menu, spec, and it's category.
             for child_spec in menu_spec.get('sub-menus', []):
-                queue.append((child_spec, category))
+                queue.append((dir_path, child_spec, category))
 
         for shortcut in shortcuts:
             for mapped_category in shortcut['categories']:
