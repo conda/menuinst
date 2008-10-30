@@ -75,14 +75,8 @@ class Win32(object):
                 # In case the command has arguements, e.g. ipython -pylab
                 if len(cmd) > 1:
                     args = cmd[1:]
-                
+
                 target_name = os.path.basename(cmd[0])
-                
-                # The link won't work on executables if we don't ensure that
-                # .exe is appended to the command
-                if os.path.exists(cmd[0] + '.exe') \
-                    and not cmd[0].endswith('.exe'):
-                    cmd[0] = cmd[0] + '.exe'
 
                 # Create the actual link with the following arguments:
                 # path to original file, description, path to link file,

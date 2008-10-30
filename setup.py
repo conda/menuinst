@@ -14,7 +14,7 @@ if sys.platform == "win32":
 
     extensions = [Extension( "appinst.platforms.wininst",
                              sources = ["appinst/platforms/wininst.c"],
-                             include_dirs = ["appinst"],
+                             include_dirs = ["appinst/platforms"],
                              libraries = win_libs,
                              )]
 else:
