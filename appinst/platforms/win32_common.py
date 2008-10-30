@@ -366,24 +366,8 @@ def add_shortcut(target,description,link_file,*args,**kw):
             wininst.create_shortcut(target, description, link_file,*args,**kw)
             wininst.file_created(link_file)
         except:
-            print "shortcut not created, appinst module probably missing"        
+            print "shortcut not created, appinst module probably missing"
 
-def get_enthought_start_menu():
-    """ Find the Enthought menu in the start menu.
-    
-        If the directory does not exist, it will be created.
-    
-        @return path to the Enthought menu in the start menu
-    """
-    
-    programs_menu = get_programs_start_menu()
-    enthought_menu = os.path.join(programs_menu, "Enthought")
-    
-    if not os.path.exists(enthought_menu):
-        os.mkdir(enthought_menu)
-        
-    return enthought_menu
-    
 def get_programs_start_menu():
     """ Find the programs menu in the start menu.
     
