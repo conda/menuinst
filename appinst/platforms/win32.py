@@ -40,25 +40,27 @@ class Win32(object):
         category_map = {}
         while len(queue) > 0:
             menu_spec, parent_category = queue.pop(0)
-        
-            category = menu_spec.get('category',
-                menu_spec.get('id').capitalize())
             
-            dir_path = os.path.join(dir_path, category)
+            # Directory name should match the menu name
+            dir_path = os.path.join(dir_path, menu_spec['name'])
         
             if not os.path.exists(dir_path):
                 os.makedirs(dir_path)
-        
+            
+            # id's of the menus will be mapped to categories of the shortcuts
+            # if no category is present. This determines which directories to
+            # put shortcuts in
+            category = menu_spec.get('category',
+                menu_spec.get('id').capitalize())
+
             if len(parent_category) > 1:
                 category = '%s.%s' % (parent_category, category)
-        
+
             category_map[category] = dir_path
-        
-            name = menu_spec['name']
-        
+
             for child_spec in menu_spec.get('sub-menus', []):
                 queue.append((child_spec, category))
-        
+
         for shortcut in shortcuts:
             for mapped_category in shortcut['categories']:
                 cmd = shortcut['cmd']
@@ -81,7 +83,10 @@ class Win32(object):
                 if os.path.exists(cmd[0] + '.exe') \
                     and not cmd[0].endswith('.exe'):
                     cmd[0] = cmd[0] + '.exe'
-                
+
+                # Create the actual link with the following arguments:
+                # path to original file, description, path to link file,
+                # command-line arguments
                 common.add_shortcut(cmd[0], shortcut['comment'],
                     os.path.join(category_map[mapped_category],
                         target_name + ".lnk"),
