@@ -27,7 +27,10 @@ def fix_easy_install_script(filename, verbose=0, dryrun=False):
     if script_exec_line[:2] == "#!":
         executable = script_exec_line[2:].split()[0]
         executable_lower = executable.lower()
-        if not os.path.exists(executable) and executable_lower.endswith('python'):
+        executable_stripped = executable_lower.strip(os.sep)
+        executable_split = executable_stripped.split(os.sep)
+        if not os.path.exists(executable) and \
+            executable_split[:-1].startswith('python'):
             script_exec_line = "#!%s%s" % (sys.executable, os.linesep)
             file_contents = script_exec_line + file.read()
             file.close()
