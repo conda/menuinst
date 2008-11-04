@@ -89,6 +89,11 @@ def install(menus, shortcuts, install_mode='user'):
     elif PLAT == 'rhel' and PVER == '4':
         from appinst.platforms.rh4 import RH4
         RH4().install_application_menus(menus, shortcuts, install_mode)
+    
+    # Dispatch for OS X
+    elif platform.system().lower() == 'darwin':
+        from appinst.platforms.osx import OSX
+        OSX().install_application_menus(menus, shortcuts, install_mode)
 
     # Dispatch for Windows, tested on XP only.
     elif platform.system().lower() == 'windows':

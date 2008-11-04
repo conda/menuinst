@@ -63,10 +63,7 @@ class OSX(object):
             for child_spec in menu_spec.get('sub-menus', []):
                 queue.append((dir_path, child_spec, category))
 
-        SHELL_SCRIPT ="""
-        #!/bin/sh
-        %s %s
-        """
+        SHELL_SCRIPT ="#!/bin/sh\n%s %s\n"
         
         for shortcut in shortcuts:
             for mapped_category in shortcut['categories']:
@@ -75,33 +72,31 @@ class OSX(object):
                 # Finder is automatically launched when a folder link is 
                 # selected, so {{FILEBROWSER}} (which specifies the file manager
                 # on linux) can be removed.
-                # There is also a webbrowser check which returns '' on windows,
-                # so we should check for that as well.
-                # FIXME: double-check the webbrowser function on OS X
-                if cmd[0] == '{{FILEBROWSER}}' or cmd[0] == '':
+                # There is also a webbrowser check which returns 'default'
+                # OS X, so we should check for that as well.
+                if cmd[0] == '{{FILEBROWSER}}' or cmd[0] == 'default':
                     del cmd[0]
+                
                 # In case the command has arguements, e.g. ipython -pylab
                 if len(cmd) > 1:
                     args = cmd[1:]
                 
-                if os.path.isfile(cmd[0]):
+                # If the file is executable, create a double-clickable shell
+                # script that will execute it
+                if os.path.isfile(cmd[0]) and os.access(cmd[0], os.X_OK):
                     target_name = os.path.basename(cmd[0]) + '.command'
-                    f_script = open(os.path.join(category_map[mapped_category],
-                        target_name, 'w'))
-                    # FIXME: is this the right way to write a list to a file?
-                    f_script.write(SHELL_SCRIPT % (cmd[0], *args))
+                    target_path = os.path.join(category_map[mapped_category],
+                        target_name)
+                    f_script = open(target_path, 'w')
+                    f_script.write(SHELL_SCRIPT % (cmd[0], ' '.join(args)))
                     f_script.close()
-                    # FIXME: use a variable for the file name, not a file handle
-                    os.chmod(f_script, 0755)
+                    os.chmod(target_path, 0755)
                 else:
-                    os.symlink(cmd[0], category[mapped_category])
-
-                # Create the actual link with the following arguments:
-                # path to original file, description, path to link file,
-                # command-line arguments
-
-                
-#                common.add_shortcut(cmd[0], shortcut['comment'],
-#                    os.path.join(category_map[mapped_category],
-#                        target_name + ".lnk"),
-#                    *args)
+                    # It's possible we may only need this section. Symlinks to
+                    # executable scripts are double-clickable on 10.5, although
+                    # there would be no way to figure out custom icons.
+                    target_name = os.path.basename(cmd[0])
+                    target_path = os.path.join(category_map[mapped_category],
+                        target_name)
+                    if not os.path.exists(target_path):
+                        os.symlink(cmd[0], target_path)
