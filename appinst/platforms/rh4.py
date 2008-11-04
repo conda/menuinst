@@ -15,7 +15,7 @@ from appinst.platforms.shortcut_creation_error import ShortcutCreationError
 
 class RH4(object):
     """
-    A class for application installation operations on RH3.
+    A class for application installation operations on RH4.
 
     """
 
