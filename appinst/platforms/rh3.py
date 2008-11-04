@@ -325,7 +325,7 @@ class RH3(object):
         retcode = os.system('kbuildsycoca')
         if retcode != 0:
             raise ShortcutCreationError('Unable to rebuild KDE desktop.  '
-                'Application mmenu may not have been installed correctly.')
+                'Application menu may not have been installed correctly.')
 
         return
 
