@@ -191,7 +191,7 @@ class RH4(object):
         retcode = os.system('kbuildsycoca')
         if retcode != 0:
             raise ShortcutCreationError('Unable to rebuild desktop.  '
-                'Application mmenu may not have been installed correctly.')
+                'Application menu may not have been installed correctly.')
 
         return
 
