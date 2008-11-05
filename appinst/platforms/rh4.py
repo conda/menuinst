@@ -205,7 +205,7 @@ class RH4(object):
             # Replace any 'FILEBROWSER' placeholder in the command with the
             # specified value.
             cmd = spec['cmd']
-            cmd[0] = cmd[0].replace('{{FILEBROWSER}}', filebrowser)
+            cmd[0] = cmd[0].replace('{{FILEBROWSER}}', file_browser)
             dict['cmd'] = cmd
 
             # Store the desired target location for the entry file.
@@ -236,7 +236,7 @@ class RH4(object):
 
             # On gnome, create a URL link instead of a filebrowser command
             cmd = spec['cmd']
-            cmd[0] = cmd[0].replace('{{FILEBROWSER}}', filebrowser)
+            cmd[0] = cmd[0].replace('{{FILEBROWSER}}', file_browser)
             dict['cmd'] = cmd
             
             # Store the desired target location for the entry file.
