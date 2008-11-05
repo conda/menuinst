@@ -184,23 +184,20 @@ class RH4(object):
 
         # Write out any shortcuts
         location = os.path.join(datadir, 'applications')
-        file_browser = "kfmclient openURL"
-        self._install_desktop_entry(shortcuts, location, file_browser)
 
-        # Force the menus to refresh.
-        retcode = os.system('kbuildsycoca')
-        if retcode != 0:
-            raise ShortcutCreationError('Unable to rebuild desktop.  '
-                'Application menu may not have been installed correctly.')
+        self._install_kde_desktop_entry(shortcuts, location)
+        self._install_gnome_desktop_entry(shortcuts, location)
 
         return
 
 
-    def _install_desktop_entry(self, shortcuts, location, filebrowser):
+    def _install_kde_desktop_entry(self, shortcuts, location):
         """
         Create a desktop entry for the specified shortcut spec.
 
         """
+
+        file_browser = "kfmclient openURL"
 
         for spec in shortcuts:
             dict = spec.copy()
@@ -214,11 +211,43 @@ class RH4(object):
             # Store the desired target location for the entry file.
             dict['location'] = location
 
+            dict['only_show_in'] = 'KDE'
+
+            # Make it.
+            make_desktop_entry(dict)
+            
+            # Force the menus to refresh.
+            retcode = os.system('kbuildsycoca')
+            if retcode != 0:
+                raise ShortcutCreationError('Unable to rebuild desktop.  '
+                    'Application menu may not have been installed correctly.')
+
+        return
+
+    def _install_gnome_desktop_entry(self, shortcuts, location):
+        """
+        Create a desktop entry for the specified shortcut spec.
+
+        """
+        file_browser = "gnome-open"
+
+        for spec in shortcuts:
+            dict = spec.copy()
+
+            # On gnome, create a URL link instead of a filebrowser command
+            cmd = spec['cmd']
+            cmd[0] = cmd[0].replace('{{FILEBROWSER}}', filebrowser)
+            dict['cmd'] = cmd
+            
+            # Store the desired target location for the entry file.
+            dict['location'] = location
+
+            dict['not_show_in'] = 'KDE'
+
             # Make it.
             make_desktop_entry(dict)
 
         return
-
 
     def _install_system_application_menus(self, menus, shortcuts):
 

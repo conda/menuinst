@@ -89,8 +89,17 @@ Icon=%(icon)s
             cats = ';'.join(cats)
         entry_code = entry_code + 'Categories=%s\n' % cats
 
+    ext = ''
+    if dict.has_key('only_show_in'):
+        desktop = dict['only_show_in']
+        entry_code = entry_code + 'OnlyShowIn=%s' % desktop
+        ext = desktop
+    elif dict.has_key('not_show_in'):
+        desktop = dict['not_show_in']
+        entry_code = entry_code + 'NotShowIn=%s' % desktop
+
     # Create the desktop entry file.
-    path = os.path.join(dict['location'], '%s.desktop' % dict['id'])
+    path = os.path.join(dict['location'], '%s%s.desktop' % (dict['id'], ext))
     fh = open(path, "w")
     fh.write(entry_code)
     fh.close()
