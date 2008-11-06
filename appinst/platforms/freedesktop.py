@@ -92,11 +92,11 @@ Icon=%(icon)s
     ext = ''
     if dict.has_key('only_show_in'):
         desktop = dict['only_show_in']
-        entry_code = entry_code + 'OnlyShowIn=%s' % desktop
+        entry_code = entry_code + 'OnlyShowIn=%s\n' % desktop
         ext = desktop
     elif dict.has_key('not_show_in'):
         desktop = dict['not_show_in']
-        entry_code = entry_code + 'NotShowIn=%s' % desktop
+        entry_code = entry_code + 'NotShowIn=%s\n' % desktop
 
     # Create the desktop entry file.
     path = os.path.join(dict['location'], '%s%s.desktop' % (dict['id'], ext))

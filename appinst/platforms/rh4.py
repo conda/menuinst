@@ -2,6 +2,7 @@
 # All rights reserved.
 
 
+import copy
 import os
 import shutil
 import sys
@@ -185,8 +186,9 @@ class RH4(object):
         # Write out any shortcuts
         location = os.path.join(datadir, 'applications')
 
-        self._install_kde_desktop_entry(shortcuts, location)
         self._install_gnome_desktop_entry(shortcuts, location)
+        self._install_kde_desktop_entry(shortcuts, location)
+        # Force the menus to refresh.
 
         return
 
@@ -200,27 +202,26 @@ class RH4(object):
         file_browser = "kfmclient openURL"
 
         for spec in shortcuts:
-            dict = spec.copy()
+            spec_dict = copy.deepcopy(spec)
 
             # Replace any 'FILEBROWSER' placeholder in the command with the
             # specified value.
-            cmd = spec['cmd']
+            cmd = spec_dict['cmd']
             cmd[0] = cmd[0].replace('{{FILEBROWSER}}', file_browser)
-            dict['cmd'] = cmd
 
             # Store the desired target location for the entry file.
-            dict['location'] = location
+            spec_dict['location'] = location
 
-            dict['only_show_in'] = 'KDE'
+            spec_dict['only_show_in'] = 'KDE'
 
             # Make it.
-            make_desktop_entry(dict)
-            
-            # Force the menus to refresh.
-            retcode = os.system('kbuildsycoca')
-            if retcode != 0:
-                raise ShortcutCreationError('Unable to rebuild desktop.  '
-                    'Application menu may not have been installed correctly.')
+            make_desktop_entry(spec_dict)
+
+        retcode = os.system('kbuildsycoca')
+        if retcode != 0:
+            raise ShortcutCreationError('Unable to rebuild desktop.  '
+                'Application menu may not have been installed correctly,'
+                ' or KDE is not installed.')
 
         return
 
@@ -232,20 +233,20 @@ class RH4(object):
         file_browser = "gnome-open"
 
         for spec in shortcuts:
-            dict = spec.copy()
+            spec_dict = copy.deepcopy(spec)
 
-            # On gnome, create a URL link instead of a filebrowser command
-            cmd = spec['cmd']
+            # Replace any 'FILEBROWSER' placeholder in the command with the
+            # specified value.
+            cmd = spec_dict['cmd']
             cmd[0] = cmd[0].replace('{{FILEBROWSER}}', file_browser)
-            dict['cmd'] = cmd
-            
-            # Store the desired target location for the entry file.
-            dict['location'] = location
 
-            dict['not_show_in'] = 'KDE'
+            # Store the desired target location for the entry file.
+            spec_dict['location'] = location
+
+            spec_dict['not_show_in'] = 'KDE'
 
             # Make it.
-            make_desktop_entry(dict)
+            make_desktop_entry(spec_dict)
 
         return
 
