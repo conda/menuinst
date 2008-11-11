@@ -31,8 +31,6 @@ def fix_easy_install_script(filename, verbose=0, dryrun=False):
         executable_split = executable_stripped.split(os.sep)
         if not os.path.exists(executable) and \
             executable_split[-1].startswith('python'):
-            # FIXME: This use of os.linesep could potentially result in 
-            # mixed line endings.
             script_exec_line = "#!%s%s" % (sys.executable, os.linesep)
             file_contents = script_exec_line + file.read()
             file.close()
