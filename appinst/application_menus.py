@@ -86,12 +86,12 @@ def install(menus, shortcuts, install_mode='user'):
         RH3().install_application_menus(menus, shortcuts, install_mode)
 
     # Dispatch for RedHat 4.
-    elif PLAT == 'rhel' and PVER == '4'
+    elif PLAT == 'rhel' and PVER == '4':
         from appinst.platforms.rh4 import RH4
         RH4().install_application_menus(menus, shortcuts, install_mode)
     
     # Dispatch for RedHat 5.
-    elif PLAT == 'rhel' and PVER == '5'
+    elif PLAT == 'rhel' and PVER == '5':
         from appinst.platforms.rh5 import RH5
         RH5().install_application_menus(menus, shortcuts, install_mode)
 
