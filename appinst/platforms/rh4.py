@@ -186,9 +186,9 @@ class RH4(object):
         # Write out any shortcuts
         location = os.path.join(datadir, 'applications')
 
+        # Install menu items
         self._install_gnome_desktop_entry(shortcuts, location)
         self._install_kde_desktop_entry(shortcuts, location)
-        # Force the menus to refresh.
 
         return
 
@@ -217,9 +217,10 @@ class RH4(object):
             # Make it.
             make_desktop_entry(spec_dict)
 
+        # Force the KDE menus to refresh
         retcode = os.system('kbuildsycoca')
         if retcode != 0:
-            raise ShortcutCreationError('Unable to rebuild desktop.  '
+            raise ShortcutCreationError('Unable to rebuild KDE desktop.  '
                 'Application menu may not have been installed correctly,'
                 ' or KDE is not installed.')
 

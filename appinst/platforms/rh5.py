@@ -14,10 +14,12 @@ from appinst.platforms.freedesktop import (filesystem_escape,
     make_desktop_entry, make_directory_entry)
 from appinst.platforms.shortcut_creation_error import ShortcutCreationError
 
-USER_MENU_FILE ="""
-<!DOCTYPE Menu
+DOCTYPE="""<!DOCTYPE Menu
   PUBLIC '-//freedesktop//DTD Menu 1.0//EN'
   'http://standards.freedesktop.org/menu-spec/menu-1.0.dtd'>
+"""
+
+USER_MENU_FILE ="""
 <Menu>
     <Name>Applications</Name>
     <MergeFile type="parent">/etc/xdg/menus/applications.menu</MergeFile>
@@ -44,7 +46,7 @@ class RH5(object):
         """
 
         # NOTE: Our installation mechanism works for both KDE and Gnome as
-        # shipped with RH 4.
+        # shipped with RH 5.
 
         try:
             if mode == 'system':
@@ -115,8 +117,6 @@ class RH5(object):
         # add the sub-menus to them, which means we need to record where each
         # one was on the disk, plus its tree (to be able to write it), plus the
         # parent menu element.
-        # FIXME: xml.etree doesn't seem to support preserving or setting of
-        # DOCTYPE.   We may have to switch to a different xml lib?
         menu_dir = os.path.join(sysconfdir, 'menus')
         menu_map = {}
         for menu_spec in menus:
@@ -203,9 +203,18 @@ class RH5(object):
         # Write out any shortcuts
         location = os.path.join(datadir, 'applications')
 
+        # Restore DOCTYPE, as the xml lib leaves it out.
+        fin = open(menu_file)
+        file_xml = fin.read()
+        fin.close()
+        file_xml = DOCTYPE + file_xml
+        fout = open(menu_file, 'w')
+        fout.write(file_xml)
+        fout.close()
+
+        # Intall the menus
         self._install_gnome_desktop_entry(shortcuts, location)
         self._install_kde_desktop_entry(shortcuts, location)
-        # Force the menus to refresh.
 
         return
 
@@ -234,9 +243,10 @@ class RH5(object):
             # Make it.
             make_desktop_entry(spec_dict)
 
+        # Force the KDE menus to refresh
         retcode = os.system('kbuildsycoca')
         if retcode != 0:
-            raise ShortcutCreationError('Unable to rebuild desktop.  '
+            raise ShortcutCreationError('Unable to rebuild KDE desktop.  '
                 'Application menu may not have been installed correctly,'
                 ' or KDE is not installed.')
 
