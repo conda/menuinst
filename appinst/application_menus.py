@@ -74,40 +74,42 @@ def install(menus, shortcuts, install_mode='user'):
     # Determine our current platform and version.  This needs to distinguish
     # between, not only different OSes, but also different OS flavors
     # (i.e Linux distributions) and versions of OSes.
-    PLAT, PVER = platform.dist()[:2]
-    if PLAT.lower().startswith('redhat'):
-        PLAT = 'rhel'
-        if len(PVER) and PVER[0] in ['3', '4', '5']:
-            PVER = PVER[0]
+    plat = platform.system().lower()
+    if plat == 'linux':
+        plat, pver = platform.dist()[:2]
+    elif plat == 'windows':
+        pver = platform.win32_ver()[0]
+    elif plat == 'darwin':
+        pver = platform.platform.mac_ver()[0]
 
     # Dispatch for RedHat 3.
-    if PLAT=='rhel' and PVER=='3':
+    if plat.startswith('redhat') and pver[0] == '3':
         from appinst.platforms.rh3 import RH3
         RH3().install_application_menus(menus, shortcuts, install_mode)
 
     # Dispatch for RedHat 4.
-    elif PLAT == 'rhel' and PVER == '4':
+    elif plat.startswith('redhat') and pver[0] == '4':
         from appinst.platforms.rh4 import RH4
         RH4().install_application_menus(menus, shortcuts, install_mode)
-    
+
     # Dispatch for RedHat 5.
-    elif PLAT == 'rhel' and PVER == '5':
+    elif plat.startswith('redhat') and pver[0] == '5':
         from appinst.platforms.rh5 import RH5
         RH5().install_application_menus(menus, shortcuts, install_mode)
 
-    # Dispatch for OS X
-    elif platform.system().lower() == 'darwin':
+    # Dispatch for all versions of OS X
+    elif plat == 'darwin':
         from appinst.platforms.osx import OSX
         OSX().install_application_menus(menus, shortcuts, install_mode)
 
-    # Dispatch for Windows, tested on XP only.
-    elif platform.system().lower() == 'windows':
+    # Dispatch for all versions of Windows (tested on XP only)
+    elif plat == 'windows':
         from appinst.platforms.win32 import Win32
         Win32().install_application_menus(menus, shortcuts, install_mode)
 
     # Handle all other platforms with a warning until we implement for them.
     else:
-        warnings.warn('Unknown platform (%s) and version (%s). Unable '
-            'to create application menu(s).' % (PLAT, PVER))
+        warnings.warn('Unhandled platform (%s) and version (%s). Unable '
+            'to create application menu(s).' % (plat, pver))
 
     return
