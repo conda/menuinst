@@ -80,7 +80,7 @@ def install(menus, shortcuts, install_mode='user'):
     elif plat == 'windows':
         pver = platform.win32_ver()[0]
     elif plat == 'darwin':
-        pver = platform.platform.mac_ver()[0]
+        pver = platform.mac_ver()[0]
 
     # Dispatch for RedHat 3.
     if plat.startswith('redhat') and pver[0] == '3':
