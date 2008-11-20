@@ -3,9 +3,6 @@ import os
 import sys
 from appinst.platforms.shortcut_creation_error import ShortcutCreationError
 
-##############################################################################
-# THIS CODE NOT YET TESTED OR COMPLETE
-##############################################################################
 
 class OSX(object):
     """
