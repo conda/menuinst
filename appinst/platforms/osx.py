@@ -1,6 +1,10 @@
+# Copyright (c) 2008 by Enthought, Inc.
+# All rights reserved.
+
 
 import os
 import sys
+
 from appinst.platforms.shortcut_creation_error import ShortcutCreationError
 
 
@@ -20,10 +24,7 @@ class OSX(object):
 
         """
 
-        try:
-            self._install_application_menus(menus, shortcuts)
-        except ShortcutCreationError, ex:
-            warnings.warn(ex.message)
+        self._install_application_menus(menus, shortcuts)
 
         return
 
@@ -32,68 +33,83 @@ class OSX(object):
     #==========================================================================
 
     def _install_application_menus(self, menus, shortcuts):
-        dir_path = '/Applications'
-        queue = [(dir_path, menu_spec, '') for menu_spec in menus]
+
+        # First build all the requested menus.  These correspond simply to
+        # directories on OS X.  Note that we need to build a map from the menu's
+        # category to its path on the filesystem so that we can put the
+        # shortcuts in the right directories later.
         category_map = {}
+        app_path = '/Applications'
+        queue = [(menu_spec, app_path, '') for menu_spec in menus]
         while len(queue) > 0:
-            dir_path, menu_spec, parent_category = queue.pop(0)
-            
-            # Directory name should match the menu name
-            dir_path = os.path.join(dir_path, menu_spec['name'])
-        
-            if not os.path.exists(dir_path):
-                os.makedirs(dir_path)
-            
-            # id's of the menus will be mapped to categories of the shortcuts
-            # if no category is present. This determines which directories to
-            # put shortcuts in
+            menu_spec, parent_path, parent_category = queue.pop(0)
+
+            # Create the directory that represents this menu.
+            path = os.path.join(parent_path, menu_spec['name'])
+            if not os.path.exists(path):
+                os.makedirs(path)
+
+            # Determine the category for this menu and record it in the map.
+            # Categories are always hierarchical to ensure uniqueness.  Note
+            # that if no category was explicitly set, we use the capitalized
+            # version of the ID.
             category = menu_spec.get('category',
                 menu_spec.get('id').capitalize())
-
             if len(parent_category) > 1:
                 category = '%s.%s' % (parent_category, category)
+            category_map[category] = path
 
-            category_map[category] = dir_path
-
-            # For every sub-menu, append the directory containing the sub-menu,
-            # the sub-menu, spec, and it's category.
+            # Add all sub-menus to the queue so they get created as well.
             for child_spec in menu_spec.get('sub-menus', []):
-                queue.append((dir_path, child_spec, category))
+                queue.append((child_spec, path, category))
 
+        # Now create all the requested shortcuts.
         SHELL_SCRIPT ="#!/bin/sh\n%s %s\n"
-        
         for shortcut in shortcuts:
+
+            # Ensure the shortcut ends up in each of the requested categories.
             for mapped_category in shortcut['categories']:
-                cmd = shortcut['cmd']
+
+                # Separate the arguments to the invoked command from the command
+                # itself.   Note that since Finder is automatically launched
+                # when a folder link is selected, and that the default web
+                # browser is launched when a html-like file link is selected,
+                # we can simply strip-out and ignore the special {{FILEBROWSER}}
+                # and {{WEBBROWSER}} placeholders.
+                #
+                # FIXME: Should we instead use Python standard lib's default
+                # webbrowser.py script to open a browser?  We then get to
+                # control whether it opens in a new tab or not.  See the win32
+                # platform support for an example.
                 args = []
-                # Finder is automatically launched when a folder link is 
-                # selected, so {{FILEBROWSER}} (which specifies the file manager
-                # on linux) can be removed.
-                # There is also a webbrowser check which returns 'default'
-                # OS X, so we should check for that as well.
-                if cmd[0] == '{{FILEBROWSER}}' or cmd[0] == 'default':
+                cmd = shortcut['cmd']
+                if cmd[0] == '{{FILEBROWSER}}' or cmd[0] == '{{WEBBROWSER}}':
                     del cmd[0]
-                
-                # In case the command has arguements, e.g. ipython -pylab
                 if len(cmd) > 1:
                     args = cmd[1:]
-                
-                # If the file is executable, create a double-clickable shell
-                # script that will execute it
-                if os.path.isfile(cmd[0]) and os.access(cmd[0], os.X_OK):
-                    target_name = os.path.basename(cmd[0]) + '.command'
-                    target_path = os.path.join(category_map[mapped_category],
-                        target_name)
-                    f_script = open(target_path, 'w')
-                    f_script.write(SHELL_SCRIPT % (cmd[0], ' '.join(args)))
+                cmd = cmd[0]
+
+                # If the command is a path to an executable file, create a
+                # double-clickable shell script that will execute it.
+                # FIXME: Need to handle assignment of an icon.
+                if os.path.isfile(cmd) and os.access(cmd, os.X_OK):
+                    name = shortcut['name'] + '.command'
+                    path = os.path.join(category_map[mapped_category], name)
+                    f_script = open(path, 'w')
+                    f_script.write(SHELL_SCRIPT % (cmd, ' '.join(args)))
                     f_script.close()
-                    os.chmod(target_path, 0755)
+                    os.chmod(path, 0755)
+
+                # Otherwise, just create a symlink to the specified command
+                # value.  Note that it is possible we may only need this logic
+                # as symlinks to executable scripts are double-clickable on
+                # OS X 10.5 (though there would be no way to apply custom icons
+                # then.)
                 else:
-                    # It's possible we may only need this section. Symlinks to
-                    # executable scripts are double-clickable on 10.5, although
-                    # there would be no way to figure out custom icons.
-                    target_name = os.path.basename(cmd[0])
-                    target_path = os.path.join(category_map[mapped_category],
-                        target_name)
-                    if not os.path.exists(target_path):
-                        os.symlink(cmd[0], target_path)
+                    name = shortcut['name']
+                    path = os.path.join(category_map[mapped_category], name)
+                    if os.path.exists(path):
+                        os.unlink(path)
+                    os.symlink(cmd, path)
+
+        return

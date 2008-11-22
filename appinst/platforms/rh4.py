@@ -193,29 +193,76 @@ class RH4(object):
         return
 
 
+    def _install_desktop_entry(self, shortcuts, filebrowser):
+        """
+        Create a desktop entry for the specified shortcut spec.
+
+        """
+
+        for spec in shortcuts:
+
+            # Handle the special placeholders in the specified command.  For a
+            # filebrowser request, we simply used the passed filebrowser.  But
+            # for a webbrowser request, we invoke the Python standard lib's
+            # webbrowser script so we can force the url(s) to open in new tabs.
+            cmd = spec['cmd']
+            if cmd[0] == '{{FILEBROWSER}}':
+                cmd[0] = filebrowser
+            elif cmd[0] == '{{WEBBROWSER}}':
+                python_path = os.path.join(sys.prefix, 'bin', 'python')
+                script_path = os.path.abspath(os.path.join(get_python_lib(),
+                    '..', 'webbrowser.py'))
+                cmd[0:1] = [python_path, script_path, '-t']
+            spec['cmd'] = cmd
+
+            # Create the shortcuts.
+            make_desktop_entry(dict)
+
+        return
+
+
+    def _install_gnome_desktop_entry(self, shortcuts, location):
+        """
+        Create a desktop entry for the specified shortcut spec.
+
+        """
+
+        # Iterate though the shortcuts making a copy of each specification and
+        # adding an entry so that it doesn't show in the KDE desktop, plus ends
+        # up in the specified location.
+        modified_shortcuts = []
+        for spec in shortcuts:
+            cur = spec.copy()
+            cur['location'] = location
+            cur['not_show_in'] = 'KDE'
+            modified_shortcuts.append(cur)
+
+        # Make the shortcuts
+        file_browser = "gnome-open"
+        self._install_desktop_entry(modified_shortcuts, filebrowser)
+
+        return
+
+
     def _install_kde_desktop_entry(self, shortcuts, location):
         """
         Create a desktop entry for the specified shortcut spec.
 
         """
 
-        file_browser = "kfmclient openURL"
-
+        # Iterate though the shortcuts making a copy of each specification and
+        # adding an entry so that it only shows in the KDE desktop, plus ends
+        # up in the specified location.
+        modified_shortcuts = []
         for spec in shortcuts:
-            spec_dict = copy.deepcopy(spec)
+            cur = spec.copy()
+            cur['location'] = location
+            cur['only_show_in'] = 'KDE'
+            modified_shortcuts.append(cur)
 
-            # Replace any 'FILEBROWSER' placeholder in the command with the
-            # specified value.
-            cmd = spec_dict['cmd']
-            cmd[0] = cmd[0].replace('{{FILEBROWSER}}', file_browser)
-
-            # Store the desired target location for the entry file.
-            spec_dict['location'] = location
-
-            spec_dict['only_show_in'] = 'KDE'
-
-            # Make it.
-            make_desktop_entry(spec_dict)
+        # Make the shortcuts
+        file_browser = "kfmclient openURL"
+        self._install_desktop_entry(modified_shortcuts, filebrowser)
 
         # Force the KDE menus to refresh
         retcode = os.system('kbuildsycoca')
@@ -226,30 +273,6 @@ class RH4(object):
 
         return
 
-    def _install_gnome_desktop_entry(self, shortcuts, location):
-        """
-        Create a desktop entry for the specified shortcut spec.
-
-        """
-        file_browser = "gnome-open"
-
-        for spec in shortcuts:
-            spec_dict = copy.deepcopy(spec)
-
-            # Replace any 'FILEBROWSER' placeholder in the command with the
-            # specified value.
-            cmd = spec_dict['cmd']
-            cmd[0] = cmd[0].replace('{{FILEBROWSER}}', file_browser)
-
-            # Store the desired target location for the entry file.
-            spec_dict['location'] = location
-
-            spec_dict['not_show_in'] = 'KDE'
-
-            # Make it.
-            make_desktop_entry(spec_dict)
-
-        return
 
     def _install_system_application_menus(self, menus, shortcuts):
 
@@ -281,5 +304,4 @@ class RH4(object):
         # Create our shortcuts.
         return self._install_application_menus(datadir, sysconfdir, menus,
             shortcuts)
-
 

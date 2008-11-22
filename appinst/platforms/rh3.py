@@ -10,6 +10,7 @@ import warnings
 from appinst.platforms.freedesktop import (filesystem_escape,
     make_desktop_entry, make_directory_entry)
 from appinst.platforms.shortcut_creation_error import ShortcutCreationError
+from distutils.sysconfig import get_python_lib
 from xml.etree import ElementTree
 
 
@@ -88,23 +89,31 @@ class RH3(object):
         """
 
         for spec in shortcuts:
-            dict = spec.copy()
+            spec_dict = spec.copy()
 
-            # Replace any 'FILEBROWSER' placeholder in the command with the
-            # specified value.
+            # Handle the special placeholders in the specified command.  For a
+            # filebrowser requiest, we simply used the passed filebrowser.  But
+            # for a webbrowser request, we invoke the Python standard lib's
+            # webbrowser script so we can force the url(s) to open in new tabs.
             cmd = spec['cmd']
-            cmd[0] = cmd[0].replace('{{FILEBROWSER}}', filebrowser)
-            dict['cmd'] = cmd
+            if cmd[0] == '{{FILEBROWSER}}':
+                cmd[0] = filebrowser
+            elif cmd[0] == '{{WEBBROWSER}}':
+                python_path = os.path.join(sys.prefix, 'bin', 'python')
+                script_path = os.path.abspath(os.path.join(get_python_lib(),
+                    '..', 'webbrowser.py'))
+                cmd[0:1] = [python_path, script_path, '-t']
+            spec_dict['cmd'] = cmd
 
             # Remove the categories if they weren't desired.
             if not write_categories:
-                del dict['categories']
+                del spec_dict['categories']
 
             # Handle the situation where the shortcut is supposed to be in
             # multiple categories.
             for category in spec['categories']:
-                dict['location'] = category_map[category]
-                make_desktop_entry(dict)
+                spec_dict['location'] = category_map[category]
+                make_desktop_entry(spec_dict)
 
         return
 

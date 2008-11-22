@@ -21,21 +21,23 @@ def install(menus, shortcuts, install_mode='user'):
     menus: A list of menu descriptions that will be added/merged into the OS's
         application menu.   A menu description is a dictionary containing the
         following keys and meanings:
-            category: An identifier used to locate application link icons
-                within a menu.  Note that the string you specify for a sub-menu
-                is not the full category as this code will prefix the specified
-                string with the parent menu's category, using a '.' as a
+            category: An optional identifier used to locate shortcuts within a
+                menu.  Note that the string you specify here is not necessarily
+                the full category you'll need to use in your shortcut as this
+                package ensures uniqueness of category values by concatenating
+                them as it goes down the menu hierarchy, using a '.' as the
                 separator char.  For example, if a menu with category 'Abc'
                 contains a sub-menu who's category is 'Def', then the full
                 category for the sub-menu will be 'Abc.Def'.
             id: A string that can be used to represent the resources needed to
                 represent the menu.  i.e. on Linux, the id is used for the name
                 of the '.directory' file.  If no category is explicitly
-                specified, the id is also capitalized and used as the category
+                specified, the id is capitalized and used as the category
                 specification.
             name: The display name of the menu.
             sub-menus: A list of menu descriptions that make up sub-menus of
                 this menu.
+
     shortcuts: A list of shortcut specifications to be created within the
         previously specified menus.   A shortcut specification is a dictionary
         consisting of the following keys and values:
@@ -47,21 +49,31 @@ def install(menus, shortcuts, install_mode='user'):
                 executable command and the other items are arguments to be
                 passed to that command.   Each argument should be a separate
                 item in the list.   Note that you can use the special text
-                '{{FILEBROWSER}}' within the first argument to specify that
-                the command should use the local file browser command. (It
-                differs per desktop, OS, etc.)
-            comment: A description for the shortcut.
+                markers listed here as the first command string to represent
+                standard commands that are platform dependent:
+
+                '{{FILEBROWSER}}' specifies that the following arguments are
+                    paths to be opened in the OS's file system explorer.
+                '{{WEBBROWSER}}' specifies that the following arguments are
+                    paths to be opened in the OS's standard, or user's default,
+                    web browser.
+
+            comment: A description for the shortcut, typically becomes fly-over
+                help.
+            icon: An optional path to an .ico file to use as the icon for this
+                shortcut.
             id: A string that can be used to represent the resources needed to
                 represent the shortcut.  i.e. on Linux, the id is used for the
                 name of the '.desktop' file.  If no id is provided, the name
                 is lowercased and used as the id.
-            name: The display name for the shortcut.
+            name: The display name for this shortcut.
             terminal: A boolean value representing whether the shortcut should
                 run within a shell / terminal.
+
     install_mode: should be either 'user' or 'system' and controls where the
         menus and shortcuts are installed on the system, depending on platform.
 
-    FIXME: We need to add icon support.
+    FIXME: We need to add icon support for menus.
 
     """
 
