@@ -33,7 +33,8 @@ class RH3(object):
 
         """
 
-        # Try installing KDE shortcuts.
+        # Try installing KDE shortcuts.  We don't raise an exception on an
+        # error because we don't know if this user has KDE installed.
         try:
             if mode == 'system':
                 self._install_kde_system_application_menus(menus, shortcuts)
@@ -42,7 +43,8 @@ class RH3(object):
         except ShortcutCreationError, ex:
             warnings.warn(ex.message)
 
-        # Try a Gnome install
+        # Try installing Gnome shortcuts.  We don't raise an exception on an
+        # error because we don't know if this user has Gnome installed.
         try:
             if mode == 'system':
                 self._install_gnome_system_application_menus(menus, shortcuts)

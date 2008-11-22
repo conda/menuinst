@@ -26,14 +26,11 @@ class Win32(object):
 
         """
 
-        try:
-            if mode == 'system':
-                start_menu = common.get_all_users_programs_start_menu()
-            else:
-                start_menu = common.get_current_user_programs_start_menu()
-            self._install_application_menus(menus, shortcuts, start_menu)
-        except ShortcutCreationError, ex:
-            warnings.warn(ex.message)
+        if mode == 'system':
+            start_menu = common.get_all_users_programs_start_menu()
+        else:
+            start_menu = common.get_current_user_programs_start_menu()
+        self._install_application_menus(menus, shortcuts, start_menu)
 
         return
 
@@ -101,6 +98,12 @@ class Win32(object):
                 # invoking the Python standard lib's 'webbrowser' script.  This
                 # allows us to specify that the url(s) should be opened in new
                 # tabs.
+                #
+                # If this doesn't work, see the following website for details of
+                # the special URL shortcut file format.  While split across two
+                # lines it is one URL:
+                #   http://delphi.about.com/gi/dynamic/offsite.htm?site= \
+                #        http://www.cyanwerks.com/file-format-url.html
                 elif cmd == '{{WEBBROWSER}}':
                     cmd = os.path.join(sys.prefix, 'python.exe')
                     args = [os.path.abspath(os.path.join(get_python_lib(), '..',

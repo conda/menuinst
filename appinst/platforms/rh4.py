@@ -12,6 +12,7 @@ import xml.etree.ElementTree as et
 from appinst.platforms.freedesktop import (filesystem_escape,
     make_desktop_entry, make_directory_entry)
 from appinst.platforms.shortcut_creation_error import ShortcutCreationError
+from distutils.sysconfig import get_python_lib
 
 
 class RH4(object):
@@ -34,8 +35,8 @@ class RH4(object):
         """
 
         # NOTE: Our installation mechanism works for both KDE and Gnome as
-        # shipped with RH 4.
-
+        # shipped with RH 4.  But we don't raise an exception if creation fails
+        # because there is no guarantee a user has both KDE and Gnome installed.
         try:
             if mode == 'system':
                 self._install_system_application_menus(menus, shortcuts)
