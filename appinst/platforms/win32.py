@@ -80,7 +80,7 @@ class Win32(object):
                 cmd_list = shortcut['cmd']
                 cmd = cmd_list[0]
                 if len(cmd_list) > 1:
-                    args = cmd_list[1:0]
+                    args = cmd_list[1:]
                 else:
                     args = []
 
