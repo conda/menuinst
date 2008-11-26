@@ -217,7 +217,7 @@ class RH4(object):
             spec['cmd'] = cmd
 
             # Create the shortcuts.
-            make_desktop_entry(dict)
+            make_desktop_entry(spec)
 
         return
 
@@ -239,7 +239,7 @@ class RH4(object):
             modified_shortcuts.append(cur)
 
         # Make the shortcuts
-        file_browser = "gnome-open"
+        filebrowser = "gnome-open"
         self._install_desktop_entry(modified_shortcuts, filebrowser)
 
         return
@@ -262,7 +262,7 @@ class RH4(object):
             modified_shortcuts.append(cur)
 
         # Make the shortcuts
-        file_browser = "kfmclient openURL"
+        filebrowser = "kfmclient openURL"
         self._install_desktop_entry(modified_shortcuts, filebrowser)
 
         # Force the KDE menus to refresh
