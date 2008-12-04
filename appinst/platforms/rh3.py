@@ -218,8 +218,8 @@ class RH3(object):
         info_tree.write(vfolder_info)
 
         # Write out any shortcuts
-        file_browser = "nautilus"
-        self._install_desktop_entry(shortcuts, category_map, file_browser,
+        filebrowser = "nautilus"
+        self._install_desktop_entry(shortcuts, category_map, filebrowser,
             write_categories = True)
 
         return
@@ -329,8 +329,8 @@ class RH3(object):
                 queue.append((path, child_spec, category))
 
         # Write out any shortcuts
-        file_browser = "kfmclient openURL"
-        self._install_desktop_entry(shortcuts, category_map, file_browser)
+        filebrowser = "kfmclient openURL"
+        self._install_desktop_entry(shortcuts, category_map, filebrowser)
 
         # Force the menus to refresh.
         retcode = os.system('kbuildsycoca')
