@@ -161,9 +161,10 @@ class RH5(object):
         # files all go in the same directory, so to help ensure uniqueness of
         # filenames we base them on the category, rather than the menu's ID.
         desktop_dir = os.path.join(datadir, 'desktop-directories')
-        queue = [(menu_spec, '') for menu_spec in menus]
+        queue = [(menu_spec, '', '') for menu_spec in menus]
+        id_map = {}
         while len(queue) > 0:
-            menu_spec, parent_category = queue.pop(0)
+            menu_spec, parent_category, parent_id = queue.pop(0)
 
             # Build an id based on the menu hierarchy that's to be prepended
             # to the id of each shortcut based on where that shortcut fits
@@ -208,7 +209,7 @@ class RH5(object):
             # Add any child sub-menus onto the queue.
             for child_spec in menu_spec.get('sub-menus', []):
                 menu_map[id(child_spec)] = (menu_file, tree, menu_element)
-                queue.append((child_spec, category))
+                queue.append((child_spec, category, menu_id))
 
         # Restore DOCTYPE, as the xml lib leaves it out.
         fin = open(menu_file)
