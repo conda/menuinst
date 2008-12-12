@@ -99,7 +99,7 @@ Icon=%(icon)s
         entry_code = entry_code + 'NotShowIn=%s\n' % desktop
 
     # Create the desktop entry file.
-    path = os.path.join(dict['location'], '%s%s.desktop' % (dict['id'], ext))
+    path = os.path.join(dict['location'], '%s%s.desktop' % (filesystem_escape(dict['id']), ext))
     fh = open(path, "w")
     fh.write(entry_code)
     fh.close()

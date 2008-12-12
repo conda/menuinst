@@ -8,6 +8,7 @@ import shutil
 import sys
 import warnings
 import xml.etree.ElementTree as et
+import appinst.platforms.linux_common as common
 
 from appinst.platforms.freedesktop import (filesystem_escape,
     make_desktop_entry, make_directory_entry)
@@ -143,15 +144,24 @@ class RH4(object):
         # files all go in the same directory, so to help ensure uniqueness of
         # filenames we base them on the category, rather than the menu's ID.
         desktop_dir = os.path.join(datadir, 'desktop-directories')
-        queue = [(menu_spec, '') for menu_spec in menus]
+        queue = [(menu_spec, '', '') for menu_spec in menus]
+        id_map = {}
         while len(queue) > 0:
-            menu_spec, parent_category = queue.pop(0)
+            menu_spec, parent_category, parent_id = queue.pop(0)
+
+            # Build an id based on the menu hierarchy that's to be prepended
+            # to the id of each shortcut based on where that shortcut fits
+            # in the menu.
+            menu_id = common.build_id(menu_spec['id'], parent_id)
 
             # Create the category string for this menu.
             category = menu_spec.get('category',
                 menu_spec.get('id').capitalize())
             if len(parent_category) > 1:
                 category = '%s.%s' % (parent_category, category)
+
+            # Keep track of which IDs match which categories
+            id_map[category] = menu_id
 
             # Create the .directory entry file and record what it's name was
             # for our later use.
@@ -182,10 +192,14 @@ class RH4(object):
             # Add any child sub-menus onto the queue.
             for child_spec in menu_spec.get('sub-menus', []):
                 menu_map[id(child_spec)] = (menu_file, tree, menu_element)
-                queue.append((child_spec, category))
+                queue.append((child_spec, category, menu_id))
 
         # Write out any shortcuts
         location = os.path.join(datadir, 'applications')
+
+        # Adjust the IDs of the shortcuts to match where the shortcut fits in
+        # the menu.
+        common.fix_shortcut_ids(shortcuts, id_map)
 
         # Install menu items
         self._install_gnome_desktop_entry(shortcuts, location)
