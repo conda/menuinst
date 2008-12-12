@@ -2,6 +2,7 @@
 # All rights reserved.
 
 
+import appinst.platforms.linux_common as common
 import copy
 import os
 import shutil
@@ -48,7 +49,7 @@ class RH5(object):
         """
 
         # NOTE: Our installation mechanism works for both KDE and Gnome as
-        # shipped with RH 4.  But we don't raise an exception if creation fails
+        # shipped with RH 5.  But we don't raise an exception if creation fails
         # because there is no guarantee a user has both KDE and Gnome installed.
         try:
             if mode == 'system':
@@ -164,11 +165,19 @@ class RH5(object):
         while len(queue) > 0:
             menu_spec, parent_category = queue.pop(0)
 
+            # Build an id based on the menu hierarchy that's to be prepended
+            # to the id of each shortcut based on where that shortcut fits
+            # in the menu.
+            menu_id = common.build_id(menu_spec['id'], parent_id)
+ 
             # Create the category string for this menu.
             category = menu_spec.get('category',
                 menu_spec.get('id').capitalize())
             if len(parent_category) > 1:
                 category = '%s.%s' % (parent_category, category)
+            
+             # Keep track of which IDs match which categories
+            id_map[category] = menu_id
 
             # Create the .directory entry file and record what it's name was
             # for our later use.
@@ -209,6 +218,10 @@ class RH5(object):
         fout = open(menu_file, 'w')
         fout.write(file_xml)
         fout.close()
+
+        # Adjust the IDs of the shortcuts to match where the shortcut fits in
+        # the menu.
+        common.fix_shortcut_ids(shortcuts, id_map)
 
         # Write out any shortcuts
         location = os.path.join(datadir, 'applications')

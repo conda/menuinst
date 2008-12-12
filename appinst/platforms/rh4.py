@@ -2,13 +2,13 @@
 # All rights reserved.
 
 
+import appinst.platforms.linux_common as common
 import copy
 import os
 import shutil
 import sys
 import warnings
 import xml.etree.ElementTree as et
-import appinst.platforms.linux_common as common
 
 from appinst.platforms.freedesktop import (filesystem_escape,
     make_desktop_entry, make_directory_entry)
@@ -194,14 +194,12 @@ class RH4(object):
                 menu_map[id(child_spec)] = (menu_file, tree, menu_element)
                 queue.append((child_spec, category, menu_id))
 
-        # Write out any shortcuts
-        location = os.path.join(datadir, 'applications')
-
         # Adjust the IDs of the shortcuts to match where the shortcut fits in
         # the menu.
         common.fix_shortcut_ids(shortcuts, id_map)
 
-        # Install menu items
+        # Write out any shortcuts
+        location = os.path.join(datadir, 'applications')
         self._install_gnome_desktop_entry(shortcuts, location)
         self._install_kde_desktop_entry(shortcuts, location)
 
