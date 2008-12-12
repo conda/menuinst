@@ -2,6 +2,7 @@
 # All rights reserved.
 
 
+import appinst.platforms.linux_common as common
 import os
 import shutil
 import sys
@@ -167,10 +168,11 @@ class RH3(object):
 
         # Create the necessary representations for each menu being installed.
         category_map = {'': vfolder_dir}
-        queue = [(menu_spec, app_folder_element, vfolder_dir, '') for menu_spec
-            in menus]
+        queue = [(menu_spec, app_folder_element, vfolder_dir, '', '') \
+            for menu_spec in menus]
+        id_map = {}
         while len(queue) > 0:
-            menu_spec, parent_element, parent_dir, parent_category = \
+            menu_spec, parent_element, parent_dir, parent_category, parent_id = \
                 queue.pop(0)
             name = menu_spec['name']
 
@@ -183,12 +185,20 @@ class RH3(object):
                     os.remove(path)
                 os.mkdir(path)
 
+            # Build an id based on the menu hierarchy that's to be prepended
+            # to the id of each shortcut based on where that shortcut fits
+            # in the menu.
+            menu_id = common.build_id(menu_spec['id'], parent_id)
+ 
             # Map the category for this menu to its directory path.
             category = menu_spec.get('category',
                 menu_spec.get('id').capitalize())
             if len(parent_category) > 1:
                 category = '%s.%s' % (parent_category, category)
             category_map[category] = path
+
+            # Keep track of which IDs match which categories
+            id_map[category] = menu_id
 
             # Create a directory entry file for the current menu.  Because we
             # put all these directly in the vfolder_dir, we base the filename
@@ -212,10 +222,14 @@ class RH3(object):
 
             # Add any child sub-menus onto the queue.
             for child_spec in menu_spec.get('sub-menus', []):
-                queue.append((child_spec, cur_element, path, category))
+                queue.append((child_spec, cur_element, path, category, menu_id))
 
         # We are done with the vfolder, write it back out
         info_tree.write(vfolder_info)
+
+        # Adjust the IDs of the shortcuts to match where the shortcut fits in
+        # the menu.
+        common.fix_shortcut_ids(shortcuts, id_map)
 
         # Write out any shortcuts
         filebrowser = "nautilus"
@@ -304,7 +318,8 @@ class RH3(object):
         # the directory location in a map against the category specification
         # for the menu.
         category_map = {'':applnk_dir}
-        queue = [(applnk_dir, menu_spec, '') for menu_spec in menus]
+        queue = [(applnk_dir, menu_spec, '', '') for menu_spec in menus]
+        id_map = {}
         while len(queue) > 0:
             root_dir, menu_spec, parent_category = queue.pop(0)
 
@@ -317,6 +332,11 @@ class RH3(object):
                     os.remove(path)
                 os.mkdir(path)
 
+            # Build an id based on the menu hierarchy that's to be prepended
+            # to the id of each shortcut based on where that shortcut fits
+            # in the menu.
+            menu_id = common.build_id(menu_spec['id'], parent_id)
+
             # Map the category for this menu to its directory path.
             category = menu_spec.get('category',
                 menu_spec.get('id').capitalize())
@@ -324,9 +344,16 @@ class RH3(object):
                 category = '%s.%s' % (parent_category, category)
             category_map[category] = path
 
+            # Keep track of which IDs match which categories
+            id_map[category] = menu_id
+
             # Add any child sub-menus onto the queue.
             for child_spec in menu_spec.get('sub-menus', []):
-                queue.append((path, child_spec, category))
+                queue.append((path, child_spec, category, menu_id))
+
+        # Adjust the IDs of the shortcuts to match where the shortcut fits in
+        # the menu.
+        common.fix_shortcut_ids(shortcuts, id_map)
 
         # Write out any shortcuts
         filebrowser = "kfmclient openURL"

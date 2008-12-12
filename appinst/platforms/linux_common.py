@@ -35,4 +35,9 @@ def fix_shortcut_ids(shortcuts, mapped_ids):
     """
 
     for shortcut in shortcuts:
-        shortcut['id'] = mapped_ids[shortcut['categories'][0]] + '.' + shortcut['id']
+        if shortcut.has_key('modified'):
+            return
+        else:
+            shortcut['id'] = mapped_ids[shortcut['categories'][0]] + '.' + \
+                shortcut['id']
+            shortcut['modified'] = True
