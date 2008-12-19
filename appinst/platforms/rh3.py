@@ -321,7 +321,7 @@ class RH3(object):
         queue = [(applnk_dir, menu_spec, '', '') for menu_spec in menus]
         id_map = {}
         while len(queue) > 0:
-            root_dir, menu_spec, parent_category = queue.pop(0)
+            root_dir, menu_spec, parent_category, parent_id = queue.pop(0)
 
             # Create the directory for the current menu overwriting any file
             # of the same name.
