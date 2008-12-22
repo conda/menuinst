@@ -40,7 +40,7 @@ class Win32(object):
         Uninstall application menus.
         """
 
-        start_menu = commomn.get_programs_start_menu()
+        start_menu = common.get_programs_start_menu()
         self._uninstall_application_menus(menus, shortcuts, start_menu)
 
     #==========================================================================
