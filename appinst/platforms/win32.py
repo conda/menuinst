@@ -3,6 +3,7 @@
 
 
 import os
+import shutil
 import sys
 
 from appinst.platforms.shortcut_creation_error import ShortcutCreationError
