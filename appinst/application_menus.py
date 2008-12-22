@@ -6,6 +6,20 @@ import platform
 import warnings
 
 
+def determine_platform():
+    # Determine our current platform and version.  This needs to distinguish
+    # between, not only different OSes, but also different OS flavors
+    # (i.e Linux distributions) and versions of OSes.
+    plat = platform.system().lower()
+    if plat == 'linux':
+        plat, pver = platform.dist()[:2]
+    elif plat == 'windows':
+        pver = platform.win32_ver()[0]
+    elif plat == 'darwin':
+        pver = platform.mac_ver()[0]
+    
+    return plat, pver
+
 def install(menus, shortcuts, install_mode='user'):
     """
     Install an application menu according to the specified mode.
@@ -83,16 +97,7 @@ def install(menus, shortcuts, install_mode='user'):
             '"system" but got "%s"' % install_mode)
         return
 
-    # Determine our current platform and version.  This needs to distinguish
-    # between, not only different OSes, but also different OS flavors
-    # (i.e Linux distributions) and versions of OSes.
-    plat = platform.system().lower()
-    if plat == 'linux':
-        plat, pver = platform.dist()[:2]
-    elif plat == 'windows':
-        pver = platform.win32_ver()[0]
-    elif plat == 'darwin':
-        pver = platform.mac_ver()[0]
+    plat, pver = determine_platform()
 
     # Dispatch for RedHat 3.
     if plat.startswith('redhat') and pver[0] == '3':
@@ -125,3 +130,23 @@ def install(menus, shortcuts, install_mode='user'):
             'to create application menu(s).' % (plat, pver))
 
     return
+
+
+def uninstall(menus, shortcuts):
+    """
+    Uninstall application menus.
+    
+    FIXME: This currently only works for Windows which can determine the install
+    mode from the registry entry. There should be a method for linux as well
+    which determines the installation type possibly from the install directory,
+    a stored value, or user input.
+    """
+    
+    plat, pver = determine_platform()
+    
+    # Dispatch for all versions of Windows (tested on XP only)
+    if plat == 'windows':
+        from appinst.platforms.win32 import Win32
+        Win32().uninstall_application_menus(menus, shortcuts)
+
+

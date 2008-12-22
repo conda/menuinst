@@ -33,7 +33,15 @@ class Win32(object):
         self._install_application_menus(menus, shortcuts, start_menu)
 
         return
+    
+    
+    def uninstall_application_menus(self, menus, shortcuts):
+        """
+        Uninstall application menus.
+        """
 
+        start_menu = commomn.get_programs_start_menu()
+        self._uninstall_application_menus(menus, shortcuts, start_menu)
 
     #==========================================================================
     # Internal API methods
@@ -127,3 +135,23 @@ class Win32(object):
 
         return
 
+
+    def _uninstall_application_menus(self, menus, shortcuts, start_menu):
+        
+        # FIXME: This function should only remove shortcuts that we created,
+        # and only menus that we created and are empty after removing the
+        #shortcuts.
+        for top_menu in menus:
+            top_name = top_menu['name']
+    
+            # We assume that the top-level menu corresponds to a company namespace
+            # for installing multiple products and that the sub-menus correspond
+            # to the menus to be deleted.  N.B. we are explicitly not conforming
+            # to the fixme mentioned above!
+            for sub in top_menu['sub-menus']:
+                sub_name = sub['name']
+    
+                rel_path = os.path.join(start_menu, top_name, sub_name)
+                if os.path.isdir(rel_path):
+                    shutil.rmtree(rel_path, True)
+                    print 'Removed start menu at: %s' % rel_path
