@@ -138,27 +138,41 @@ class Win32(object):
 
 
     def _uninstall_application_menus(self, menus, shortcuts, start_menu):
-        
-        # FIXME: This function should only remove shortcuts that we created,
-        # and only menus that we created and are empty after removing the
-        #shortcuts.
+
+        # Keep track of the shortcut names, as the shortcuts we specify are the
+        # only things we want to delete. Append '.lnk' to the name because
+        # that's how they were created during install.
+        shortcut_names = []
+        for shortcut in shortcuts:
+            shortcut_names.append(shortcut['name'] + '.lnk')
+
         for top_menu in menus:
             top_name = top_menu['name']
-    
-            # We assume that the top-level menu corresponds to a company namespace
-            # for installing multiple products and that the sub-menus correspond
-            # to the menus to be deleted.  N.B. we are explicitly not conforming
-            # to the fixme mentioned above!
-            for sub in top_menu['sub-menus']:
-                sub_name = sub['name']
-    
-                rel_path = os.path.join(start_menu, top_name, sub_name)
-                if os.path.isdir(rel_path):
-                    shutil.rmtree(rel_path, True)
-                    print 'Removed start menu at: %s' % rel_path
-        
-        # Remove the top-level menu directory, but only if it's empty
-        try:
-            os.rmdir(os.path.join(start_menu, top_name))
-        except:
-            pass
+            top_path = os.path.join(start_menu, top_name)
+
+            # Keep track of possible menu directories to be deleted
+            menu_paths = [top_path]
+
+            for root, dirs, files in os.walk(top_path):
+                for file in files:
+                    if file in shortcut_names:
+                        file_path = os.path.join(root, file)
+                        print "Removing %s" % file_path
+                        os.remove(file_path)
+                for d in dirs:
+                    # Prepend paths so that when we try to delete menu
+                    # directories we start at the bottom-most directory
+                    menu_paths.insert(0, os.path.join(root, d))
+
+            # Delete menu directories. This should start from the bottom-most
+            # directory and work its way up to the top-most. Only directories 
+            # that have been emptied will be deleted.
+            # FIXME: This will also delete directories that already are empty,
+            # but that may be a non-issue.
+            for menu_path in menu_paths:
+                try:
+                    os.rmdir(menu_path)
+                    print "Removed %s" % menu_path
+                except:
+                    print "%s not empty, skipping." % menu_path
+                    continue
