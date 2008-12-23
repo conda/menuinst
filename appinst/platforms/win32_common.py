@@ -313,7 +313,7 @@ def remove_from_reg_path( remove_dir ) :
     for path in old_path.split( ';' ):
         if new_path == "":
             new_path = path
-        elif path == remove_dir.lower():
+        elif path.lower() == remove_dir.lower():
             changed_path_value = True
             continue
         else:
