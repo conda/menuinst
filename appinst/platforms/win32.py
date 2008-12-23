@@ -156,3 +156,9 @@ class Win32(object):
                 if os.path.isdir(rel_path):
                     shutil.rmtree(rel_path, True)
                     print 'Removed start menu at: %s' % rel_path
+        
+        # Remove the top-level menu directory, but only if it's empty
+        try:
+            os.rmdir(os.path.join(start_menu, top_name))
+        except:
+            pass
