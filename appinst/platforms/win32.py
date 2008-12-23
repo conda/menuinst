@@ -3,7 +3,6 @@
 
 
 import os
-import shutil
 import sys
 
 from appinst.platforms.shortcut_creation_error import ShortcutCreationError
@@ -167,8 +166,9 @@ class Win32(object):
             # Delete menu directories. This should start from the bottom-most
             # directory and work its way up to the top-most. Only directories 
             # that have been emptied will be deleted.
-            # FIXME: This will also delete directories that already are empty,
-            # but that may be a non-issue.
+            # FIXME: This will also delete directories that already are empty
+            # (not necessarily ones that we created), but that may be a
+            # non-issue.
             for menu_path in menu_paths:
                 try:
                     os.rmdir(menu_path)
