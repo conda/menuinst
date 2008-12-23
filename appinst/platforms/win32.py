@@ -156,8 +156,8 @@ class Win32(object):
                 for file in files:
                     if file in shortcut_names:
                         file_path = os.path.join(root, file)
-                        print "Removing %s" % file_path
                         os.remove(file_path)
+                        print "Removed %s" % file_path
                 for d in dirs:
                     # Prepend paths so that when we try to delete menu
                     # directories we start at the bottom-most directory
