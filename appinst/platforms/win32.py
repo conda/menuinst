@@ -170,9 +170,12 @@ class Win32(object):
             # (not necessarily ones that we created), but that may be a
             # non-issue.
             for menu_path in menu_paths:
-                try:
-                    os.rmdir(menu_path)
-                    print "Removed %s" % menu_path
-                except:
-                    print "%s not empty, skipping." % menu_path
-                    continue
+                if os.path.exists(menu_path):
+                    try:
+                        os.rmdir(menu_path)
+                        print "Removed %s" % menu_path
+                    except:
+                        print "%s not empty, skipping." % menu_path
+                        continue
+                else:
+                    print "%s does not exist, skipping." % menu_path
