@@ -35,13 +35,18 @@ class Win32(object):
         return
     
     
-    def uninstall_application_menus(self, menus, shortcuts):
+    def uninstall_application_menus(self, menus, shortcuts, mode):
         """
         Uninstall application menus.
         """
 
-        start_menu = common.get_programs_start_menu()
+        if mode == 'system':
+            start_menu = common.get_all_users_programs_start_menu()
+        else:
+            start_menu = common.get_current_user_programs_start_menu()
         self._uninstall_application_menus(menus, shortcuts, start_menu)
+
+        return
 
     #==========================================================================
     # Internal API methods
@@ -179,3 +184,5 @@ class Win32(object):
                         continue
                 else:
                     print "%s does not exist, skipping." % menu_path
+
+        return

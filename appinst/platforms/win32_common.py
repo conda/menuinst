@@ -19,7 +19,10 @@ ALL_USERS=1
 ## Protected/Private API
 ###############################################################################
 
+# FIXME: This method should be modified or deprecated as it is specific to
+# a python install and therefore won't work for any other package.
 def _get_install_type():
+
     hklm = _winreg.ConnectRegistry( None, _winreg.HKEY_LOCAL_MACHINE )
 
     python_reg_path = "SOFTWARE\\Python\\PythonCore\\%d.%d\\InstallPath" \
@@ -282,7 +285,7 @@ def get_current_user_programs_start_menu():
             platform.version())
 
 
-def remove_from_reg_path( remove_dir ) :
+def remove_from_reg_path(remove_dir, install_mode='user') :
     """
     removes a current directory from the registry PATH value
     """
@@ -291,7 +294,7 @@ def remove_from_reg_path( remove_dir ) :
         return
 
     # determine where the environment registry settings are
-    if _get_install_type() == ALL_USERS:
+    if _get_install_type() == ALL_USERS or install_mode == 'system':
         reg = _winreg.ConnectRegistry( None, _winreg.HKEY_LOCAL_MACHINE )
         environ_key_path = ("SYSTEM\\CurrentControlSet\\Control\\"
             "Session Manager\\Environment")

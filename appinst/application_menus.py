@@ -132,7 +132,7 @@ def install(menus, shortcuts, install_mode='user'):
     return
 
 
-def uninstall(menus, shortcuts):
+def uninstall(menus, shortcuts, install_mode='user'):
     """
     Uninstall application menus.
     
@@ -141,12 +141,18 @@ def uninstall(menus, shortcuts):
     which determines the installation type possibly from the install directory,
     a stored value, or user input.
     """
-    
+
+    # Validate we have a valid install mode.
+    if install_mode != 'user' and install_mode != 'system':
+        warnings.warn('Unknown install mode.  Must be either "user" or '
+            '"system" but got "%s"' % install_mode)
+        return
+
     plat, pver = determine_platform()
-    
+
     # Dispatch for all versions of Windows (tested on XP only)
     if plat == 'windows':
         from appinst.platforms.win32 import Win32
-        Win32().uninstall_application_menus(menus, shortcuts)
+        Win32().uninstall_application_menus(menus, shortcuts, install_mode)
 
 
