@@ -314,13 +314,13 @@ def remove_from_reg_path(remove_dir, install_mode='user') :
     changed_path_value = False
     new_path = ""
     for path in old_path.split( ';' ):
-        if new_path == "":
-            new_path = path
-        elif path.lower() == remove_dir.lower():
+        if path.lower() == remove_dir.lower():
             changed_path_value = True
-            continue
         else:
-            new_path = "%s;%s" % ( new_path, path )
+            new_path += path + ';'
+
+    # Remove the trailing semicolon
+    new_path = new_path[:-1]
 
     # assign new_path to the PATH only if the old_path has been modified.
     if changed_path_value:
