@@ -73,6 +73,9 @@
  *  - more comments about what the code does(?)
  *
  *  - evolve this into a full blown installer (???)
+ *
+ *  - include knownfolders.h when being built on Vista so that Vista-specific
+ *  constants can be used (shlobj.h works on XP)
  */
  
 #include <python.h>
