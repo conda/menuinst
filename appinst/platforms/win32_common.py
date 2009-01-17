@@ -19,10 +19,7 @@ ALL_USERS=1
 ## Protected/Private API
 ###############################################################################
 
-# FIXME: This method should be modified or deprecated as it is specific to
-# a python install and therefore won't work for any other package.
 def _get_install_type():
-
     hklm = _winreg.ConnectRegistry( None, _winreg.HKEY_LOCAL_MACHINE )
 
     python_reg_path = "SOFTWARE\\Python\\PythonCore\\%d.%d\\InstallPath" \
@@ -81,10 +78,11 @@ def _get_install_type():
 
 
 def _get_all_users_desktop_directory():
-    if platform.version().startswith('5'):
+    # FIXME: These should probably use Vista-specific constants when possible.
+    # This will require determining whether or not they can be imported from
+    # wininst.c (they're in knownfolders.h).
+    if platform.version().startswith('5') or platform.version().startswith('6'):
         return wininst.get_special_folder_path('CSIDL_COMMON_DESKTOPDIRECTORY')
-    if platform.version().startswith('6'):
-        return wininst.get_special_folder_path('FOLDERID_PublicDesktop')
     else:
         #hmm, not XP or Vista
         raise InstallError('Unsupported Windows Version: %s' %
@@ -92,10 +90,8 @@ def _get_all_users_desktop_directory():
 
 
 def _get_current_user_desktop_directory():
-    if platform.version().startswith('5'):
+    if platform.version().startswith('5') or platform.version().startswith('6'):
         return wininst.get_special_folder_path('CSIDL_DESKTOPDIRECTORY')
-    if platform.version().startswith('6'):
-        return wininst.get_special_folder_path('FOLDERID_Desktop')
     else:
         #hmm, not XP or Vista
         raise InstallError('Unsupported Windows Version: %s' %
@@ -108,12 +104,10 @@ def _get_all_users_quick_launch_directory():
 
 
 def _get_current_user_quick_launch_directory():
-    if platform.version().startswith('5'):
+    if platform.version().startswith('5') or platform.version().startswith('6'):
         appdata = wininst.get_special_folder_path('CSIDL_APPDATA')
         return os.path.join(appdata, "Microsoft", "Internet Explorer",
             "Quick Launch")
-    if platform.version().startswith('6'):
-        return wininst.get_special_folder_path('FOLDERID_QuickLaunch')
     else:
         #hmm, not XP or Vista
         raise InstallError('Unsupported Windows Version: %s' %
@@ -264,10 +258,8 @@ def append_to_reg_pathext():
 
 
 def get_all_users_programs_start_menu():
-    if platform.version().startswith('5'):
+    if platform.version().startswith('5') or platform.version().startswith('6'):
         return wininst.get_special_folder_path('CSIDL_COMMON_PROGRAMS')
-    if platform.version().startswith('6'):
-        return wininst.get_special_folder_path('FOLDERID_CommonPrograms')
     else:
         #hmm, not XP or Vista
         raise InstallError('Unsupported Windows Version: %s' %
@@ -275,17 +267,15 @@ def get_all_users_programs_start_menu():
 
 
 def get_current_user_programs_start_menu():
-    if platform.version().startswith('5'):
+    if platform.version().startswith('5') or platform.version().startswith('6'):
         return wininst.get_special_folder_path('CSIDL_PROGRAMS')
-    if platform.version().startswith('6'):
-        return wininst.get_special_folder_path('FOLDERID_Programs')
     else:
         #hmm, not XP or Vista
         raise InstallError('Unsupported Windows Version: %s' %
             platform.version())
 
 
-def remove_from_reg_path(remove_dir, install_mode='user') :
+def remove_from_reg_path( remove_dir ) :
     """
     removes a current directory from the registry PATH value
     """
@@ -294,7 +284,7 @@ def remove_from_reg_path(remove_dir, install_mode='user') :
         return
 
     # determine where the environment registry settings are
-    if _get_install_type() == ALL_USERS or install_mode == 'system':
+    if _get_install_type() == ALL_USERS:
         reg = _winreg.ConnectRegistry( None, _winreg.HKEY_LOCAL_MACHINE )
         environ_key_path = ("SYSTEM\\CurrentControlSet\\Control\\"
             "Session Manager\\Environment")
@@ -314,13 +304,13 @@ def remove_from_reg_path(remove_dir, install_mode='user') :
     changed_path_value = False
     new_path = ""
     for path in old_path.split( ';' ):
-        if path.lower() == remove_dir.lower():
+        if new_path == "":
+            new_path = path
+        elif path == remove_dir.lower():
             changed_path_value = True
+            continue
         else:
-            new_path += path + ';'
-
-    # Remove the trailing semicolon
-    new_path = new_path[:-1]
+            new_path = "%s;%s" % ( new_path, path )
 
     # assign new_path to the PATH only if the old_path has been modified.
     if changed_path_value:
