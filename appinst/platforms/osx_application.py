@@ -64,7 +64,7 @@ class Application(object):
         self.write_script()
 
     #=======================================================================
-    # More os less private mathods
+    # More os less private methods
     #=======================================================================
 
     def create_dirs(self):
@@ -107,7 +107,9 @@ class Application(object):
 
     def write_script(self):
         """
-        Copies the script_name
+        Copies a python script (which starts the application) into the
+        application folder (into Contests/MacOS) and makes sure the script
+        uses sys.executable, which should be the "framework Python".
         """
         pat = re.compile(r'#!(.+)$', re.M)
 
@@ -131,5 +133,5 @@ class Application(object):
 
 if __name__ == '__main__':
     # Example for testing:
-    app = Application('Test123', 'test123.py', apps_dir=os.getcwd())
+    app = Application('Test Application', 'test123.py', apps_dir=os.getcwd())
     app.create()
