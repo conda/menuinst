@@ -87,6 +87,42 @@ def recompile_pyc_files():
     return
 
 
+def replace_in_binary(path, placeholder, replacement):
+    """
+    Replaces `placeholder` by `replacement` in binary file given py `path`.
+
+    The size of the replacement string must be smaller or equal then the size
+    of the placeholder.  The replacement string is padded with null characters,
+    such that the file size is preserved.  Only null terminated placeholders
+    are replaced in the file.
+    The strings passed to this function are not null terminated, this is, the
+    function searches for the bytes placeholders + '\0' in the files content.
+    """
+    if len(replacement) > len(placeholder):
+        raise Exception("replacement exceeds %i characters" % len(placeholder))
+
+    # The bytes `old` are going to replaced with `new`.  Note that `old` is
+    # the null terminated placeholder, and `new` is padded with zeros, such
+    # that the length is preserved.
+    old = placeholder + chr(0)
+    new = replacement + (len(old) - len(replacement)) * chr(0)
+    assert len(new) == len(old)
+
+    fi = open(path, 'rb')
+    data = fi.read()
+    fi.close()
+
+    count = data.count(old)
+    print "Found %s placeholder(s) in file: %r" % (count, path)
+    if count:
+        print "Rewriting file"
+        fo = open(path, 'wb')
+        fo.write(data.replace(old, new))
+        fo.close()
+    else:
+        print "Nothing to do"
+
+
 def _chrpath_list(filename):
     try:
         import chrpath
