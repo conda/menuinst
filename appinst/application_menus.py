@@ -20,6 +20,36 @@ def determine_platform():
     
     return plat, pver
 
+def get_default_menu():
+    custom_dir = (sys.platform=='win32') and os.path.join(sys.prefix, 'Lib', 'custom_tools') or \
+        glob.glob(os.path.join(sys.prefix, 'lib', 'python*', 'custom_tools'))[0]
+    properites_file = os.path.join(custom_dir, 'Property.dat')
+    f = open(properties_file, 'r')
+    defaults = {}
+    while 1:
+        line = f.readline().strip()
+        if not line:
+            break
+        if line.startswith('#'):
+            continue
+        key, value = line.split('=')
+        defaults[key.strip()] = value.strip()
+
+    DEFAULT_MENU = [
+        { # top-level menu
+            'id': defaults['Manufacturer'].lower(),
+            'name': defaults['Manufacturer'],
+            'sub-menus': [
+                { # versioned sub-menu
+                    'id': '%(Name)s %(ProductVersion)s'.lower() % defaults,
+                    'name': defaults['ProductName'],
+                    },
+                ],
+            },
+        ]
+
+    return DEFAULT_MENU
+
 def install(menus, shortcuts, install_mode='user'):
     """
     Install an application menu according to the specified mode.
@@ -98,6 +128,9 @@ def install(menus, shortcuts, install_mode='user'):
         return
 
     plat, pver = determine_platform()
+
+    if not menus:
+        menus = get_default_menu()
 
     # Dispatch for RedHat 3.
     if plat.startswith('redhat') and pver[0] == '3':
