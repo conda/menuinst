@@ -20,11 +20,14 @@ def determine_platform():
     
     return plat, pver
 
-def get_default_menu():
-    custom_dir = (sys.platform=='win32') and os.path.join(sys.prefix, 'Lib', 'custom_tools') or \
+
+def get_system_defaults():
+    
+    CUSTOM_DIR = (sys.platform=='win32') and os.path.join(sys.prefix, 'Lib', 'custom_tools') or \
         glob.glob(os.path.join(sys.prefix, 'lib', 'python*', 'custom_tools'))[0]
-    properites_file = os.path.join(custom_dir, 'Property.dat')
-    f = open(properties_file, 'r')
+    PROPERTIES_FILE = os.path.join(CUSTOM_DIR, 'Property.dat')
+    
+    f = open(PROPERTIES_FILE, 'r')
     defaults = {}
     while 1:
         line = f.readline().strip()
@@ -34,6 +37,12 @@ def get_default_menu():
             continue
         key, value = line.split('=')
         defaults[key.strip()] = value.strip()
+    f.close()
+
+    return defaults
+
+
+def get_default_menu(defaults):
 
     DEFAULT_MENU = [
         { # top-level menu
@@ -49,6 +58,7 @@ def get_default_menu():
         ]
 
     return DEFAULT_MENU
+
 
 def install(menus, shortcuts, install_mode='user'):
     """
@@ -121,6 +131,13 @@ def install(menus, shortcuts, install_mode='user'):
 
     """
 
+    system_defaults = get_system_defaults()
+
+    if system_defaults['ALLUSERS'] == '1':
+        isntall_mode = 'system'
+    else:
+        install_mode = 'user'
+
     # Validate we have a valid install mode.
     if install_mode != 'user' and install_mode != 'system':
         warnings.warn('Unknown install mode.  Must be either "user" or '
@@ -130,7 +147,7 @@ def install(menus, shortcuts, install_mode='user'):
     plat, pver = determine_platform()
 
     if not menus:
-        menus = get_default_menu()
+        menus = get_default_menu(system_defaults)
 
     # Dispatch for RedHat 3.
     if plat.startswith('redhat') and pver[0] == '3':
