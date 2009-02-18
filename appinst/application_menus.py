@@ -12,6 +12,11 @@ CUSTOM_DIR = (sys.platform=='win32') and os.path.join(sys.prefix, 'Lib', 'custom
     glob.glob(os.path.join(sys.prefix, 'lib', 'python*', 'custom-tools'))[0]
 PROPERTIES_FILE = os.path.join(CUSTOM_DIR, 'Property.dat')
 PROPERTY_DAT = os.path.exists(PROPERTIES_FILE)
+# Make the following names available: ADDTODESKTOP, ADDTOLAUNCHER, ALLUSERS,
+# Manufacturer, Name, Version, VersionTag, ProductName, ProductVersion, 
+# WHICHUSERS 
+if PROPERTY_DAT:
+    execfile(PROPERTIES_FILE)
 
 
 def determine_platform():
@@ -29,34 +34,17 @@ def determine_platform():
     return plat, pver
 
 
-def get_system_defaults():
-
-    f = open(PROPERTIES_FILE, 'r')
-    defaults = {}
-    while 1:
-        line = f.readline().strip()
-        if not line:
-            break
-        if line.startswith('#'):
-            continue
-        key, value = line.split('=')
-        defaults[key.strip()] = value.strip()
-    f.close()
-
-    return defaults
-
-
-def get_default_menu(defaults):
+def get_default_menu():
 
     DEFAULT_MENU = [
         { # top-level menu
-            'id': defaults['Manufacturer'].lower(),
-            'name': defaults['Manufacturer'],
+            'id': Manufacturer.lower(),
+            'name': Manufacturer,
             'sub-menus': [
                 { # versioned sub-menu
-                    'id': '%s %s'.lower() % \
-                            (defaults['Name'], defaults['ProductVersion']),
-                    'name': defaults['ProductName'],
+                    'id': '%s-%s' % \
+                            (Name.lower(), ProductVersion.lower()),
+                    'name': ProductName,
                     },
                 ],
             },
@@ -132,20 +120,27 @@ def install(menus, shortcuts, install_mode='user'):
     install_mode: should be either 'user' or 'system' and controls where the
         menus and shortcuts are installed on the system, depending on platform.
 
-    FIXME: We need to add icon support for menus.
+    FIXME: Add support for adding additional submenus.
+    
+    TODO: Create separate APIs for product-specific shortcuts vs. generic
+    sortcuts
 
     """
 
     if PROPERTY_DAT:
-        system_defaults = get_system_defaults()
     
-        if system_defaults['ALLUSERS'] == '1':
+        if ALLUSERS == '1':
             install_mode = 'system'
         else:
             install_mode = 'user'
 
         if not menus:
-            menus = get_default_menu(system_defaults)
+            menus = get_default_menu()
+            product_category = '%s-%s' % (Name, ProductVersion)
+            product_category = product_category.lower().capitalize()
+            for shortcut in shortcuts:
+                shortcut['categories'] = ["%s.%s" % (Manufacturer, product_category)]
+                print "CATEGORIES", shortcut['categories']
 
     # Validate we have a valid install mode.
     if install_mode != 'user' and install_mode != 'system':
