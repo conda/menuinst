@@ -11,9 +11,8 @@ import warnings
 CUSTOM_DIR = (sys.platform=='win32') and os.path.join(sys.prefix, 'Lib', 'custom-tools') or \
     glob.glob(os.path.join(sys.prefix, 'lib', 'python*', 'custom-tools'))[0]
 PROPERTIES_FILE = os.path.join(CUSTOM_DIR, 'Property.dat')
-PROPERTY_DAT = False
-if os.path.exists(PROPERTIES_FILE):
-    PROPERTY_DAT = True
+PROPERTY_DAT = os.path.exists(PROPERTIES_FILE)
+
 
 def determine_platform():
     # Determine our current platform and version.  This needs to distinguish
