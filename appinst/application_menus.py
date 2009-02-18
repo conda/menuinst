@@ -1,10 +1,17 @@
 # Copyright (c) 2008 by Enthought, Inc.
 # All rights reserved.
 
-
+import os
 import platform
 import warnings
 
+
+CUSTOM_DIR = (sys.platform=='win32') and os.path.join(sys.prefix, 'Lib', 'custom_tools') or \
+    glob.glob(os.path.join(sys.prefix, 'lib', 'python*', 'custom_tools'))[0]
+PROPERTIES_FILE = os.path.join(CUSTOM_DIR, 'Property.dat')
+PROPERTY_DAT = False
+if os.path.exists(PROPERTIES_FILE):
+    PROPERTY_DAT = True
 
 def determine_platform():
     # Determine our current platform and version.  This needs to distinguish
@@ -22,11 +29,7 @@ def determine_platform():
 
 
 def get_system_defaults():
-    
-    CUSTOM_DIR = (sys.platform=='win32') and os.path.join(sys.prefix, 'Lib', 'custom_tools') or \
-        glob.glob(os.path.join(sys.prefix, 'lib', 'python*', 'custom_tools'))[0]
-    PROPERTIES_FILE = os.path.join(CUSTOM_DIR, 'Property.dat')
-    
+
     f = open(PROPERTIES_FILE, 'r')
     defaults = {}
     while 1:
@@ -131,12 +134,16 @@ def install(menus, shortcuts, install_mode='user'):
 
     """
 
-    system_defaults = get_system_defaults()
+    if PROPERTY_DAT:
+        system_defaults = get_system_defaults()
+    
+        if system_defaults['ALLUSERS'] == '1':
+            isntall_mode = 'system'
+        else:
+            install_mode = 'user'
 
-    if system_defaults['ALLUSERS'] == '1':
-        isntall_mode = 'system'
-    else:
-        install_mode = 'user'
+        if not menus:
+            menus = get_default_menu(system_defaults)
 
     # Validate we have a valid install mode.
     if install_mode != 'user' and install_mode != 'system':
@@ -145,9 +152,6 @@ def install(menus, shortcuts, install_mode='user'):
         return
 
     plat, pver = determine_platform()
-
-    if not menus:
-        menus = get_default_menu(system_defaults)
 
     # Dispatch for RedHat 3.
     if plat.startswith('redhat') and pver[0] == '3':
