@@ -54,7 +54,8 @@ def get_default_menu(defaults):
             'name': defaults['Manufacturer'],
             'sub-menus': [
                 { # versioned sub-menu
-                    'id': '%(Name)s %(ProductVersion)s'.lower() % defaults,
+                    'id': '%s %s'.lower() % \
+                            (defaults['Name'], defaults['ProductVersion']),
                     'name': defaults['ProductName'],
                     },
                 ],
