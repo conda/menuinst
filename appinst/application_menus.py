@@ -123,7 +123,7 @@ def install(menus, shortcuts, install_mode='user'):
     FIXME: Add support for adding additional submenus.
     
     TODO: Create separate APIs for product-specific shortcuts vs. generic
-    sortcuts
+    shortcuts
 
     """
 
