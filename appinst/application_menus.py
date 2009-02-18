@@ -1,14 +1,15 @@
 # Copyright (c) 2008 by Enthought, Inc.
 # All rights reserved.
 
+import glob
 import os
 import platform
 import sys
 import warnings
 
 
-CUSTOM_DIR = (sys.platform=='win32') and os.path.join(sys.prefix, 'Lib', 'custom_tools') or \
-    glob.glob(os.path.join(sys.prefix, 'lib', 'python*', 'custom_tools'))[0]
+CUSTOM_DIR = (sys.platform=='win32') and os.path.join(sys.prefix, 'Lib', 'custom-tools') or \
+    glob.glob(os.path.join(sys.prefix, 'lib', 'python*', 'custom-tools'))[0]
 PROPERTIES_FILE = os.path.join(CUSTOM_DIR, 'Property.dat')
 PROPERTY_DAT = False
 if os.path.exists(PROPERTIES_FILE):
