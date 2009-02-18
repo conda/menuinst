@@ -140,7 +140,7 @@ def install(menus, shortcuts, install_mode='user'):
         system_defaults = get_system_defaults()
     
         if system_defaults['ALLUSERS'] == '1':
-            isntall_mode = 'system'
+            install_mode = 'system'
         else:
             install_mode = 'user'
 
