@@ -1,15 +1,17 @@
 # Copyright (c) 2008 by Enthought, Inc.
 # All rights reserved.
 
-import glob
 import os
 import platform
 import sys
 import warnings
 
 
-CUSTOM_DIR = (sys.platform=='win32') and os.path.join(sys.prefix, 'Lib', 'custom-tools') or \
-    glob.glob(os.path.join(sys.prefix, 'lib', 'python*', 'custom-tools'))[0]
+py_major, py_minor = sys.version_info[0:2]
+
+CUSTOM_DIR = (sys.platform=='win32') and os.path.join(sys.prefix, 'Lib', 'custom_tools') or \
+    os.path.join(sys.prefix, 'lib', 'python%s.%s' % (py_major, py_minor),
+        'custom_tools')
 PROPERTIES_FILE = os.path.join(CUSTOM_DIR, 'Property.dat')
 PROPERTY_DAT = os.path.exists(PROPERTIES_FILE)
 # Make the following names available: ADDTODESKTOP, ADDTOLAUNCHER, ALLUSERS,
@@ -140,7 +142,6 @@ def install(menus, shortcuts, install_mode='user'):
             product_category = product_category.lower().capitalize()
             for shortcut in shortcuts:
                 shortcut['categories'] = ["%s.%s" % (Manufacturer, product_category)]
-                print "CATEGORIES", shortcut['categories']
 
     # Validate we have a valid install mode.
     if install_mode != 'user' and install_mode != 'system':
