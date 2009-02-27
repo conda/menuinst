@@ -177,10 +177,14 @@ def append_to_reg_path( new_dir ) :
     # reopen key for writing new value
     key = _winreg.OpenKey(reg, environ_key_path, 0, _winreg.KEY_ALL_ACCESS )
 
-    # Check if the new dir has already been included in the old 'path' value
-    add_path = not new_dir in old_path.split(';')
-    if add_path:
-        new_path = "%s;%s" % (old_path, new_dir)
+    #  Check if the new dir has already been included in the old 'path' value
+    path_exists = False
+    for path_dir in old_path.split(';'):
+        if path_dir.lower() == new_dir.lower():
+            path_exists = True
+
+    if not path_exists:
+        new_path = "%s;%s" % (old_path.strip(';'), new_dir)
 
         # append new_dir to the PATH
         _winreg.SetValueEx( key, "path", 0, _winreg.REG_EXPAND_SZ, new_path )
@@ -188,7 +192,7 @@ def append_to_reg_path( new_dir ) :
     _winreg.CloseKey( key )
     _winreg.CloseKey( reg )
 
-    if add_path:
+    if not path_exists:
         try:
             refreshEnvironment()
         except:
