@@ -169,7 +169,7 @@ def append_to_reg_path( new_dir ) :
     # open key for reading, to save and print out old value
     try:
         key = _winreg.OpenKey(reg, environ_key_path )
-        old_path = _winreg.QueryValueEx( key, "path" )[0]
+        old_path = _winreg.QueryValueEx( key, "Path" )[0]
         _winreg.CloseKey( key )
     except WindowsError:
         old_path = ""
@@ -187,7 +187,7 @@ def append_to_reg_path( new_dir ) :
         new_path = "%s;%s" % (old_path.strip(';'), new_dir)
 
         # append new_dir to the PATH
-        _winreg.SetValueEx( key, "path", 0, _winreg.REG_EXPAND_SZ, new_path )
+        _winreg.SetValueEx( key, "Path", 0, _winreg.REG_EXPAND_SZ, new_path )
 
     _winreg.CloseKey( key )
     _winreg.CloseKey( reg )
@@ -305,7 +305,7 @@ def remove_from_reg_path(remove_dir, install_mode='user') :
 
     # open key for reading, to save and print out old value
     key = _winreg.OpenKey(reg, environ_key_path )
-    old_path = _winreg.QueryValueEx( key, "path" )[0]
+    old_path = _winreg.QueryValueEx( key, "Path" )[0]
     _winreg.CloseKey( key )
 
     # reopen key for writing new value
@@ -325,7 +325,7 @@ def remove_from_reg_path(remove_dir, install_mode='user') :
 
     # assign new_path to the PATH only if the old_path has been modified.
     if changed_path_value:
-        _winreg.SetValueEx( key, "path", 0, _winreg.REG_EXPAND_SZ, new_path )
+        _winreg.SetValueEx( key, "Path", 0, _winreg.REG_EXPAND_SZ, new_path )
 
     _winreg.CloseKey( key )
     _winreg.CloseKey( reg )
