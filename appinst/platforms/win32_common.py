@@ -279,16 +279,23 @@ def get_current_user_programs_start_menu():
             platform.version())
 
 
-def remove_from_reg_path( remove_dir ) :
+def remove_from_reg_path(remove_dir, install_mode='user') :
     """
-    removes a current directory from the registry PATH value
+    Removes a directory from the PATH environment variable. If the directory
+    exists more than once on the path, all instances of that directory are
+    removed.
+    
+    remove_dir      The directory to be removed from the PATH.
+    install_mode    Determines which environment to modify. If 'system' is
+                    given, the PATH variable in HKLM is modified. If 'user'
+                    is given, the PATH variable in HKCU is modified.
     """
 
     if platform.uname()[0] != 'Windows':
         return
 
     # determine where the environment registry settings are
-    if _get_install_type() == ALL_USERS:
+    if install_mode == 'system':
         reg = _winreg.ConnectRegistry( None, _winreg.HKEY_LOCAL_MACHINE )
         environ_key_path = ("SYSTEM\\CurrentControlSet\\Control\\"
             "Session Manager\\Environment")
