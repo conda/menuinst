@@ -3,3 +3,10 @@
     module, and move the code into application_menus.py so that we have only
     one entry point for creating application menu's across all supported
     platforms.
+
+- Change application_menu.py such that it is not depending on enicab specific
+  files.  The whole point of the AppInst project is to be an open source
+  project, and enicab is not.  If an application, e.g. in EPD, needs
+  enicab specific information to the functions in application_menu.py it
+  can simply have a post install script which reads the enicab files and
+  pass the appropriate arguments to the function in appinst.
