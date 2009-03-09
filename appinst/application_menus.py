@@ -9,16 +9,11 @@ import warnings
 
 py_major, py_minor = sys.version_info[0:2]
 
-CUSTOM_DIR = (sys.platform=='win32') and os.path.join(sys.prefix, 'Lib', 'custom_tools') or \
-    os.path.join(sys.prefix, 'lib', 'python%s.%s' % (py_major, py_minor),
-        'custom_tools')
-PROPERTIES_FILE = os.path.join(CUSTOM_DIR, 'Property.dat')
-PROPERTY_DAT = os.path.exists(PROPERTIES_FILE)
-# Make the following names available: ADDTODESKTOP, ADDTOLAUNCHER, ALLUSERS,
-# Manufacturer, Name, Version, VersionTag, ProductName, ProductVersion, 
-# WHICHUSERS 
-if PROPERTY_DAT:
-    execfile(PROPERTIES_FILE)
+try:
+    import custom_tools as ct
+    has_custom = True
+except ImportError:
+    has_custom = False
 
 
 def determine_platform():
@@ -38,8 +33,21 @@ def determine_platform():
 
 def get_default_menu():
 
-    DEFAULT_MENU = [
-        { # top-level menu
+    if has_custom:
+        return [
+          { # top-level menu
+            'id': ct.Manufacturer.lower(),
+            'name': ct.Manufacturer,
+            'sub-menus': [
+                { # versioned sub-menu
+                    'id': '%s-%s' % (ct.NAME.lower(), ct.FULL_VERSION.lower()),
+                    'name': ct.NAME,
+                    }]}]
+    else:
+        # FIXME: put some useful default values here,
+        #        that is when no custom_tools is found.
+        return [
+          { # top-level menu
             'id': Manufacturer.lower(),
             'name': Manufacturer,
             'sub-menus': [
@@ -47,12 +55,7 @@ def get_default_menu():
                     'id': '%s-%s' % \
                             (Name.lower(), ProductVersion.lower()),
                     'name': ProductName,
-                    },
-                ],
-            },
-        ]
-
-    return DEFAULT_MENU
+                    }]}]
 
 
 def install(menus, shortcuts, install_mode='user'):
@@ -128,20 +131,22 @@ def install(menus, shortcuts, install_mode='user'):
     shortcuts
 
     """
+    if has_custom:
+        install_mode = 'user'  # default
 
-    if PROPERTY_DAT:
-    
-        if ALLUSERS == '1':
-            install_mode = 'system'
-        else:
-            install_mode = 'user'
+        if sys.platform == 'win32':
+            import custom_tools.Property as p
+            if p.ALLUSERS == '1':
+                install_mode = 'system'
+            print install_mode
 
         if not menus:
             menus = get_default_menu()
-            product_category = '%s-%s' % (Name, ProductVersion)
+            product_category = '%s-%s' % (ct.NAME, ct.FULL_VERSION)
             product_category = product_category.lower().capitalize()
             for shortcut in shortcuts:
-                shortcut['categories'] = ["%s.%s" % (Manufacturer, product_category)]
+                shortcut['categories'] = [
+                    "%s.%s" % (ct.Manufacturer, product_category)]
 
     # Validate we have a valid install mode.
     if install_mode != 'user' and install_mode != 'system':
