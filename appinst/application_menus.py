@@ -5,6 +5,7 @@ import os
 import platform
 import sys
 import warnings
+from os.path import dirname, join
 
 
 py_major, py_minor = sys.version_info[0:2]
@@ -135,10 +136,12 @@ def install(menus, shortcuts, install_mode='user'):
         install_mode = 'user'  # default
 
         if sys.platform == 'win32':
-            import custom_tools.Property as p
-            if p.ALLUSERS == '1':
+            # on Windows, we have to read Property.dat
+            props = {}
+            execfile(join(dirname(ct.__file__), 'Property.dat'), props)
+
+            if props['ALLUSERS'] == '1':
                 install_mode = 'system'
-            print install_mode
 
         if not menus:
             menus = get_default_menu()
@@ -147,6 +150,10 @@ def install(menus, shortcuts, install_mode='user'):
             for shortcut in shortcuts:
                 shortcut['categories'] = [
                     "%s.%s" % (ct.Manufacturer, product_category)]
+
+    #import pprint
+    #pp = pprint.PrettyPrinter(indent=4, width=20)
+    #print pp.pformat((menus, shortcuts, install_mode))
 
     # Validate we have a valid install mode.
     if install_mode != 'user' and install_mode != 'system':
