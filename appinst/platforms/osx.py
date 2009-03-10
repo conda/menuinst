@@ -124,11 +124,13 @@ class OSX(object):
 
             app = Executable(
                 name,
+                # The script_path is only used by the in derived class to
+                # obtain the script name.
                 script_path=name,
                 icns_path=incs,
                 apps_dir=self.category_map[mapped_category]
                 )
-            app.proxy_path = join(app.macos_dir, name)
+            app.proxy_path = os.path.join(app.macos_dir, name)
             app.argv = [cmd] + args
             app.create()
 
