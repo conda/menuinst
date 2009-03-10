@@ -14,27 +14,17 @@ from appinst.application_menus import install, uninstall
 BIN_DIR = join(sys.prefix, 'Scripts' if sys.platform == 'win32' else 'bin')
 
 
-def make_absolute(pkg_root, path):
-    if pkg_root is None:
-        # path is assumed to be absolute, so just return it
-        return path
-
-    path = path.replace('\\', '/')
-    if path.startswith('/'):
-        raise Exception("Assuming relative path, but %r starts with '/'" %
-                        path)
-    # make path absolute
-    return join(pkg_root, join(*path.split('/')))
-
-
-def change_shortcut(pkg_root, sc):
+def transform_shortcut(dat_dir, sc):
+    """
+    Given the directory the appinst data file is located in, fix some path.
+    """
     # make the path to the executable absolute
     sc['cmd'][0] = join(BIN_DIR, sc['cmd'][0])
 
     # make the path of to icon files absolute
     for kw in ('icon', 'icns'):
         if kw in sc:
-            sc[kw] = make_absolute(pkg_root, sc[kw])
+            sc[kw] = abspath(join(dat_dir, sc[kw]))
 
 
 def transform(path):
@@ -45,22 +35,12 @@ def transform(path):
     module expects.
     """
     # default values
-    d = {'MENUS': [], 'PKG_ROOT' : 2}
+    d = {'MENUS': []}
     execfile(path, d)
-
-    # pkg_root (not to be confused with d['PKG_ROOT']) is the absolute path
-    # to the root of the package, or None in case relative paths are desired.
-    if d['PKG_ROOT'] is None:
-        pkg_root = None
-    else:
-        # The dirname of the appinst data file
-        pkg_root = dirname(abspath(path))
-        for i in xrange(d['PKG_ROOT']):
-            pkg_root = dirname(pkg_root)
 
     shortcuts = d['SHORTCUTS']
     for sc in shortcuts:
-        change_shortcut(pkg_root, sc)
+        transform_shortcut(dirname(path), sc)
 
     return d['MENUS'], shortcuts
 

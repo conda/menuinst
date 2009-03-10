@@ -61,12 +61,17 @@
 #     On Windows this defaults is given in custom_tools\Property.dat by
 #     ADDTODESKTOP variable, if the file exists at all.  When Property.dat
 #     does not exist, the default is True.
+#
+# Notes:
+#   * the location of files, such as icons, can be specified by the absolute
+#     or relative path.  Then a relative is understood to be relative to the
+#     location of this (appinst data) file.
 
 SHORTCUTS = [
     { # IPython
         'cmd': ['ipython', '-pylab'],
         'comment': 'Pylab in an iPython shell',
-        'icon': 'EGG-INFO/app/pycon.ico',
+        'icon': 'pycon.ico',
         'id': 'pylab',
         'name': 'PyLab (IPython)',
         'terminal': True,
@@ -113,18 +118,3 @@ MENUS = [
 ]
 
 
-
-# PKG_ROOT (optional, integer, default 2)
-# Since this file it likely to be called (using appinst.install_from_dat)
-# from with a distribution package (such as en egg), it is useful to
-# specify the location of icon (and other data files) relative to the
-# root of the root of the package distribution file tree.  PKG_ROOT tells
-# appinst how many directories above the location of this file the root
-# of the package is located.  For example, when this file is called
-# EGG-INFO/app/appinst.dat you need to go 2 directories up to reach the
-# root of the distribution package.  PKG_ROOT = 0  would mean that this
-# file is in the root of that package itself, as in the example below.
-# However, you can also specify  PKG_ROOT = None, in which case the all
-# paths are assumed absolute.
-
-PKG_ROOT = 1
