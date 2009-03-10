@@ -66,7 +66,7 @@ def get_default_menu():
                     }]}]
 
 
-def install(menus, shortcuts, install_mode='user'):
+def install(menus, shortcuts, install_mode='user', uninstall=False):
     """
     Install an application menu according to the specified mode.
 
@@ -170,6 +170,11 @@ def install(menus, shortcuts, install_mode='user'):
 
     plat, pver = determine_platform()
 
+    if uninstall and plat != 'windows':
+        warnings.warn("Uninstall is currently only supported for Windows, "
+                      "not for platform: %s" % plat)
+        return
+
     # Dispatch for RedHat 3.
     if plat.startswith('redhat') and pver[0] == '3':
         from appinst.platforms.rh3 import RH3
@@ -193,7 +198,10 @@ def install(menus, shortcuts, install_mode='user'):
     # Dispatch for all versions of Windows (tested on XP only)
     elif plat == 'windows':
         from appinst.platforms.win32 import Win32
-        Win32().install_application_menus(menus, shortcuts, install_mode)
+        if uninstall:
+            Win32().uninstall_application_menus(menus, shortcuts, install_mode)
+        else:
+            Win32().install_application_menus(menus, shortcuts, install_mode)
 
     # Handle all other platforms with a warning until we implement for them.
     else:
@@ -212,18 +220,4 @@ def uninstall(menus, shortcuts, install_mode='user'):
     which determines the installation type possibly from the install directory,
     a stored value, or user input.
     """
-
-    # Validate we have a valid install mode.
-    if install_mode != 'user' and install_mode != 'system':
-        warnings.warn('Unknown install mode.  Must be either "user" or '
-            '"system" but got "%s"' % install_mode)
-        return
-
-    plat, pver = determine_platform()
-
-    # Dispatch for all versions of Windows (tested on XP only)
-    if plat == 'windows':
-        from appinst.platforms.win32 import Win32
-        Win32().uninstall_application_menus(menus, shortcuts, install_mode)
-
-
+    install(menus, shortcuts, install_mode, uninstall=True)
