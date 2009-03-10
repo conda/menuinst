@@ -14,7 +14,7 @@ def make_absolute(pkg_root, path):
         # path is assumed to be absolute, so just return it
         return path
 
-    path = shortcut[kw].replace('\\', '/')
+    path = path.replace('\\', '/')
     if path.startswith('/'):
         raise Exception("Assuming relative path, but %r starts with '/'" %
                         path)
@@ -50,7 +50,7 @@ def transform(path):
     else:
         # The dirname of the appinst data file
         pkg_root = dirname(abspath(path))
-        for i in xrange(d['pkg-root']):
+        for i in xrange(d['PKG_ROOT']):
             pkg_root = dirname(pkg_root)
 
     return (d['MENUS'], [change_shortcut(pkg_root, sc)
