@@ -1,3 +1,3 @@
 import application_menus
 
-from api import install_from_dat, uninstall_from_dat
+from dat_file import install_from_dat, uninstall_from_dat

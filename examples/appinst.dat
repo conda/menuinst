@@ -61,19 +61,6 @@
 #     On Windows this defaults is given in custom_tools\Property.dat by
 #     ADDTODESKTOP variable, if the file exists at all.  When Property.dat
 #     does not exist, the default is True.
-#
-# pkg-root: (optional, integer, default 2)
-#     Since this file it likely to be called (using appinst.install_from_dat)
-#     from with a distribution package (such as en egg), it is useful to
-#     specify the location of icon (and other data files) relative to the
-#     root of the root of the package distribution file tree. pkg-root tells
-#     appinst how many directories above the location of this file the root
-#     of the package is located.  For example, when this file is called
-#     EGG-INFO/app/appinst.dat you need to go 2 directories up to reach the
-#     root of the distribution package. 'pkg-root': 0, would mean that this
-#     file is in the root of that package itself, as in the example below.
-#     However, you can also specify 'pkg-root': None.  In this case the all
-#     path are absolute.
 
 SHORTCUTS = [
     { # IPython
@@ -85,7 +72,6 @@ SHORTCUTS = [
         'terminal': True,
 	'quicklaunch': False,
 	'desktop': True,
-	'pkg-root': 0,
     },
 ]
 
@@ -100,7 +86,10 @@ SHORTCUTS = [
 #     Where to place the menu shortcuts defined above, that is specifying
 #     the parent of the menu to install.  Possible values are:
 #
-#        'ROOT'  :     root of the menu tree structure
+#        'ROOT'  :     root of the menu tree structure, when this case
+#                      specifying the other if of no use, since the menu
+#                      will be install into the root, no matter what the
+#                      other keyword are.
 #
 #         None   :     The leaf nodes of the menu (sub-menus).
 #
@@ -122,3 +111,20 @@ MENUS = [
 	'parent': None,
      },
 ]
+
+
+
+# PKG_ROOT (optional, integer, default 2)
+# Since this file it likely to be called (using appinst.install_from_dat)
+# from with a distribution package (such as en egg), it is useful to
+# specify the location of icon (and other data files) relative to the
+# root of the root of the package distribution file tree.  PKG_ROOT tells
+# appinst how many directories above the location of this file the root
+# of the package is located.  For example, when this file is called
+# EGG-INFO/app/appinst.dat you need to go 2 directories up to reach the
+# root of the distribution package.  PKG_ROOT = 0  would mean that this
+# file is in the root of that package itself, as in the example below.
+# However, you can also specify  PKG_ROOT = None, in which case the all
+# paths are assumed absolute.
+
+PKG_ROOT = 1
