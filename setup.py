@@ -27,7 +27,7 @@ else:
 setup(
     author = "Greg Ward, Thomas Heller",
     author_email = "gward@python.net",
-    description = "Python API used during windows installers",
+    description = "cross platform application install tool",
     extras_require = {},
     ext_modules = extensions,
     include_package_data = True,
