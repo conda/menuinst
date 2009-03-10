@@ -1,4 +1,27 @@
-# Example appinst data file, not that this is Python code
+# Example appinst data file, note that this is Python code
+
+# Purpose of this file:
+# =====================
+#
+# To be able to install an application using all the functionality
+# that appinst provides in a single file.  For example you can install all
+# an application using the code:
+#
+#    import appinst
+#    appinst.install_from_dat("ipython.dat")
+#
+# However you are not required to use this file, you can also call the
+# various functions appinst provides yourself, having to write a lot more
+# code.
+
+
+# Variables to define:
+# ====================
+#
+# The variable SHORTCUTS is required (without this variable the file would
+# serve no purpose), and the variable MENUS is optional, see below.
+
+
 
 # SHORTCUTS is what defined the shortcuts to the application(s), that is:
 #   * On Windows: start menu items, quicklaunch items, desktop icons
@@ -38,21 +61,37 @@
 #     On Windows this defaults is given in custom_tools\Property.dat by
 #     ADDTODESKTOP variable, if the file exists at all.  When Property.dat
 #     does not exist, the default is True.
+#
+# pkg-root: (optional, integer, default 2)
+#     Since this file it likely to be called (using appinst.install_from_dat)
+#     from with a distribution package (such as en egg), it is useful to
+#     specify the location of icon (and other data files) relative to the
+#     root of the root of the package distribution file tree. pkg-root tells
+#     appinst how many directories above the location of this file the root
+#     of the package is located.  For example, when this file is called
+#     EGG-INFO/app/appinst.dat you need to go 2 directories up to reach the
+#     root of the distribution package. 'pkg-root': 0, would mean that this
+#     file is in the root of that package itself, as in the example below.
+#     However, you can also specify 'pkg-root': None.  In this case the all
+#     path are absolute.
 
 SHORTCUTS = [
     { # IPython
         'cmd': ['ipython', '-pylab'],
         'comment': 'Pylab in an iPython shell',
-        'icon': 'share/pycon.ico',
+        'icon': 'EGG-INFO/app/pycon.ico',
         'id': 'pylab',
         'name': 'PyLab (IPython)',
         'terminal': True,
 	'quicklaunch': False,
 	'desktop': True,
+	'pkg-root': 0,
     },
 ]
 
-# MENUS is an *optional* variable which specifies the menus to install the
+
+
+# MENUS is an optional variable which specifies the menus to install the
 # application into.  The example below is what MENUS defaults to in a
 # an EPD installed Python.  This default is obtained from the of values NAME
 # and FULL_VERSION exposed in custom_tools.
