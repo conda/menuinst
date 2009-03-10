@@ -1,10 +1,10 @@
-# Copyright (c) 2008 by Enthought, Inc.
+# Copyright (c) 2008-2009 by Enthought, Inc.
 # All rights reserved.
 
 
 import sys
 
-from setuptools import setup, Extension, find_packages
+from setuptools import Extension, find_packages, setup
 
 
 if sys.platform == "win32":
@@ -27,7 +27,7 @@ else:
 setup(
     author = "Greg Ward, Thomas Heller",
     author_email = "gward@python.net",
-    description = "cross platform application install tool",
+    description = "Cross platform APIs used to install applications",
     extras_require = {},
     ext_modules = extensions,
     include_package_data = True,

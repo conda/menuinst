@@ -1,120 +1,198 @@
-# Example appinst data file, note that this is Python code
+# Copyright (c) 2009 by Enthought, Inc.
+# All rights reserved.
 
-# Purpose of this file:
-# =====================
+"""
+Example appinst data file, note that this is Python code
+
+
+Purpose of this file:
+=====================
+
+To be able to install an application using all the functionality
+that AppInst provides in a single file.  For example you can install
+of an application using the code:
+
+   import appinst
+   appinst.install_from_dat("ipython.dat")
+
+However you are not required to use this file, you can also call the
+various functions AppInst provides yourself.  Just likely having to
+write more code yourself.
+
+
+Variables to define:
+====================
+
+At least the  variable SHORTCUTS must be defined to declare something
+for AppInst to do.
+
+The variable MENUS is optional.  If not provided, AppInst will provide
+a default menu structure that corresponds to your application as best
+it can.  This defaults turns out pretty well for Python environments
+resulting from an Enicab install, but may not do much useful for other
+Python environments.
+"""
+
+
+# SHORTCUTS defines the shortcuts to the application(s) in a cross-platform
+# way.  That is:
+#   * On Windows: The menus end up in the 'Start Menu', quicklaunch icons
+#       end up in the QuickLaunch bar, and desktop icons show up on user's
+#       desktops.
+#   * On OSX: The menus end up in the '/Applications' directory, quicklaunch
+#       icons are added to the Dock, and desktop icons show up on the user's
+#       desktop.
+#   * On Linux: The menus end up in the Gnome or KDE system menus, quicklaunch
+#       icons are currently ignored, and desktop icons get added to the user's
+#       desktop.
 #
-# To be able to install an application using all the functionality
-# that appinst provides in a single file.  For example you can install all
-# an application using the code:
-#
-#    import appinst
-#    appinst.install_from_dat("ipython.dat")
-#
-# However you are not required to use this file, you can also call the
-# various functions appinst provides yourself, having to write a lot more
-# code.
-
-
-# Variables to define:
-# ====================
-#
-# The variable SHORTCUTS is required (without this variable the file would
-# serve no purpose), and the variable MENUS is optional, see below.
-
-
-
-# SHORTCUTS is what defined the shortcuts to the application(s), that is:
-#   * On Windows: start menu items, quicklaunch items, desktop icons
-#   * On OSX: The application folder in the /Applications directory
+# SHORTCUTS is a list of dictionaries, one dictionary per desired shortcut.
+# Each shortcut dictionary can have the following keys:
 #
 # cmd: (required)
-#     The command line arguments of the start the application.
+#   The command line arguments to start the application the shortcut refers
+#   to.
 #
 # comment: (optional)
-#     On Windows, this is what you see in a yellow box when hovering
-#     over the menu item.
+#   The flyover help for the created shortcut.  On Windows, this is what you
+#   see in a yellow box when hovering over a menu item.
 #
 # icon: (optional)
-#     A Windows .ico file
+#   A Windows-formatted .ico file.  Used on both Windows and Linux.
 #
-# incs: (optional)
-#     An OSX .incs file, default to 'PythonInterpreter.incs' (Python rocket)
+# icns: (optional)
+#   An OSX .icns file, default to 'PythonInterpreter.icns' (Python rocket)
 #
 # id: (required)
-#     A menu id, this is used for locating the menu item
+#   A id for this shortcut.  This is used to name the shortcut files on
+#   platforms where the filename is not the display name the user sees.
+#
+# categories: (required)
+#   This is a list of categories, each of which refers to a menu for the
+#   shortcut to be created within.  If empty, then the shortcut will not be
+#   added to any menus (in which case, it isn't displayed unless quicklaunch
+#   or desktop are set to True -- see below.)
 #
 # name: (required)
-#     The name of the application as displayed in the menu
+#   The display name of the shortcut as shown to the user.
 #
 # terminal: (required, boolean)
-#     whether or not the application starts a terminal (like ipython does)
+#   Whether or not the application starts a terminal (like ipython does)
 #
 # quicklaunch: (optional, boolean)
-#     On Windows:
-#         whether or not, a quicklaunch item is installed.  Defaults to what
-#         is specified in custom_tools\Property.dat by ADDTOLAUNCHER, if the
-#         file exists at all.  When Property.dat does not exist, the default
-#         is True.
+#   Whether or not a quicklaunch item should be created for this shortcut.
+#   This does not solely determine if a quicklaunch item will be created as
+#   the user must have granted permission to create quicklaunch shortcuts at
+#   all during the installation of the application environment this shortcut
+#   request is part of. That setting is the ADDTOLAUNCHER variable stored in 
+#   custom_tools\Property.dat.  When the Property.dat file does not exist,
+#   the default for ADDTOLAUNCHER is True, which means this setting controls
+#   whether the quicklaunch shortcut is created or not.
 #
 # desktop: (optional, boolean)
-#     whether or not, a desktop icon should be install.
-#     On Windows this defaults is given in custom_tools\Property.dat by
-#     ADDTODESKTOP variable, if the file exists at all.  When Property.dat
-#     does not exist, the default is True.
+#   Whether or not a desktop item should be created for this shortcut.
+#   This does not solely determine if a desktop item will be created as
+#   the user must have granted permission to create desktop shortcuts at
+#   all during the installation of the application environment this shortcut
+#   request is part of. That setting is the ADDTODESKTOP variable stored in 
+#   custom_tools\Property.dat.  When the Property.dat file does not exist,
+#   the default for ADDTODESKTOP is True, which means this setting controls
+#   whether the desktop shortcut is created or not.
 #
 # Notes:
-#   * the location of files, such as icons, can be specified by the absolute
-#     or relative path.  Then a relative is understood to be relative to the
-#     location of this (appinst data) file.
+# * The location of files, such as icons, can be specified by the absolute or
+#   relative path.  Where a relative path is understood to be relative to the
+#   location of this (appinst data) file.
 
 SHORTCUTS = [
     { # IPython
+        'categories': ['Manufacturer.Product Name and Version'],
         'cmd': ['ipython', '-pylab'],
         'comment': 'Pylab in an iPython shell',
+	    'desktop': True,
         'icon': 'pycon.ico',
         'id': 'pylab',
         'name': 'PyLab (IPython)',
+	    'quicklaunch': False,
         'terminal': True,
-	'quicklaunch': False,
-	'desktop': True,
     },
 ]
 
 
 
 # MENUS is an optional variable which specifies the menus to install the
-# application into.  The example below is what MENUS defaults to in a
-# an EPD installed Python.  This default is obtained from the of values NAME
-# and FULL_VERSION exposed in custom_tools.
+# application into.  If not provided, then AppInst tries to create a default
+# set of menus based on what it can introscpect from the install Python
+# environment.   (This works best when the Python environment is the result
+# of an Enicab installer.)
 #
+# If a definition is provided here, the declared menus can either be nested
+# inside the same default menus described above, or they can form their own
+# top-level menu tree(s).  See below for more information.
+#
+# The example below is what MENUS defaults to in a an EPD installed Python.
+# This default is obtained from the of values of the MANUFACTURER, NAME
+# (product name) and FULL_VERSION (product version) exposed in the custom_tools
+# package.
+#
+# MENUS is a list of dictionaries, one dictionary per desired menu tree.
+# Each dictionary can have the following keys:
+
 # parent: (optional, defaults to None)
-#     Where to place the menu shortcuts defined above, that is specifying
-#     the parent of the menu to install.  Possible values are:
+#   Where to place the menu relative to the default menus AppInst creates for
+#   you.  Possible values are:
 #
-#        'ROOT'  :     root of the menu tree structure, when this case
-#                      specifying the other if of no use, since the menu
-#                      will be install into the root, no matter what the
-#                      other keyword are.
+#   'ROOT' : Refers to the root of the menu tree structure.  When this is
+#       specified, the menu will be a at the top-level of all menus.  For
+#       example, on Windows it would appear immediately under
+#       'Start Menu'->'Programs'
 #
-#         None   :     The leaf nodes of the menu (sub-menus).
+#   None : Makes this menu a child of the last default menu AppInst created
+#       for you from introspection of the Python environment.  This is useful
+#       when you want multiple sub-menus inside of your application's menu.
+#       For example, in EPD this might create an 'Examples' or 'Docs' menu
+#       under 'Enthought'->'EPD Py25 v4.2.30101'.
 #
-#         id     :     an id string specifying the node.  In the example
-#                      (since the parent is the leaf node) we could also
-#                      have specified:
-#                         'parent': ['enthought.epd_py25-4.1.301']
-#                      which is more to type, but since the default is None,
-#                      we could have omitted the 'parent' key altogether.
+#   <string> : Any other value is expected to be a category corresponding to
+#       an existing menu, either in the defaults AppInst created for you, or
+#       in a menu you've defined earlier.   This is most useful when you want
+#       to create a new menu somewhere within the tree hierarchy of AppInst's
+#       default menus.  For example, to create a 'Foo' menu at
+#       'Enthought'->'Foo'.
+#
+# category: (optional)
+#   The category for this menu.  This is always appended to the parent menu's
+#   category using a '.' for a separator, assuming there is a parent menu.
+#   Note that parent in this context does not mean the parent keyword above,
+#   it simply means the parent of this menu in a menu hierarchy.
+
+# id: (required)
+#   Specifies the id used for this menu.  On platforms where the filename is
+#   not the display name, this is used as the filename.   It is also used to
+#   generate a category value for this menu if none was explicitly provided.
+#   That generation happens by title capitalization of this string, then
+#   appending it to the parent menu's, if any, category using a '.' as a
+#   separator between levels.
+#
+# name: (required)
+#   The display name of this menu as shown to the user.
+#
+# sub-menus: (optional)
+#   A list of dictionaries defining the next layer of a menu hierarchy.  Each
+#   dictionary in the list may contain all the settings defined above, EXCEPT
+#   for parent, which will be ignored on all sub-menus.
 
 MENUS = [
     { # Enthought Python Distribution 4.1.301 with Python 2.5
         'id': 'enthought',
         'name': 'Enthought',
+	    'parent': None,
         'sub-menus': [
-            { 'id': 'epd_py25-4.1.301',
-              'name': 'EPD_Py25-4.1.301' },
+            {
+            'id': 'epd_py25-4.1.301',
+            'name': 'EPD_Py25-4.1.301',
+            },
         ],
-	'parent': None,
      },
 ]
-
 

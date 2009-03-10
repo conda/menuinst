@@ -1,4 +1,4 @@
-# Copyright (c) 2008 by Enthought, Inc.
+# Copyright (c) 2008-2009 by Enthought, Inc.
 # All rights reserved.
 
 
@@ -7,6 +7,7 @@ These are tools used to modify files at install time. Alternatively, these tools
 can be used any time after the install is complete to refresh the files, such as if
 the install dir is moved and rpaths need to be changed.
 """
+
 
 import sys
 import os

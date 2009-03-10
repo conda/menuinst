@@ -1,4 +1,4 @@
-# Copyright (c) 2008 by Enthought, Inc.
+# Copyright (c) 2008-2009 by Enthought, Inc.
 # All rights reserved.
 
 AppInst
@@ -11,12 +11,14 @@ NOTE:
 
 AppInst's application_menus.py module can be used to install application menus,
 as defined by the data structures documented in that module, to a number of
-platforms.  RH3 and RH4 for both KDE and Gnome has been tested.  The RH4
-implementation conforms to FreeDesktop.org's Desktop Menu Standard (see
-http://standards.freedesktop.org/menu-spec/1.0/), and thus may likely work on
-many Linux distributions.  However, minor modifications to the application_menus
-module within this source may be necessary to get it to try that mechanism on
-anything but RH4.
+platforms.  RHEL version 3 through 5 for both KDE and Gnome have been tested,
+Mac OS X 10.4 and 10.5 have been tested.   And so has Windows XP and Vista.
+
+The Linux implementation conforms to FreeDesktop.org's Desktop Menu Standard
+(see http://standards.freedesktop.org/menu-spec/1.0/), and thus may likely work
+on many Linux distributions.  However, minor modifications to the
+application_menus module within this source may be necessary to get it to try
+that mechanism on anything but RH4.
 
 AppInst's common.py module simply exposes the api used in python's bdist_wininst
 built executables.  The majority of the code is from Python's source, just
