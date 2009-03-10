@@ -1,0 +1,85 @@
+# Example appinst data file, not that this is Python code
+
+# SHORTCUTS is what defined the shortcuts to the application(s), that is:
+#   * On Windows: start menu items, quicklaunch items, desktop icons
+#   * On OSX: The application folder in the /Applications directory
+#
+# cmd: (required)
+#     The command line arguments of the start the application.
+#
+# comment: (optional)
+#     On Windows, this is what you see in a yellow box when hovering
+#     over the menu item.
+#
+# icon: (optional)
+#     A Windows .ico file
+#
+# incs: (optional)
+#     An OSX .incs file, default to 'PythonInterpreter.incs' (Python rocket)
+#
+# id: (required)
+#     A menu id, this is used for locating the menu item
+#
+# name: (required)
+#     The name of the application as displayed in the menu
+#
+# terminal: (required, boolean)
+#     whether or not the application starts a terminal (like ipython does)
+#
+# quicklaunch: (optional, boolean)
+#     On Windows:
+#         whether or not, a quicklaunch item is installed.  Defaults to what
+#         is specified in custom_tools\Property.dat by ADDTOLAUNCHER, if the
+#         file exists at all.  When Property.dat does not exist, the default
+#         is True.
+#
+# desktop: (optional, boolean)
+#     whether or not, a desktop icon should be install.
+#     On Windows this defaults is given in custom_tools\Property.dat by
+#     ADDTODESKTOP variable, if the file exists at all.  When Property.dat
+#     does not exist, the default is True.
+
+SHORTCUTS = [
+    { # IPython
+        'cmd': ['ipython', '-pylab'],
+        'comment': 'Pylab in an iPython shell',
+        'icon': 'share/pycon.ico',
+        'id': 'pylab',
+        'name': 'PyLab (IPython)',
+        'terminal': True,
+	'quicklaunch': False,
+	'desktop': True,
+    },
+]
+
+# MENUS is an *optional* variable which specifies the menus to install the
+# application into.  The example below is what MENUS defaults to in a
+# an EPD installed Python.  This default is obtained from the of values NAME
+# and FULL_VERSION exposed in custom_tools.
+#
+# parent: (optional, defaults to None)
+#     Where to place the menu shortcuts defined above, that is specifying
+#     the parent of the menu to install.  Possible values are:
+#
+#        'ROOT'  :     root of the menu tree structure
+#
+#         None   :     The leaf nodes of the menu (sub-menus).
+#
+#         id     :     an id string specifying the node.  In the example
+#                      (since the parent is the leaf node) we could also
+#                      have specified:
+#                         'parent': ['enthought.epd_py25-4.1.301']
+#                      which is more to type, but since the default is None,
+#                      we could have omitted the 'parent' key altogether.
+
+MENUS = [
+    { # Enthought Python Distribution 4.1.301 with Python 2.5
+        'id': 'enthought',
+        'name': 'Enthought',
+        'sub-menus': [
+            { 'id': 'epd_py25-4.1.301',
+              'name': 'EPD_Py25-4.1.301' },
+        ],
+	'parent': None,
+     },
+]
