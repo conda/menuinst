@@ -1,6 +1,9 @@
-# Copyright (c) 2008 by Enthought, Inc.
+# Copyright (c) 2008-2009 by Enthought, Inc.
 # All rights reserved.
 
+# TODO: this class should use the osx_application module to create a
+#       an OSX application tree structure, currently only a bash
+#       script (which links to the real application is ceated).
 
 import os
 import sys

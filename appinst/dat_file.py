@@ -1,6 +1,11 @@
 # Copyright (c) 2009 by Enthought, Inc.
 # Author: Ilan Schnell
 
+# This module provides an interface to appinst which allows installing
+# applications by specifying the path to a data file.  For an example of
+# such a data file see examples/appinst.dat, the example file contains
+# detailed comments about how this is done exactly.
+
 import sys
 from os.path import abspath, dirname, join
 
@@ -53,8 +58,11 @@ def transform(path):
         for i in xrange(d['PKG_ROOT']):
             pkg_root = dirname(pkg_root)
 
-    return (d['MENUS'], [change_shortcut(pkg_root, sc)
-                         for sc in d['SHORTCUTS']])
+    shortcuts = d['SHORTCUTS']
+    for sc in shortcuts:
+        change_shortcut(pkg_root, sc)
+
+    return d['MENUS'], shortcuts
 
 
 def install_from_dat(path):

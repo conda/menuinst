@@ -10,11 +10,18 @@ from os.path import dirname, join
 
 py_major, py_minor = sys.version_info[0:2]
 
+# custom_tools is importable when the Python was created by an "enicab"
+# installer, in which case the directory custom_tools contains platform
+# indent installer information in __init__.py and platform specific
+# information about user setting during the install process, for example
+# on Windows the enicab generated MSI created a file Property.dat with
+# settings such as whether or not desktop icons should get installed, or
+# whether the install is user or sytem wide.
 try:
     import custom_tools as ct
-    has_custom = True
+    HAS_CUSTOM = True
 except ImportError:
-    has_custom = False
+    HAS_CUSTOM = False
 
 
 def determine_platform():
@@ -34,7 +41,7 @@ def determine_platform():
 
 def get_default_menu():
 
-    if has_custom:
+    if HAS_CUSTOM:
         return [
           { # top-level menu
             'id': ct.Manufacturer.lower(),
@@ -132,7 +139,7 @@ def install(menus, shortcuts, install_mode='user'):
     shortcuts
 
     """
-    if has_custom:
+    if HAS_CUSTOM:
         install_mode = 'user'  # default
 
         if sys.platform == 'win32':
@@ -147,16 +154,16 @@ def install(menus, shortcuts, install_mode='user'):
             menus = get_default_menu()
             product_category = '%s-%s' % (ct.NAME, ct.FULL_VERSION)
             product_category = product_category.lower().capitalize()
-            for shortcut in shortcuts:
-                shortcut['categories'] = [
-                    "%s.%s" % (ct.Manufacturer, product_category)]
+            for sc in shortcuts:
+                sc['categories'] = [ct.Manufacturer + '.' + product_category]
 
-    #import pprint
-    #pp = pprint.PrettyPrinter(indent=4, width=20)
-    #print pp.pformat((menus, shortcuts, install_mode))
+    # XXX
+    import pprint
+    pp = pprint.PrettyPrinter(indent=4, width=20)
+    print pp.pformat((menus, shortcuts, install_mode))
 
     # Validate we have a valid install mode.
-    if install_mode != 'user' and install_mode != 'system':
+    if install_mode not in ('user', 'system'):
         warnings.warn('Unknown install mode.  Must be either "user" or '
             '"system" but got "%s"' % install_mode)
         return
