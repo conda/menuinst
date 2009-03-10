@@ -23,7 +23,12 @@ def transform_shortcut(dat_dir, sc):
     Given the directory the appinst data file is located in, fix some path.
     """
     # make the path to the executable absolute
-    sc['cmd'][0] = join(BIN_DIR, sc['cmd'][0])
+    bin = sc['cmd'][0]
+    if bin.startswith('..'):
+        bin = abspath(join(dat_dir, bin))
+    else:
+        bin = join(BIN_DIR, bin)
+    sc['cmd'][0] = bin
 
     # make the path of to icon files absolute
     for kw in ('icon', 'icns'):

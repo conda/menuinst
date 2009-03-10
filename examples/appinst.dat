@@ -100,9 +100,14 @@ Python environments.
 #   whether the desktop shortcut is created or not.
 #
 # Notes:
-# * The location of files, such as icons, can be specified by the absolute or
+# * The location of icons files, can be specified by the absolute or
 #   relative path.  Where a relative path is understood to be relative to the
 #   location of this (appinst data) file.
+# * The location of the executable command, i.e. the first element in the
+#   value corresponding to 'cmd', is assumed to be located in sys.prefex/bin
+#   (on Windows sys.prefex/Scripts, unless the string starts with '..'.
+#   In the later case it is assumed to be relative to the location of this
+#   (appinst data) file.
 
 SHORTCUTS = [
     { # IPython
