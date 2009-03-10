@@ -131,7 +131,7 @@ SHORTCUTS = [
 # top-level menu tree(s).  See below for more information.
 #
 # The example below is what MENUS defaults to in a an EPD installed Python.
-# This default is obtained from the of values of the MANUFACTURER, NAME
+# This default is obtained from the of values of the Manufacturer, NAME
 # (product name) and FULL_VERSION (product version) exposed in the custom_tools
 # package.
 #
