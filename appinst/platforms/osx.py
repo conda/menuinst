@@ -8,6 +8,21 @@ from appinst.platforms.shortcut_creation_error import ShortcutCreationError
 from appinst.platforms.osx_application import Application
 
 
+class Executable(Application):
+
+    def write_script(self):
+        """
+        Creates a 'proxy' bash script.
+        Overwrites method.  Requires self.bash_path and self.argv to be set.
+        """
+        fo = open(self.proxy_path, 'w')
+        fo.write("#!/bin/sh\n%s\n" % ' '.join(self.argv))
+        fo.close()
+
+        os.chmod(self.proxy_path, 0755)
+
+
+
 class OSX(object):
     """
     A class for application installation operations on Mac OS X.
@@ -102,14 +117,19 @@ class OSX(object):
         if os.path.isfile(cmd) and os.access(cmd, os.X_OK):
 
             name = shortcut['name']
-            path = os.path.join(self.category_map[mapped_category], name)
 
+            incs = None
             if 'icns' in shortcut:
                 incs = shortcut['icns']
-            else:
-                incs = None
 
-            app = Application(name, path, incs)
+            app = Executable(
+                name,
+                script_path=name,
+                icns_path=incs,
+                apps_dir=self.category_map[mapped_category]
+                )
+            app.proxy_path = join(app.macos_dir, name)
+            app.argv = [cmd] + args
             app.create()
 
         # Otherwise, just create a symlink to the specified command
