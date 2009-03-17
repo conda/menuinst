@@ -16,7 +16,8 @@ class Win32(object):
     A class for application installation operations on Windows.
 
     """
-    desktop_directory = common.get_desktop_directory()
+    desktop_dir = common.get_desktop_directory()
+    quicklaunch_dir = common.get_quick_launch_directory()
 
     #==========================================================================
     # Public API methods
@@ -135,8 +136,7 @@ class Win32(object):
         # file be in a weird place -- second in a variable length
         # list of args.
         link = shortcut['name'] + '.lnk'
-        path = join(self.category_map[mapped_category], link)
-        description = shortcut['comment']
+        comment = shortcut['comment']
         cmd_args = ' '.join(args)
         icon = shortcut.get('icon', None)
         if icon:
@@ -144,13 +144,22 @@ class Win32(object):
         else:
             shortcut_args = []
 
-        common.add_shortcut(cmd, description, path, cmd_args, *shortcut_args)
+        wininst.create_shortcut(               # Menu item
+            cmd, comment,
+            join(self.category_map[mapped_category], link),
+            cmd_args, *shortcut_args)
 
-        if shortcut.get('desktop', None):    # Desktop link
-            wininst.create_shortcut(cmd, description,
-                join(self.desktop_directory, link),
-                cmd_args, "", icon)
+        if shortcut.get('desktop', None):      # Desktop link
+            wininst.create_shortcut(
+                cmd, comment,
+                join(self.desktop_dir, link),
+                cmd_args, *shortcut_args)
 
+        if shortcut.get('quicklaunch', None):  # Quicklaunch link
+            wininst.create_shortcut(
+                cmd, comment,
+                join(self.quicklaunch_dir, link),
+                cmd_args, *shortcut_args)
 
 
     def _uninstall_application_menus(self, menus, shortcuts, start_menu):
