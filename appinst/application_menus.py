@@ -214,7 +214,7 @@ def install(menus, shortcuts, install_mode='user', uninstall=False):
 def uninstall(menus, shortcuts, install_mode='user'):
     """
     Uninstall application menus.
-    
+
     FIXME: This currently only works for Windows which can determine the install
     mode from the registry entry. There should be a method for linux as well
     which determines the installation type possibly from the install directory,
