@@ -1,14 +1,20 @@
-# Copyright (c) 2008 by Enthought, Inc.
+# Copyright (c) 2008-2009 by Enthought, Inc.
 # All rights reserved.
-
 
 import os
 import sys
-from os.path import abspath, exists, join
+from os.path import abspath, dirname, exists, join
 
 from appinst.platforms.shortcut_creation_error import ShortcutCreationError
 from appinst.platforms import wininst, win32_common as common
 from distutils.sysconfig import get_python_lib
+
+
+try:
+    import custom_tools as ct
+    HAS_CUSTOM = True
+except ImportError:
+    HAS_CUSTOM = False
 
 
 class Win32(object):
@@ -28,15 +34,20 @@ class Win32(object):
         Install application menus.
 
         """
+        # Defaults when no enicab custom_tools is present
+        self.props = {'ADDTODESKTOP':'1', 'ADDTOLAUNCHER':'1'}
+        if HAS_CUSTOM:
+            execfile(join(dirname(ct.__file__), 'Property.dat'), self.props)
 
         if mode == 'system':
             start_menu = common.get_all_users_programs_start_menu()
         else:
             start_menu = common.get_current_user_programs_start_menu()
+
         self._install_application_menus(menus, shortcuts, start_menu)
 
         return
-    
+
     
     def uninstall_application_menus(self, menus, shortcuts, mode):
         """
@@ -144,18 +155,20 @@ class Win32(object):
         else:
             shortcut_args = []
 
-        wininst.create_shortcut(               # Menu item
+        wininst.create_shortcut(                       # Menu link
             cmd, comment,
             join(self.category_map[mapped_category], link),
             cmd_args, *shortcut_args)
 
-        if shortcut.get('desktop', None):      # Desktop link
+        if shortcut.get('desktop', None) and \
+           self.props['ADDTODESKTOP'] == '1':          # Desktop link
             wininst.create_shortcut(
                 cmd, comment,
                 join(self.desktop_dir, link),
                 cmd_args, *shortcut_args)
 
-        if shortcut.get('quicklaunch', None):  # Quicklaunch link
+        if shortcut.get('quicklaunch', None) and \
+           self.props['ADDTOLAUNCHER'] == '1':          # Quicklaunch link
             wininst.create_shortcut(
                 cmd, comment,
                 join(self.quicklaunch_dir, link),
