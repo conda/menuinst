@@ -4,10 +4,10 @@
 
 import os
 import sys
-from os.path import ebspath, exists, join
+from os.path import abspath, exists, join
 
 from appinst.platforms.shortcut_creation_error import ShortcutCreationError
-from appinst.platforms import win32_common as common
+from appinst.platforms import wininst, win32_common as common
 from distutils.sysconfig import get_python_lib
 
 
@@ -16,6 +16,7 @@ class Win32(object):
     A class for application installation operations on Windows.
 
     """
+    desktop_directory = common.get_desktop_directory()
 
     #==========================================================================
     # Public API methods
@@ -59,7 +60,7 @@ class Win32(object):
         # directories on Win32 systems.  Note that we need to build a map from
         # the menu's category to its path on the filesystem so that we can put
         # the shortcuts in the right directories later.
-        category_map = {}
+        self.category_map = {}
         queue = [(menu_spec, start_menu,'') for menu_spec in menus]
         while len(queue) > 0:
             menu_spec, parent_path, parent_category = queue.pop(0)
@@ -77,7 +78,7 @@ class Win32(object):
                 menu_spec.get('id').capitalize())
             if len(parent_category) > 1:
                 category = '%s.%s' % (parent_category, category)
-            category_map[category] = path
+            self.category_map[category] = path
 
             # Add all sub-menus to the queue so they get created as well.
             for child_spec in menu_spec.get('sub-menus', []):
@@ -133,16 +134,22 @@ class Win32(object):
         # create a windows shortcut requires that a path to the icon
         # file be in a weird place -- second in a variable length
         # list of args.
-        name = shortcut['name'] + '.lnk'
-        path = join(category_map[mapped_category], name)
+        link = shortcut['name'] + '.lnk'
+        path = join(self.category_map[mapped_category], link)
         description = shortcut['comment']
         cmd_args = ' '.join(args)
         icon = shortcut.get('icon', None)
-        if not icon:
-            shortcut_args = []
-        else:
+        if icon:
             shortcut_args = ['', icon]
+        else:
+            shortcut_args = []
+
         common.add_shortcut(cmd, description, path, cmd_args, *shortcut_args)
+
+        if shortcut.get('desktop', None):    # Desktop link
+            wininst.create_shortcut(cmd, description,
+                join(self.desktop_directory, link),
+                cmd_args, "", icon)
 
 
 
