@@ -29,7 +29,8 @@ class Win32(object):
     # Public API methods
     #==========================================================================
 
-    def install_application_menus(self, menus, shortcuts, mode):
+    def install_application_menus(self, menus, shortcuts, mode,
+                                  uninstall=False):
         """
         Install application menus.
 
@@ -44,23 +45,19 @@ class Win32(object):
         else:
             start_menu = common.get_current_user_programs_start_menu()
 
-        self._install_application_menus(menus, shortcuts, start_menu)
-
-        return
+        if uninstall:
+            self._uninstall_application_menus(menus, shortcuts, start_menu)
+        else:
+            self._install_application_menus(menus, shortcuts, start_menu)
 
     
     def uninstall_application_menus(self, menus, shortcuts, mode):
         """
         Uninstall application menus.
         """
+        self.install_application_menus(menus, shortcuts, mode,
+                                       uninstall=True)
 
-        if mode == 'system':
-            start_menu = common.get_all_users_programs_start_menu()
-        else:
-            start_menu = common.get_current_user_programs_start_menu()
-        self._uninstall_application_menus(menus, shortcuts, start_menu)
-
-        return
 
     #==========================================================================
     # Internal API methods

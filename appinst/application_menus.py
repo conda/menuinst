@@ -150,6 +150,7 @@ def install(menus, shortcuts, install_mode='user', uninstall=False):
             if props['ALLUSERS'] == '1':
                 install_mode = 'system'
 
+
         if not menus:
             menus = get_default_menu()
             product_category = '%s-%s' % (ct.NAME, ct.FULL_VERSION)
@@ -198,10 +199,8 @@ def install(menus, shortcuts, install_mode='user', uninstall=False):
     # Dispatch for all versions of Windows (tested on XP only)
     elif plat == 'windows':
         from appinst.platforms.win32 import Win32
-        if uninstall:
-            Win32().uninstall_application_menus(menus, shortcuts, install_mode)
-        else:
-            Win32().install_application_menus(menus, shortcuts, install_mode)
+        Win32().install_application_menus(menus, shortcuts, install_mode,
+                                          uninstall=uninstall)
 
     # Handle all other platforms with a warning until we implement for them.
     else:
