@@ -49,7 +49,7 @@ def get_default_menu():
             'sub-menus': [
                 { # versioned sub-menu
                     'id': '%s-%s' % (ct.NAME.lower(), ct.FULL_VERSION.lower()),
-                    'name': ct.NAME,
+                    'name': ct.FULL_NAME,
                     }]}]
     else:
         # FIXME: put some useful default values here,

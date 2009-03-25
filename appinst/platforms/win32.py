@@ -35,7 +35,7 @@ class Win32(object):
         Install application menus.
 
         """
-        self._unistall = unistall
+        self._uninstall = uninstall
 
         # Defaults when no enicab custom_tools is present
         self.props = {'ADDTODESKTOP':'1', 'ADDTOLAUNCHER':'1'}
@@ -47,7 +47,7 @@ class Win32(object):
         else:
             start_menu = common.get_current_user_programs_start_menu()
 
-        if uninstall:
+        if self._uninstall:
             self._uninstall_application_menus(menus, shortcuts, start_menu)
 
         self._install_application_menus(menus, shortcuts, start_menu)
@@ -101,6 +101,7 @@ class Win32(object):
             # Ensure the shortcut ends up in each of the requested categories.
             for mapped_category in shortcut['categories']:
 
+                print '=======', shortcut
                 # Install the actual item
                 self._install_shortcut(mapped_category, shortcut)
 
@@ -166,7 +167,7 @@ class Win32(object):
 
         for dst_dir in dst_dirs:
             dst = join(dst_dir, link)
-            if self.uninstall:
+            if self._uninstall:
                 try:
                     os.unlink(dst)
                     print "Removed: %r" % dst
