@@ -10,7 +10,7 @@ detailed comments about how this is done exactly.
 
 
 import sys
-from os.path import abspath, dirname, join
+from os.path import abspath, dirname, isfile, join
 
 from appinst.application_menus import install, uninstall
 
@@ -23,12 +23,21 @@ def transform_shortcut(dat_dir, sc):
     Given the directory the appinst data file is located in, fix some path.
     """
     # make the path to the executable absolute
+    print 'dat_file.py: Shortcut command:', sc['cmd']
     bin = sc['cmd'][0]
     if bin.startswith('..'):
         bin = abspath(join(dat_dir, bin))
     else:
         bin = join(BIN_DIR, bin)
     sc['cmd'][0] = bin
+
+    if (sys.platform == 'win32' and sc['terminal'] is False):
+        script = bin + '-script.py'
+        print script, isfile(script)
+        if isfile(script):
+            argv = [join(sys.prefix, 'pythonw.exe'), script]
+            argv.extend(sc['cmd'][1:])
+            sc['cmd'] = argv
 
     # make the path of to icon files absolute
     for kw in ('icon', 'icns'):
