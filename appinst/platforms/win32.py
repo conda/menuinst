@@ -35,6 +35,8 @@ class Win32(object):
         Install application menus.
 
         """
+        self._unistall = unistall
+
         # Defaults when no enicab custom_tools is present
         self.props = {'ADDTODESKTOP':'1', 'ADDTOLAUNCHER':'1'}
         if HAS_CUSTOM:
@@ -47,8 +49,8 @@ class Win32(object):
 
         if uninstall:
             self._uninstall_application_menus(menus, shortcuts, start_menu)
-        else:
-            self._install_application_menus(menus, shortcuts, start_menu)
+
+        self._install_application_menus(menus, shortcuts, start_menu)
 
     
     def uninstall_application_menus(self, menus, shortcuts, mode):
@@ -152,24 +154,27 @@ class Win32(object):
         else:
             shortcut_args = []
 
-        wininst.create_shortcut(                       # Menu link
-            cmd, comment,
-            join(self.category_map[mapped_category], link),
-            cmd_args, *shortcut_args)
+        dst_dirs = [self.category_map[mapped_category]]  # Menu link
 
         if shortcut.get('desktop', None) and \
-           self.props['ADDTODESKTOP'] == '1':          # Desktop link
-            wininst.create_shortcut(
-                cmd, comment,
-                join(self.desktop_dir, link),
-                cmd_args, *shortcut_args)
+               self.props['ADDTODESKTOP'] == '1':        # Desktop link
+            dst_dirs.append(self.desktop_dir)
 
         if shortcut.get('quicklaunch', None) and \
-           self.props['ADDTOLAUNCHER'] == '1':          # Quicklaunch link
-            wininst.create_shortcut(
-                cmd, comment,
-                join(self.quicklaunch_dir, link),
-                cmd_args, *shortcut_args)
+               self.props['ADDTOLAUNCHER'] == '1':       # Quicklaunch link
+            dst_dirs.append(self.quicklaunch_dir)
+
+        for dst_dir in dst_dirs:
+            dst = join(dst_dir, link)
+            if self.uninstall:
+                try:
+                    os.unlink(dst)
+                    print "Removed: %r" % dst
+                except:
+                    print "Could not remove: %r" % dst
+            else:
+                wininst.create_shortcut(
+                    cmd, comment, dst, cmd_args, *shortcut_args)
 
 
     def _uninstall_application_menus(self, menus, shortcuts, start_menu):
