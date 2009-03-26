@@ -115,24 +115,13 @@ class OSX(object):
         # If the command is a path to an executable file, create a
         # double-clickable shell script that will execute it.
         if os.path.isfile(cmd) and os.access(cmd, os.X_OK):
-
-            name = shortcut['name']
-
-            incs = None
-            if 'icns' in shortcut:
-                incs = shortcut['icns']
-
-            app = Executable(
-                name,
-                # The script_path is only used by the in derived class to
-                # obtain the script name.
-                script_path=name,
-                icns_path=incs,
-                apps_dir=self.category_map[mapped_category]
-                )
-            app.proxy_path = os.path.join(app.macos_dir, name)
-            app.argv = [cmd] + args
-            app.create()
+            fn = shortcut['name'] + '.command'
+            path = os.path.join(category_map[mapped_category], fn)
+            fo = open(path, 'w')
+            fo.write("#!/bin/sh\n")
+            fo.write("%s %s\n" % (cmd, ' '.join(args)))
+            fo.close()
+            os.chmod(path, 0755)
 
         # Otherwise, just create a symlink to the specified command
         # value.  Note that it is possible we may only need this logic
