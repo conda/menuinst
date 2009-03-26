@@ -116,7 +116,7 @@ class OSX(object):
         # double-clickable shell script that will execute it.
         if os.path.isfile(cmd) and os.access(cmd, os.X_OK):
             fn = shortcut['name'] + '.command'
-            path = os.path.join(category_map[mapped_category], fn)
+            path = os.path.join(self.category_map[mapped_category], fn)
             fo = open(path, 'w')
             fo.write("#!/bin/sh\n")
             fo.write("%s %s\n" % (cmd, ' '.join(args)))
