@@ -27,7 +27,7 @@ def transform_shortcut(dat_dir, sc):
     bin = sc['cmd'][0]
     if bin.startswith('..'):
         bin = abspath(join(dat_dir, bin))
-    else:
+    elif not bin.startsiwth('{{'):
         bin = join(BIN_DIR, bin)
     sc['cmd'][0] = bin
 
