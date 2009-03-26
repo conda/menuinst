@@ -1,13 +1,14 @@
 # Copyright (c) 2008-2009 by Enthought, Inc.
 # All rights reserved.
 
+
 import os
 import sys
-from os.path import abspath, dirname, exists, join
 
 from appinst.platforms.shortcut_creation_error import ShortcutCreationError
 from appinst.platforms import wininst, win32_common as common
 from distutils.sysconfig import get_python_lib
+from os.path import abspath, dirname, exists, join
 
 
 try:
@@ -30,14 +31,15 @@ class Win32(object):
     #==========================================================================
 
     def install_application_menus(self, menus, shortcuts, mode,
-                                  uninstall=False):
+        uninstall=False):
         """
         Install application menus.
 
         """
         self._uninstall = uninstall
 
-        # Defaults when no enicab custom_tools is present
+        # Determine whether we're adding desktop and quicklaunch icons.  These
+        # default to yes if we don't have our custom_tools install metadata.
         self.props = {'ADDTODESKTOP':'1', 'ADDTOLAUNCHER':'1'}
         if HAS_CUSTOM:
             execfile(join(dirname(ct.__file__), 'Property.dat'), self.props)
@@ -49,8 +51,8 @@ class Win32(object):
 
         if self._uninstall:
             self._uninstall_application_menus(menus, shortcuts, start_menu)
-
-        self._install_application_menus(menus, shortcuts, start_menu)
+        else:
+            self._install_application_menus(menus, shortcuts, start_menu)
 
     
     def uninstall_application_menus(self, menus, shortcuts, mode):
@@ -58,7 +60,7 @@ class Win32(object):
         Uninstall application menus.
         """
         self.install_application_menus(menus, shortcuts, mode,
-                                       uninstall=True)
+            uninstall=True)
 
 
     #==========================================================================
@@ -67,9 +69,9 @@ class Win32(object):
 
     def _install_application_menus(self, menus, shortcuts, start_menu):
 
-        # First build all the requested menus.  These correspond simply to
+        # First build all the requested menus.  These simply correspond to
         # directories on Win32 systems.  Note that we need to build a map from
-        # the menu's category to its path on the filesystem so that we can put
+        # the menu's category to it's path on the filesystem so that we can put
         # the shortcuts in the right directories later.
         self.category_map = {}
         queue = [(menu_spec, start_menu,'') for menu_spec in menus]
@@ -85,7 +87,7 @@ class Win32(object):
             # Categories are always hierarchical to ensure uniqueness.  Note
             # that if no category was explicitly set, we use the capitalized
             # version of the ID.
-            category = menu_spec.get('category',
+            category = menu_spec.get('category', 
                 menu_spec.get('id').capitalize())
             if len(parent_category) > 1:
                 category = '%s.%s' % (parent_category, category)

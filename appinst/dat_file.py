@@ -1,5 +1,5 @@
 # Copyright (c) 2009 by Enthought, Inc.
-# Author: Ilan Schnell
+# All rights reserved.
 
 """
 This module provides an interface to appinst which allows installing
@@ -10,9 +10,9 @@ detailed comments about how this is done exactly.
 
 
 import sys
-from os.path import abspath, dirname, isfile, join
 
 from appinst.application_menus import install, uninstall
+from os.path import abspath, dirname, isfile, join
 
 
 BIN_DIR = join(sys.prefix, 'Scripts' if sys.platform == 'win32' else 'bin')
@@ -20,10 +20,10 @@ BIN_DIR = join(sys.prefix, 'Scripts' if sys.platform == 'win32' else 'bin')
 
 def transform_shortcut(dat_dir, sc):
     """
-    Given the directory the appinst data file is located in, fix some path.
+    Transform the shortcuts relative paths to absolute paths.
+
     """
-    # make the path to the executable absolute
-    print 'dat_file.py: Shortcut command:', sc['cmd']
+    # Make the path to the executable absolute
     bin = sc['cmd'][0]
     if bin.startswith('..'):
         bin = abspath(join(dat_dir, bin))
@@ -39,7 +39,7 @@ def transform_shortcut(dat_dir, sc):
             argv.extend(sc['cmd'][1:])
             sc['cmd'] = argv
 
-    # make the path of to icon files absolute
+    # Make the path of to icon files absolute
     for kw in ('icon', 'icns'):
         if kw in sc:
             sc[kw] = abspath(join(dat_dir, sc[kw]))
@@ -51,6 +51,7 @@ def transform(path):
     (menus, shortcuts) where menus and shortcuts are objects which
     the funtions install() and uninstall() in the application_menus
     module expects.
+
     """
     # default values
     d = {'MENUS': []}
@@ -65,14 +66,18 @@ def transform(path):
 
 def install_from_dat(path):
     """
-    given the path to an appinst data file, for an example see
-    examples/appinst.dat, does an complete install.
+    Does a complete install given a data file.
+    
+    For an example see examples/appinst.dat.
+
     """
     install(*transform(path))
 
 
 def uninstall_from_dat(path):
     """
-    given the path to an appinst data file, uninstalls all items.
+    Uninstalls all items in a data file.
+
     """
     uninstall(*transform(path))
+
