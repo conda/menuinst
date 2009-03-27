@@ -8,21 +8,6 @@ from appinst.platforms.shortcut_creation_error import ShortcutCreationError
 from appinst.platforms.osx_application import Application
 
 
-class Executable(Application):
-
-    def write_script(self):
-        """
-        Creates a 'proxy' bash script.
-        Overwrites method.  Requires self.bash_path and self.argv to be set.
-        """
-        fo = open(self.proxy_path, 'w')
-        fo.write("#!/bin/sh\n%s\n" % ' '.join(self.argv))
-        fo.close()
-
-        os.chmod(self.proxy_path, 0755)
-
-
-
 class OSX(object):
     """
     A class for application installation operations on Mac OS X.
@@ -83,15 +68,17 @@ class OSX(object):
         for shortcut in shortcuts:
 
             # Ensure the shortcut ends up in each of the requested categories.
+            # NOTE: That we copy the shortcut definition so that it doesn't get
+            # modified by a sub-routine.
             for mapped_category in shortcut['categories']:
-
-                # Install the actual item
-                self._install_shortcut(mapped_category, shortcut)
+                sc_copy = dict(shortcut)
+                sc_copy['menu_dir'] = self.category_map[mapped_category]
+                self._install_shortcut(sc_copy)
 
         return
 
 
-    def _install_shortcut(self, mapped_category, shortcut):
+    def _install_shortcut(self, shortcut):
 
         # Separate the arguments to the invoked command from the command
         # itself.   Note that since Finder is automatically launched
@@ -113,16 +100,11 @@ class OSX(object):
         cmd = cmd[0]
 
         # If the command is a path to an executable file, create a
-        # double-clickable shell script that will execute it.
+        # double-clickable shortcut that will execute it.
         if os.path.isfile(cmd) and os.access(cmd, os.X_OK):
-            fn = shortcut['name'] + '.command'
-            path = os.path.join(self.category_map[mapped_category], fn)
-            fo = open(path, 'w')
-            fo.write("#!/bin/sh\n")
-            fo.write("%s %s\n" % (cmd, ' '.join(args)))
-            fo.close()
-            os.chmod(path, 0755)
-
+            shortcut['args'] = [cmd] + args
+            Application(shortcut).create()
+            
         # Otherwise, just create a symlink to the specified command
         # value.  Note that it is possible we may only need this logic
         # as symlinks to executable scripts are double-clickable on
@@ -136,3 +118,4 @@ class OSX(object):
             os.symlink(cmd, path)
 
         return
+
