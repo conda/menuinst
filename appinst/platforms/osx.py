@@ -131,7 +131,7 @@ class OSX(object):
         else:
             name = shortcut['name']
             path = os.path.join(self.category_map[mapped_category], name)
-            if os.path.exists(path) and os.path.isfile(path):
+            if os.path.exists(path): # and os.path.isfile(path):
                 os.remove(path)
             os.symlink(cmd, path)
 
