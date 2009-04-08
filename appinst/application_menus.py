@@ -38,10 +38,11 @@ def determine_platform():
     plat = platform.system().lower()
     if plat == 'linux':
         plat, pver = platform.dist()[:2]
-    elif plat == 'windows':
-        pver = platform.win32_ver()[0]
     elif plat == 'darwin':
         pver = platform.mac_ver()[0]
+    else:
+        # Assuming windows.
+        pver = platform.win32_ver()[0]
     
     return plat, pver
 PLAT, PVER = determine_platform()
