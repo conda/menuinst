@@ -113,9 +113,18 @@ class OSX(object):
         else:
             name = shortcut['name']
             path = os.path.join(shortcut['menu_dir'], name)
-            if os.path.exists(path): # and os.path.isfile(path):
+
+            # Remove the symlink if it exists already, we always want to be
+            # able to reinstall
+            if os.path.islink(path):
+                print "Warning: link %r already exists, unlinking" % path
                 os.remove(path)
-            os.symlink(cmd, path)
+
+            # If there was a link it's removed now, but maybe there is still
+            # a file or directory
+            if os.path.exists(path):
+                print "Error: %r exists, can't create link" % path
+            else:
+                os.symlink(cmd, path)
 
         return
-
