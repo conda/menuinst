@@ -3,3 +3,6 @@
     module, and move the code into application_menus.py so that we have only
     one entry point for creating application menu's across all supported
     platforms.
+
+- Bug: On Windows, when the install path contains whitespace, the menu,
+    desktop, and quicklauch icons don't work.
