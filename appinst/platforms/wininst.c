@@ -440,7 +440,12 @@ static PyObject *GetRootHKey(PyObject *self)
 
 #define METH_VARARGS 0x0001
 #define METH_NOARGS   0x0004
-// typedef PyObject *(*PyCFunction)(PyObject *, PyObject *);
+/* 
+   This is already defined in include/methodobject.h (line 18), and there
+   is no reason to redefine it here.  In fact redefining it causes an error.
+
+   typedef PyObject *(*PyCFunction)(PyObject *, PyObject *);
+*/
 
 PyMethodDef meth[] = {
 	{"create_shortcut", CreateShortcut, METH_VARARGS, NULL},
