@@ -440,7 +440,7 @@ static PyObject *GetRootHKey(PyObject *self)
 
 #define METH_VARARGS 0x0001
 #define METH_NOARGS   0x0004
-typedef PyObject *(*PyCFunction)(PyObject *, PyObject *);
+// typedef PyObject *(*PyCFunction)(PyObject *, PyObject *);
 
 PyMethodDef meth[] = {
 	{"create_shortcut", CreateShortcut, METH_VARARGS, NULL},

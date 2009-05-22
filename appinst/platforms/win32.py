@@ -20,10 +20,14 @@ except ImportError:
 
 def quoted(s):
     """
-    quotes a string
+    quotes a string if necessary.
     """
     # strip any existing quotes
-    return '"%s"' % s.strip('"')
+    s = s.strip('"')
+    if ' ' in s:
+        return '"%s"' % s
+    else:
+        return s
 
 
 class Win32(object):
