@@ -18,6 +18,14 @@ except ImportError:
     HAS_CUSTOM = False
 
 
+def quoted(s):
+    """
+    quotes a string
+    """
+    # strip any existing quotes
+    return '"%s"' % s.strip('"')
+
+
 class Win32(object):
     """
     A class for application installation operations on Windows.
@@ -150,7 +158,6 @@ class Win32(object):
         # list of args.
         link = shortcut['name'] + '.lnk'
         comment = shortcut['comment']
-        cmd_args = ' '.join(args)
         icon = shortcut.get('icon', None)
         if icon:
             shortcut_args = ['', icon]
@@ -177,7 +184,12 @@ class Win32(object):
                     print "Could not remove: %r" % dst
             else:
                 wininst.create_shortcut(
-                    cmd, comment, dst, cmd_args, *shortcut_args)
+                    quoted(cmd),
+                    comment,
+                    dst,
+                    # the arguments of the command
+                    ' '.join(quoted(arg) for arg in args),
+                    *shortcut_args)
 
 
     def _uninstall_application_menus(self, menus, shortcuts, start_menu):
