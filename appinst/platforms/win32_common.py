@@ -1,7 +1,6 @@
 # Copyright (c) 2008 by Enthought, Inc.
 # All rights reserved.
 
-
 import _winreg
 import os
 import platform
@@ -11,8 +10,8 @@ from appinst.platforms import wininst
 
 
 # Constants
-CURRENT_USER=0
-ALL_USERS=1
+CURRENT_USER = 0
+ALL_USERS = 1
 
 
 ###############################################################################
@@ -20,7 +19,7 @@ ALL_USERS=1
 ###############################################################################
 
 def _get_install_type():
-    hklm = _winreg.ConnectRegistry( None, _winreg.HKEY_LOCAL_MACHINE )
+    hklm = _winreg.ConnectRegistry(None, _winreg.HKEY_LOCAL_MACHINE)
 
     python_reg_path = "SOFTWARE\\Python\\PythonCore\\%d.%d\\InstallPath" \
             % (sys.version_info[0], sys.version_info[1])
@@ -31,18 +30,18 @@ def _get_install_type():
             hklm,
             python_reg_path,
             0,
-            _winreg.KEY_READ )
+            _winreg.KEY_READ)
     except EnvironmentError:
         all_users_key = None
 
     # Look for the python install for the current user
     try:
-        hkcu = _winreg.ConnectRegistry( None, _winreg.HKEY_CURRENT_USER )
+        hkcu = _winreg.ConnectRegistry(None, _winreg.HKEY_CURRENT_USER)
         current_user_key = _winreg.OpenKey(
             hkcu,
             python_reg_path,
             0,
-            _winreg.KEY_READ )
+            _winreg.KEY_READ)
     except EnvironmentError:
         current_user_key = None
 
@@ -150,7 +149,7 @@ def add_shortcut(target,description,link_file,*args,**kw):
             print "shortcut not created, appinst module probably missing"
 
 
-def append_to_reg_path( new_dir ) :
+def append_to_reg_path(new_dir):
     """
     appends a new dir to the registry PATH value
     """
@@ -159,23 +158,23 @@ def append_to_reg_path( new_dir ) :
 
     # determine where the environment registry settings are
     if _get_install_type() == ALL_USERS:
-        reg = _winreg.ConnectRegistry( None, _winreg.HKEY_LOCAL_MACHINE )
+        reg = _winreg.ConnectRegistry(None, _winreg.HKEY_LOCAL_MACHINE)
         environ_key_path = ('SYSTEM\\CurrentControlSet\\Control\\'
             'Session Manager\\Environment')
     else:
-        reg = _winreg.ConnectRegistry( None, _winreg.HKEY_CURRENT_USER )
+        reg = _winreg.ConnectRegistry(None, _winreg.HKEY_CURRENT_USER)
         environ_key_path = "Environment"
 
     # open key for reading, to save and print out old value
     try:
-        key = _winreg.OpenKey(reg, environ_key_path )
-        old_path = _winreg.QueryValueEx( key, "Path" )[0]
-        _winreg.CloseKey( key )
+        key = _winreg.OpenKey(reg, environ_key_path)
+        old_path = _winreg.QueryValueEx(key, "Path")[0]
+        _winreg.CloseKey(key)
     except WindowsError:
         old_path = ""
 
     # reopen key for writing new value
-    key = _winreg.OpenKey(reg, environ_key_path, 0, _winreg.KEY_ALL_ACCESS )
+    key = _winreg.OpenKey(reg, environ_key_path, 0, _winreg.KEY_ALL_ACCESS)
 
     #  Check if the new dir has already been included in the old 'path' value
     path_exists = False
@@ -187,10 +186,10 @@ def append_to_reg_path( new_dir ) :
         new_path = "%s;%s" % (old_path.strip(';'), new_dir)
 
         # append new_dir to the PATH
-        _winreg.SetValueEx( key, "Path", 0, _winreg.REG_EXPAND_SZ, new_path )
+        _winreg.SetValueEx(key, "Path", 0, _winreg.REG_EXPAND_SZ, new_path)
 
-    _winreg.CloseKey( key )
-    _winreg.CloseKey( reg )
+    _winreg.CloseKey(key)
+    _winreg.CloseKey(reg)
 
     if not path_exists:
         try:
@@ -244,12 +243,12 @@ def append_to_reg_pathext():
             _winreg.CloseKey( hklm_reg )
 
     # reopen key for writing new value
-    key = _winreg.OpenKey(reg, environ_key_path, 0, _winreg.KEY_ALL_ACCESS )
+    key = _winreg.OpenKey(reg, environ_key_path, 0, _winreg.KEY_ALL_ACCESS)
     new_pathext = old_pathext + ";.PY;.PYC"
-    _winreg.SetValueEx( key, "PATHEXT", 0, _winreg.REG_SZ, new_pathext )
+    _winreg.SetValueEx(key, "PATHEXT", 0, _winreg.REG_SZ, new_pathext)
 
-    _winreg.CloseKey( key )
-    _winreg.CloseKey( reg )
+    _winreg.CloseKey(key)
+    _winreg.CloseKey(reg)
 
     try:
         refreshEnvironment()
@@ -296,11 +295,11 @@ def remove_from_reg_path(remove_dir, install_mode='user') :
 
     # determine where the environment registry settings are
     if install_mode == 'system':
-        reg = _winreg.ConnectRegistry( None, _winreg.HKEY_LOCAL_MACHINE )
+        reg = _winreg.ConnectRegistry(None, _winreg.HKEY_LOCAL_MACHINE)
         environ_key_path = ("SYSTEM\\CurrentControlSet\\Control\\"
             "Session Manager\\Environment")
     else:
-        reg = _winreg.ConnectRegistry( None, _winreg.HKEY_CURRENT_USER )
+        reg = _winreg.ConnectRegistry(None, _winreg.HKEY_CURRENT_USER)
         environ_key_path = "Environment"
 
     # open key for reading, to save and print out old value
@@ -309,7 +308,7 @@ def remove_from_reg_path(remove_dir, install_mode='user') :
     _winreg.CloseKey( key )
 
     # reopen key for writing new value
-    key = _winreg.OpenKey(reg,environ_key_path, 0, _winreg.KEY_ALL_ACCESS )
+    key = _winreg.OpenKey(reg,environ_key_path, 0, _winreg.KEY_ALL_ACCESS)
 
     # create new path which omits the path we want to remove
     changed_path_value = False
@@ -352,22 +351,22 @@ def register_association_with_shell(desc, cmd):
 
     # determine where the shell registry settings are
     if _get_install_type() == ALL_USERS:
-        reg = _winreg.ConnectRegistry( None, _winreg.HKEY_LOCAL_MACHINE )
+        reg = _winreg.ConnectRegistry(None, _winreg.HKEY_LOCAL_MACHINE)
         shell_key_path = r"SOFTWARE\Classes\Python.File\shell"
     else:
-        reg = _winreg.ConnectRegistry( None, _winreg.HKEY_CURRENT_USER )
+        reg = _winreg.ConnectRegistry(None, _winreg.HKEY_CURRENT_USER)
         shell_key_path = r"Software\Classes\Python.File\shell"
 
-    reg = _winreg.ConnectRegistry( None, _winreg.HKEY_LOCAL_MACHINE )
+    reg = _winreg.ConnectRegistry(None, _winreg.HKEY_LOCAL_MACHINE)
 
     # open key for writing
-    key = _winreg.OpenKey( reg, shell_key_path, 0, _winreg.KEY_ALL_ACCESS )
+    key = _winreg.OpenKey(reg, shell_key_path, 0, _winreg.KEY_ALL_ACCESS)
     new_key = _winreg.CreateKey(key, desc)
     _winreg.SetValue(new_key, "command", _winreg.REG_SZ, cmd)
 
-    _winreg.CloseKey( new_key )
-    _winreg.CloseKey( key )
-    _winreg.CloseKey( reg )
+    _winreg.CloseKey(new_key)
+    _winreg.CloseKey(key)
+    _winreg.CloseKey(reg)
 
 
 def get_programs_start_menu():
@@ -417,4 +416,3 @@ def get_quick_launch_directory():
     """
 
     return _get_current_user_quick_launch_directory()
-
