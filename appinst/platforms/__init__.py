@@ -12,7 +12,7 @@ def load_system_module(mod):
 
     fn = "%s%d%d.dll" % (mod, sys.version_info[0], sys.version_info[1])
     path = join(sys.prefix, 'Scripts', fn)
-    if isilfe(path):
+    if isfile(path):
         imp.load_module(mod, None, path, ('.dll', 'rb', imp.C_EXTENSION))
     else:
         print "Warning: %r does not exist" % path
