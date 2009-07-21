@@ -206,10 +206,16 @@ class Win32(object):
             name = shortcut['name'] + '.lnk'
             shortcut_names.append(name)
             
-            # Remove the deskop icon if it was added
-            if shortcut.get('desktop', None) and \
-                self.props['ADDTODESKTOP'] == '1':
-                pth = join(self.desktop_dir, name)
+            # Since the _get_install_type() function does not work properly
+            # during the uninstall process, we try to remove the desktop icon
+            # from both the all-users and current user's desktop directory
+            if shortcut.get('desktop', None):
+                pth = join(common._get_all_users_desktop_directory(), name)
+                try:
+                    os.unlink(pth)
+                except:
+                    pass
+                pth = join(common._get_current_user_desktop_directory(), name)
                 try:
                     os.unlink(pth)
                 except:
