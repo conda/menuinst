@@ -203,7 +203,26 @@ class Win32(object):
         # that's how they were created during install.
         shortcut_names = []
         for shortcut in shortcuts:
-            shortcut_names.append(shortcut['name'] + '.lnk')
+            name = shortcut['name'] + '.lnk'
+            shortcut_names.append(name)
+            
+            # Remove the deskop icon if it was added
+            if shortcut.get('desktop', None) and \
+                self.props['ADDTODESKTOP'] == '1':
+                pth = join(self.desktop_dir, name)
+                try:
+                    os.unlink(pth)
+                except:
+                    pass
+
+            # Remove the quicklaunch icon if it was added
+            if shortcut.get('quicklaunch', None) and \
+                self.props['ADDTOLAUNCHER'] == '1':
+                pth = join(self.quicklaunch_dir, name)
+                try:
+                    os.unlink(pth)
+                except:
+                    pass
 
         for top_menu in menus:
             top_name = top_menu['name']
