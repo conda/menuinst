@@ -1,7 +1,6 @@
 # Copyright (c) 2008-2009 by Enthought, Inc.
 # All rights reserved.
 
-
 import os
 import platform
 import sys
@@ -173,12 +172,13 @@ def install(menus, shortcuts, install_mode='user', uninstall=False):
         for sc in shortcuts:
             sc['categories'] = [ct.Manufacturer + '.' + product_category]
 
-    # XXX
+    """
     import pprint
     pp = pprint.PrettyPrinter(indent=4, width=20)
     print 'MENUS: %s' % pp.pformat(menus)
     print 'SHORTCUTS: %s' % pp.pformat(shortcuts)
     print 'INSTALL_MODE: %s' % install_mode
+    """
 
     # Dispatch for RedHat 3.
     if PLAT.startswith('redhat') and PVER[0] == '3':
@@ -224,4 +224,3 @@ def uninstall(menus, shortcuts, install_mode='user'):
     a stored value, or user input.
     """
     install(menus, shortcuts, install_mode, uninstall=True)
-
