@@ -33,11 +33,12 @@ def transform_shortcut(dat_dir, sc):
 
     if (sys.platform == 'win32' and sc['terminal'] is False):
         script = bin + '-script.py'
-        print script, isfile(script)
         if isfile(script):
             argv = [join(sys.prefix, 'pythonw.exe'), script]
             argv.extend(sc['cmd'][1:])
             sc['cmd'] = argv
+        else:
+            print "Warning: %r does not exist" % script
 
     # Make the path of to icon files absolute
     for kw in ('icon', 'icns'):

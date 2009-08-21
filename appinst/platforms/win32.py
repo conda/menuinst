@@ -115,7 +115,7 @@ class Win32(object):
             # Ensure the shortcut ends up in each of the requested categories.
             for mapped_category in shortcut['categories']:
 
-                print '=======', shortcut
+                #print '=======', shortcut
                 # Install the actual item
                 self._install_shortcut(mapped_category, shortcut)
 
