@@ -8,7 +8,6 @@ such a data file see examples/appinst.dat, the example file contains
 detailed comments about how this is done exactly.
 """
 
-
 import sys
 
 from appinst.application_menus import install, uninstall
@@ -31,7 +30,10 @@ def transform_shortcut(dat_dir, sc):
         bin = join(BIN_DIR, bin)
     sc['cmd'][0] = bin
 
-    if (sys.platform == 'win32' and sc['terminal'] is False):
+    if (sys.platform == 'win32' and
+        sc['terminal'] is False and
+        not bin.startswith('{{')
+        ):
         script = bin + '-script.py'
         if isfile(script):
             argv = [join(sys.prefix, 'pythonw.exe'), script]
@@ -68,7 +70,7 @@ def transform(path):
 def install_from_dat(path):
     """
     Does a complete install given a data file.
-    
+
     For an example see examples/appinst.dat.
 
     """
@@ -81,4 +83,3 @@ def uninstall_from_dat(path):
 
     """
     uninstall(*transform(path))
-
