@@ -1,9 +1,7 @@
 # Copyright (c) 2009 by Enthought, Inc.
 # All rights reserved.
 
-
 import os
-import re
 import shutil
 import sys
 
@@ -28,7 +26,7 @@ class Application(object):
         ---------
         force is a boolean indicating whether an existing application should
             be removed if it exists.  Defaults to True.
-            
+
         """
 
         self.force = force
@@ -55,7 +53,7 @@ class Application(object):
     def create(self):
         """
         Create the application.
-        
+
         """
         self._create_dirs()
         self._write_pkginfo()
@@ -73,7 +71,7 @@ class Application(object):
             shutil.rmtree(self.app_dir)
 
         if isdir(self.app_dir):
-            raise RuntimeError("Application bundle %r already exists" % 
+            raise RuntimeError("Application bundle %r already exists" %
                 self.app_dir)
 
         # Only need to make leaf dirs as the 'makedirs' function creates the
@@ -93,14 +91,14 @@ class Application(object):
         if self.icns_path is None:
             self.icns_path = join(sys.prefix, 'Resources/Python.app/Contents',
                 'Resources/PythonInterpreter.icns')
-        
+
         shutil.copy(self.icns_path, self.resources_dir)
 
 
     def _writePlistInfo(self):
         """
         Writes the Info.plist file in the Contests directory.
-        
+
         """
         pl = Plist(
             CFBundleExecutable=self.executable,
@@ -119,7 +117,7 @@ class Application(object):
         Copies a python script (which starts the application) into the
         application folder (into Contests/MacOS) and makes sure the script
         uses sys.executable, which should be the "framework Python".
-        
+
         """
 
         if self.terminal:
@@ -127,10 +125,10 @@ class Application(object):
             lines = self._get_terminal_lines()
         else:
             lines = self._get_shell_lines()
-        
+
         open(self.executable_path, 'w').writelines(lines)
         os.chmod(self.executable_path, 0755)
-       
+
 
     def _get_shell_lines(self):
         return "#!/bin/sh\n%s\n" % ' '.join(self.args)

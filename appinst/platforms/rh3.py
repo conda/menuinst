@@ -1,13 +1,12 @@
 # Copyright (c) 2008 by Enthought, Inc.
 # All rights reserved.
 
-
-import appinst.platforms.linux_common as common
 import os
 import shutil
 import sys
 import warnings
 
+import appinst.platforms.linux_common as common
 from appinst.platforms.freedesktop import (filesystem_escape,
     make_desktop_entry, make_directory_entry)
 from appinst.platforms.shortcut_creation_error import ShortcutCreationError
@@ -189,7 +188,7 @@ class RH3(object):
             # to the id of each shortcut based on where that shortcut fits
             # in the menu.
             menu_id = common.build_id(menu_spec['id'], parent_id)
- 
+
             # Map the category for this menu to its directory path.
             category = menu_spec.get('category',
                 menu_spec.get('id').capitalize())
@@ -371,7 +370,7 @@ class RH3(object):
     def _install_kde_system_application_menus(self, menus, shortcuts):
 
         return self._install_kde_application_menus('/usr/share', menus,
-            shortcuts)
+                                                   shortcuts)
 
 
     def _install_kde_user_application_menus(self, menus, shortcuts):
@@ -384,5 +383,3 @@ class RH3(object):
 
         # Create our shortcuts under the share dir.
         return self._install_kde_application_menus(share_dir, menus, shortcuts)
-
-

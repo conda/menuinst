@@ -1,7 +1,6 @@
 # Copyright (c) 2008-2009 by Enthought, Inc.
 # All rights reserved.
 
-import os
 import platform
 import sys
 import warnings
@@ -10,10 +9,10 @@ from os.path import dirname, join
 
 
 # The custom_tools package is importable when the Python was created by an
-# "enicab" installer, in which case the directory custom_tools contains 
+# "enicab" installer, in which case the directory custom_tools contains
 # platform-independent install information in __init__.py and platform-specific
-# information about user setting chosen during the install process. 
-# For example, on Windows the enicab generated MSI creates a file called 
+# information about user setting chosen during the install process.
+# For example, on Windows the enicab generated MSI creates a file called
 # Property.dat with settings such as whether or not the user granted permission
 # to create desktop and quicklaunch icons, and whether the user chose to make
 # this a user-specific install or an install for all users.
@@ -42,7 +41,7 @@ def determine_platform():
     else:
         # Assuming windows.
         pver = platform.win32_ver()[0]
-    
+
     return plat, pver
 PLAT, PVER = determine_platform()
 
@@ -164,7 +163,7 @@ def install(menus, shortcuts, install_mode='user', uninstall=False):
         warnings.warn("Uninstall is currently only supported for Windows, "
             "not for platform: %s" % PLAT)
         return
-    # 
+    #
     if not menus:
         menus = get_default_menu()
         product_category = '%s-%s' % (ct.NAME, ct.FULL_VERSION)

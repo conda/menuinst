@@ -283,7 +283,7 @@ def remove_from_reg_path(remove_dir, install_mode='user') :
     Removes a directory from the PATH environment variable. If the directory
     exists more than once on the path, all instances of that directory are
     removed.
-    
+
     remove_dir      The directory to be removed from the PATH.
     install_mode    Determines which environment to modify. If 'system' is
                     given, the PATH variable in HKLM is modified. If 'user'
@@ -318,7 +318,7 @@ def remove_from_reg_path(remove_dir, install_mode='user') :
             changed_path_value = True
         else:
             new_path += path + ';'
-            
+
     # Remove the trailing semicolon
     new_path = new_path[:-1]
 

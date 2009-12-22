@@ -2,9 +2,7 @@
 # All rights reserved.
 
 import os
-import sys
 
-from appinst.platforms.shortcut_creation_error import ShortcutCreationError
 from appinst.platforms.osx_application import Application
 
 
@@ -75,8 +73,6 @@ class OSX(object):
                 sc_copy['menu_dir'] = self.category_map[mapped_category]
                 self._install_shortcut(sc_copy)
 
-        return
-
 
     def _install_shortcut(self, shortcut):
 
@@ -104,7 +100,7 @@ class OSX(object):
         if os.path.isfile(cmd) and os.access(cmd, os.X_OK):
             shortcut['args'] = [cmd] + args
             Application(shortcut).create()
-            
+
         # Otherwise, just create a symlink to the specified command
         # value.  Note that it is possible we may only need this logic
         # as symlinks to executable scripts are double-clickable on
@@ -126,5 +122,3 @@ class OSX(object):
                 print "Error: %r exists, can't create link" % path
             else:
                 os.symlink(cmd, path)
-
-        return

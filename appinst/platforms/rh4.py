@@ -1,17 +1,15 @@
 # Copyright (c) 2008 by Enthought, Inc.
 # All rights reserved.
 
-
-import appinst.platforms.linux_common as common
-import copy
 import os
 import shutil
 import sys
 import warnings
 import xml.etree.ElementTree as et
 
+import appinst.platforms.linux_common as common
 from appinst.platforms.freedesktop import (filesystem_escape,
-    make_desktop_entry, make_directory_entry)
+                     make_desktop_entry, make_directory_entry)
 from appinst.platforms.shortcut_creation_error import ShortcutCreationError
 from distutils.sysconfig import get_python_lib
 
@@ -317,4 +315,3 @@ class RH4(object):
         # Create our shortcuts.
         return self._install_application_menus(datadir, sysconfdir, menus,
             shortcuts)
-

@@ -1,9 +1,6 @@
 # Copyright (c) 2008 by Enthought, Inc.
 # All rights reserved.
 
-
-import appinst.platforms.linux_common as common
-import copy
 import os
 import shutil
 import sys
@@ -11,8 +8,9 @@ import time
 import warnings
 import xml.etree.ElementTree as et
 
+import appinst.platforms.linux_common as common
 from appinst.platforms.freedesktop import (filesystem_escape,
-    make_desktop_entry, make_directory_entry)
+                     make_desktop_entry, make_directory_entry)
 from appinst.platforms.shortcut_creation_error import ShortcutCreationError
 from distutils.sysconfig import get_python_lib
 
@@ -170,13 +168,13 @@ class RH5(object):
             # to the id of each shortcut based on where that shortcut fits
             # in the menu.
             menu_id = common.build_id(menu_spec['id'], parent_id)
- 
+
             # Create the category string for this menu.
             category = menu_spec.get('category',
                 menu_spec.get('id').capitalize())
             if len(parent_category) > 1:
                 category = '%s.%s' % (parent_category, category)
-            
+
              # Keep track of which IDs match which categories
             id_map[category] = menu_id
 

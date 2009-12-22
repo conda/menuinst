@@ -10,7 +10,7 @@ def build_id(current_id, previous_id):
     """Takes a string and prepends a second string if the second string exists,
     using a period as a delimiter.
     """
-    
+
     if len(previous_id) > 1:
         current_id = '%s.%s' % (previous_id, current_id)
 
@@ -18,7 +18,7 @@ def build_id(current_id, previous_id):
 
 def fix_shortcut_ids(shortcuts, mapped_ids):
     """Takes the id of a shortcut and prepends the id of its menu hierarchy.
-    
+
     Parameters
     ----------
     shortcuts: list of dicts

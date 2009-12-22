@@ -1,11 +1,9 @@
 # Copyright (c) 2008-2009 by Enthought, Inc.
 # All rights reserved.
 
-
 import os
 import sys
 
-from appinst.platforms.shortcut_creation_error import ShortcutCreationError
 from appinst.platforms import wininst, win32_common as common
 from distutils.sysconfig import get_python_lib
 from os.path import abspath, dirname, exists, join
@@ -66,7 +64,7 @@ class Win32(object):
         else:
             self._install_application_menus(menus, shortcuts, start_menu)
 
-    
+
     def uninstall_application_menus(self, menus, shortcuts, mode):
         """
         Uninstall application menus.
@@ -99,7 +97,7 @@ class Win32(object):
             # Categories are always hierarchical to ensure uniqueness.  Note
             # that if no category was explicitly set, we use the capitalized
             # version of the ID.
-            category = menu_spec.get('category', 
+            category = menu_spec.get('category',
                 menu_spec.get('id').capitalize())
             if len(parent_category) > 1:
                 category = '%s.%s' % (parent_category, category)
@@ -205,7 +203,7 @@ class Win32(object):
         for shortcut in shortcuts:
             name = shortcut['name'] + '.lnk'
             shortcut_names.append(name)
-            
+
             # Since the _get_install_type() function does not work properly
             # during the uninstall process, we try to remove the desktop icon
             # from both the all-users and current user's desktop directory
@@ -249,7 +247,7 @@ class Win32(object):
                     menu_paths.insert(0, join(root, d))
 
             # Delete menu directories. This should start from the bottom-most
-            # directory and work its way up to the top-most. Only directories 
+            # directory and work its way up to the top-most. Only directories
             # that have been emptied will be deleted.
             # FIXME: This will also delete directories that already are empty
             # (not necessarily ones that we created), but that may be a
