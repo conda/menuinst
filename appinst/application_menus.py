@@ -194,6 +194,11 @@ def install(menus, shortcuts, install_mode='user', uninstall=False):
         from appinst.platforms.rh5 import RH5
         RH5().install_application_menus(menus, shortcuts, install_mode)
 
+    # Dispatch for generic Linux
+    elif sys.platform == 'linux2':
+        from appinst.platforms.linux2 import Linux
+        Linux().install_application_menus(menus, shortcuts, install_mode)
+
     # Dispatch for all versions of OS X
     elif PLAT == 'darwin':
         from appinst.platforms.osx import OSX
