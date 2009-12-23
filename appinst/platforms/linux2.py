@@ -1,4 +1,4 @@
-# Copyright (c) 2008 by Enthought, Inc.
+# Copyright (c) 2008-2009 by Enthought, Inc.
 # All rights reserved.
 
 import os
@@ -6,7 +6,7 @@ import shutil
 import sys
 import time
 import warnings
-import xml.etree.ElementTree as et
+import xml.etree.ElementTree as ET
 from os.path import abspath, basename, exists, expanduser, isdir, isfile, join
 
 import appinst.platforms.linux_common as common
@@ -52,8 +52,6 @@ class Linux(object):
         except ShortcutCreationError, ex:
             warnings.warn(ex.message)
 
-        return
-
 
     #==========================================================================
     # Internal API methods
@@ -71,7 +69,7 @@ class Linux(object):
         # Ensure the element exists.
         element = parent_element.find(tag)
         if element is None:
-            element = et.SubElement(parent_element, tag)
+            element = ET.SubElement(parent_element, tag)
 
         # If specified, set its text
         if text is not None:
@@ -89,10 +87,10 @@ class Linux(object):
         sysconfdir: the directory that should contain the XML menu files.
         """
         # Safety check to ensure the data and sysconf dirs actually exist.
-        for dir in [datadir, sysconfdir]:
-            if not exists(dir):
+        for dir_path in [datadir, sysconfdir]:
+            if not exists(dir_path):
                 raise ShortcutCreationError('Cannot install menus and '
-                    'shortcuts due to missing directory: %s' % dir)
+                    'shortcuts due to missing directory: %s' % dir_path)
 
         # Ensure the three directories we're going to write menu and shortcut
         # resources to all exist.
@@ -100,9 +98,9 @@ class Linux(object):
             'applications'], [datadir, 'desktop-directories']]:
             for i in xrange(1, len(dirs)+1):
                 cur_dirs = dirs[:i]
-                dir = join(*cur_dirs)
-                if not isdir(dir):
-                    os.mkdir(dir)
+                dir_path = join(*cur_dirs)
+                if not isdir(dir_path):
+                    os.mkdir(dir_path)
 
         # Create a menu file for just the top-level menus.  Later on, we will
         # add the sub-menus to them, which means we need to record where each
@@ -125,7 +123,7 @@ class Linux(object):
                     backup_menu_file = "%s.%s" % (menu_file, cur_time)
                     shutil.copyfile(menu_file, backup_menu_file)
 
-                    tree = et.parse(menu_file)
+                    tree = ET.parse(menu_file)
                     root = tree.getroot()
                     if root is None or root.tag != 'Menu':
                         raise Exception('Not a menu file')
@@ -137,7 +135,7 @@ class Linux(object):
                 f = open(menu_file, 'w')
                 f.write(USER_MENU_FILE)
                 f.close()
-                tree = et.parse(menu_file)
+                tree = ET.parse(menu_file)
                 root = tree.getroot()
 
             # Record info about the menu file for use when actually creating the
@@ -186,7 +184,7 @@ class Linux(object):
                     menu_element = element
                     break
             else:
-                menu_element = et.SubElement(parent_element, 'Menu')
+                menu_element = ET.SubElement(parent_element, 'Menu')
             self._ensure_child_element(menu_element, 'Name', name)
             self._ensure_child_element(menu_element, 'Directory',
                 entry_filename)
@@ -217,8 +215,6 @@ class Linux(object):
         location = join(datadir, 'applications')
         self._install_gnome_desktop_entry(shortcuts, location)
         self._install_kde_desktop_entry(shortcuts, location)
-
-        return
 
 
     def _install_desktop_entry(self, shortcuts, filebrowser):
@@ -285,8 +281,8 @@ class Linux(object):
         retcode = os.system('kbuildsycoca')
         if retcode != 0:
             raise ShortcutCreationError('Unable to rebuild KDE desktop.  '
-                'Application menu may not have been installed correctly,'
-                ' or KDE is not installed.')
+                'Application menu may not have been installed correctly, '
+                'or KDE is not installed.')
 
 
     def _install_system_application_menus(self, menus, shortcuts):
@@ -308,11 +304,11 @@ class Linux(object):
                                     abspath(expanduser('~/.config')))
 
         # Make sure the target directories exist.
-        for dir in [datadir, sysconfdir]:
-            if not os.path.isdir(dir):
-                if os.path.isfile(dir):
-                    os.remove(dir)
-                os.makedirs(dir)
+        for dir_path in [datadir, sysconfdir]:
+            if not isdir(dir_path):
+                if isfile(dir_path):
+                    os.remove(dir_path)
+                os.makedirs(dir_path)
 
         # Create our shortcuts.
         return self._install_application_menus(datadir, sysconfdir, menus,

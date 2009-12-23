@@ -189,11 +189,6 @@ def install(menus, shortcuts, install_mode='user', uninstall=False):
         from appinst.platforms.rh4 import RH4
         RH4().install_application_menus(menus, shortcuts, install_mode)
 
-    # Dispatch for RedHat 5.
-    elif PLAT.startswith('redhat') and PVER[0] == '5':
-        from appinst.platforms.rh5 import RH5
-        RH5().install_application_menus(menus, shortcuts, install_mode)
-
     # Dispatch for generic Linux
     elif sys.platform == 'linux2':
         from appinst.platforms.linux2 import Linux
