@@ -5,19 +5,19 @@ import os
 import shutil
 import sys
 import warnings
-
-import appinst.platforms.linux_common as common
-from appinst.platforms.freedesktop import (filesystem_escape,
-    make_desktop_entry, make_directory_entry)
-from appinst.platforms.shortcut_creation_error import ShortcutCreationError
 from distutils.sysconfig import get_python_lib
 from xml.etree import ElementTree
+
+import appinst.platforms.linux_common as common
+from appinst.platforms.freedesktop import (filesystem_escape, make_desktop_entry,
+                                           make_directory_entry)
+from appinst.platforms.utils import ShortcutCreationError
+
 
 
 class RH3(object):
     """
     A class for application installation operations on RH3.
-
     """
 
     #==========================================================================
@@ -30,9 +30,7 @@ class RH3(object):
 
         We install into both KDE and Gnome desktops.  If the mode isn't
         exactly 'system', a user install is done.
-
         """
-
         # Try installing KDE shortcuts.  We don't raise an exception on an
         # error because we don't know if this user has KDE installed.
         try:
@@ -53,8 +51,6 @@ class RH3(object):
         except ShortcutCreationError, ex:
             warnings.warn(ex.message)
 
-        return
-
 
     #==========================================================================
     # Internal API methods
@@ -68,9 +64,7 @@ class RH3(object):
         None.
 
         The sub-element is returned.
-
         """
-
         # Ensure the element exists.
         element = parent_element.find(tag)
         if element is None:
@@ -84,12 +78,10 @@ class RH3(object):
 
 
     def _install_desktop_entry(self, shortcuts, category_map, filebrowser,
-        write_categories = False):
+                               write_categories = False):
         """
         Create a desktop entry for the specified shortcut spec.
-
         """
-
         for spec in shortcuts:
             spec_dict = spec.copy()
 
@@ -117,19 +109,15 @@ class RH3(object):
                 spec_dict['location'] = category_map[category]
                 make_desktop_entry(spec_dict)
 
-        return
-
 
     def _install_gnome_application_menus(self, vfolder_dir, vfolder_info, menus,
-         shortcuts):
+                                         shortcuts):
         """
         Create Gnome2 application menus.
 
         vfolder_dir: the location to place .directory files within.
         vfolder_info: the configuration file to store the menu info within.
-
         """
-
         # Open up the configuration file so we can modify it.
         info_tree = ElementTree.parse(vfolder_info)
         info_root = info_tree.getroot()
@@ -233,9 +221,7 @@ class RH3(object):
         # Write out any shortcuts
         filebrowser = "nautilus"
         self._install_desktop_entry(shortcuts, category_map, filebrowser,
-            write_categories = True)
-
-        return
+                                    write_categories = True)
 
 
     def _install_gnome_system_application_menus(self, menus, shortcuts):
@@ -253,8 +239,6 @@ class RH3(object):
         # Create the shortcuts.
         self._install_gnome_application_menus(vfolder_dir, vfolder_info, menus,
             shortcuts)
-
-        return
 
 
     def _install_gnome_user_application_menus(self, menus, shortcuts):
@@ -285,8 +269,6 @@ class RH3(object):
         self._install_gnome_application_menus(vfolder_dir, vfolder_info, menus,
             shortcuts)
 
-        return
-
 
     def _install_kde_application_menus(self, share_dir, menus, shortcuts):
         """
@@ -294,9 +276,7 @@ class RH3(object):
 
         share_dir: the file system path to the directory that the application
             menu should be generated wtihin.
-
         """
-
         # Safety check to ensure the share dir actually exists.
         if not os.path.exists(share_dir):
             raise ShortcutCreationError('No %s directory found' % share_dir)
@@ -363,8 +343,6 @@ class RH3(object):
         if retcode != 0:
             raise ShortcutCreationError('Unable to rebuild KDE desktop.  '
                 'Application menu may not have been installed correctly.')
-
-        return
 
 
     def _install_kde_system_application_menus(self, menus, shortcuts):

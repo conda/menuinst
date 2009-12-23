@@ -8,20 +8,15 @@ import time
 import warnings
 import xml.etree.ElementTree as ET
 from os.path import abspath, basename, exists, expanduser, isdir, isfile, join
-
-import appinst.platforms.linux_common as common
-from appinst.platforms.freedesktop import (filesystem_escape,
-                     make_desktop_entry, make_directory_entry)
-from appinst.platforms.shortcut_creation_error import ShortcutCreationError
 from distutils.sysconfig import get_python_lib
 
+import appinst.platforms.linux_common as common
+from appinst.platforms.freedesktop import (filesystem_escape, make_desktop_entry,
+                                           make_directory_entry)
+from appinst.platforms.utils import ShortcutCreationError, add_dtd_and_format
 
-DOCTYPE="""<!DOCTYPE Menu
-  PUBLIC '-//freedesktop//DTD Menu 1.0//EN'
-  'http://standards.freedesktop.org/menu-spec/menu-1.0.dtd'>
-"""
 
-USER_MENU_FILE ="""
+USER_MENU_FILE = """
 <Menu>
     <Name>Applications</Name>
     <MergeFile type="parent">/etc/xdg/menus/applications.menu</MergeFile>
@@ -132,9 +127,9 @@ class Linux(object):
 
             # Create a new menu file if one doesn't yet exist.
             if not exists(menu_file):
-                f = open(menu_file, 'w')
-                f.write(USER_MENU_FILE)
-                f.close()
+                fo = open(menu_file, 'w')
+                fo.write(USER_MENU_FILE)
+                fo.close()
                 tree = ET.parse(menu_file)
                 root = tree.getroot()
 
@@ -187,9 +182,9 @@ class Linux(object):
                 menu_element = ET.SubElement(parent_element, 'Menu')
             self._ensure_child_element(menu_element, 'Name', name)
             self._ensure_child_element(menu_element, 'Directory',
-                entry_filename)
+                                       entry_filename)
             include_element = self._ensure_child_element(menu_element,
-                'Include')
+                                                         'Include')
             self._ensure_child_element(include_element, 'Category', category)
             tree.write(menu_file)
 
@@ -198,14 +193,7 @@ class Linux(object):
                 menu_map[id(child_spec)] = (menu_file, tree, menu_element)
                 queue.append((child_spec, category, menu_id))
 
-        # Restore DOCTYPE, as the xml lib leaves it out.
-        fin = open(menu_file)
-        file_xml = fin.read()
-        fin.close()
-        file_xml = DOCTYPE + file_xml
-        fout = open(menu_file, 'w')
-        fout.write(file_xml)
-        fout.close()
+        add_dtd_and_format(menu_file)
 
         # Adjust the IDs of the shortcuts to match where the shortcut fits in
         # the menu.
@@ -232,7 +220,7 @@ class Linux(object):
             elif cmd[0] == '{{WEBBROWSER}}':
                 python_path = join(sys.prefix, 'bin', 'python')
                 script_path = abspath(join(get_python_lib(),
-                    '..', 'webbrowser.py'))
+                                           '..', 'webbrowser.py'))
                 cmd[0:1] = [python_path, script_path, '-t']
             spec['cmd'] = cmd
 

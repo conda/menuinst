@@ -3,10 +3,10 @@
 
 import os
 import sys
-
-from appinst.platforms import wininst, win32_common as common
 from distutils.sysconfig import get_python_lib
 from os.path import abspath, dirname, exists, join
+
+from appinst.platforms import wininst, win32_common as common
 
 
 try:
@@ -70,7 +70,7 @@ class Win32(object):
         Uninstall application menus.
         """
         self.install_application_menus(menus, shortcuts, mode,
-            uninstall=True)
+                                       uninstall=True)
 
 
     #==========================================================================
@@ -262,5 +262,3 @@ class Win32(object):
                         continue
                 else:
                     print "%s does not exist, skipping." % menu_path
-
-        return

@@ -9,9 +9,10 @@ detailed comments about how this is done exactly.
 """
 
 import sys
+from os.path import abspath, dirname, isfile, join
 
 from appinst.application_menus import install, uninstall
-from os.path import abspath, dirname, isfile, join
+
 
 
 BIN_DIR = join(sys.prefix, 'Scripts' if sys.platform == 'win32' else 'bin')

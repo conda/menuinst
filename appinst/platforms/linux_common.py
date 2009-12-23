@@ -4,7 +4,7 @@
 # FIXME: Currently, this file holds a small amount of code common to all the
 # linux platforms. In the future, this should have a great deal more, as there
 # is quite a bit of code reuse among each platform-specific script.
-#
+
 
 def build_id(current_id, previous_id):
     """Takes a string and prepends a second string if the second string exists,
@@ -15,6 +15,7 @@ def build_id(current_id, previous_id):
         current_id = '%s.%s' % (previous_id, current_id)
 
     return current_id
+
 
 def fix_shortcut_ids(shortcuts, mapped_ids):
     """Takes the id of a shortcut and prepends the id of its menu hierarchy.
@@ -38,6 +39,6 @@ def fix_shortcut_ids(shortcuts, mapped_ids):
         if shortcut.has_key('modified'):
             return
         else:
-            shortcut['id'] = mapped_ids[shortcut['categories'][0]] + '.' + \
-                shortcut['id']
+            shortcut['id'] = (mapped_ids[shortcut['categories'][0]] + '.' +
+                              shortcut['id'])
             shortcut['modified'] = True

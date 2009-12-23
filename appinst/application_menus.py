@@ -23,9 +23,6 @@ except ImportError:
     HAS_CUSTOM = False
 
 
-# Determine the version of the current Python interpreter.
-PY_MAJOR, PY_MINOR = sys.version_info[0:2]
-
 
 def determine_platform():
     """
@@ -59,14 +56,15 @@ def get_default_menu():
                     }],
             }]
     else:
+        PY_VER = '%i.%i' % sys.version_info[:2]
         return [
           {
             'id': 'enthought',
             'name': 'Enthought',
             'sub-menus': [
                 {
-                    'id': 'python-2.5',
-                    'name': 'Python-2.5',
+                    'id': 'python-' + PY_VER,
+                    'name': 'Python-' + PY_VER,
                     }]
             }]
 
@@ -208,9 +206,8 @@ def install(menus, shortcuts, install_mode='user', uninstall=False):
     # Handle all other platforms with a warning until we implement for them.
     else:
         warnings.warn('Unhandled platform (%s) and version (%s). Unable '
-            'to create application menu(s).' % (PLAT, PVER))
+                      'to create application menu(s).' % (PLAT, PVER))
 
-    return
 
 
 def uninstall(menus, shortcuts, install_mode='user'):

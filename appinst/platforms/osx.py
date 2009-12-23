@@ -2,6 +2,7 @@
 # All rights reserved.
 
 import os
+from os.path import exists, isfile, islink, join
 
 from appinst.platforms.osx_application import Application
 
@@ -24,8 +25,6 @@ class OSX(object):
 
         self._install_application_menus(menus, shortcuts)
 
-        return
-
     #==========================================================================
     # Internal API methods
     #==========================================================================
@@ -43,8 +42,8 @@ class OSX(object):
             menu_spec, parent_path, parent_category = queue.pop(0)
 
             # Create the directory that represents this menu.
-            path = os.path.join(parent_path, menu_spec['name'])
-            if not os.path.exists(path):
+            path = join(parent_path, menu_spec['name'])
+            if not exists(path):
                 os.makedirs(path)
 
             # Determine the category for this menu and record it in the map.
@@ -97,7 +96,7 @@ class OSX(object):
 
         # If the command is a path to an executable file, create a
         # double-clickable shortcut that will execute it.
-        if os.path.isfile(cmd) and os.access(cmd, os.X_OK):
+        if isfile(cmd) and os.access(cmd, os.X_OK):
             shortcut['args'] = [cmd] + args
             Application(shortcut).create()
 
@@ -108,17 +107,17 @@ class OSX(object):
         # then.)
         else:
             name = shortcut['name']
-            path = os.path.join(shortcut['menu_dir'], name)
+            path = join(shortcut['menu_dir'], name)
 
             # Remove the symlink if it exists already, we always want to be
             # able to reinstall
-            if os.path.islink(path):
+            if islink(path):
                 print "Warning: link %r already exists, unlinking" % path
                 os.remove(path)
 
             # If there was a link it's removed now, but maybe there is still
             # a file or directory
-            if os.path.exists(path):
+            if exists(path):
                 print "Error: %r exists, can't create link" % path
             else:
                 os.symlink(cmd, path)

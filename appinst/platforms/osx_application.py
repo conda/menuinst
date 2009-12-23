@@ -4,9 +4,27 @@
 import os
 import shutil
 import sys
-
 from os.path import join, isdir, basename
+
 from plistlib import Plist, writePlist
+
+
+TERMINAL = '''\
+#!/bin/sh
+mypath="`dirname "$0"`"
+osascript << EOF
+tell application "System Events" to set terminalOn to (exists process "Terminal")
+tell application "Terminal"
+  if (terminalOn) then
+    activate
+    do script "\\"$mypath/startup.command\\"; exit"
+  else
+    do script "\\"$mypath/startup.command\\"; exit" in front window
+  end if
+end tell
+EOF
+exit 0
+'''
 
 
 class Application(object):
@@ -26,9 +44,7 @@ class Application(object):
         ---------
         force is a boolean indicating whether an existing application should
             be removed if it exists.  Defaults to True.
-
         """
-
         self.force = force
 
         # Store the required values out of the shortcut definition.
@@ -53,7 +69,6 @@ class Application(object):
     def create(self):
         """
         Create the application.
-
         """
         self._create_dirs()
         self._write_pkginfo()
@@ -72,7 +87,7 @@ class Application(object):
 
         if isdir(self.app_dir):
             raise RuntimeError("Application bundle %r already exists" %
-                self.app_dir)
+                               self.app_dir)
 
         # Only need to make leaf dirs as the 'makedirs' function creates the
         # rest on the way to the leaves.
@@ -90,7 +105,7 @@ class Application(object):
         # Use a default icon if no icns file was specified.
         if self.icns_path is None:
             self.icns_path = join(sys.prefix, 'Resources/Python.app/Contents',
-                'Resources/PythonInterpreter.icns')
+                                  'Resources/PythonInterpreter.icns')
 
         shutil.copy(self.icns_path, self.resources_dir)
 
@@ -98,7 +113,6 @@ class Application(object):
     def _writePlistInfo(self):
         """
         Writes the Info.plist file in the Contests directory.
-
         """
         pl = Plist(
             CFBundleExecutable=self.executable,
@@ -117,46 +131,24 @@ class Application(object):
         Copies a python script (which starts the application) into the
         application folder (into Contests/MacOS) and makes sure the script
         uses sys.executable, which should be the "framework Python".
-
         """
+        shell = "#!/bin/sh\n%s\n" % ' '.join(self.args)
 
         if self.terminal:
-            self._write_startup_command(self._get_shell_lines())
-            lines = self._get_terminal_lines()
+            path = join(self.macos_dir, 'startup.command')
+            fo = open(path, 'w')
+            fo.write(shell)
+            fo.close()
+            os.chmod(path, 0755)
+
+            data = TERMINAL
         else:
-            lines = self._get_shell_lines()
+            data = shell
 
-        open(self.executable_path, 'w').writelines(lines)
+        fo = open(self.executable_path, 'w')
+        fo.write(data)
+        fo.close()
         os.chmod(self.executable_path, 0755)
-
-
-    def _get_shell_lines(self):
-        return "#!/bin/sh\n%s\n" % ' '.join(self.args)
-
-
-    def _write_startup_command(self, lines):
-        path = join(self.macos_dir, 'startup.command')
-        open(path, 'w').writelines(lines)
-        os.chmod(path, 0755)
-
-
-    def _get_terminal_lines(self):
-        return (
-            '#!/bin/sh\n'
-            'mypath="`dirname "$0"`"\n'
-            'osascript << EOT\n'
-            'tell application "System Events" to set terminalOn to (exists process "Terminal")\n'
-            'tell application "Terminal"\n'
-            '  if (terminalOn) then\n'
-            '    activate\n'
-            '    do script "\\"$mypath/startup.command\\"; exit"\n'
-            '  else\n'
-            '    do script "\\"$mypath/startup.command\\"; exit" in front window\n'
-            '  end if\n'
-            'end tell\n'
-            'EOT\n'
-            'exit 0'
-            )
 
 
 if __name__ == '__main__':

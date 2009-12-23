@@ -6,12 +6,13 @@ import shutil
 import sys
 import warnings
 import xml.etree.ElementTree as et
+from distutils.sysconfig import get_python_lib
 
 import appinst.platforms.linux_common as common
-from appinst.platforms.freedesktop import (filesystem_escape,
-                     make_desktop_entry, make_directory_entry)
-from appinst.platforms.shortcut_creation_error import ShortcutCreationError
-from distutils.sysconfig import get_python_lib
+from appinst.platforms.freedesktop import (filesystem_escape, make_desktop_entry,
+                                           make_directory_entry)
+from appinst.platforms.utils import ShortcutCreationError
+
 
 
 class RH4(object):
@@ -30,9 +31,7 @@ class RH4(object):
 
         We install into both KDE and Gnome desktops.  If the mode isn't
         exactly 'system', a user install is done.
-
         """
-
         # NOTE: Our installation mechanism works for both KDE and Gnome as
         # shipped with RH 4.  But we don't raise an exception if creation fails
         # because there is no guarantee a user has both KDE and Gnome installed.
@@ -43,8 +42,6 @@ class RH4(object):
                 self._install_user_application_menus(menus, shortcuts)
         except ShortcutCreationError, ex:
             warnings.warn(ex.message)
-
-        return
 
 
     #==========================================================================
@@ -59,9 +56,7 @@ class RH4(object):
         None.
 
         The sub-element is returned.
-
         """
-
         # Ensure the element exists.
         element = parent_element.find(tag)
         if element is None:
@@ -75,16 +70,14 @@ class RH4(object):
 
 
     def _install_application_menus(self, datadir, sysconfdir, menus,
-        shortcuts):
+                                   shortcuts):
         """
         Create application menus.
 
         datadir: the directory that should contain the desktop and directory
             entries.
         sysconfdir: the directory that should contain the XML menu files.
-
         """
-
         # Safety check to ensure the data and sysconf dirs actually exist.
         for dir in [datadir, sysconfdir]:
             if not os.path.exists(dir):
@@ -201,15 +194,11 @@ class RH4(object):
         self._install_gnome_desktop_entry(shortcuts, location)
         self._install_kde_desktop_entry(shortcuts, location)
 
-        return
-
 
     def _install_desktop_entry(self, shortcuts, filebrowser):
         """
         Create a desktop entry for the specified shortcut spec.
-
         """
-
         for spec in shortcuts:
 
             # Handle the special placeholders in the specified command.  For a
@@ -229,15 +218,11 @@ class RH4(object):
             # Create the shortcuts.
             make_desktop_entry(spec)
 
-        return
-
 
     def _install_gnome_desktop_entry(self, shortcuts, location):
         """
         Create a desktop entry for the specified shortcut spec.
-
         """
-
         # Iterate though the shortcuts making a copy of each specification and
         # adding an entry so that it doesn't show in the KDE desktop, plus ends
         # up in the specified location.
@@ -252,15 +237,11 @@ class RH4(object):
         filebrowser = "gnome-open"
         self._install_desktop_entry(modified_shortcuts, filebrowser)
 
-        return
-
 
     def _install_kde_desktop_entry(self, shortcuts, location):
         """
         Create a desktop entry for the specified shortcut spec.
-
         """
-
         # Iterate though the shortcuts making a copy of each specification and
         # adding an entry so that it only shows in the KDE desktop, plus ends
         # up in the specified location.
@@ -279,10 +260,8 @@ class RH4(object):
         retcode = os.system('kbuildsycoca')
         if retcode != 0:
             raise ShortcutCreationError('Unable to rebuild KDE desktop.  '
-                'Application menu may not have been installed correctly,'
-                ' or KDE is not installed.')
-
-        return
+                'Application menu may not have been installed correctly, '
+                'or KDE is not installed.')
 
 
     def _install_system_application_menus(self, menus, shortcuts):
@@ -314,4 +293,4 @@ class RH4(object):
 
         # Create our shortcuts.
         return self._install_application_menus(datadir, sysconfdir, menus,
-            shortcuts)
+                                               shortcuts)

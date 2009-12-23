@@ -1,22 +1,19 @@
-# Copyright (c) 2008 by Enthought, Inc.
+# Copyright (c) 2008-2009 by Enthought, Inc.
 # All rights reserved.
 
 
-import os
+from os.path import join
 
 
-def filesystem_escape(name):
+def filesystem_escape(s):
     """
     Replace special chars in a name to make it compatible with filesystem
     restrictions.
-
     """
-
     # Replace spaces, periods, and parenthesis with underscores.
-    result = name.replace(' ', '_').replace('.', '_').replace('(', '_'). \
-        replace(')', '_')
-
-    return result
+    for c in ' .()':
+        s = s.replace(c, '_')
+    return s
 
 
 def make_desktop_entry(dict):
@@ -54,7 +51,6 @@ def make_desktop_entry(dict):
             'Application' will be used.
 
     Returns the path to the entry file that was created.
-
     """
 
     # Ensure default values.
@@ -99,10 +95,11 @@ Icon=%(icon)s
         entry_code = entry_code + 'NotShowIn=%s\n' % desktop
 
     # Create the desktop entry file.
-    path = os.path.join(dict['location'], '%s%s.desktop' % (filesystem_escape(dict['id']), ext))
-    fh = open(path, "w")
-    fh.write(entry_code)
-    fh.close()
+    path = join(dict['location'],
+                '%s%s.desktop' % (filesystem_escape(dict['id']), ext))
+    fo = open(path, "w")
+    fo.write(entry_code)
+    fo.close()
 
     return path
 
@@ -136,7 +133,6 @@ def make_directory_entry(dict):
             specified, 'Directory' will be used.
 
     Returns the path to the entry file that was created.
-
     """
 
     # Ensure default values.
@@ -158,10 +154,9 @@ Icon=%(icon)s
     filename = dict.get('filename', filesystem_escape(dict['name']))
 
     # Create the desktop entry file.
-    path = os.path.join(dict['location'], '%s.directory' % filename)
-    fh = open(path, "w")
-    fh.write(entry_code)
-    fh.close()
+    path = join(dict['location'], '%s.directory' % filename)
+    fo = open(path, "w")
+    fo.write(entry_code)
+    fo.close()
 
     return path
-
