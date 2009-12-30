@@ -152,8 +152,7 @@ def install(menus, shortcuts, install_mode='user', uninstall=False):
     if not menus:
         menus = get_default_menu()
         for sc in shortcuts:
-            sc['categories'] = [custom_tools.Manufacturer + '.' +
-                                custom_tools.FULL_NAME]
+            sc['categories'] = [custom_tools.FULL_NAME]
     """
     import pprint
     pp = pprint.PrettyPrinter(indent=4, width=20)
