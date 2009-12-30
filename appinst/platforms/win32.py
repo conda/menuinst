@@ -10,10 +10,9 @@ from appinst.platforms import wininst, win32_common as common
 
 
 try:
-    import custom_tools as ct
-    HAS_CUSTOM = True
+    import custom_tools
 except ImportError:
-    HAS_CUSTOM = False
+    custom_tools = None
 
 
 def quoted(s):
@@ -51,8 +50,9 @@ class Win32(object):
         # Determine whether we're adding desktop and quicklaunch icons.  These
         # default to yes if we don't have our custom_tools install metadata.
         self.props = {'ADDTODESKTOP':'1', 'ADDTOLAUNCHER':'1'}
-        if HAS_CUSTOM:
-            execfile(join(dirname(ct.__file__), 'Property.dat'), self.props)
+        if custom_tools:
+            execfile(join(dirname(custom_tools.__file__), 'Property.dat'),
+                     self.props)
 
         if mode == 'system':
             start_menu = common.get_all_users_programs_start_menu()

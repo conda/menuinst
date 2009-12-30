@@ -17,10 +17,9 @@ from os.path import dirname, join
 # to create desktop and quicklaunch icons, and whether the user chose to make
 # this a user-specific install or an install for all users.
 try:
-    import custom_tools as ct
-    HAS_CUSTOM = True
+    import custom_tools
 except ImportError:
-    HAS_CUSTOM = False
+    custom_tools = None
 
 
 
@@ -44,15 +43,15 @@ PLAT, PVER = determine_platform()
 
 
 def get_default_menu():
-    if HAS_CUSTOM:
+    if custom_tools:
         return [
           { # Top-level menu corresponds to manufacturer.
-            'id': ct.Manufacturer.lower(),
-            'name': ct.Manufacturer,
+            'id': custom_tools.Manufacturer.lower(),
+            'name': custom_tools.Manufacturer,
             'sub-menus': [
                 { # Sub-menu correspond to product name and version.
-                    'id': '%s-%s' % (ct.NAME.lower(), ct.FULL_VERSION.lower()),
-                    'name': ct.FULL_NAME,
+                    'id': custom_tools.FULL_NAME.lower(),
+                    'name': custom_tools.FULL_NAME,
                     }],
             }]
     else:
@@ -138,15 +137,15 @@ def install(menus, shortcuts, install_mode='user', uninstall=False):
 
     TODO: Create separate APIs for product-specific shortcuts vs. generic
     shortcuts
-
     """
     # If we can, determine the install mode the user chose during the install
     # process.
-    if HAS_CUSTOM:
+    if custom_tools:
         # FIXME: For now, we can only trust Property.dat on Windows.
         if sys.platform == 'win32':
             props = {}
-            execfile(join(dirname(ct.__file__), 'Property.dat'), props)
+            execfile(join(dirname(custom_tools.__file__), 'Property.dat'),
+                     props)
             if props['ALLUSERS'] == '1':
                 install_mode = 'system'
 
@@ -164,11 +163,9 @@ def install(menus, shortcuts, install_mode='user', uninstall=False):
     #
     if not menus:
         menus = get_default_menu()
-        product_category = '%s-%s' % (ct.NAME, ct.FULL_VERSION)
-        product_category = product_category.lower().capitalize()
         for sc in shortcuts:
-            sc['categories'] = [ct.Manufacturer + '.' + product_category]
-
+            sc['categories'] = [custom_tools.Manufacturer + '.' +
+                                custom_tools.FULL_NAME]
     """
     import pprint
     pp = pprint.PrettyPrinter(indent=4, width=20)
