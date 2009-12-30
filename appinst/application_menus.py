@@ -45,27 +45,16 @@ PLAT, PVER = determine_platform()
 def get_default_menu():
     if custom_tools:
         return [
-          { # Top-level menu corresponds to manufacturer.
-            'id': custom_tools.Manufacturer.lower(),
-            'name': custom_tools.Manufacturer,
-            'sub-menus': [
-                { # Sub-menu correspond to product name and version.
-                    'id': custom_tools.FULL_NAME.lower(),
-                    'name': custom_tools.FULL_NAME,
-                    }],
-            }]
+            { # Sub-menu correspond to product name and version.
+                'id': custom_tools.FULL_NAME,
+                'name': custom_tools.FULL_NAME,
+                }]
     else:
-        PY_VER = '%i.%i' % sys.version_info[:2]
-        return [
-          {
-            'id': 'enthought',
-            'name': 'Enthought',
-            'sub-menus': [
-                {
-                    'id': 'python-' + PY_VER,
-                    'name': 'Python-' + PY_VER,
-                    }]
-            }]
+        name = 'Python-%i.%i' % sys.version_info[:2]
+        return [{
+                'id': name,
+                'name': name,
+                }]
 
 
 def install(menus, shortcuts, install_mode='user', uninstall=False):
@@ -94,8 +83,7 @@ def install(menus, shortcuts, install_mode='user', uninstall=False):
             id: A string that can be used to represent the resources needed to
                 represent the menu.  i.e. on Linux, the id is used for the name
                 of the '.directory' file.  If no category is explicitly
-                specified, the id is capitalized and used as the category
-                specification.
+                specified, the id is used as the category specification.
             name: The display name of the menu.
             sub-menus: A list of menu descriptions that make up sub-menus of
                 this menu.
@@ -127,7 +115,7 @@ def install(menus, shortcuts, install_mode='user', uninstall=False):
             id: A string that can be used to represent the resources needed to
                 represent the shortcut.  i.e. on Linux, the id is used for the
                 name of the '.desktop' file.  If no id is provided, the name
-                is lowercased and used as the id.
+                is used as the id.
             name: The display name for this shortcut.
             terminal: A boolean value representing whether the shortcut should
                 run within a shell / terminal.

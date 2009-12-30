@@ -95,10 +95,8 @@ class Win32(object):
 
             # Determine the category for this menu and record it in the map.
             # Categories are always hierarchical to ensure uniqueness.  Note
-            # that if no category was explicitly set, we use the capitalized
-            # version of the ID.
-            category = menu_spec.get('category',
-                menu_spec.get('id').capitalize())
+            # that if no category was explicitly set, we use the ID.
+            category = menu_spec.get('category', menu_spec['id'])
             if len(parent_category) > 1:
                 category = '%s.%s' % (parent_category, category)
             self.category_map[category] = path

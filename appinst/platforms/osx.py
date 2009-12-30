@@ -10,7 +10,6 @@ from appinst.platforms.osx_application import Application
 class OSX(object):
     """
     A class for application installation operations on Mac OS X.
-
     """
 
     #==========================================================================
@@ -20,7 +19,6 @@ class OSX(object):
     def install_application_menus(self, menus, shortcuts, mode):
         """
         Install application menus.
-
         """
 
         self._install_application_menus(menus, shortcuts)
@@ -48,10 +46,8 @@ class OSX(object):
 
             # Determine the category for this menu and record it in the map.
             # Categories are always hierarchical to ensure uniqueness.  Note
-            # that if no category was explicitly set, we use the capitalized
-            # version of the ID.
-            category = menu_spec.get('category',
-                menu_spec.get('id').capitalize())
+            # that if no category was explicitly set, we use the ID.
+            category = menu_spec.get('category', menu_spec['id'])
             if len(parent_category) > 1:
                 category = '%s.%s' % (parent_category, category)
             self.category_map[category] = path

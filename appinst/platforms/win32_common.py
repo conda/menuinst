@@ -21,8 +21,8 @@ ALL_USERS = 1
 def _get_install_type():
     hklm = _winreg.ConnectRegistry(None, _winreg.HKEY_LOCAL_MACHINE)
 
-    python_reg_path = "SOFTWARE\\Python\\PythonCore\\%d.%d\\InstallPath" \
-            % (sys.version_info[0], sys.version_info[1])
+    python_reg_path = ("SOFTWARE\\Python\\PythonCore\\%d.%d\\InstallPath"
+                           % (sys.version_info[0], sys.version_info[1]))
 
     # Look for the python install for all users
     try:
@@ -297,15 +297,15 @@ def remove_from_reg_path(remove_dir, install_mode='user') :
     if install_mode == 'system':
         reg = _winreg.ConnectRegistry(None, _winreg.HKEY_LOCAL_MACHINE)
         environ_key_path = ("SYSTEM\\CurrentControlSet\\Control\\"
-            "Session Manager\\Environment")
+                            "Session Manager\\Environment")
     else:
         reg = _winreg.ConnectRegistry(None, _winreg.HKEY_CURRENT_USER)
         environ_key_path = "Environment"
 
     # open key for reading, to save and print out old value
-    key = _winreg.OpenKey(reg, environ_key_path )
-    old_path = _winreg.QueryValueEx( key, "Path" )[0]
-    _winreg.CloseKey( key )
+    key = _winreg.OpenKey(reg, environ_key_path)
+    old_path = _winreg.QueryValueEx(key, "Path")[0]
+    _winreg.CloseKey(key)
 
     # reopen key for writing new value
     key = _winreg.OpenKey(reg,environ_key_path, 0, _winreg.KEY_ALL_ACCESS)

@@ -154,8 +154,7 @@ class Linux(object):
             menu_id = common.build_id(menu_spec['id'], parent_id)
 
             # Create the category string for this menu.
-            category = menu_spec.get('category',
-                menu_spec.get('id').capitalize())
+            category = menu_spec.get('category', menu_spec['id'])
             if len(parent_category) > 1:
                 category = '%s.%s' % (parent_category, category)
 

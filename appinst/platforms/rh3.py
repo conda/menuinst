@@ -9,8 +9,8 @@ from distutils.sysconfig import get_python_lib
 from xml.etree import ElementTree
 
 import appinst.platforms.linux_common as common
-from appinst.platforms.freedesktop import (filesystem_escape, make_desktop_entry,
-                                           make_directory_entry)
+from appinst.platforms.freedesktop import (filesystem_escape,
+                    make_desktop_entry, make_directory_entry)
 from appinst.platforms.utils import ShortcutCreationError
 
 
@@ -178,8 +178,7 @@ class RH3(object):
             menu_id = common.build_id(menu_spec['id'], parent_id)
 
             # Map the category for this menu to its directory path.
-            category = menu_spec.get('category',
-                menu_spec.get('id').capitalize())
+            category = menu_spec.get('category', menu_spec['id'])
             if len(parent_category) > 1:
                 category = '%s.%s' % (parent_category, category)
             category_map[category] = path
@@ -317,8 +316,7 @@ class RH3(object):
             menu_id = common.build_id(menu_spec['id'], parent_id)
 
             # Map the category for this menu to its directory path.
-            category = menu_spec.get('category',
-                menu_spec.get('id').capitalize())
+            category = menu_spec.get('category', menu_spec['id'])
             if len(parent_category) > 1:
                 category = '%s.%s' % (parent_category, category)
             category_map[category] = path
