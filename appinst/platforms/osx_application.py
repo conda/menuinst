@@ -3,8 +3,7 @@
 
 import os
 import shutil
-import sys
-from os.path import join, isdir, basename
+from os.path import basename, dirname, isdir, join
 
 from plistlib import Plist, writePlist
 
@@ -102,10 +101,9 @@ class Application(object):
 
 
     def _write_icns(self):
-        # Use a default icon if no icns file was specified.
         if self.icns_path is None:
-            self.icns_path = join(sys.prefix, 'Resources/Python.app/Contents',
-                                  'Resources/PythonInterpreter.icns')
+            # Use the default icon if no icns file was specified.
+            self.icns_path = join(dirname(__file__), 'PythonApplet.icns')
 
         shutil.copy(self.icns_path, self.resources_dir)
 
