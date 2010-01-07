@@ -11,8 +11,8 @@ from os.path import abspath, basename, exists, expanduser, isdir, isfile, join
 from distutils.sysconfig import get_python_lib
 
 import appinst.platforms.linux_common as common
-from appinst.platforms.freedesktop import (filesystem_escape, make_desktop_entry,
-                                           make_directory_entry)
+from appinst.platforms.freedesktop import (filesystem_escape,
+                           make_desktop_entry, make_directory_entry)
 from appinst.platforms.utils import ShortcutCreationError, add_dtd_and_format
 
 
@@ -264,12 +264,7 @@ class Linux(object):
         filebrowser = "kfmclient openURL"
         self._install_desktop_entry(modified_shortcuts, filebrowser)
 
-        # Force the KDE menus to refresh
-        retcode = os.system('kbuildsycoca')
-        if retcode != 0:
-            raise ShortcutCreationError('Unable to rebuild KDE desktop.  '
-                'Application menu may not have been installed correctly, '
-                'or KDE is not installed.')
+        common.refreshKDE()
 
 
     def _install_system_application_menus(self, menus, shortcuts):

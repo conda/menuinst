@@ -336,11 +336,7 @@ class RH3(object):
         filebrowser = "kfmclient openURL"
         self._install_desktop_entry(shortcuts, category_map, filebrowser)
 
-        # Force the menus to refresh.
-        retcode = os.system('kbuildsycoca')
-        if retcode != 0:
-            raise ShortcutCreationError('Unable to rebuild KDE desktop.  '
-                'Application menu may not have been installed correctly.')
+        common.refreshKDE()
 
 
     def _install_kde_system_application_menus(self, menus, shortcuts):

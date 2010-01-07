@@ -5,6 +5,18 @@
 # linux platforms. In the future, this should have a great deal more, as there
 # is quite a bit of code reuse among each platform-specific script.
 
+import subprocess
+
+
+def refreshKDE():
+    """
+    Force the KDE menus to refresh.
+    """
+    try:
+        subprocess.call(['kbuildsycoca'])
+    except OSError:
+        pass
+
 
 def build_id(current_id, previous_id):
     """Takes a string and prepends a second string if the second string exists,
