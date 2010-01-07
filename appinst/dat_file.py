@@ -77,4 +77,10 @@ def uninstall_from_dat(path):
     Uninstalls all items in a data file.
 
     """
+    if sys.platform != 'win32':
+        # FIXME:
+        # Once time allows, we want the uninstall also to work on
+        # Unix platforms.
+        return
+
     uninstall(*transform(path))
