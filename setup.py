@@ -39,8 +39,7 @@ setup(
     namespace_packages = [],
     packages = find_packages(),
     package_data = {"appinst" : ["*.txt", "platforms/*.icns"], },
-    version = "2.0.4",
+    version = "2.0.5",
     url = "http://www.python.org/sigs/distutils-sig",
     zip_safe = False,
-    )
-
+)
