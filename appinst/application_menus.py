@@ -1,12 +1,9 @@
-# Copyright (c) 2008-2009 by Enthought, Inc.
+# Copyright (c) 2008-2011 by Enthought, Inc.
 # All rights reserved.
 
 import platform
 import sys
 import warnings
-
-from os.path import dirname, join
-
 
 # The custom_tools package is importable when the Python was created by an
 # "enicab" installer, in which case the directory custom_tools contains
