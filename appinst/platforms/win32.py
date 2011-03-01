@@ -1,18 +1,12 @@
-# Copyright (c) 2008-2009 by Enthought, Inc.
+# Copyright (c) 2008-2011 by Enthought, Inc.
 # All rights reserved.
 
 import os
 import sys
 from distutils.sysconfig import get_python_lib
-from os.path import abspath, dirname, exists, join
+from os.path import abspath, exists, join
 
 from appinst.platforms import wininst, win32_common as common
-
-
-try:
-    import custom_tools
-except ImportError:
-    custom_tools = None
 
 
 def quoted(s):
@@ -49,12 +43,13 @@ class Win32(object):
 
         # Determine whether we're adding desktop and quicklaunch icons.  These
         # default to yes if we don't have our custom_tools install metadata.
-        self.addtodesktop = True
-        self.addtolauncher = True
-        if custom_tools:
+        try:
             from custom_tools.msi_property import get
             self.addtodesktop = bool(get('ADDTODESKTOP') == '1')
             self.addtolauncher = bool(get('ADDTOLAUNCHER') == '1')
+        except ImportError:
+            self.addtodesktop = True
+            self.addtolauncher = True         
 
         if mode == 'system':
             start_menu = common.get_all_users_programs_start_menu()
