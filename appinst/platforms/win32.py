@@ -49,10 +49,12 @@ class Win32(object):
 
         # Determine whether we're adding desktop and quicklaunch icons.  These
         # default to yes if we don't have our custom_tools install metadata.
-        self.props = {'ADDTODESKTOP':'1', 'ADDTOLAUNCHER':'1'}
+        self.addtodesktop = True
+        self.addtolauncher = True
         if custom_tools:
-            execfile(join(dirname(custom_tools.__file__), 'Property.dat'),
-                     self.props)
+            from custom_tools.msi_property import get
+            self.addtodesktop = bool(get('ADDTODESKTOP') == '1')
+            self.addtolauncher = bool(get('ADDTOLAUNCHER') == '1')
 
         if mode == 'system':
             start_menu = common.get_all_users_programs_start_menu()
@@ -166,13 +168,11 @@ class Win32(object):
 
         dst_dirs = [self.category_map[mapped_category]]  # Menu link
 
-        if shortcut.get('desktop', None) and \
-               self.props['ADDTODESKTOP'] == '1':        # Desktop link
-            dst_dirs.append(self.desktop_dir)
+        if shortcut.get('desktop', None) and self.addtodesktop:
+            dst_dirs.append(self.desktop_dir)            # Desktop link
 
-        if shortcut.get('quicklaunch', None) and \
-               self.props['ADDTOLAUNCHER'] == '1':       # Quicklaunch link
-            dst_dirs.append(self.quicklaunch_dir)
+        if shortcut.get('quicklaunch', None) and self.addtolauncher:
+            dst_dirs.append(self.quicklaunch_dir)        # Quicklaunch link
 
         for dst_dir in dst_dirs:
             dst = join(dst_dir, link)
@@ -218,8 +218,7 @@ class Win32(object):
                     pass
 
             # Remove the quicklaunch icon if it was added
-            if shortcut.get('quicklaunch', None) and \
-                self.props['ADDTOLAUNCHER'] == '1':
+            if shortcut.get('quicklaunch', None) and self.addtolauncher:
                 pth = join(self.quicklaunch_dir, name)
                 try:
                     os.unlink(pth)

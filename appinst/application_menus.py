@@ -128,14 +128,10 @@ def install(menus, shortcuts, install_mode='user', uninstall=False):
     """
     # If we can, determine the install mode the user chose during the install
     # process.
-    if custom_tools:
-        # FIXME: For now, we can only trust Property.dat on Windows.
-        if sys.platform == 'win32':
-            props = {}
-            execfile(join(dirname(custom_tools.__file__), 'Property.dat'),
-                     props)
-            if props['ALLUSERS'] == '1':
-                install_mode = 'system'
+    if custom_tools and sys.platform == 'win32':
+        from custom_tools.msi_property import get
+        if get('ALLUSERS') == '1':
+            install_mode = 'system'
 
     # Validate we have a valid install mode.
     if install_mode not in ('user', 'system'):
