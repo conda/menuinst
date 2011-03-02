@@ -55,7 +55,7 @@ def install(menus, shortcuts, install_mode='user', uninstall=False):
     Install an application menu according to the specified mode.
 
     This call is meant to work on all platforms.  If done on Linux, the menu
-    will be installed to both Gnome and KDE desktops if they're available.
+    will be installed to both Gnome and KDE desktops if they are available.
 
     Note that the information required is sufficient to install application
     menus on systems that follow the format of the Desktop Entry Specification
@@ -129,13 +129,13 @@ def install(menus, shortcuts, install_mode='user', uninstall=False):
     # Validate we have a valid install mode.
     if install_mode not in ('user', 'system'):
         warnings.warn('Unknown install mode.  Must be either "user" or '
-            '"system" but got "%s"' % install_mode)
+                      '"system" but got "%s"' % install_mode)
         return
 
     # FIXME: Uninstall only support for Windows at this point.
     if uninstall and PLAT != 'windows':
         warnings.warn("Uninstall is currently only supported for Windows, "
-            "not for platform: %s" % PLAT)
+                      "not for platform: %s" % PLAT)
         return
     #
     if not menus:
@@ -152,29 +152,29 @@ def install(menus, shortcuts, install_mode='user', uninstall=False):
 
     # Dispatch for RedHat 3.
     if PLAT.startswith('redhat') and PVER[0] == '3':
-        from appinst.platforms.rh3 import RH3
+        from appinst.rh3 import RH3
         RH3().install_application_menus(menus, shortcuts, install_mode)
 
     # Dispatch for RedHat 4.
     elif PLAT.startswith('redhat') and PVER[0] == '4':
-        from appinst.platforms.rh4 import RH4
+        from appinst.rh4 import RH4
         RH4().install_application_menus(menus, shortcuts, install_mode)
 
     # Dispatch for generic Linux
     elif sys.platform == 'linux2':
-        from appinst.platforms.linux2 import Linux
+        from appinst.linux2 import Linux
         Linux().install_application_menus(menus, shortcuts, install_mode)
 
     # Dispatch for all versions of OS X
     elif PLAT == 'darwin':
-        from appinst.platforms.osx import OSX
+        from appinst.osx import OSX
         OSX().install_application_menus(menus, shortcuts, install_mode)
 
     # Dispatch for all versions of Windows (tested on XP only)
     elif PLAT == 'windows':
-        from appinst.platforms.win32 import Win32
+        from appinst.win32 import Win32
         Win32().install_application_menus(menus, shortcuts, install_mode,
-            uninstall=uninstall)
+                                          uninstall=uninstall)
 
     # Handle all other platforms with a warning until we implement for them.
     else:
