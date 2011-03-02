@@ -113,7 +113,6 @@ class Application(object):
         self.executable = self.name
         self.executable_path = join(self.macos_dir, self.executable)
 
-
     def create(self):
         """
         Create the application.
@@ -123,11 +122,6 @@ class Application(object):
         self._write_icns()
         self._writePlistInfo()
         self._write_script()
-
-
-    #=======================================================================
-    # Non-public methods
-    #=======================================================================
 
     def _create_dirs(self):
         if self.force and isdir(self.app_dir):
@@ -142,12 +136,10 @@ class Application(object):
         os.makedirs(self.resources_dir)
         os.makedirs(self.macos_dir)
 
-
     def _write_pkginfo(self):
         fo = open(join(self.contents_dir, 'PkgInfo'), 'w')
         fo.write(('APPL%s????' % self.name.replace(' ', ''))[:8])
         fo.close()
-
 
     def _write_icns(self):
         if self.icns_path is None:
@@ -155,7 +147,6 @@ class Application(object):
             self.icns_path = join(dirname(__file__), 'PythonApplet.icns')
 
         shutil.copy(self.icns_path, self.resources_dir)
-
 
     def _writePlistInfo(self):
         """
@@ -196,9 +187,3 @@ class Application(object):
         fo.write(data)
         fo.close()
         os.chmod(self.executable_path, 0755)
-
-
-if __name__ == '__main__':
-    # Example for testing:
-    app = Application('Test Application', 'test123.py', apps_dir=os.getcwd())
-    app.create()
