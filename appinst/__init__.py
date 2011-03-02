@@ -66,16 +66,10 @@ def install(shortcuts, remove):
     #pp = pprint.PrettyPrinter(indent=4, width=20)
     #print 'SHORTCUTS: %s' % pp.pformat(shortcuts)
     if sys.platform == 'linux2':
-        dist = platform.dist()
-        if dist[0] == 'redhat' and dist[1].startswith('3'):
-            from rh3 import Menu
-        elif dist[0] == 'redhat' and dist[1].startswith('4'):
-            from rh4 import Menu
-        else:
-            from linux2 import Menu
+        from linux2 import Menu
 
     elif sys.platform == 'darwin':
-        from osx import Menu
+        from osx import Menu, ShortCut
 
     elif sys.platform == 'win32':
         from win32 import Menu
@@ -87,12 +81,12 @@ def install(shortcuts, remove):
     m = Menu(menu_name)
     if remove:
         for sc in shortcuts:
-            m.remove_shortcut(sc)
+            ShortCut(m, sc).remove()
         m.remove()
     else:
         m.create()
         for sc in shortcuts:
-            m.add_shortcut(sc)
+            ShortCut(m, sc).create()
 
 
 def transform_shortcut(dat_dir, sc):
@@ -119,7 +113,7 @@ def transform_shortcut(dat_dir, sc):
             sc[kw] = abspath(join(dat_dir, sc[kw]))
 
 
-def transform(dat_path):
+def get_shortcuts(dat_path):
     """
     reads and parses the appinst data file and returns the shortcuts
     """
@@ -137,7 +131,7 @@ def install_from_dat(dat_path):
     Does a complete install given a data file.
     For an example see examples/appinst.dat.
     """
-    install(transform(dat_path), remove=False)
+    install(get_shortcuts(dat_path), remove=False)
 
 
 def uninstall_from_dat(dat_path):
@@ -147,4 +141,4 @@ def uninstall_from_dat(dat_path):
     if sys.platform not in ('win32', 'darwin'):
         # FIXME: Once time allows, we want the uninstall also to work on Linux.
         return
-    install(transform(dat_path), remove=True)
+    install(get_shortcuts(dat_path), remove=True)

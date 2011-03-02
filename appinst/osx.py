@@ -21,52 +21,37 @@ class Menu(object):
 
     def remove(self):
         rm_empty_dir(self.path)
+        
 
-    def add_shortcut(self, shortcut):
-        # Separate the arguments to the invoked command from the command
-        # itself.   Note that since Finder is automatically launched
-        # when a folder link is selected, and that the default web
-        # browser is launched when a html-like file link is selected,
-        # we can simply strip-out and ignore the special {{FILEBROWSER}}
-        # and {{WEBBROWSER}} placeholders.
-        #
-        # FIXME: Should we instead use Python standard lib's default
-        # webbrowser.py script to open a browser?  We then get to
-        # control whether it opens in a new tab or not.  See the win32
-        # platform support for an example.
-        args = []
-        cmd = shortcut['cmd']
-        if cmd[0] in ('{{FILEBROWSER}}', '{{WEBBROWSER}}'):
-            del cmd[0]
-        if len(cmd) > 1:
-            args = cmd[1:]
-        cmd = cmd[0]
+class ShortCut(object):
 
-        # If the command is a path to an executable file, create a
-        # double-clickable shortcut that will execute it.
-        if isfile(cmd) and os.access(cmd, os.X_OK):
-            shortcut['args'] = [cmd] + args
-            shortcut['menu_dir'] = self.path
-            Application(shortcut).create()
+    def __init__(self, menu, shortcut):
+        self.menu = menu
+        self.shortcut = shortcut
+        for var_name in ('name', 'cmd'):
+            if var_name in shortcut:
+                setattr(self, var_name, shortcut[var_name])
 
-        # Otherwise, just create a symlink to the specified command
-        # value.  Note that it is possible we may only need this logic
-        # as symlinks to executable scripts are double-clickable on
-        # OS X 10.5 (though there would be no way to apply custom icons
-        # then.)
+        if isfile(self.cmd[0]) and os.access(self.cmd[0], os.X_OK):
+            self.tp = 'app'
+            self.path = join(menu.path, self.name + '.app')
         else:
-            name = shortcut['name']
-            path = join(self.path, name)
+            self.tp = 'link'
+            self.path = join(menu.path, self.name)
 
-            # Remove the symlink if it exists already, we always want to be
-            # able to reinstall
-            if islink(path):
-                print "Warning: link %r already exists, unlinking" % path
-                os.remove(path)
+    def remove(self):
+        rm_rf(self.path)
 
-            # If there was a link it's removed now, but maybe there is still
-            # a file or directory
-            if exists(path):
-                print "Error: %r exists, can't create link" % path
-            else:
-                os.symlink(cmd, path)
+    def create(self):
+        if self.tp == 'app':
+            self.shortcut['args'] = self.cmd
+            self.shortcut['menu_dir'] = self.menu.path
+            Application(self.shortcut).create()
+
+        elif self.tp == 'link':
+            src = self.cmd[0]
+            if src.startswith('{{'):
+                src = self.cmd[1]
+
+            rm_rf(self.path)
+            os.symlink(src, self.path)
