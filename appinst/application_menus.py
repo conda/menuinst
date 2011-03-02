@@ -110,8 +110,8 @@ def install(menus, shortcuts, install_mode='user', uninstall=False):
 
     # FIXME: Uninstall only support for Windows at this point.
     if uninstall and sys.platform != 'win32':
-        sys.exit("Uninstall is currently only supported for Windows, "
-                 "not for platform: %s" % sys.platform)
+        print("Uninstall is currently only supported for Windows, "
+              "not for platform: %s" % sys.platform)
 
     if not menus:
         menus = get_default_menu()
@@ -148,7 +148,7 @@ def install(menus, shortcuts, install_mode='user', uninstall=False):
         Win32().install_application_menus(menus, shortcuts, install_mode,
                                           uninstall=uninstall)
         return
-    sys.exit('Unhandled platform. Unable to create application menu(s).')
+    print 'Unhandled platform. Unable to create application menu(s).'
 
 
 def uninstall(menus, shortcuts, install_mode='user'):
