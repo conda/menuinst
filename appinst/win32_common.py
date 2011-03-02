@@ -83,7 +83,7 @@ def _get_all_users_desktop_directory():
     else:
         #hmm, not XP or Vista
         raise InstallError('Unsupported Windows Version: %s' %
-            platform.version())
+                           platform.version())
 
 
 def _get_current_user_desktop_directory():
@@ -92,12 +92,12 @@ def _get_current_user_desktop_directory():
     else:
         #hmm, not XP or Vista
         raise InstallError('Unsupported Windows Version: %s' %
-            platform.version())
+                           platform.version())
 
 
 def _get_all_users_quick_launch_directory():
     raise InstallError('Quick Launch is only available for current user '
-        'installs')
+                       'installs')
 
 
 def _get_current_user_quick_launch_directory():
@@ -107,7 +107,7 @@ def _get_current_user_quick_launch_directory():
     else:
         #hmm, not XP or Vista
         raise InstallError('Unsupported Windows Version: %s' %
-            platform.version())
+                           platform.version())
 
 
 ###############################################################################
@@ -157,7 +157,7 @@ def append_to_reg_path(new_dir):
     if _get_install_type() == ALL_USERS:
         reg = _winreg.ConnectRegistry(None, _winreg.HKEY_LOCAL_MACHINE)
         environ_key_path = ('SYSTEM\\CurrentControlSet\\Control\\'
-            'Session Manager\\Environment')
+                            'Session Manager\\Environment')
     else:
         reg = _winreg.ConnectRegistry(None, _winreg.HKEY_CURRENT_USER)
         environ_key_path = "Environment"
@@ -192,11 +192,9 @@ def append_to_reg_path(new_dir):
         try:
             refreshEnvironment()
         except:
-            print
             print "WARNING: The registry has been modified."
             print "You may need to restart your Windows session in order for "
             print "the changes to be seen by the application."
-            print
 
 
 def append_to_reg_pathext():
@@ -231,8 +229,9 @@ def append_to_reg_pathext():
             hklm_reg = _winreg.ConnectRegistry( None,
                 _winreg.HKEY_LOCAL_MACHINE )
             try:
-                key = _winreg.OpenKey(hklm_reg, ("SYSTEM\\CurrentControlSet\\"
-                    "Control\\Session Manager\\Environment"))
+                key = _winreg.OpenKey(hklm_reg, (
+                        "SYSTEM\\CurrentControlSet\\"
+                        "Control\\Session Manager\\Environment"))
                 old_pathext = _winreg.QueryValueEx( key, "PATHEXT" )[0]
                 _winreg.CloseKey( key )
             except WindowsError:
@@ -250,11 +249,9 @@ def append_to_reg_pathext():
     try:
         refreshEnvironment()
     except:
-        print
         print "WARNING: The registry has been modified."
         print "You may need to restart your Windows session in order for the"
         print "changes to be seen by the application."
-        print
 
 
 def get_all_users_programs_start_menu():
@@ -263,7 +260,7 @@ def get_all_users_programs_start_menu():
     else:
         #hmm, not XP or Vista
         raise InstallError('Unsupported Windows Version: %s' %
-            platform.version())
+                           platform.version())
 
 
 def get_current_user_programs_start_menu():
@@ -272,7 +269,7 @@ def get_current_user_programs_start_menu():
     else:
         #hmm, not XP or Vista
         raise InstallError('Unsupported Windows Version: %s' %
-            platform.version())
+                           platform.version())
 
 
 def remove_from_reg_path(remove_dir, install_mode='user') :
@@ -286,7 +283,6 @@ def remove_from_reg_path(remove_dir, install_mode='user') :
                     given, the PATH variable in HKLM is modified. If 'user'
                     is given, the PATH variable in HKCU is modified.
     """
-
     if platform.uname()[0] != 'Windows':
         return
 
@@ -330,11 +326,9 @@ def remove_from_reg_path(remove_dir, install_mode='user') :
         try:
             refreshEnvironment()
         except:
-            print
             print "WARNING: The registry has been modified."
             print "You may need to restart your Windows session in order for "
             print "the changes to be seen by the application."
-            print
 
 
 def register_association_with_shell(desc, cmd):

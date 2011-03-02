@@ -34,7 +34,7 @@ class Win32(object):
     #==========================================================================
 
     def install_application_menus(self, menus, shortcuts, mode,
-        uninstall=False):
+                                  uninstall=False):
         """
         Install application menus.
 
@@ -69,13 +69,11 @@ class Win32(object):
         self.install_application_menus(menus, shortcuts, mode,
                                        uninstall=True)
 
-
     #==========================================================================
     # Internal API methods
     #==========================================================================
 
     def _install_application_menus(self, menus, shortcuts, start_menu):
-
         # First build all the requested menus.  These simply correspond to
         # directories on Win32 systems.  Note that we need to build a map from
         # the menu's category to it's path on the filesystem so that we can put
@@ -114,7 +112,6 @@ class Win32(object):
 
 
     def _install_shortcut(self, mapped_category, shortcut):
-
         # Separate the arguments to the invoked command from the command
         # itself.
         cmd_list = shortcut['cmd']
@@ -188,7 +185,6 @@ class Win32(object):
 
 
     def _uninstall_application_menus(self, menus, shortcuts, start_menu):
-
         # Keep track of the shortcut names, as the shortcuts we specify are the
         # only things we want to delete. Append '.lnk' to the name because
         # that's how they were created during install.

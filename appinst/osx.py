@@ -11,7 +11,6 @@ class OSX(object):
     """
     A class for application installation operations on Mac OS X.
     """
-
     #==========================================================================
     # Public API methods
     #==========================================================================
@@ -20,7 +19,6 @@ class OSX(object):
         """
         Install application menus.
         """
-
         self._install_application_menus(menus, shortcuts)
 
     #==========================================================================
@@ -28,7 +26,6 @@ class OSX(object):
     #==========================================================================
 
     def _install_application_menus(self, menus, shortcuts):
-
         # First build all the requested menus.  These correspond simply to
         # directories on OS X.  Note that we need to build a map from the menu's
         # category to its path on the filesystem so that we can put the
@@ -70,7 +67,6 @@ class OSX(object):
 
 
     def _install_shortcut(self, shortcut):
-
         # Separate the arguments to the invoked command from the command
         # itself.   Note that since Finder is automatically launched
         # when a folder link is selected, and that the default web
