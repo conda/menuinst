@@ -23,7 +23,7 @@ write more code yourself.
 Variables to define:
 ====================
 
-At least the  variable SHORTCUTS must be defined to declare something
+At least the variable SHORTCUTS must be defined to declare something
 for AppInst to do.
 
 The variable MENUS is optional.  If not provided, AppInst will provide
@@ -200,4 +200,3 @@ MENUS = [
         ],
      },
 ]
-
