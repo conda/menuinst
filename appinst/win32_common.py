@@ -2,9 +2,9 @@
 # All rights reserved.
 
 import _winreg
-import os
 import platform
 import sys
+from os.path import abspath, isfile, join
 
 import wininst
 
@@ -52,12 +52,10 @@ def _get_install_type():
         all_users_install_path = _winreg.QueryValue(all_users_key, None)
         current_user_install_path = _winreg.QueryValue(current_user_key, None)
 
-        if os.path.abspath(sys.prefix) == os.path.abspath(
-            all_users_install_path):
+        if abspath(sys.prefix) == abspath(all_users_install_path):
             install_type = ALL_USERS
 
-        if os.path.abspath(sys.prefix) == os.path.abspath(
-            current_user_install_path):
+        if abspath(sys.prefix) == abspath(current_user_install_path):
             install_type = CURRENT_USER
 
     elif all_users_key is not None:
@@ -105,8 +103,7 @@ def _get_all_users_quick_launch_directory():
 def _get_current_user_quick_launch_directory():
     if platform.version().startswith('5') or platform.version().startswith('6'):
         appdata = wininst.get_special_folder_path('CSIDL_APPDATA')
-        return os.path.join(appdata, "Microsoft", "Internet Explorer",
-            "Quick Launch")
+        return join(appdata, r"Microsoft\Internet Explorer\Quick Launch")
     else:
         #hmm, not XP or Vista
         raise InstallError('Unsupported Windows Version: %s' %
@@ -141,7 +138,7 @@ def add_shortcut(target,description,link_file,*args,**kw):
     example: add_shortcut("python.exe", "example script", "example.lnk",
                           "example.py", "", "path_to_icon.ico")
     """
-    if not os.path.isfile(link_file):
+    if not isfile(link_file):
         try:
             wininst.create_shortcut(target, description, link_file,*args,**kw)
             wininst.file_created(link_file)
