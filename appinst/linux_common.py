@@ -1,4 +1,4 @@
-# Copyright (c) 2008 by Enthought, Inc.
+# Copyright (c) 2008-2011 by Enthought, Inc.
 # All rights reserved.
 #
 # FIXME: Currently, this file holds a small amount of code common to all the

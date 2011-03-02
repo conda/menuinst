@@ -1,8 +1,6 @@
 # Copyright (c) 2008-2011 by Enthought, Inc.
 # All rights reserved.
-
 import sys
-
 from setuptools import Extension, setup
 
 
@@ -19,7 +17,6 @@ if sys.platform == "win32":
 else:
     extensions = []
     install_requires = []
-
 
 setup(
     name = "AppInst",
