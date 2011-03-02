@@ -10,11 +10,10 @@ detailed comments about how this is done exactly.
 import sys
 from os.path import abspath, dirname, isfile, join
 
+from egginst.utils import bin_dir_name
+
 from appinst.application_menus import install, uninstall
 
-
-
-BIN_DIR = join(sys.prefix, 'Scripts' if sys.platform == 'win32' else 'bin')
 
 
 def transform_shortcut(dat_dir, sc):
@@ -26,7 +25,7 @@ def transform_shortcut(dat_dir, sc):
     if bin.startswith('..'):
         bin = abspath(join(dat_dir, bin))
     elif not bin.startswith('{{'):
-        bin = join(BIN_DIR, bin)
+        bin = join(sys.prefix, bin_dir_name, bin)
     sc['cmd'][0] = bin
 
     if (sys.platform == 'win32' and sc['terminal'] is False and
