@@ -49,7 +49,7 @@ class Win32(object):
             self.addtolauncher = bool(get('ADDTOLAUNCHER') == '1')
         except ImportError:
             self.addtodesktop = True
-            self.addtolauncher = True         
+            self.addtolauncher = True
 
         if mode == 'system':
             start_menu = common.get_all_users_programs_start_menu()
