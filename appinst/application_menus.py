@@ -1,9 +1,8 @@
 # Copyright (c) 2008-2011 by Enthought, Inc.
 # All rights reserved.
 
-import platform
 import sys
-import warnings
+import platform
 
 # The custom_tools package is importable when the Python was created by an
 # "enicab" installer, in which case the directory custom_tools contains
@@ -13,26 +12,6 @@ try:
     import custom_tools
 except ImportError:
     custom_tools = None
-
-
-
-def determine_platform():
-    """
-    Determine our current platform and version.  This needs to distinguish
-    between, not only different OSes, but also different OS flavors
-    (i.e Linux distributions) and versions of OSes.
-    """
-    plat = platform.system().lower()
-    if plat == 'linux':
-        plat, pver = platform.dist()[:2]
-    elif plat == 'darwin':
-        pver = platform.mac_ver()[0]
-    else:
-        # Assuming windows.
-        pver = platform.win32_ver()[0]
-
-    return plat, pver
-PLAT, PVER = determine_platform()
 
 
 def get_default_menu():
@@ -127,17 +106,13 @@ def install(menus, shortcuts, install_mode='user', uninstall=False):
             install_mode = 'system'
 
     # Validate we have a valid install mode.
-    if install_mode not in ('user', 'system'):
-        warnings.warn('Unknown install mode.  Must be either "user" or '
-                      '"system" but got "%s"' % install_mode)
-        return
+    assert install_mode in ('user', 'system')
 
     # FIXME: Uninstall only support for Windows at this point.
-    if uninstall and PLAT != 'windows':
-        warnings.warn("Uninstall is currently only supported for Windows, "
-                      "not for platform: %s" % PLAT)
-        return
-    #
+    if uninstall and sys.platform != 'win32':
+        sys.exit("Uninstall is currently only supported for Windows, "
+                 "not for platform: %s" % sys.platform)
+
     if not menus:
         menus = get_default_menu()
         for sc in shortcuts:
@@ -149,38 +124,31 @@ def install(menus, shortcuts, install_mode='user', uninstall=False):
     print 'SHORTCUTS: %s' % pp.pformat(shortcuts)
     print 'INSTALL_MODE: %s' % install_mode
     """
-
-    # Dispatch for RedHat 3.
-    if PLAT.startswith('redhat') and PVER[0] == '3':
-        from appinst.rh3 import RH3
-        RH3().install_application_menus(menus, shortcuts, install_mode)
-
-    # Dispatch for RedHat 4.
-    elif PLAT.startswith('redhat') and PVER[0] == '4':
-        from appinst.rh4 import RH4
-        RH4().install_application_menus(menus, shortcuts, install_mode)
-
-    # Dispatch for generic Linux
-    elif sys.platform == 'linux2':
+    if sys.platform == 'linux2':
+        dist = platform.dist()
+        if dist[0] == 'redhat':
+            rh_ver = dist[1]
+            if rh_ver.startswith('3'):  # Dispatch for RedHat 3.
+                from appinst.rh3 import RH3
+                RH3().install_application_menus(menus, shortcuts, install_mode)
+                return
+            elif rh_ver.startswith('4'):  # Dispatch for RedHat 4.
+                from appinst.rh4 import RH4
+                RH4().install_application_menus(menus, shortcuts, install_mode)
+                return
         from appinst.linux2 import Linux
         Linux().install_application_menus(menus, shortcuts, install_mode)
-
-    # Dispatch for all versions of OS X
-    elif PLAT == 'darwin':
+        return
+    elif sys.platform == 'darwin':
         from appinst.osx import OSX
         OSX().install_application_menus(menus, shortcuts, install_mode)
-
-    # Dispatch for all versions of Windows
-    elif PLAT == 'windows':
+        return
+    elif sys.platform == 'win32':
         from appinst.win32 import Win32
         Win32().install_application_menus(menus, shortcuts, install_mode,
                                           uninstall=uninstall)
-
-    # Handle all other platforms with a warning until we implement for them.
-    else:
-        warnings.warn('Unhandled platform (%s) and version (%s). Unable '
-                      'to create application menu(s).' % (PLAT, PVER))
-
+        return
+    sys.exit('Unhandled platform. Unable to create application menu(s).')
 
 
 def uninstall(menus, shortcuts, install_mode='user'):

@@ -1,7 +1,6 @@
 # Copyright (c) 2008-2009 by Enthought, Inc.
 # All rights reserved.
 
-
 from os.path import join
 
 
