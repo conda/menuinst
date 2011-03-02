@@ -2,78 +2,27 @@
 # All rights reserved.
 
 import os
-from os.path import isdir, isfile, islink, join
+from os.path import exists, isdir, isfile, islink, join
 
-from appinst.osx_application import Application
+from egginst.utils import rm_empty_dir, rm_rf
 
-
-app_path = '/Applications'
-
-
-def install(menu, shortcuts, uninstall=False):
-    menu_path = join(app_path, menu)
-    if not isdir(menu_path):
-        os.mkdir(menu_path)
+from osx_application import Application
 
 
 
-class OSX(object):
-    """
-    A class for application installation operations on Mac OS X.
-    """
-    #==========================================================================
-    # Public API methods
-    #==========================================================================
+class Menu(object):
 
-    def install_application_menus(self, menus, shortcuts, mode):
-        """
-        Install application menus.
-        """
-        self._install_application_menus(menus, shortcuts)
+    def __init__(self, name):
+        self.path = join('/Applications', name)
 
-    #==========================================================================
-    # Internal API methods
-    #==========================================================================
+    def create(self):
+        if not isdir(self.path):
+            os.mkdir(self.path)
 
-    def _install_application_menus(self, menus, shortcuts):
-        # First build all the requested menus.  These correspond simply to
-        # directories on OS X.  Note that we need to build a map from the menu's
-        # category to its path on the filesystem so that we can put the
-        # shortcuts in the right directories later.
-        self.category_map = {}        
-        queue = [(menu_spec, app_path, '') for menu_spec in menus]
-        while len(queue) > 0:
-            menu_spec, parent_path, parent_category = queue.pop(0)
+    def remove(self):
+        rm_empty_dir(self.path)
 
-            # Create the directory that represents this menu.
-            path = join(parent_path, menu_spec['name'])
-            if not exists(path):
-                os.makedirs(path)
-
-            # Determine the category for this menu and record it in the map.
-            # Categories are always hierarchical to ensure uniqueness.  Note
-            # that if no category was explicitly set, we use the ID.
-            category = menu_spec.get('category', menu_spec['id'])
-            if len(parent_category) > 1:
-                category = '%s.%s' % (parent_category, category)
-            self.category_map[category] = path
-
-            # Add all sub-menus to the queue so they get created as well.
-            for child_spec in menu_spec.get('sub-menus', []):
-                queue.append((child_spec, path, category))
-
-        # Now create all the requested shortcuts.
-        for shortcut in shortcuts:
-            # Ensure the shortcut ends up in each of the requested categories.
-            # NOTE: That we copy the shortcut definition so that it doesn't get
-            # modified by a sub-routine.
-            for mapped_category in shortcut['categories']:
-                sc_copy = dict(shortcut)
-                sc_copy['menu_dir'] = self.category_map[mapped_category]
-                self._install_shortcut(sc_copy)
-
-
-    def _install_shortcut(self, shortcut):
+    def add_shortcut(self, shortcut):
         # Separate the arguments to the invoked command from the command
         # itself.   Note that since Finder is automatically launched
         # when a folder link is selected, and that the default web
@@ -97,6 +46,7 @@ class OSX(object):
         # double-clickable shortcut that will execute it.
         if isfile(cmd) and os.access(cmd, os.X_OK):
             shortcut['args'] = [cmd] + args
+            shortcut['menu_dir'] = self.path
             Application(shortcut).create()
 
         # Otherwise, just create a symlink to the specified command
@@ -106,7 +56,7 @@ class OSX(object):
         # then.)
         else:
             name = shortcut['name']
-            path = join(shortcut['menu_dir'], name)
+            path = join(self.path, name)
 
             # Remove the symlink if it exists already, we always want to be
             # able to reinstall

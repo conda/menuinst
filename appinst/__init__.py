@@ -13,14 +13,14 @@ from egginst.utils import bin_dir_name
 # information about user setting chosen during the install process.
 try:
     import custom_tools
-    menu = custom_tools.FULL_NAME
+    menu_name = custom_tools.FULL_NAME
 except ImportError:
-    menu = 'Python-%i.%i' % sys.version_info[:2]
+    menu_name = 'Python-%i.%i' % sys.version_info[:2]
 
 
-def install(shortcuts, uninstall=False):
+def install(shortcuts, remove):
     """
-    Install an application shortcut according to the specified mode.
+    Install an application shortcut.
 
     This call is meant to work on all platforms.  If done on Linux, the menu
     will be installed to both Gnome and KDE desktops if they are available.
@@ -68,22 +68,31 @@ def install(shortcuts, uninstall=False):
     if sys.platform == 'linux2':
         dist = platform.dist()
         if dist[0] == 'redhat' and dist[1].startswith('3'):
-            from rh3 import install
+            from rh3 import Menu
         elif dist[0] == 'redhat' and dist[1].startswith('4'):
-            from rh4 import install
+            from rh4 import Menu
         else:
-            from linux2 import install
+            from linux2 import Menu
 
     elif sys.platform == 'darwin':
-        from osx import install
+        from osx import Menu
 
     elif sys.platform == 'win32':
-        from win32 import install
+        from win32 import Menu
 
     else:
         print 'Unhandled platform. Unable to create application menu(s).'
+        return
 
-    install(menu, shortcuts, uninstall)
+    m = Menu(menu_name)
+    if remove:
+        for sc in shortcuts:
+            m.remove_shortcut(sc)
+        m.remove()
+    else:
+        m.create()
+        for sc in shortcuts:
+            m.add_shortcut(sc)
 
 
 def transform_shortcut(dat_dir, sc):
@@ -110,34 +119,32 @@ def transform_shortcut(dat_dir, sc):
             sc[kw] = abspath(join(dat_dir, sc[kw]))
 
 
-def transform(path):
+def transform(dat_path):
     """
     reads and parses the appinst data file and returns the shortcuts
     """
     d = {}
-    execfile(path, d)
+    execfile(dat_path, d)
 
     shortcuts = d['SHORTCUTS']
     for sc in shortcuts:
-        transform_shortcut(dirname(path), sc)
+        transform_shortcut(dirname(dat_path), sc)
     return shortcuts
 
 
-def install_from_dat(path):
+def install_from_dat(dat_path):
     """
     Does a complete install given a data file.
     For an example see examples/appinst.dat.
     """
-    install(transform(path))
+    install(transform(dat_path), remove=False)
 
 
-def uninstall_from_dat(path):
+def uninstall_from_dat(dat_path):
     """
     Uninstalls all items in a data file.
     """
-    if sys.platform != 'win32':
-        # FIXME:
-        # Once time allows, we want the uninstall also to work on
-        # Unix platforms.
+    if sys.platform not in ('win32', 'darwin'):
+        # FIXME: Once time allows, we want the uninstall also to work on Linux.
         return
-    install(transform(path), uninstall=True)
+    install(transform(dat_path), remove=True)
