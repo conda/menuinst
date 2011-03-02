@@ -5,8 +5,8 @@ import os
 import shutil
 import sys
 import warnings
-from distutils.sysconfig import get_python_lib
 from xml.etree import ElementTree
+from os.path import abspath, basename, exists, expanduser, isdir, join
 
 import appinst.linux_common as common
 from appinst.freedesktop import (filesystem_escape,
@@ -93,10 +93,8 @@ class RH3(object):
             if cmd[0] == '{{FILEBROWSER}}':
                 cmd[0] = filebrowser
             elif cmd[0] == '{{WEBBROWSER}}':
-                python_path = os.path.join(sys.prefix, 'bin', 'python')
-                script_path = os.path.abspath(os.path.join(get_python_lib(),
-                    '..', 'webbrowser.py'))
-                cmd[0:1] = [python_path, script_path, '-t']
+                import webbrowser
+                cmd[0:1] = [sys.executable, webbrowser.__file__, '-t']
             spec_dict['cmd'] = cmd
 
             # Remove the categories if they weren't desired.
@@ -130,9 +128,9 @@ class RH3(object):
             # Ensure the actual file system directory exists.  We overwrite any
             # existing file of the same name.
             dir_name = filesystem_escape(menu_spec['name'])
-            path = os.path.abspath(os.path.join(vfolder_dir, dir_name))
-            if not os.path.isdir(path):
-                if os.path.exists(path):
+            path = abspath(join(vfolder_dir, dir_name))
+            if not isdir(path):
+                if exists(path):
                     os.remove(path)
                 os.mkdir(path)
 
@@ -166,9 +164,9 @@ class RH3(object):
             # Ensure the actual file system directory exists.  We overwrite any
             # existing file of the same name.
             fs_name = filesystem_escape(name)
-            path = os.path.abspath(os.path.join(parent_dir, fs_name))
-            if not os.path.isdir(path):
-                if os.path.exists(path):
+            path = abspath(join(parent_dir, fs_name))
+            if not isdir(path):
+                if exists(path):
                     os.remove(path)
                 os.mkdir(path)
 
@@ -189,7 +187,7 @@ class RH3(object):
             # Create a directory entry file for the current menu.  Because we
             # put all these directly in the vfolder_dir, we base the filename
             # off the category which is more likely to be unique.
-            entry_name = os.path.basename(make_directory_entry(
+            entry_name = basename(make_directory_entry(
                 {'name': name, 'location': vfolder_dir,
                 'filename': '%s' % filesystem_escape(category)}))
 
@@ -227,38 +225,37 @@ class RH3(object):
 
         # Ensure the vfolder directory exists.
         vfolder_dir = '/usr/share/desktop-menu-files'
-        if not os.path.exists(vfolder_dir):
+        if not exists(vfolder_dir):
             raise ShortcutCreationError('Could not find %s' % vfolder_dir)
 
         # Ensure the vfolder info file exists.
         vfolder_info = '/etc/X11/desktop-menus/applications.menu'
-        if not os.path.exists(vfolder_info):
+        if not exists(vfolder_info):
             raise ShortcutCreationError('Could not find %s' % vfolder_info)
 
         # Create the shortcuts.
         self._install_gnome_application_menus(vfolder_dir, vfolder_info, menus,
-            shortcuts)
+                                              shortcuts)
 
 
     def _install_gnome_user_application_menus(self, menus, shortcuts):
 
         # Check if the user uses Gnome by checking if the '.gnome2' dir exists
-        gnome_dir = os.path.abspath(os.path.join(os.path.expanduser("~"),
-            ".gnome2"))
-        if not os.path.exists(gnome_dir):
+        gnome_dir = abspath(expanduser("~/.gnome2"))
+        if not isdir(gnome_dir):
             raise ShortcutCreationError('No user .gnome2 directory found')
 
         # Make sure a vfolders directory exists.
-        vfolder_dir = os.path.join(gnome_dir, "vfolders")
-        if not os.path.exists(vfolder_dir):
+        vfolder_dir = join(gnome_dir, "vfolders")
+        if not isdir(vfolder_dir):
             os.mkdir(vfolder_dir)
 
         # Ensure a corresponding vfolder information file exists.  We copy the
         # system one if we need to.
-        vfolder_info = os.path.join(vfolder_dir, 'applications.vfolder-info')
-        if not os.path.exists(vfolder_info):
+        vfolder_info = join(vfolder_dir, 'applications.vfolder-info')
+        if not exists(vfolder_info):
             sys_vfolder_info = '/etc/X11/desktop-menus/applications.menu'
-            if not os.path.exists(sys_vfolder_info):
+            if not exists(sys_vfolder_info):
                 raise ShortcutCreationError('Cannot find template '
                 '"applications.menu" file to create user vfolder info file '
                 'from.')
@@ -277,7 +274,7 @@ class RH3(object):
             menu should be generated wtihin.
         """
         # Safety check to ensure the share dir actually exists.
-        if not os.path.exists(share_dir):
+        if not exists(share_dir):
             raise ShortcutCreationError('No %s directory found' % share_dir)
 
         # Find applnk directory.
@@ -288,7 +285,7 @@ class RH3(object):
         applnk_dir = None
         for dir in os.listdir(share_dir):
             if dir.startswith("applnk"):
-                applnk_dir = os.path.join(share_dir, dir)
+                applnk_dir = join(share_dir, dir)
         if applnk_dir is None:
             raise ShortcutCreationError('Cannot find KDE applnk directory')
 
@@ -304,9 +301,9 @@ class RH3(object):
             # Create the directory for the current menu overwriting any file
             # of the same name.
             dir_name = filesystem_escape(menu_spec['name'])
-            path = os.path.join(root_dir, dir_name)
-            if not os.path.isdir(path):
-                if os.path.exists(path):
+            path = join(root_dir, dir_name)
+            if not isdir(path):
+                if exists(path):
                     os.remove(path)
                 os.mkdir(path)
 
@@ -340,17 +337,14 @@ class RH3(object):
 
 
     def _install_kde_system_application_menus(self, menus, shortcuts):
-
         return self._install_kde_application_menus('/usr/share', menus,
                                                    shortcuts)
 
 
     def _install_kde_user_application_menus(self, menus, shortcuts):
-
         # Check if the user uses KDE by checking if the '.kde/share' dir exists
-        share_dir = os.path.abspath(os.path.join(os.path.expanduser('~'),
-            '.kde', 'share'))
-        if not os.path.exists(share_dir):
+        share_dir = abspath(expanduser('~/.kde/share'))
+        if not isdir(share_dir):
             raise ShortcutCreationError('No user .kde directory found')
 
         # Create our shortcuts under the share dir.

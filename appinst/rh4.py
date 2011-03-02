@@ -6,7 +6,7 @@ import shutil
 import sys
 import warnings
 import xml.etree.ElementTree as et
-from distutils.sysconfig import get_python_lib
+from os.path import abspath, basename, exists, expanduser, isdir, isfile, join
 
 import appinst.linux_common as common
 from appinst.freedesktop import (filesystem_escape, make_desktop_entry,
@@ -18,9 +18,7 @@ from appinst.utils import ShortcutCreationError
 class RH4(object):
     """
     A class for application installation operations on RH4.
-
     """
-
     #==========================================================================
     # Public API methods
     #==========================================================================
@@ -80,8 +78,9 @@ class RH4(object):
         """
         # Safety check to ensure the data and sysconf dirs actually exist.
         for dir in [datadir, sysconfdir]:
-            if not os.path.exists(dir):
-                raise ShortcutCreationError('Cannot install menus and '
+            if not isdir(dir):
+                raise ShortcutCreationError(
+                    'Cannot install menus and '
                     'shortcuts due to missing directory: %s' % dir)
 
         # Ensure the three directories we're going to write menu and shortcut
@@ -90,8 +89,8 @@ class RH4(object):
             'applications'], [datadir, 'desktop-directories']]:
             for i in xrange(1, len(dirs)+1):
                 cur_dirs = dirs[:i]
-                dir = os.path.join(*cur_dirs)
-                if not os.path.isdir(dir):
+                dir = join(*cur_dirs)
+                if not isdir(dir):
                     os.mkdir(dir)
 
         # Create a menu file for just the top-level menus.  Later on, we will
@@ -100,17 +99,17 @@ class RH4(object):
         # parent menu element.
         # FIXME: xml.etree doesn't seem to support preserving or setting of
         # DOCTYPE.   We may have to switch to a different xml lib?
-        menu_dir = os.path.join(sysconfdir, 'menus', 'applications-merged')
+        menu_dir = join(sysconfdir, 'menus/applications-merged')
         menu_map = {}
         for menu_spec in menus:
-            menu_file = os.path.join(menu_dir, '%s.menu' % menu_spec['id'])
+            menu_file = join(menu_dir, '%s.menu' % menu_spec['id'])
 
             # Ensure any existing version is a file.
-            if os.path.exists(menu_file) and not os.path.isfile(menu_file):
+            if exists(menu_file) and not isfile(menu_file):
                 shutil.rmtree(menu_file)
 
             # Ensure any existing file is actually a menu file.
-            if os.path.isfile(menu_file):
+            if isfile(menu_file):
                 try:
                     tree = et.parse(menu_file)
                     root = tree.getroot()
@@ -120,7 +119,7 @@ class RH4(object):
                     os.remove(menu_file)
 
             # Create a new menu file if one doesn't yet exist.
-            if not os.path.exists(menu_file):
+            if not exists(menu_file):
                 root = et.XML('<Menu/>')
                 tree = et.ElementTree(root)
                 tree.write(menu_file)
@@ -134,7 +133,7 @@ class RH4(object):
         # Create all menu and sub-menu resources.  Note that the .directory
         # files all go in the same directory, so to help ensure uniqueness of
         # filenames we base them on the category, rather than the menu's ID.
-        desktop_dir = os.path.join(datadir, 'desktop-directories')
+        desktop_dir = join(datadir, 'desktop-directories')
         queue = [(menu_spec, '', '') for menu_spec in menus]
         id_map = {}
         while len(queue) > 0:
@@ -159,7 +158,7 @@ class RH4(object):
             dict['location'] = desktop_dir
             dict['filename'] = filesystem_escape(category)
             entry_path = make_directory_entry(dict)
-            entry_filename = os.path.basename(entry_path)
+            entry_filename = basename(entry_path)
 
             # Ensure the menu file documents this menu.  We do this by updating
             # any existing menu of the same name.
@@ -189,7 +188,7 @@ class RH4(object):
         common.fix_shortcut_ids(shortcuts, id_map)
 
         # Write out any shortcuts
-        location = os.path.join(datadir, 'applications')
+        location = join(datadir, 'applications')
         self._install_gnome_desktop_entry(shortcuts, location)
         self._install_kde_desktop_entry(shortcuts, location)
 
@@ -208,10 +207,8 @@ class RH4(object):
             if cmd[0] == '{{FILEBROWSER}}':
                 cmd[0] = filebrowser
             elif cmd[0] == '{{WEBBROWSER}}':
-                python_path = os.path.join(sys.prefix, 'bin', 'python')
-                script_path = os.path.abspath(os.path.join(get_python_lib(),
-                    '..', 'webbrowser.py'))
-                cmd[0:1] = [python_path, script_path, '-t']
+                import webbrowser
+                cmd[0:1] = [sys.executable, webbrowser.__file__, '-t']
             spec['cmd'] = cmd
 
             # Create the shortcuts.
@@ -259,29 +256,27 @@ class RH4(object):
 
 
     def _install_system_application_menus(self, menus, shortcuts):
-
         datadir = '/usr/share'
         sysconfdir = '/etc/xdg'
 
         return self._install_application_menus(datadir, sysconfdir, menus,
-            shortcuts)
+                                               shortcuts)
 
 
     def _install_user_application_menus(self, menus, shortcuts):
-
         # Prefer env variable specifications over default values.  The
         # environment variable names are per the Desktop Menu Specification
         # at:
         #     http://standards.freedesktop.org/menu-spec/latest/apcs02.html
-        datadir = os.environ.get('XDG_DATA_HOME', os.path.abspath(
-            os.path.join(os.path.expanduser('~'), '.local', 'share')))
-        sysconfdir = os.environ.get('XDG_CONFIG_HOME', os.path.abspath(
-            os.path.join(os.path.expanduser('~'), '.config')))
+        datadir = os.environ.get('XDG_DATA_HOME',
+                                 abspath(expanduser('~/.local/share')))
+        sysconfdir = os.environ.get('XDG_CONFIG_HOME',
+                                    abspath(expanduser('~/.config')))
 
         # Make sure the target directories exist.
         for dir in [datadir, sysconfdir]:
-            if not os.path.isdir(dir):
-                if os.path.isfile(dir):
+            if not isdir(dir):
+                if isfile(dir):
                     os.remove(dir)
                 os.makedirs(dir)
 
