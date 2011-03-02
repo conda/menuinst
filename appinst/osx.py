@@ -1,10 +1,10 @@
-# Copyright (c) 2008-2009 by Enthought, Inc.
+# Copyright (c) 2008-2011 by Enthought, Inc.
 # All rights reserved.
 
 import os
 from os.path import exists, isfile, islink, join
 
-from appinst.platforms.osx_application import Application
+from appinst.osx_application import Application
 
 
 class OSX(object):

@@ -6,7 +6,7 @@ import os
 import platform
 import sys
 
-from appinst.platforms import wininst
+import wininst
 
 
 # Constants

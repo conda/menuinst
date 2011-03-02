@@ -3,10 +3,10 @@
 
 import os
 import sys
-from distutils.sysconfig import get_python_lib
 from os.path import abspath, exists, join
 
-from appinst.platforms import wininst, win32_common as common
+import wininst
+import win32_common as common
 
 
 def quoted(s):
@@ -146,8 +146,8 @@ class Win32(object):
         #        http://www.cyanwerks.com/file-format-url.html
         elif cmd == '{{WEBBROWSER}}':
             cmd = join(sys.prefix, 'python.exe')
-            args = [abspath(join(get_python_lib(), '..', 'webbrowser.py')),
-                    '-t'] + args
+            import webbrowser
+            args = [webbrowser.__file__, '-t'] + args
 
         # Now create the actual Windows shortcut.  Note that the API to
         # create a windows shortcut requires that a path to the icon

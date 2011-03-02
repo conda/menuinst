@@ -8,10 +8,10 @@ import warnings
 from distutils.sysconfig import get_python_lib
 from xml.etree import ElementTree
 
-import appinst.platforms.linux_common as common
-from appinst.platforms.freedesktop import (filesystem_escape,
-                    make_desktop_entry, make_directory_entry)
-from appinst.platforms.utils import ShortcutCreationError
+import appinst.linux_common as common
+from appinst.freedesktop import (filesystem_escape,
+                                 make_desktop_entry, make_directory_entry)
+from appinst.utils import ShortcutCreationError
 
 
 

@@ -8,12 +8,11 @@ import time
 import warnings
 import xml.etree.ElementTree as ET
 from os.path import abspath, basename, exists, expanduser, isdir, isfile, join
-from distutils.sysconfig import get_python_lib
 
-import appinst.platforms.linux_common as common
-from appinst.platforms.freedesktop import (filesystem_escape,
-                           make_desktop_entry, make_directory_entry)
-from appinst.platforms.utils import ShortcutCreationError, add_dtd_and_format
+import appinst.linux_common as common
+from appinst.freedesktop import (filesystem_escape,
+                                 make_desktop_entry, make_directory_entry)
+from appinst.utils import ShortcutCreationError, add_dtd_and_format
 
 
 USER_MENU_FILE = """
@@ -217,10 +216,8 @@ class Linux(object):
             if cmd[0] == '{{FILEBROWSER}}':
                 cmd[0] = filebrowser
             elif cmd[0] == '{{WEBBROWSER}}':
-                python_path = join(sys.prefix, 'bin', 'python')
-                script_path = abspath(join(get_python_lib(),
-                                           '..', 'webbrowser.py'))
-                cmd[0:1] = [python_path, script_path, '-t']
+                import webbrowser
+                cmd[0:1] = [sys.executable, webbrowser.__file__, '-t']
             spec['cmd'] = cmd
 
             # Create the shortcuts.

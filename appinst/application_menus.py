@@ -170,7 +170,7 @@ def install(menus, shortcuts, install_mode='user', uninstall=False):
         from appinst.osx import OSX
         OSX().install_application_menus(menus, shortcuts, install_mode)
 
-    # Dispatch for all versions of Windows (tested on XP only)
+    # Dispatch for all versions of Windows
     elif PLAT == 'windows':
         from appinst.win32 import Win32
         Win32().install_application_menus(menus, shortcuts, install_mode,
