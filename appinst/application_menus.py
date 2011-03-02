@@ -9,10 +9,6 @@ import warnings
 # "enicab" installer, in which case the directory custom_tools contains
 # platform-independent install information in __init__.py and platform-specific
 # information about user setting chosen during the install process.
-# For example, on Windows the enicab generated MSI creates a file called
-# Property.dat with settings such as whether or not the user granted permission
-# to create desktop and quicklaunch icons, and whether the user chose to make
-# this a user-specific install or an install for all users.
 try:
     import custom_tools
 except ImportError:
