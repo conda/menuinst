@@ -57,6 +57,7 @@ class ShortCut(object):
             os.symlink(src, self.path)
 
 
+
 TERMINAL = '''\
 #!/bin/sh
 mypath="`dirname "$0"`"
@@ -74,27 +75,18 @@ EOF
 exit 0
 '''
 
-
 class Application(object):
     """
     Class for creating an application folder on OSX.  The application may
     be standalone executable, but more likely a Python script which is
     interpreted by the framework Python interpreter.
     """
-
-    def __init__(self, shortcut, force=True):
+    def __init__(self, shortcut):
         """
         Required:
         ---------
         shortcut is a dictionary defining a shortcut per the AppInst standard.
-
-        Optional:
-        ---------
-        force is a boolean indicating whether an existing application should
-            be removed if it exists.  Defaults to True.
         """
-        self.force = force
-
         # Store the required values out of the shortcut definition.
         self.args = shortcut['args']
         self.menu_dir = shortcut['menu_dir']
@@ -114,9 +106,6 @@ class Application(object):
         self.executable_path = join(self.macos_dir, self.executable)
 
     def create(self):
-        """
-        Create the application.
-        """
         self._create_dirs()
         self._write_pkginfo()
         self._write_icns()
@@ -124,12 +113,7 @@ class Application(object):
         self._write_script()
 
     def _create_dirs(self):
-        if self.force and isdir(self.app_dir):
-            shutil.rmtree(self.app_dir)
-
-        if isdir(self.app_dir):
-            raise RuntimeError("Application bundle %r already exists" %
-                               self.app_dir)
+        rm_rf(self.app_dir)
 
         # Only need to make leaf dirs as the 'makedirs' function creates the
         # rest on the way to the leaves.
@@ -162,7 +146,6 @@ class Application(object):
             CFBundleShortVersionString=self.version,
             )
         writePlist(pl, join(self.contents_dir, 'Info.plist'))
-
 
     def _write_script(self):
         """
