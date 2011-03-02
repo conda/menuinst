@@ -69,7 +69,7 @@ def install(shortcuts, remove):
         from linux2 import Menu
 
     elif sys.platform == 'darwin':
-        from osx import Menu, ShortCut
+        from darwin import Menu, ShortCut
 
     elif sys.platform == 'win32':
         from win32 import Menu
