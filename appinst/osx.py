@@ -54,9 +54,7 @@ class OSX(object):
                 queue.append((child_spec, path, category))
 
         # Now create all the requested shortcuts.
-        SHELL_SCRIPT ="#!/bin/sh\n%s %s\n"
         for shortcut in shortcuts:
-
             # Ensure the shortcut ends up in each of the requested categories.
             # NOTE: That we copy the shortcut definition so that it doesn't get
             # modified by a sub-routine.

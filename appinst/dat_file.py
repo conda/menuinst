@@ -1,6 +1,5 @@
 # Copyright (c) 2009 by Enthought, Inc.
 # All rights reserved.
-
 """
 This module provides an interface to appinst which allows installing
 applications by specifying the path to a data file.  For an example of
@@ -21,7 +20,6 @@ BIN_DIR = join(sys.prefix, 'Scripts' if sys.platform == 'win32' else 'bin')
 def transform_shortcut(dat_dir, sc):
     """
     Transform the shortcuts relative paths to absolute paths.
-
     """
     # Make the path to the executable absolute
     bin = sc['cmd'][0]
@@ -49,7 +47,6 @@ def transform(path):
     (menus, shortcuts) where menus and shortcuts are objects which
     the funtions install() and uninstall() in the application_menus
     module expects.
-
     """
     # default values
     d = {'MENUS': []}
@@ -65,9 +62,7 @@ def transform(path):
 def install_from_dat(path):
     """
     Does a complete install given a data file.
-
     For an example see examples/appinst.dat.
-
     """
     install(*transform(path))
 
@@ -75,7 +70,6 @@ def install_from_dat(path):
 def uninstall_from_dat(path):
     """
     Uninstalls all items in a data file.
-
     """
     if sys.platform != 'win32':
         # FIXME:
