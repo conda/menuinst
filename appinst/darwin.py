@@ -44,9 +44,7 @@ class ShortCut(object):
 
     def create(self):
         if self.tp == 'app':
-            self.shortcut['args'] = self.cmd
-            self.shortcut['menu_dir'] = self.menu.path
-            Application(self.shortcut).create()
+            Application(self.path, self.shortcut).create()
 
         elif self.tp == 'link':
             src = self.cmd[0]
@@ -81,15 +79,15 @@ class Application(object):
     be standalone executable, but more likely a Python script which is
     interpreted by the framework Python interpreter.
     """
-    def __init__(self, shortcut):
+    def __init__(self, app_path, shortcut):
         """
         Required:
         ---------
         shortcut is a dictionary defining a shortcut per the AppInst standard.
         """
         # Store the required values out of the shortcut definition.
-        self.args = shortcut['args']
-        self.menu_dir = shortcut['menu_dir']
+        self.app_path = app_path
+        self.cmd = shortcut['cmd']
         self.name = shortcut['name']
 
         # Store some optional values out of the shortcut definition.
@@ -98,8 +96,7 @@ class Application(object):
         self.version = shortcut.get('version', '1.0.0')
 
         # Calculate some derived values just once.
-        self.app_dir = join(self.menu_dir, self.name + '.app')
-        self.contents_dir = join(self.app_dir, 'Contents')
+        self.contents_dir = join(self.app_path, 'Contents')
         self.resources_dir = join(self.contents_dir, 'Resources')
         self.macos_dir = join(self.contents_dir, 'MacOS')
         self.executable = self.name
@@ -113,10 +110,7 @@ class Application(object):
         self._write_script()
 
     def _create_dirs(self):
-        rm_rf(self.app_dir)
-
-        # Only need to make leaf dirs as the 'makedirs' function creates the
-        # rest on the way to the leaves.
+        rm_rf(self.app_path)
         os.makedirs(self.resources_dir)
         os.makedirs(self.macos_dir)
 
@@ -153,7 +147,7 @@ class Application(object):
         application folder (into Contests/MacOS) and makes sure the script
         uses sys.executable, which should be the "framework Python".
         """
-        shell = "#!/bin/sh\n%s\n" % ' '.join(self.args)
+        shell = "#!/bin/sh\n%s\n" % ' '.join(self.cmd)
 
         if self.terminal:
             path = join(self.macos_dir, 'startup.command')
