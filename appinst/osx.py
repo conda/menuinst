@@ -2,9 +2,19 @@
 # All rights reserved.
 
 import os
-from os.path import exists, isfile, islink, join
+from os.path import isdir, isfile, islink, join
 
 from appinst.osx_application import Application
+
+
+app_path = '/Applications'
+
+
+def install(menu, shortcuts, uninstall=False):
+    menu_path = join(app_path, menu)
+    if not isdir(menu_path):
+        os.mkdir(menu_path)
+
 
 
 class OSX(object):
@@ -30,8 +40,7 @@ class OSX(object):
         # directories on OS X.  Note that we need to build a map from the menu's
         # category to its path on the filesystem so that we can put the
         # shortcuts in the right directories later.
-        self.category_map = {}
-        app_path = '/Applications'
+        self.category_map = {}        
         queue = [(menu_spec, app_path, '') for menu_spec in menus]
         while len(queue) > 0:
             menu_spec, parent_path, parent_category = queue.pop(0)

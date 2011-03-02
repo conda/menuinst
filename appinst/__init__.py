@@ -83,7 +83,7 @@ def install(shortcuts, uninstall=False):
     else:
         print 'Unhandled platform. Unable to create application menu(s).'
 
-    install(menu, shortcuts, uninstall=uninstall)
+    install(menu, shortcuts, uninstall)
 
 
 def transform_shortcut(dat_dir, sc):
