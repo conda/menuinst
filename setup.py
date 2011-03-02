@@ -24,7 +24,7 @@ setup(
     description = "Cross platform APIs used to install applications",
     ext_modules = extensions,
     include_package_data = True,
-    package_data = {"appinst" : ["*.icns"],},
+    package_data = {"appinst" : ["*.icns"]},
     install_requires = install_requires,
     license = "BSD",
     maintainer = "Enthought, Inc.",
