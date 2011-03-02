@@ -3,7 +3,7 @@
 
 import os
 import sys
-from os.path import abspath, exists, join
+from os.path import exists, join
 
 import wininst
 import win32_common as common
