@@ -72,7 +72,7 @@ def install(shortcuts, remove):
         from darwin import Menu, ShortCut
 
     elif sys.platform == 'win32':
-        from win32 import Menu
+        from win32 import Menu, ShortCut
 
     else:
         print 'Unhandled platform. Unable to create application menu(s).'
