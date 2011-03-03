@@ -8,7 +8,6 @@ import time
 import xml.etree.ElementTree as ET
 from os.path import abspath, basename, exists, expanduser, isdir, isfile, join
 
-import appinst.linux_common as common
 from appinst.freedesktop import (filesystem_escape,
                                  make_desktop_entry, make_directory_entry)
 from appinst.utils import add_dtd_and_format
@@ -17,7 +16,7 @@ from appinst.utils import add_dtd_and_format
 # datadir: the directory that should contain the desktop and directory entries
 # sysconfdir: the directory that should contain the XML menu files
 if os.getuid() == 0:
-    mode = 'system'        
+    mode = 'system'
     datadir = '/usr/share'
     sysconfdir = '/etc/xdg'
 else:
@@ -154,72 +153,43 @@ class Menu(object):
 
         add_dtd_and_format(menu_file)
 
-        # Adjust the IDs of the shortcuts to match where the shortcut fits in
-        # the menu.
-        common.fix_shortcut_ids(shortcuts, id_map)
 
-        # Write out any shortcuts
-        location = join(datadir, 'applications')
-        self._install_gnome_desktop_entry(shortcuts, location)
-        self._install_kde_desktop_entry(shortcuts, location)
+class ShortCut(object):
 
+    def __init__(self, menu, shortcut):
+        shortcut['id'] = menu.name
+        self.shortcut = shortcut
+        for var_name in ('name', 'cmd'):
+            if var_name in shortcut:
+                setattr(self, var_name, shortcut[var_name])
 
-    def _install_desktop_entry(self, shortcuts, filebrowser):
-        """
-        Create a desktop entry for the specified shortcut spec.
-        """
-        for spec in shortcuts:
-            # Handle the special placeholders in the specified command.  For a
-            # filebrowser request, we simply used the passed filebrowser.  But
-            # for a webbrowser request, we invoke the Python standard lib's
-            # webbrowser script so we can force the url(s) to open in new tabs.
-            cmd = spec['cmd']
-            if cmd[0] == '{{FILEBROWSER}}':
-                cmd[0] = filebrowser
-            elif cmd[0] == '{{WEBBROWSER}}':
-                import webbrowser
-                cmd[0:1] = [sys.executable, webbrowser.__file__, '-t']
-            spec['cmd'] = cmd
+    def create(self):
+        self._install_desktop_entry('gnome')
+        self._install_desktop_entry('kde')
 
-            # Create the shortcuts.
-            make_desktop_entry(spec)
+    def _install_desktop_entry(self, tp):
+        # Handle the special placeholders in the specified command.  For a
+        # filebrowser request, we simply used the passed filebrowser.  But
+        # for a webbrowser request, we invoke the Python standard lib's
+        # webbrowser script so we can force the url(s) to open in new tabs.
+        spec = self.shortcut.copy()
 
+        if tp == 'gnome':
+            spec['not_show_in'] = 'KDE'
+            filebrowser = 'gnome-open'
+        elif tp == 'kde':
+            spec['only_show_in'] = 'KDE'
+            filebrowser = 'kfmclient openURL'
 
-    def _install_gnome_desktop_entry(self, shortcuts, location):
-        """
-        Create a desktop entry for the specified shortcut spec.
-        """
-        # Iterate though the shortcuts making a copy of each specification and
-        # adding an entry so that it doesn't show in the KDE desktop, plus ends
-        # up in the specified location.
-        modified_shortcuts = []
-        for spec in shortcuts:
-            cur = spec.copy()
-            cur['location'] = location
-            cur['not_show_in'] = 'KDE'
-            modified_shortcuts.append(cur)
+        cmd = self.cmd
+        if cmd[0] == '{{FILEBROWSER}}':
+            cmd[0] = filebrowser
+        elif cmd[0] == '{{WEBBROWSER}}':
+            import webbrowser
+            cmd[0:1] = [sys.executable, webbrowser.__file__, '-t']
 
-        # Make the shortcuts
-        filebrowser = "gnome-open"
-        self._install_desktop_entry(modified_shortcuts, filebrowser)
+        spec['cmd'] = cmd
+        spec['location'] = join(datadir, 'applications')
 
-
-    def _install_kde_desktop_entry(self, shortcuts, location):
-        """
-        Create a desktop entry for the specified shortcut spec.
-        """
-        # Iterate though the shortcuts making a copy of each specification and
-        # adding an entry so that it only shows in the KDE desktop, plus ends
-        # up in the specified location.
-        modified_shortcuts = []
-        for spec in shortcuts:
-            cur = spec.copy()
-            cur['location'] = location
-            cur['only_show_in'] = 'KDE'
-            modified_shortcuts.append(cur)
-
-        # Make the shortcuts
-        filebrowser = "kfmclient openURL"
-        self._install_desktop_entry(modified_shortcuts, filebrowser)
-
-        common.refreshKDE()
+        # Create the shortcuts.
+        make_desktop_entry(spec)
