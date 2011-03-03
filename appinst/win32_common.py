@@ -2,72 +2,13 @@
 # All rights reserved.
 
 import _winreg
-import platform
-import sys
-from os.path import abspath, isfile
-
-import wininst
 
 
-# Constants
-CURRENT_USER = 0
-ALL_USERS = 1
-
-
-def _get_install_type():
-    hklm = _winreg.ConnectRegistry(None, _winreg.HKEY_LOCAL_MACHINE)
-
-    python_reg_path = ("SOFTWARE\\Python\\PythonCore\\%d.%d\\InstallPath"
-                           % (sys.version_info[0], sys.version_info[1]))
-
-    # Look for the python install for all users
-    try:
-        all_users_key = _winreg.OpenKey(
-            hklm,
-            python_reg_path,
-            0,
-            _winreg.KEY_READ)
-    except EnvironmentError:
-        all_users_key = None
-
-    # Look for the python install for the current user
-    try:
-        hkcu = _winreg.ConnectRegistry(None, _winreg.HKEY_CURRENT_USER)
-        current_user_key = _winreg.OpenKey(
-            hkcu,
-            python_reg_path,
-            0,
-            _winreg.KEY_READ)
-    except EnvironmentError:
-        current_user_key = None
-
-    # if both keys are valid, we need to use sys.prefix to match against
-    # the install path
-    install_type = None
-    if (all_users_key is not None) and (current_user_key is not None):
-        all_users_install_path = _winreg.QueryValue(all_users_key, None)
-        current_user_install_path = _winreg.QueryValue(current_user_key, None)
-
-        if abspath(sys.prefix) == abspath(all_users_install_path):
-            install_type = ALL_USERS
-
-        if abspath(sys.prefix) == abspath(current_user_install_path):
-            install_type = CURRENT_USER
-
-    elif all_users_key is not None:
-        install_type = ALL_USERS
-    else:
-        install_type = CURRENT_USER
-
-    _winreg.CloseKey(hklm)
-    _winreg.CloseKey(hkcu)
-
-    # if we were not able to determine whether python was installed for all
-    # users or just the current user, default to the current user
-    if install_type is None:
-        install_type = CURRENT_USER
-
-    return install_type
+try:
+    from custom_tools.msi_property import get
+    mode = ('user', 'system')[get('ALLUSERS') == '1']
+except ImportError:
+    mode = 'user'
 
 
 def refreshEnvironment():
@@ -86,7 +27,7 @@ def append_to_reg_path(new_dir):
     appends a new dir to the registry PATH value
     """
     # determine where the environment registry settings are
-    if _get_install_type() == ALL_USERS:
+    if mode == 'system':
         reg = _winreg.ConnectRegistry(None, _winreg.HKEY_LOCAL_MACHINE)
         environ_key_path = ('SYSTEM\\CurrentControlSet\\Control\\'
                             'Session Manager\\Environment')
@@ -133,10 +74,8 @@ def append_to_reg_pathext():
     """
     appends .py and .pyc to the registry PATHEXT value
     """
-    install_type = _get_install_type()
-
     # determine where the environment registry settings are
-    if install_type == ALL_USERS:
+    if mode == 'system':
         reg = _winreg.ConnectRegistry( None, _winreg.HKEY_LOCAL_MACHINE )
         environ_key_path = ("SYSTEM\\CurrentControlSet\\Control\\"
             "Session Manager\\Environment")
@@ -150,7 +89,7 @@ def append_to_reg_pathext():
         old_pathext = _winreg.QueryValueEx( key, "PATHEXT" )[0]
         _winreg.CloseKey( key )
     except WindowsError:
-        if install_type == ALL_USERS:
+        if mode == 'system':
             old_pathext = ""
         else:
             # use the system PATHEXT as the old value
@@ -183,22 +122,16 @@ def append_to_reg_pathext():
 
 
 
-def remove_from_reg_path(remove_dir, install_mode='user') :
+def remove_from_reg_path(remove_dir) :
     """
     Removes a directory from the PATH environment variable. If the directory
     exists more than once on the path, all instances of that directory are
     removed.
 
     remove_dir      The directory to be removed from the PATH.
-    install_mode    Determines which environment to modify. If 'system' is
-                    given, the PATH variable in HKLM is modified. If 'user'
-                    is given, the PATH variable in HKCU is modified.
     """
-    if platform.uname()[0] != 'Windows':
-        return
-
     # determine where the environment registry settings are
-    if install_mode == 'system':
+    if mode == 'system':
         reg = _winreg.ConnectRegistry(None, _winreg.HKEY_LOCAL_MACHINE)
         environ_key_path = ("SYSTEM\\CurrentControlSet\\Control\\"
                             "Session Manager\\Environment")
@@ -247,12 +180,8 @@ def register_association_with_shell(desc, cmd):
     Adds command to shell association for .py files, enabling
     right clicking to edit the file
     """
-
-    if platform.uname()[0] != 'Windows':
-        return
-
     # determine where the shell registry settings are
-    if _get_install_type() == ALL_USERS:
+    if mode == 'system':
         reg = _winreg.ConnectRegistry(None, _winreg.HKEY_LOCAL_MACHINE)
         shell_key_path = r"SOFTWARE\Classes\Python.File\shell"
     else:

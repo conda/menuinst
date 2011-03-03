@@ -2,7 +2,6 @@
 # All rights reserved.
 
 import sys
-import platform
 from os.path import abspath, dirname, isfile, join
 
 from egginst.utils import bin_dir_name
@@ -66,7 +65,7 @@ def install(shortcuts, remove):
     #pp = pprint.PrettyPrinter(indent=4, width=20)
     #print 'SHORTCUTS: %s' % pp.pformat(shortcuts)
     if sys.platform == 'linux2':
-        from linux2 import Menu
+        from linux2 import Menu, ShortCut
 
     elif sys.platform == 'darwin':
         from darwin import Menu, ShortCut
