@@ -125,64 +125,32 @@ class Menu(object):
             tree = ET.parse(menu_file)
             root = tree.getroot()
 
-        # Record info about the menu file for use when actually creating the
-        # menu records.  We need the path to the file, the tree (so
-        # xml.etree can write to the file), and the parent element to create
-        # our menu data off of.
-        self.menu_map = (menu_file, tree, root)
-
         # Create the menu resources.  Note that the .directory
         # files all go in the same directory, so to help ensure uniqueness of
         # filenames we base them on the category, rather than the menu's ID.
         desktop_dir = join(datadir, 'desktop-directories')
-        queue = [(menu_spec, '', '') for menu_spec in menus]
-        id_map = {}
-        while len(queue) > 0:
-            menu_spec, parent_category, parent_id = queue.pop(0)
 
-            # Build an id based on the menu hierarchy that's to be prepended
-            # to the id of each shortcut based on where that shortcut fits
-            # in the menu.
-            menu_id = common.build_id(menu_spec['id'], parent_id)
+        # Create the .directory entry file and record what it's name was
+        # for our later use.
+        d = {'name': self.name, 'id': self.name}
+        d['location'] = desktop_dir
+        d['filename'] = filesystem_escape(self.name)
+        entry_path = make_directory_entry(d)
+        entry_filename = basename(entry_path)
 
-            # Create the category string for this menu.
-            category = menu_spec.get('category', menu_spec['id'])
-            if len(parent_category) > 1:
-                category = '%s.%s' % (parent_category, category)
-
-             # Keep track of which IDs match which categories
-            id_map[category] = menu_id
-
-            # Create the .directory entry file and record what it's name was
-            # for our later use.
-            dict = menu_spec.copy()
-            dict['location'] = desktop_dir
-            dict['filename'] = filesystem_escape(category)
-            entry_path = make_directory_entry(dict)
-            entry_filename = basename(entry_path)
-
-            # Ensure the menu file documents this menu.  We do this by updating
-            # any existing menu of the same name.
-            name = menu_spec['name']
-            menu_file, tree, parent_element = menu_map[id(menu_spec)]
-            for element in parent_element.findall('Menu'):
-                if element.find('Name').text == name:
-                    menu_element = element
-                    break
+        # Ensure the menu file documents this menu.  We do this by updating
+        # any existing menu of the same name.
+        for element in root.findall('Menu'):
+            if element.find('Name').text == self.name:
+                menu_element = element
+                break
             else:
-                menu_element = ET.SubElement(parent_element, 'Menu')
-            self._ensure_child_element(menu_element, 'Name', name)
-            self._ensure_child_element(menu_element, 'Directory',
-                                       entry_filename)
-            include_element = self._ensure_child_element(menu_element,
-                                                         'Include')
-            self._ensure_child_element(include_element, 'Category', category)
+                menu_element = ET.SubElement(root, 'Menu')
+            _ensure_child_element(menu_element, 'Name', self.name)
+            _ensure_child_element(menu_element, 'Directory', entry_filename)
+            include_element = _ensure_child_element(menu_element, 'Include')
+            _ensure_child_element(include_element, 'Category', self.name)
             tree.write(menu_file)
-
-            # Add any child sub-menus onto the queue.
-            for child_spec in menu_spec.get('sub-menus', []):
-                menu_map[id(child_spec)] = (menu_file, tree, menu_element)
-                queue.append((child_spec, category, menu_id))
 
         add_dtd_and_format(menu_file)
 
