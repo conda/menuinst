@@ -155,30 +155,28 @@ class Menu(object):
         # Create the menu resources.  Note that the .directory
         # files all go in the same directory, so to help ensure uniqueness of
         # filenames we base them on the category, rather than the menu's ID.
-        desktop_dir = join(datadir, 'desktop-directories')
 
         # Create the .directory entry file and record what it's name was
         # for our later use.
         d = {'name': self.name, 'id': self.name}
-        d['location'] = desktop_dir
+        d['location'] = join(datadir, 'desktop-directories')
         d['filename'] = filesystem_escape(self.name)
         entry_path = make_directory_entry(d)
         entry_filename = basename(entry_path)
 
-        # Ensure the menu file documents this menu.  We do this by updating
-        # any existing menu of the same name.
+        # Ensure the menu file documents this menu.
         for element in root.findall('Menu'):
             if element.find('Name').text == self.name:
                 menu_element = element
                 break
-            else:
-                menu_element = ET.SubElement(root, 'Menu')
-            _ensure_child_element(menu_element, 'Name', self.name)
-            _ensure_child_element(menu_element, 'Directory', entry_filename)
-            include_element = _ensure_child_element(menu_element, 'Include')
-            _ensure_child_element(include_element, 'Category', self.name)
-            tree.write(menu_file)
+        else:
+            menu_element = ET.SubElement(root, 'Menu')
 
+        _ensure_child_element(menu_element, 'Name', self.name)
+        _ensure_child_element(menu_element, 'Directory', entry_filename)
+        include_element = _ensure_child_element(menu_element, 'Include')
+        _ensure_child_element(include_element, 'Category', self.name)
+        tree.write(menu_file)
         add_dtd_and_format(menu_file)
 
 
