@@ -1,4 +1,4 @@
-# Copyright (c) 2008-2009 by Enthought, Inc.
+# Copyright (c) 2008-2011 by Enthought, Inc.
 # All rights reserved.
 
 import os
@@ -22,11 +22,16 @@ USER_MENU_FILE = """
 </Menu>
 """
 
-class Linux(object):
 
-    #==========================================================================
-    # Public API methods
-    #==========================================================================
+class Menu(object):
+
+    def __init__(self, name):
+        self.name = name
+
+
+
+
+class Linux(object):
 
     def install_application_menus(self, menus, shortcuts, mode):
         """
