@@ -133,7 +133,7 @@ class Menu(object):
         if isfile(menu_file):
             try:
                 # Make a backup of the menu file to be edited
-                cur_time = time.strftime('%Y%m%d%H%M%S')
+                cur_time = time.strftime('%Y-%m-%d_%H:%M:%S')
                 backup_menu_file = "%s.%s" % (menu_file, cur_time)
                 shutil.copyfile(menu_file, backup_menu_file)
 
