@@ -96,21 +96,6 @@ class Menu(object):
         We install into both KDE and Gnome desktops.  If the mode isn't
         exactly 'system', a user install is done.
         """
-        if mode == 'user':
-            # Make sure the target directories exist.
-            for dir_path in [datadir, sysconfdir]:
-                if not isdir(dir_path):
-                    if isfile(dir_path):
-                        os.remove(dir_path)
-                    os.makedirs(dir_path)
-
-        # Safety check to ensure the data and sysconf dirs actually exist.
-        for dir_path in [datadir, sysconfdir]:
-            if not isdir(dir_path):
-                raise Exception('Cannot install menus and '
-                                'shortcuts due to missing directory: %s' %
-                                dir_path)
-
         # Ensure the three directories we're going to write menu and shortcut
         # resources to all exist.
         for dir_path in [join(sysconfdir, 'menus'),
@@ -183,7 +168,7 @@ class Menu(object):
 class ShortCut(object):
 
     def __init__(self, menu, shortcut):
-        shortcut['id'] = menu.name
+        shortcut['id'] = '%s_%s' % (menu.name, shortcut['id'])
         self.shortcut = shortcut
         for var_name in ('name', 'cmd'):
             if var_name in shortcut:
