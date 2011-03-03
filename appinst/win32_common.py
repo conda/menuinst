@@ -4,7 +4,7 @@
 import _winreg
 import platform
 import sys
-from os.path import abspath, isfile, join
+from os.path import abspath, isfile
 
 import wininst
 
@@ -13,10 +13,6 @@ import wininst
 CURRENT_USER = 0
 ALL_USERS = 1
 
-
-###############################################################################
-## Protected/Private API
-###############################################################################
 
 def _get_install_type():
     hklm = _winreg.ConnectRegistry(None, _winreg.HKEY_LOCAL_MACHINE)
@@ -74,52 +70,6 @@ def _get_install_type():
     return install_type
 
 
-def _get_all_users_desktop_directory():
-    # FIXME: These should probably use Vista-specific constants when possible.
-    # This will require determining whether or not they can be imported from
-    # wininst.c (they're in knownfolders.h).
-    if platform.version().startswith('5') or platform.version().startswith('6'):
-        return wininst.get_special_folder_path('CSIDL_COMMON_DESKTOPDIRECTORY')
-    else:
-        #hmm, not XP or Vista
-        raise InstallError('Unsupported Windows Version: %s' %
-                           platform.version())
-
-
-def _get_current_user_desktop_directory():
-    if platform.version().startswith('5') or platform.version().startswith('6'):
-        return wininst.get_special_folder_path('CSIDL_DESKTOPDIRECTORY')
-    else:
-        #hmm, not XP or Vista
-        raise InstallError('Unsupported Windows Version: %s' %
-                           platform.version())
-
-
-def _get_all_users_quick_launch_directory():
-    raise InstallError('Quick Launch is only available for current user '
-                       'installs')
-
-
-def _get_current_user_quick_launch_directory():
-    if platform.version().startswith('5') or platform.version().startswith('6'):
-        appdata = wininst.get_special_folder_path('CSIDL_APPDATA')
-        return join(appdata, r"Microsoft\Internet Explorer\Quick Launch")
-    else:
-        #hmm, not XP or Vista
-        raise InstallError('Unsupported Windows Version: %s' %
-                           platform.version())
-
-
-###############################################################################
-## Public API
-###############################################################################
-
-class InstallError(Exception):
-    """ Exception raised in installation specific routines
-    """
-    pass
-
-
 def refreshEnvironment():
     HWND_BROADCAST = 0xFFFF
     WM_SETTINGCHANGE = 0x001A
@@ -131,26 +81,10 @@ def refreshEnvironment():
                                              0, sParam, SMTO_ABORTIFHUNG, 100)
 
 
-def add_shortcut(target,description,link_file,*args,**kw):
-    """
-    example: add_shortcut("python.exe", "example script", "example.lnk",
-                          "example.py", "", "path_to_icon.ico")
-    """
-    if not isfile(link_file):
-        try:
-            wininst.create_shortcut(target, description, link_file,*args,**kw)
-            wininst.file_created(link_file)
-        except:
-            print "shortcut not created, appinst module probably missing"
-
-
 def append_to_reg_path(new_dir):
     """
     appends a new dir to the registry PATH value
     """
-    if platform.uname()[0] != 'Windows':
-        return
-
     # determine where the environment registry settings are
     if _get_install_type() == ALL_USERS:
         reg = _winreg.ConnectRegistry(None, _winreg.HKEY_LOCAL_MACHINE)
@@ -199,10 +133,6 @@ def append_to_reg_pathext():
     """
     appends .py and .pyc to the registry PATHEXT value
     """
-
-    if platform.uname()[0] != 'Windows':
-        return
-
     install_type = _get_install_type()
 
     # determine where the environment registry settings are
@@ -251,23 +181,6 @@ def append_to_reg_pathext():
         print "You may need to restart your Windows session in order for the"
         print "changes to be seen by the application."
 
-
-def get_all_users_programs_start_menu():
-    if platform.version().startswith('5') or platform.version().startswith('6'):
-        return wininst.get_special_folder_path('CSIDL_COMMON_PROGRAMS')
-    else:
-        #hmm, not XP or Vista
-        raise InstallError('Unsupported Windows Version: %s' %
-                           platform.version())
-
-
-def get_current_user_programs_start_menu():
-    if platform.version().startswith('5') or platform.version().startswith('6'):
-        return wininst.get_special_folder_path('CSIDL_PROGRAMS')
-    else:
-        #hmm, not XP or Vista
-        raise InstallError('Unsupported Windows Version: %s' %
-                           platform.version())
 
 
 def remove_from_reg_path(remove_dir, install_mode='user') :
@@ -356,52 +269,3 @@ def register_association_with_shell(desc, cmd):
     _winreg.CloseKey(new_key)
     _winreg.CloseKey(key)
     _winreg.CloseKey(reg)
-
-
-def get_programs_start_menu():
-    """ Find the programs menu in the start menu.
-
-        The path varies to match the execution priviledges of the
-        Python install. If Python was installed for 'All Users', then
-        the start menu for all users is used, otherwise the current users
-        menu is used.
-
-        @return path to the programs in the start menu
-    """
-    if _get_install_type() == ALL_USERS:
-        programs_start_menu = get_all_users_programs_start_menu()
-    else:
-        programs_start_menu = get_current_user_programs_start_menu()
-
-    return programs_start_menu
-
-
-def get_desktop_directory():
-    """ Finds the desktop directory.
-
-        The path varies to match the execution priviledges of the
-        Python install. If Python was installed for 'All Users', then
-        the desktop for all users is used, otherwise the current users
-        desktop is used.
-
-        @return path to the desktop directory
-    """
-
-    if _get_install_type() == ALL_USERS:
-        desktop = _get_all_users_desktop_directory()
-    else:
-        desktop = _get_current_user_desktop_directory()
-
-    return desktop
-
-
-def get_quick_launch_directory():
-    """ Finds the quick launch directory.
-
-        Returns the path to the quick launch for the current user. The Quick
-        Launch folder does not exist for All Users installs.
-
-        @return path to the desktop directory
-    """
-
-    return _get_current_user_quick_launch_directory()
