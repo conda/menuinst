@@ -53,7 +53,7 @@ def indent(elem, level=0):
 
 
 def add_dtd_and_format(path):
-    tree = ElementTree.ElementTree(None, path)
+    tree = ET.ElementTree(None, path)
     indent(tree.getroot())
     fo = open(path, 'w')
     fo.write("""\
@@ -113,10 +113,8 @@ class Menu(object):
 
         # Ensure the three directories we're going to write menu and shortcut
         # resources to all exist.
-        for dir_path in [join(sysconfdir, 'menus', 'applications-merged'),
-                         join(datadir, 'applications'),
-                         join(datadir, 'desktop-directories'),
-                         ]:
+        for dir_path in [join(datadir, 'applications'),
+                         join(datadir, 'desktop-directories')]:
             if not isdir(dir_path):
                 os.makedirs(dir_path)
 
