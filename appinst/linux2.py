@@ -113,7 +113,8 @@ class Menu(object):
 
         # Ensure the three directories we're going to write menu and shortcut
         # resources to all exist.
-        for dir_path in [join(datadir, 'applications'),
+        for dir_path in [join(sysconfdir, 'menus'),
+                         join(datadir, 'applications'),
                          join(datadir, 'desktop-directories')]:
             if not isdir(dir_path):
                 os.makedirs(dir_path)
