@@ -13,10 +13,9 @@ if sys.platform == "win32":
                        "comdlg32", "advapi32", "shell32", "ole32", "oleaut32",
                        "uuid", "odbc32", "odbccp32"]
             )]
-    install_requires = ['pywin32']
 else:
     extensions = []
-    install_requires = []
+
 
 setup(
     name = "AppInst",
@@ -25,7 +24,6 @@ setup(
     ext_modules = extensions,
     include_package_data = True,
     package_data = {"appinst" : ["*.icns"]},
-    install_requires = install_requires,
     license = "BSD",
     maintainer = "Enthought, Inc.",
     maintainer_email = "info@enthought.com",
