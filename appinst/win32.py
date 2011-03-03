@@ -8,7 +8,6 @@ from os.path import isdir, join
 from egginst.utils import rm_empty_dir, rm_rf
 
 import wininst
-import win32_common as common
 
 
 try:
@@ -22,13 +21,16 @@ except ImportError:
     addtolauncher = True
 
 
-desktop_dir = common.get_desktop_directory()
-quicklaunch_dir = common.get_quick_launch_directory()
+quicklaunch_dir = join(wininst.get_special_folder_path('CSIDL_APPDATA'),
+                       "Microsoft", "Internet Explorer", "Quick Launch")
 
 if mode == 'system':
-    start_menu = common.get_all_users_programs_start_menu()
+    desktop_dir = wininst.get_special_folder_path(
+                                           'CSIDL_COMMON_DESKTOPDIRECTORY')
+    start_menu = wininst.get_special_folder_path('CSIDL_COMMON_PROGRAMS')
 else:
-    start_menu = common.get_current_user_programs_start_menu()
+    desktop_dir = wininst.get_special_folder_path('CSIDL_DESKTOPDIRECTORY')
+    start_menu = wininst.get_special_folder_path('CSIDL_PROGRAMS')
 
 
 def quoted(s):
