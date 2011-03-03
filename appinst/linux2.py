@@ -8,9 +8,8 @@ import time
 import xml.etree.ElementTree as ET
 from os.path import abspath, basename, exists, expanduser, isdir, isfile, join
 
-from appinst.freedesktop import (filesystem_escape,
-                                 make_desktop_entry, make_directory_entry)
-from appinst.utils import add_dtd_and_format
+from freedesktop import (filesystem_escape, make_desktop_entry,
+                         make_directory_entry)
 
 
 # datadir: the directory that should contain the desktop and directory entries
@@ -33,6 +32,37 @@ USER_MENU_FILE = """\
     <MergeFile type="parent">/etc/xdg/menus/applications.menu</MergeFile>
 </Menu>
 """
+
+
+def indent(elem, level=0):
+    "Adds whitespace to the tree, so that it results in a pretty printed tree."
+    XMLindentation = "    "
+    i = "\n" + level * XMLindentation
+    if len(elem):
+        if not elem.text or not elem.text.strip():
+            elem.text = i + XMLindentation
+        for e in elem:
+            indent(e, level+1)
+            if not e.tail or not e.tail.strip():
+                e.tail = i + XMLindentation
+        if not e.tail or not e.tail.strip():
+            e.tail = i
+    else:
+        if level and (not elem.tail or not elem.tail.strip()):
+            elem.tail = i
+
+
+def add_dtd_and_format(path):
+    tree = ElementTree.ElementTree(None, path)
+    indent(tree.getroot())
+    fo = open(path, 'w')
+    fo.write("""\
+<!DOCTYPE Menu PUBLIC '-//freedesktop//DTD Menu 1.0//EN'
+  'http://standards.freedesktop.org/menu-spec/menu-1.0.dtd'>
+""")
+    tree.write(fo)
+    fo.write('\n')
+    fo.close()
 
 
 def _ensure_child_element(parent_element, tag, text=None):
@@ -94,8 +124,7 @@ class Menu(object):
         # add the sub-menus to them, which means we need to record where each
         # one was on the disk, plus its tree (to be able to write it), plus the
         # parent menu element.
-        menu_dir = join(sysconfdir, 'menus')
-        menu_file = join(menu_dir, 'applications.menu')
+        menu_file = join(sysconfdir, 'menus/applications.menu')
 
         # Ensure any existing version is a file.
         if exists(menu_file) and not isfile(menu_file):
