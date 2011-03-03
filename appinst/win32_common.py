@@ -128,9 +128,7 @@ def refreshEnvironment():
 
     import win32gui
     res1, res2 = win32gui.SendMessageTimeout(HWND_BROADCAST, WM_SETTINGCHANGE,
-        0, sParam, SMTO_ABORTIFHUNG, 100)
-
-    return
+                                             0, sParam, SMTO_ABORTIFHUNG, 100)
 
 
 def add_shortcut(target,description,link_file,*args,**kw):

@@ -122,7 +122,7 @@ class ShortCut(object):
             else:
                 wininst.create_shortcut(
                     quoted(cmd),
-                    self.comment,
+                    self.shortcut['comment'],
                     dst,
                     ' '.join(quoted(arg) for arg in args),
                     *shortcut_args)
