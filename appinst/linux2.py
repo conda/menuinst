@@ -5,17 +5,30 @@ import os
 import shutil
 import sys
 import time
-import warnings
 import xml.etree.ElementTree as ET
 from os.path import abspath, basename, exists, expanduser, isdir, isfile, join
 
 import appinst.linux_common as common
 from appinst.freedesktop import (filesystem_escape,
                                  make_desktop_entry, make_directory_entry)
-from appinst.utils import ShortcutCreationError, add_dtd_and_format
+from appinst.utils import add_dtd_and_format
 
 
-USER_MENU_FILE = """
+# datadir: the directory that should contain the desktop and directory entries
+# sysconfdir: the directory that should contain the XML menu files
+if os.getuid() == 0:
+    mode = 'system'        
+    datadir = '/usr/share'
+    sysconfdir = '/etc/xdg'
+else:
+    mode = 'user'
+    datadir = os.environ.get('XDG_DATA_HOME',
+                             abspath(expanduser('~/.local/share')))
+    sysconfdir = os.environ.get('XDG_CONFIG_HOME',
+                                abspath(expanduser('~/.config')))
+
+
+USER_MENU_FILE = """\
 <Menu>
     <Name>Applications</Name>
     <MergeFile type="parent">/etc/xdg/menus/applications.menu</MergeFile>
@@ -23,127 +36,102 @@ USER_MENU_FILE = """
 """
 
 
+def _ensure_child_element(parent_element, tag, text=None):
+    """
+    Ensure there is a sub-element of the specified tag type.
+    The sub-element is given the specified text content if text is not
+    None.
+    The sub-element is returned.
+    """
+    # Ensure the element exists.
+    element = parent_element.find(tag)
+    if element is None:
+        element = ET.SubElement(parent_element, tag)
+
+    # If specified, set its text
+    if text is not None:
+        element.text = text
+
+    return element
+
+
 class Menu(object):
 
     def __init__(self, name):
         self.name = name
 
-
-
-
-class Linux(object):
-
-    def install_application_menus(self, menus, shortcuts, mode):
+    def create(self):
         """
         Install application menus according to the install mode.
 
         We install into both KDE and Gnome desktops.  If the mode isn't
         exactly 'system', a user install is done.
         """
-        # NOTE: Our installation mechanism works for both KDE and Gnome as
-        # shipped with RH 5.  But we don't raise an exception if creation fails
-        # because there is no guarantee a user has both KDE and Gnome installed.
-        try:
-            if mode == 'system':
-                self._install_system_application_menus(menus, shortcuts)
-            else:
-                self._install_user_application_menus(menus, shortcuts)
-        except ShortcutCreationError, ex:
-            warnings.warn(ex.message)
+        if mode == 'user':
+            # Make sure the target directories exist.
+            for dir_path in [datadir, sysconfdir]:
+                if not isdir(dir_path):
+                    if isfile(dir_path):
+                        os.remove(dir_path)
+                    os.makedirs(dir_path)
 
-
-    #==========================================================================
-    # Internal API methods
-    #==========================================================================
-
-    def _ensure_child_element(self, parent_element, tag, text=None):
-        """
-        Ensure there is a sub-element of the specified tag type.
-
-        The sub-element is given the specified text content if text is not
-        None.
-
-        The sub-element is returned.
-        """
-        # Ensure the element exists.
-        element = parent_element.find(tag)
-        if element is None:
-            element = ET.SubElement(parent_element, tag)
-
-        # If specified, set its text
-        if text is not None:
-            element.text = text
-
-        return element
-
-
-    def _install_application_menus(self, datadir, sysconfdir, menus, shortcuts):
-        """
-        Create application menus.
-
-        datadir: the directory that should contain the desktop and directory
-            entries.
-        sysconfdir: the directory that should contain the XML menu files.
-        """
         # Safety check to ensure the data and sysconf dirs actually exist.
         for dir_path in [datadir, sysconfdir]:
-            if not exists(dir_path):
-                raise ShortcutCreationError('Cannot install menus and '
-                    'shortcuts due to missing directory: %s' % dir_path)
+            if not isdir(dir_path):
+                raise Exception('Cannot install menus and '
+                                'shortcuts due to missing directory: %s' %
+                                dir_path)
 
         # Ensure the three directories we're going to write menu and shortcut
         # resources to all exist.
-        for dirs in [[sysconfdir, 'menus', 'applications-merged'], [datadir,
-            'applications'], [datadir, 'desktop-directories']]:
-            for i in xrange(1, len(dirs)+1):
-                cur_dirs = dirs[:i]
-                dir_path = join(*cur_dirs)
-                if not isdir(dir_path):
-                    os.mkdir(dir_path)
+        for dir_path in [join(sysconfdir, 'menus', 'applications-merged'),
+                         join(datadir, 'applications'),
+                         join(datadir, 'desktop-directories'),
+                         ]:
+            if not isdir(dir_path):
+                os.makedirs(dir_path)
 
         # Create a menu file for just the top-level menus.  Later on, we will
         # add the sub-menus to them, which means we need to record where each
         # one was on the disk, plus its tree (to be able to write it), plus the
         # parent menu element.
         menu_dir = join(sysconfdir, 'menus')
-        menu_map = {}
-        for menu_spec in menus:
-            menu_file = join(menu_dir, '%s.menu' % 'applications')
+        menu_file = join(menu_dir, 'applications.menu')
 
-            # Ensure any existing version is a file.
-            if exists(menu_file) and not isfile(menu_file):
-                shutil.rmtree(menu_file)
+        # Ensure any existing version is a file.
+        if exists(menu_file) and not isfile(menu_file):
+            shutil.rmtree(menu_file)
 
-            # Ensure any existing file is actually a menu file.
-            if isfile(menu_file):
-                try:
-                    # Make a backup of the menu file to be edited
-                    cur_time = time.strftime('%Y%m%d%H%M%S')
-                    backup_menu_file = "%s.%s" % (menu_file, cur_time)
-                    shutil.copyfile(menu_file, backup_menu_file)
+        # Ensure any existing file is actually a menu file.
+        if isfile(menu_file):
+            try:
+                # Make a backup of the menu file to be edited
+                cur_time = time.strftime('%Y%m%d%H%M%S')
+                backup_menu_file = "%s.%s" % (menu_file, cur_time)
+                shutil.copyfile(menu_file, backup_menu_file)
 
-                    tree = ET.parse(menu_file)
-                    root = tree.getroot()
-                    if root is None or root.tag != 'Menu':
-                        raise Exception('Not a menu file')
-                except:
-                    os.remove(menu_file)
-
-            # Create a new menu file if one doesn't yet exist.
-            if not exists(menu_file):
-                fo = open(menu_file, 'w')
-                fo.write(USER_MENU_FILE)
-                fo.close()
                 tree = ET.parse(menu_file)
                 root = tree.getroot()
+                if root is None or root.tag != 'Menu':
+                    raise Exception('Not a menu file')
+            except:
+                os.remove(menu_file)
 
-            # Record info about the menu file for use when actually creating the
-            # menu records.  We need the path to the file, the tree (so
-            # xml.etree can write to the file), and the parent element to create
-            # our menu data off of.
-            menu_map[id(menu_spec)] = (menu_file, tree, root)
+        # Create a new menu file if one doesn't yet exist.
+        if not exists(menu_file):
+            fo = open(menu_file, 'w')
+            fo.write(USER_MENU_FILE)
+            fo.close()
+            tree = ET.parse(menu_file)
+            root = tree.getroot()
 
-        # Create all menu and sub-menu resources.  Note that the .directory
+        # Record info about the menu file for use when actually creating the
+        # menu records.  We need the path to the file, the tree (so
+        # xml.etree can write to the file), and the parent element to create
+        # our menu data off of.
+        self.menu_map = (menu_file, tree, root)
+
+        # Create the menu resources.  Note that the .directory
         # files all go in the same directory, so to help ensure uniqueness of
         # filenames we base them on the category, rather than the menu's ID.
         desktop_dir = join(datadir, 'desktop-directories')
@@ -267,33 +255,3 @@ class Linux(object):
         self._install_desktop_entry(modified_shortcuts, filebrowser)
 
         common.refreshKDE()
-
-
-    def _install_system_application_menus(self, menus, shortcuts):
-        datadir = '/usr/share'
-        sysconfdir = '/etc/xdg'
-
-        return self._install_application_menus(datadir, sysconfdir, menus,
-                                               shortcuts)
-
-
-    def _install_user_application_menus(self, menus, shortcuts):
-        # Prefer env variable specifications over default values.  The
-        # environment variable names are per the Desktop Menu Specification
-        # at:
-        #     http://standards.freedesktop.org/menu-spec/latest/apcs02.html
-        datadir = os.environ.get('XDG_DATA_HOME',
-                                 abspath(expanduser('~/.local/share')))
-        sysconfdir = os.environ.get('XDG_CONFIG_HOME',
-                                    abspath(expanduser('~/.config')))
-
-        # Make sure the target directories exist.
-        for dir_path in [datadir, sysconfdir]:
-            if not isdir(dir_path):
-                if isfile(dir_path):
-                    os.remove(dir_path)
-                os.makedirs(dir_path)
-
-        # Create our shortcuts.
-        return self._install_application_menus(datadir, sysconfdir, menus,
-                                               shortcuts)
