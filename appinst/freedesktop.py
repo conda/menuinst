@@ -5,12 +5,7 @@ from os.path import join
 
 
 def filesystem_escape(s):
-    """
-    Replace special chars in a name to make it compatible with filesystem
-    restrictions.
-    """
-    # Replace spaces, periods, and parenthesis with underscores.
-    for c in ' .()':
+    for c in ' ()':
         s = s.replace(c, '_')
     return s
 

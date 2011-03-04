@@ -139,10 +139,7 @@ class Menu(object):
 
         # Create the menu resources.  Note that the .directory
         # files all go in the same directory, so to help ensure uniqueness of
-        # filenames we base them on the category, rather than the menu's ID.
-
-        # Create the .directory entry file and record what it's name was
-        # for our later use.
+        # filenames we the name.
         d = dict(name=self.name,
                  location=join(datadir, 'desktop-directories'))
         entry_path = make_directory_entry(d)
