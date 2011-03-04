@@ -1,6 +1,5 @@
-# Copyright (c) 2009 by Enthought, Inc.
+# Copyright (c) 2009-2011 by Enthought, Inc.
 # All rights reserved.
-
 """
 Example appinst data file, note that this is Python code
 
@@ -26,13 +25,10 @@ Variables to define:
 At least the variable SHORTCUTS must be defined to declare something
 for AppInst to do.
 
-The variable MENUS is optional.  If not provided, AppInst will provide
-a default menu structure that corresponds to your application as best
-it can.  This defaults turns out pretty well for Python environments
-resulting from an Enicab install, but may not do much useful for other
-Python environments.
-"""
 
+AppInst will install all shortcuts in a menu named by:
+custom_tools.FULL_NAME
+"""
 
 # SHORTCUTS defines the shortcuts to the application(s) in a cross-platform
 # way.  That is:
@@ -67,12 +63,6 @@ Python environments.
 #   A id for this shortcut.  This is used to name the shortcut files on
 #   platforms where the filename is not the display name the user sees.
 #
-# categories: (required)
-#   This is a list of categories, each of which refers to a menu for the
-#   shortcut to be created within.  If empty, then the shortcut will not be
-#   added to any menus (in which case, it isn't displayed unless quicklaunch
-#   or desktop are set to True -- see below.)
-#
 # name: (required)
 #   The display name of the shortcut as shown to the user.
 #
@@ -84,7 +74,7 @@ Python environments.
 #   This does not solely determine if a quicklaunch item will be created as
 #   the user must have granted permission to create quicklaunch shortcuts at
 #   all during the installation of the application environment this shortcut
-#   request is part of. That setting is the ADDTOLAUNCHER variable stored in 
+#   request is part of. That setting is the ADDTOLAUNCHER variable stored in
 #   custom_tools\Property.dat.  When the Property.dat file does not exist,
 #   the default for ADDTOLAUNCHER is True, which means this setting controls
 #   whether the quicklaunch shortcut is created or not.
@@ -94,7 +84,7 @@ Python environments.
 #   This does not solely determine if a desktop item will be created as
 #   the user must have granted permission to create desktop shortcuts at
 #   all during the installation of the application environment this shortcut
-#   request is part of. That setting is the ADDTODESKTOP variable stored in 
+#   request is part of. That setting is the ADDTODESKTOP variable stored in
 #   custom_tools\Property.dat.  When the Property.dat file does not exist,
 #   the default for ADDTODESKTOP is True, which means this setting controls
 #   whether the desktop shortcut is created or not.
@@ -109,94 +99,13 @@ Python environments.
 #   In the later case it is assumed to be relative to the location of this
 #   (appinst data) file.
 
-SHORTCUTS = [
-    { # IPython
-        'categories': ['Manufacturer.Product Name and Version'],
+SHORTCUTS = [{ # IPython
         'cmd': ['ipython', '-pylab'],
         'comment': 'Pylab in an iPython shell',
-	    'desktop': True,
         'icon': 'pycon.ico',
         'id': 'pylab',
         'name': 'PyLab (IPython)',
-	    'quicklaunch': False,
+        'desktop': True,
+        'quicklaunch': False,
         'terminal': True,
-    },
-]
-
-
-
-# MENUS is an optional variable which specifies the menus to install the
-# application into.  If not provided, then AppInst tries to create a default
-# set of menus based on what it can introscpect from the install Python
-# environment.   (This works best when the Python environment is the result
-# of an Enicab installer.)
-#
-# If a definition is provided here, the declared menus can either be nested
-# inside the same default menus described above, or they can form their own
-# top-level menu tree(s).  See below for more information.
-#
-# The example below is what MENUS defaults to in a an EPD installed Python.
-# This default is obtained from the of values of the Manufacturer, NAME
-# (product name) and FULL_VERSION (product version) exposed in the custom_tools
-# package.
-#
-# MENUS is a list of dictionaries, one dictionary per desired menu tree.
-# Each dictionary can have the following keys:
-
-# parent: (optional, defaults to None)
-#   Where to place the menu relative to the default menus AppInst creates for
-#   you.  Possible values are:
-#
-#   'ROOT' : Refers to the root of the menu tree structure.  When this is
-#       specified, the menu will be a at the top-level of all menus.  For
-#       example, on Windows it would appear immediately under
-#       'Start Menu'->'Programs'
-#
-#   None : Makes this menu a child of the last default menu AppInst created
-#       for you from introspection of the Python environment.  This is useful
-#       when you want multiple sub-menus inside of your application's menu.
-#       For example, in EPD this might create an 'Examples' or 'Docs' menu
-#       under 'Enthought'->'EPD Py25 v4.2.30101'.
-#
-#   <string> : Any other value is expected to be a category corresponding to
-#       an existing menu, either in the defaults AppInst created for you, or
-#       in a menu you've defined earlier.   This is most useful when you want
-#       to create a new menu somewhere within the tree hierarchy of AppInst's
-#       default menus.  For example, to create a 'Foo' menu at
-#       'Enthought'->'Foo'.
-#
-# category: (optional)
-#   The category for this menu.  This is always appended to the parent menu's
-#   category using a '.' for a separator, assuming there is a parent menu.
-#   Note that parent in this context does not mean the parent keyword above,
-#   it simply means the parent of this menu in a menu hierarchy.
-
-# id: (required)
-#   Specifies the id used for this menu.  On platforms where the filename is
-#   not the display name, this is used as the filename.   It is also used to
-#   generate a category value for this menu if none was explicitly provided.
-#   That generation happens by title capitalization of this string, then
-#   appending it to the parent menu's, if any, category using a '.' as a
-#   separator between levels.
-#
-# name: (required)
-#   The display name of this menu as shown to the user.
-#
-# sub-menus: (optional)
-#   A list of dictionaries defining the next layer of a menu hierarchy.  Each
-#   dictionary in the list may contain all the settings defined above, EXCEPT
-#   for parent, which will be ignored on all sub-menus.
-
-MENUS = [
-    { # Enthought Python Distribution 4.1.301 with Python 2.5
-        'id': 'enthought',
-        'name': 'Enthought',
-	    'parent': None,
-        'sub-menus': [
-            {
-            'id': 'epd_py25-4.1.301',
-            'name': 'EPD_Py25-4.1.301',
-            },
-        ],
-     },
-]
+}]
