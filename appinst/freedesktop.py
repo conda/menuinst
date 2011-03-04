@@ -1,4 +1,4 @@
-# Copyright (c) 2008-2009 by Enthought, Inc.
+# Copyright (c) 2008-2011 by Enthought, Inc.
 # All rights reserved.
 
 from os.path import join
@@ -29,14 +29,11 @@ def make_desktop_entry(d):
 
     The following document the keys and values expected in the passed
     dictionary:
-        categories:: list of strings, optional: The list of categories this
-            short-cut should be displayed under.
+        categories:: string, short-cut should be displayed under.
         cmd:: list of strings: The executable command for this shortcut and any
             necessary arguments.
         comment:: string, optional: A comment about the shortcut.  Some systems
             may display this as a flyover.
-        encoding:: string, optional: The encoding for the display name.  If not
-            specified, 'UTF-8' will be used.
         icon:: string, optional: The path to an icon file used to represent
             this shortcut.
         id:: string: The identifier used for this shortcut.  This becomes the
@@ -46,17 +43,12 @@ def make_desktop_entry(d):
         name:: string: The display name for the shortcut.
         terminal:: boolean: Indicates whether the executable should be run
             within a shell.
-        type:: string, optional: The Type of the shortcut.  If not specified,
-            'Application' will be used.
 
     Returns the path to the entry file that was created.
     """
-
-    # Ensure default values.
+    # default values
     d.setdefault('comment', '')
-    d.setdefault('encoding', 'UTF-8')
     d.setdefault('icon', '')
-    d.setdefault('type', 'Application')
 
     # Format the command to a single string.
     if isinstance(d['cmd'], list):
@@ -72,19 +64,17 @@ def make_desktop_entry(d):
     fo = open(path, "w")
 
     # Build the basic text to go within the .desktop file.
-    fo.write("""[Desktop Entry]
-Type=%(type)s
-Encoding=%(encoding)s
+    fo.write("""\
+[Desktop Entry]
+Type=Application
+Encoding=UTF-8
 Name=%(name)s
 Comment=%(comment)s
 Exec=%(cmd)s
 Terminal=%(terminal)s
 Icon=%(icon)s
+Categories=%(categories)s
 """ % d)
-    cats = d['categories']
-    if isinstance(cats, list):
-        cats = ';'.join(cats)
-    fo.write('Categories=%s\n' % cats)
 
     if d['tp'] == 'kde':
         fo.write('OnlyShowIn=KDE\n')
@@ -112,10 +102,6 @@ def make_directory_entry(d):
     dictionary:
         comment:: string, optional: A comment about this menu.  Some systems
             may display this as a flyover.
-        encoding:: string, optional: The encoding for the display name.  If not
-            specified, 'UTF-8' will be used.
-        filename:: string, optional: The name to use for the .directory file.
-            If not specified, an escaped version of the 'name' will be used.
         icon:: string, optional: The path to an icon file used to represent
             this menu.
         location:: string: The directory in which to create this menu's
@@ -126,29 +112,22 @@ def make_directory_entry(d):
 
     Returns the path to the entry file that was created.
     """
-
-    # Ensure default values.
+    # default values
     d.setdefault('comment', '')
-    d.setdefault('encoding', 'UTF-8')
     d.setdefault('icon', '')
-    d.setdefault('type', 'Directory')
 
-    # Build the text to go within the .directory file.
-    entry_code = """[Desktop Entry]
-Type=%(type)s
-Encoding=%(encoding)s
+    fn = filesystem_escape(d['name'])
+    path = join(d['location'], '%s.directory' % fn)
+
+    fo = open(path, "w")
+    fo.write("""\
+[Desktop Entry]
+Type=Directory
+Encoding=UTF-8
 Name=%(name)s
 Comment=%(comment)s
 Icon=%(icon)s
-""" % d
-
-    # Ensure we have a filename for the .directory file.
-    filename = d.get('filename', filesystem_escape(d['name']))
-
-    # Create the desktop entry file.
-    path = join(d['location'], '%s.directory' % filename)
-    fo = open(path, "w")
-    fo.write(entry_code)
+""" % d)
     fo.close()
 
     return path

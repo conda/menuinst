@@ -143,9 +143,8 @@ class Menu(object):
 
         # Create the .directory entry file and record what it's name was
         # for our later use.
-        d = {'name': self.name, 'id': self.name}
-        d['location'] = join(datadir, 'desktop-directories')
-        d['filename'] = filesystem_escape(self.name)
+        d = dict(name=self.name,
+                 location=join(datadir, 'desktop-directories'))
         entry_path = make_directory_entry(d)
         entry_filename = basename(entry_path)
 
