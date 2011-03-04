@@ -27,6 +27,8 @@ else:
     sysconfdir = os.environ.get('XDG_CONFIG_HOME',
                                 abspath(expanduser('~/.config')))
 
+appdir = join(datadir, 'applications')
+
 
 def indent(elem, level=0):
     """
@@ -77,6 +79,11 @@ class Menu(object):
 
     def remove(self):
         rm_rf(self.entry_path)
+
+        # if we find one shortcut, don't remove the name from the menu XML file
+        for fn in os.lisdir(appdir):
+            if fn.startswith(self.name):
+                return
 
         # remove name from XML menu file
         tree = ET.parse(self.menu_file)
@@ -138,9 +145,9 @@ class Menu(object):
     def _create_dirs(self):
         # Ensure the three directories we're going to write menu and shortcut
         # resources to all exist.
-        for dir_path in [join(sysconfdir, 'menus'),
-                         join(datadir, 'applications'),
-                         join(datadir, 'desktop-directories')]:
+        for dir_path in [dirname(self.menu_file),
+                         dirname(self.entry_path),
+                         appdir]:
             if not isdir(dir_path):
                 os.makedirs(dir_path)
 
@@ -193,7 +200,7 @@ class ShortCut(object):
         # note that this is the path WITHOUT extension
         fn = '%s_%s' % (menu.name, shortcut['id'])
         assert self.fn_pat.match(fn)
-        self.path = join(datadir, 'applications', fn)
+        self.path = join(appdir, fn)
 
         shortcut['categories'] = menu.name
         self.shortcut = shortcut
