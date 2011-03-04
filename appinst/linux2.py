@@ -8,6 +8,8 @@ import time
 import xml.etree.ElementTree as ET
 from os.path import abspath, basename, exists, expanduser, isdir, isfile, join
 
+from egginst.utils import rm_rf
+
 from freedesktop import make_desktop_entry, make_directory_entry
 
 
@@ -88,6 +90,9 @@ class Menu(object):
     def __init__(self, name):
         self.name = name
 
+    def remove(self):
+        pass
+
     def create(self):
         """
         Install application menus according to the install mode.
@@ -140,7 +145,7 @@ class Menu(object):
         # files all go in the same directory, so to help ensure uniqueness of
         # filenames we the name.
         d = dict(name=self.name,
-                 path=join(datadir, 'desktop-directories', 
+                 path=join(datadir, 'desktop-directories',
                            '%s.directory' % self.name),
                  )
         make_directory_entry(d)
@@ -177,7 +182,9 @@ class ShortCut(object):
         self._install_desktop_entry('kde')
 
     def remove(self):
-        pass
+        for ext in ('.desktop', 'KDE.desktop'):
+            path = self.path + ext
+            rm_rf(path)
 
     def _install_desktop_entry(self, tp):
         # Handle the special placeholders in the specified command.  For a
@@ -190,10 +197,10 @@ class ShortCut(object):
         path = self.path
         if tp == 'gnome':
             filebrowser = 'gnome-open'
+            path += '.desktop'
         elif tp == 'kde':
             filebrowser = 'kfmclient openURL'
-            path += 'KDE'
-        path += '.desktop'
+            path += 'KDE.desktop'
 
         cmd = self.cmd
         if cmd[0] == '{{FILEBROWSER}}':

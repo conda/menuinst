@@ -137,7 +137,4 @@ def uninstall_from_dat(dat_path):
     """
     Uninstalls all items in a data file.
     """
-    if sys.platform not in ('win32', 'darwin'):
-        # FIXME: Once time allows, we want the uninstall also to work on Linux.
-        return
     install(get_shortcuts(dat_path), remove=True)
