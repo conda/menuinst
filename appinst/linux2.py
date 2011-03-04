@@ -8,8 +8,7 @@ import time
 import xml.etree.ElementTree as ET
 from os.path import abspath, basename, exists, expanduser, isdir, isfile, join
 
-from freedesktop import (filesystem_escape, make_desktop_entry,
-                         make_directory_entry)
+from freedesktop import make_desktop_entry, make_directory_entry
 
 
 # datadir: the directory that should contain the desktop and directory entries
@@ -174,6 +173,9 @@ class ShortCut(object):
     def create(self):
         self._install_desktop_entry('gnome')
         self._install_desktop_entry('kde')
+
+    def remove(self):
+        pass
 
     def _install_desktop_entry(self, tp):
         # Handle the special placeholders in the specified command.  For a
