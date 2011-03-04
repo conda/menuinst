@@ -7,8 +7,7 @@ import shutil
 import sys
 import time
 import xml.etree.ElementTree as ET
-from os.path import (abspath, basename, dirname, exists, expanduser,
-                     isdir, isfile, join)
+from os.path import abspath, dirname, exists, expanduser, isdir, isfile, join
 
 from egginst.utils import rm_rf
 
@@ -74,6 +73,7 @@ class Menu(object):
     def __init__(self, name):
         self.name = name
         self.entry_fn = '%s.directory' % self.name
+        self.entry_path = join(datadir, 'desktop-directories', self.entry_fn)
 
     def remove(self):
         pass
@@ -103,16 +103,15 @@ class Menu(object):
 
     def _create_directory_entry(self):
         # Create the menu resources.  Note that the .directory files all go
-        # in the same directory.     
-        d = dict(name=self.name,
-                 path=join(datadir, 'desktop-directories', self.entry_fn))
+        # in the same directory.
+        d = dict(name=self.name, path=self.entry_path)
         try:
             import custom_tools
             icon_path = join(dirname(custom_tools.__file__), 'menu.ico')
             if isfile(icon_path):
                 d['icon'] = icon_path
         except ImportError:
-            pass       
+            pass
         make_directory_entry(d)
 
     def _add_dtd_and_format(self):
