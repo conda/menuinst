@@ -7,7 +7,8 @@ import shutil
 import sys
 import time
 import xml.etree.ElementTree as ET
-from os.path import abspath, basename, exists, expanduser, isdir, isfile, join
+from os.path import (abspath, basename, dirname, exists, expanduser,
+                     isdir, isfile, join)
 
 from egginst.utils import rm_rf
 
@@ -147,8 +148,14 @@ class Menu(object):
         # filenames we the name.
         d = dict(name=self.name,
                  path=join(datadir, 'desktop-directories',
-                           '%s.directory' % self.name),
-                 )
+                                              '%s.directory' % self.name))
+        try:
+            import custom_tools
+            icon_path = join(dirname(custom_tools.__file__), 'menu.ico')
+            if isfile(icon_path):
+                d['icon'] = icon_path
+        except ImportError:
+            pass
         make_directory_entry(d)
 
         # Ensure the menu file documents this menu.
@@ -174,7 +181,7 @@ class ShortCut(object):
     def __init__(self, menu, shortcut):
         # Note that this is the path WITHOUT extension
         fn = '%s_%s' % (menu.name, shortcut['id'])
-        assert fn_pat.match(fn)
+        assert self.fn_pat.match(fn)
         self.path = join(datadir, 'applications', fn)
 
         shortcut['categories'] = menu.name
