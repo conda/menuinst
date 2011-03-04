@@ -82,7 +82,7 @@ class Menu(object):
         rm_rf(self.entry_path)
 
         # if we find one shortcut, don't remove the name from the menu XML file
-        for fn in os.lisdir(appdir):
+        for fn in os.listdir(appdir):
             if fn.startswith(self.name_):
                 return
 
