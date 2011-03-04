@@ -96,21 +96,20 @@ class Menu(object):
         self._add_dtd_and_format()
 
     def create(self):
+        if self._is_valid_menu_file():
+            rt = ET.parse(self.menu_file).getroot()
+            # if we have the menu element, we're done
+            for element in rt.findall('Menu'):
+                if element.find('Name').text == self.name:
+                    return
+
         self._create_dirs()
-        self._ensure_menu_file()
         self._create_directory_entry()
+        self._ensure_menu_file()
 
         tree = ET.parse(self.menu_file)
         root = tree.getroot()
-
-        # ensure the menu file documents this menu
-        for element in root.findall('Menu'):
-            if element.find('Name').text == self.name:
-                menu_element = element
-                break
-        else:
-            menu_element = ET.SubElement(root, 'Menu')
-
+        menu_element = ET.SubElement(root, 'Menu')
         ensure_child_element(menu_element, 'Name', self.name)
         ensure_child_element(menu_element, 'Directory', self.entry_fn)
         include_element = ensure_child_element(menu_element, 'Include')
