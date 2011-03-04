@@ -75,8 +75,6 @@ class Menu(object):
 
     def remove(self):
         rm_rf(self.entry_path)
-        if not isfile(self.menu_file):
-            return
 
         tree = ET.parse(self.menu_file)
         root = tree.getroot()
