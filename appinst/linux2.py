@@ -29,12 +29,6 @@ else:
                                 abspath(expanduser('~/.config')))
 
 
-USER_MENU_FILE = """\
-<Menu>
-    <Name>Applications</Name>
-    <MergeFile type="parent">/etc/xdg/menus/applications.menu</MergeFile>
-</Menu>
-"""
 
 
 def indent(elem, level=0):
@@ -89,6 +83,8 @@ def _ensure_child_element(parent_element, tag, text=None):
 
 class Menu(object):
 
+    menu_file = join(sysconfdir, 'menus/applications.menu')
+
     def __init__(self, name):
         self.name = name
 
@@ -97,38 +93,7 @@ class Menu(object):
 
     def create(self):
         self._create_dirs()
-        # Create a menu file for just the top-level menus.  Later on, we will
-        # add the sub-menus to them, which means we need to record where each
-        # one was on the disk, plus its tree (to be able to write it), plus the
-        # parent menu element.
-        menu_file = join(sysconfdir, 'menus/applications.menu')
-
-        # Ensure any existing version is a file.
-        if exists(menu_file) and not isfile(menu_file):
-            shutil.rmtree(menu_file)
-
-        # Ensure any existing file is actually a menu file.
-        if isfile(menu_file):
-            try:
-                # Make a backup of the menu file to be edited
-                cur_time = time.strftime('%Y-%m-%d_%H:%M:%S')
-                backup_menu_file = "%s.%s" % (menu_file, cur_time)
-                shutil.copyfile(menu_file, backup_menu_file)
-
-                tree = ET.parse(menu_file)
-                root = tree.getroot()
-                if root is None or root.tag != 'Menu':
-                    raise Exception('Not a menu file')
-            except:
-                os.remove(menu_file)
-
-        # Create a new menu file if one doesn't yet exist.
-        if not exists(menu_file):
-            fo = open(menu_file, 'w')
-            fo.write(USER_MENU_FILE)
-            fo.close()
-            tree = ET.parse(menu_file)
-            root = tree.getroot()
+        self._ensure_menu_file()
 
         # Create the menu resources.  Note that the .directory
         # files all go in the same directory, so to help ensure uniqueness of
@@ -144,6 +109,9 @@ class Menu(object):
         except ImportError:
             pass
         make_directory_entry(d)
+
+        tree = ET.parse(self.menu_file)
+        root = tree.getroot()
 
         # Ensure the menu file documents this menu.
         for element in root.findall('Menu'):
@@ -168,6 +136,38 @@ class Menu(object):
                          join(datadir, 'desktop-directories')]:
             if not isdir(dir_path):
                 os.makedirs(dir_path)
+
+    def _ensure_menu_file(self):
+        # create a menu file for the top-level menu
+        # Ensure any existing version is a file.
+        if exists(menu_file) and not isfile(menu_file):
+            shutil.rmtree(menu_file)
+
+        # ensure any existing file is actually a menu file
+        if isfile(menu_file):
+            # Make a backup of the menu file to be edited
+            cur_time = time.strftime('%Y-%m-%d_%H:%M:%S')
+            backup_menu_file = "%s.%s" % (menu_file, cur_time)
+            shutil.copyfile(menu_file, backup_menu_file)
+
+            try:
+                tree = ET.parse(menu_file)
+                root = tree.getroot()
+                if root is None or root.tag != 'Menu':
+                    raise Exception('Not a menu file')
+            except:
+                os.remove(menu_file)
+
+        # create a new menu file if one doesn't yet exist
+        if not isfile(menu_file):
+            fo = open(menu_file, 'w')
+            fo.write("""\
+<Menu>
+    <Name>Applications</Name>
+    <MergeFile type="parent">/etc/xdg/menus/applications.menu</MergeFile>
+</Menu>
+""")
+            fo.close()
 
 
 class ShortCut(object):
