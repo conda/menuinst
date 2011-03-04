@@ -13,6 +13,8 @@ def make_desktop_entry(d):
     executable, name, etc.   It will be placed in the location specified within
     the passed dict.
     """
+    assert d['path'].endswith('.desktop')
+
     # default values
     d.setdefault('comment', '')
     d.setdefault('icon', '')
@@ -21,13 +23,10 @@ def make_desktop_entry(d):
     if isinstance(d['cmd'], list):
         d['cmd'] = ' '.join(d['cmd'])
 
-    # Swap the terminal boolean to a string.
-    if isinstance(d['terminal'], bool):
-        d['terminal'] = str(d['terminal']).lower()
+    assert isinstance(d['terminal'], bool)
+    d['terminal'] = {False: 'false', True: 'true'}[d['terminal']]
 
     fo = open(d['path'], "w")
-
-    # Build the basic text to go within the .desktop file.
     fo.write("""\
 [Desktop Entry]
 Type=Application
@@ -60,6 +59,8 @@ def make_directory_entry(d):
     filename can be explicitly specified, but if not provided, will default to
     an escaped version of the name.
     """
+    assert d['path'].endswith('.directory')
+
     # default values
     d.setdefault('comment', '')
     d.setdefault('icon', '')
