@@ -164,7 +164,8 @@ class Menu(object):
 class ShortCut(object):
 
     def __init__(self, menu, shortcut):
-        shortcut['id'] = '%s_%s' % (menu.name, shortcut['id'])
+        self.path = join(datadir, 'applications',
+                         '%s_%s' % (menu.name, shortcut['id']))
         shortcut['categories'] = menu.name
         self.shortcut = shortcut
         for var_name in ('name', 'cmd'):
@@ -186,13 +187,13 @@ class ShortCut(object):
         spec = self.shortcut.copy()
         spec['tp'] = tp
 
-        fn = spec['id']
+        path = self.path
         if tp == 'gnome':
             filebrowser = 'gnome-open'
         elif tp == 'kde':
             filebrowser = 'kfmclient openURL'
-            fn += 'KDE'
-        fn += '.desktop'
+            path += 'KDE'
+        path += '.desktop'
 
         cmd = self.cmd
         if cmd[0] == '{{FILEBROWSER}}':
@@ -202,7 +203,7 @@ class ShortCut(object):
             cmd[0:1] = [sys.executable, webbrowser.__file__, '-t']
 
         spec['cmd'] = cmd
-        spec['path'] = join(datadir, 'applications', fn)
+        spec['path'] = path
 
         # Create the shortcuts.
         make_desktop_entry(spec)
