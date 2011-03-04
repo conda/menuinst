@@ -140,9 +140,10 @@ class Menu(object):
         # files all go in the same directory, so to help ensure uniqueness of
         # filenames we the name.
         d = dict(name=self.name,
-                 location=join(datadir, 'desktop-directories'))
-        entry_path = make_directory_entry(d)
-        entry_filename = basename(entry_path)
+                 path=join(datadir, 'desktop-directories', 
+                           '%s.directory' % self.name),
+                 )
+        make_directory_entry(d)
 
         # Ensure the menu file documents this menu.
         for element in root.findall('Menu'):
@@ -153,7 +154,7 @@ class Menu(object):
             menu_element = ET.SubElement(root, 'Menu')
 
         _ensure_child_element(menu_element, 'Name', self.name)
-        _ensure_child_element(menu_element, 'Directory', entry_filename)
+        _ensure_child_element(menu_element, 'Directory', basename(d['path']))
         include_element = _ensure_child_element(menu_element, 'Include')
         _ensure_child_element(include_element, 'Category', self.name)
         tree.write(menu_file)
@@ -185,10 +186,13 @@ class ShortCut(object):
         spec = self.shortcut.copy()
         spec['tp'] = tp
 
+        fn = spec['id']
         if tp == 'gnome':
             filebrowser = 'gnome-open'
         elif tp == 'kde':
             filebrowser = 'kfmclient openURL'
+            fn += 'KDE'
+        fn += '.desktop'
 
         cmd = self.cmd
         if cmd[0] == '{{FILEBROWSER}}':
@@ -198,7 +202,7 @@ class ShortCut(object):
             cmd[0:1] = [sys.executable, webbrowser.__file__, '-t']
 
         spec['cmd'] = cmd
-        spec['location'] = join(datadir, 'applications')
+        spec['path'] = join(datadir, 'applications', fn)
 
         # Create the shortcuts.
         make_desktop_entry(spec)
