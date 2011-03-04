@@ -49,24 +49,10 @@ def indent(elem, level=0):
             elem.tail = i
 
 
-def add_dtd_and_format(path):
-    tree = ET.ElementTree(None, path)
-    indent(tree.getroot())
-    fo = open(path, 'w')
-    fo.write("""\
-<!DOCTYPE Menu PUBLIC '-//freedesktop//DTD Menu 1.0//EN'
-  'http://standards.freedesktop.org/menu-spec/menu-1.0.dtd'>
-""")
-    tree.write(fo)
-    fo.write('\n')
-    fo.close()
-
-
 def ensure_child_element(parent_element, tag, text=None):
     """
     Ensure there is a sub-element of the specified tag type.
-    The sub-element is given the specified text content if text is not
-    None.
+    The sub-element is given the specified text content if text is not None.
     The sub-element is returned.
     """
     # Ensure the element exists.
@@ -125,8 +111,20 @@ class Menu(object):
         ensure_child_element(menu_element, 'Directory', basename(d['path']))
         include_element = ensure_child_element(menu_element, 'Include')
         ensure_child_element(include_element, 'Category', self.name)
-        tree.write(menu_file)
-        add_dtd_and_format(menu_file)
+        tree.write(self.menu_file)
+        self._add_dtd_and_format()
+
+    def _add_dtd_and_format(self):
+        tree = ET.ElementTree(None, self.menu_file)
+        indent(tree.getroot())
+        fo = open(self.menu_file, 'w')
+        fo.write("""\
+<!DOCTYPE Menu PUBLIC '-//freedesktop//DTD Menu 1.0//EN'
+  'http://standards.freedesktop.org/menu-spec/menu-1.0.dtd'>
+""")
+        tree.write(fo)
+        fo.write('\n')
+        fo.close()
 
     def _create_dirs(self):
         # Ensure the three directories we're going to write menu and shortcut
@@ -137,30 +135,34 @@ class Menu(object):
             if not isdir(dir_path):
                 os.makedirs(dir_path)
 
+    def _is_valid_menu_file(self):        
+        try:
+            tree = ET.parse(self.menu_file)
+            root = tree.getroot()
+            assert root is not None and root.tag == 'Menu'
+            return True
+        except:
+            return False
+
     def _ensure_menu_file(self):
         # create a menu file for the top-level menu
         # Ensure any existing version is a file.
-        if exists(menu_file) and not isfile(menu_file):
-            shutil.rmtree(menu_file)
+        if exists(self.menu_file) and not isfile(self.menu_file):
+            shutil.rmtree(self.menu_file)
 
         # ensure any existing file is actually a menu file
-        if isfile(menu_file):
+        if isfile(self.menu_file):
             # Make a backup of the menu file to be edited
             cur_time = time.strftime('%Y-%m-%d_%H:%M:%S')
-            backup_menu_file = "%s.%s" % (menu_file, cur_time)
-            shutil.copyfile(menu_file, backup_menu_file)
+            backup_menu_file = "%s.%s" % (self.menu_file, cur_time)
+            shutil.copyfile(self.menu_file, backup_menu_file)
 
-            try:
-                tree = ET.parse(menu_file)
-                root = tree.getroot()
-                if root is None or root.tag != 'Menu':
-                    raise Exception('Not a menu file')
-            except:
-                os.remove(menu_file)
+            if not self._is_valid_menu_file():
+                os.remove(self.menu_file)
 
         # create a new menu file if one doesn't yet exist
-        if not isfile(menu_file):
-            fo = open(menu_file, 'w')
+        if not isfile(self.menu_file):
+            fo = open(self.menu_file, 'w')
             fo.write("""\
 <Menu>
     <Name>Applications</Name>
