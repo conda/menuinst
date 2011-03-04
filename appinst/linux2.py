@@ -62,7 +62,7 @@ def add_dtd_and_format(path):
     fo.close()
 
 
-def _ensure_child_element(parent_element, tag, text=None):
+def ensure_child_element(parent_element, tag, text=None):
     """
     Ensure there is a sub-element of the specified tag type.
     The sub-element is given the specified text content if text is not
@@ -121,10 +121,10 @@ class Menu(object):
         else:
             menu_element = ET.SubElement(root, 'Menu')
 
-        _ensure_child_element(menu_element, 'Name', self.name)
-        _ensure_child_element(menu_element, 'Directory', basename(d['path']))
-        include_element = _ensure_child_element(menu_element, 'Include')
-        _ensure_child_element(include_element, 'Category', self.name)
+        ensure_child_element(menu_element, 'Name', self.name)
+        ensure_child_element(menu_element, 'Directory', basename(d['path']))
+        include_element = ensure_child_element(menu_element, 'Include')
+        ensure_child_element(include_element, 'Category', self.name)
         tree.write(menu_file)
         add_dtd_and_format(menu_file)
 
