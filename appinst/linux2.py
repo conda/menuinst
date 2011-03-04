@@ -74,6 +74,7 @@ class Menu(object):
 
     def __init__(self, name):
         self.name = name
+        self.name_ = name + '_'
         self.entry_fn = '%s.directory' % self.name
         self.entry_path = join(datadir, 'desktop-directories', self.entry_fn)
 
@@ -82,7 +83,7 @@ class Menu(object):
 
         # if we find one shortcut, don't remove the name from the menu XML file
         for fn in os.lisdir(appdir):
-            if fn.startswith(self.name):
+            if fn.startswith(self.name_):
                 return
 
         # remove name from XML menu file
@@ -198,7 +199,7 @@ class ShortCut(object):
 
     def __init__(self, menu, shortcut):
         # note that this is the path WITHOUT extension
-        fn = '%s_%s' % (menu.name, shortcut['id'])
+        fn = menu.name_ + shortcut['id']
         assert self.fn_pat.match(fn)
         self.path = join(appdir, fn)
 
