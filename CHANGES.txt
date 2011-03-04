@@ -1,10 +1,20 @@
------------------------------------------------------------------------------
-This file contains a log of significant changes made to the project
-especially API changes.  The log refers to changesets in the trac format
-[#revno], for example to view the changeset [18702] use the following
-URL:
-    https://svn.enthought.com/enthought/changeset/18702
------------------------------------------------------------------------------
+2011-??-??: 2.1.0
+-----------------
+* added menu and shortcut removal ability on MaxOSX and Linux
+
+* removed registry path stuff on Windows, and hence pywin32 dependency
+
+* add ability to have a menu icon on Linux <custom_tools>/menu.ico
+
+* removed separate rh3 and rh4 modules
+
+* simplified much of the code
+
+
+2010-12-09: 2.0.4
+-----------------
+* This version has been used for a long time.
+
 
 10 October, 2008 (DP):
     - API: Finished refactoring that created the application_menus.py module
