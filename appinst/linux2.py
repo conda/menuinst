@@ -28,8 +28,6 @@ else:
                                 abspath(expanduser('~/.config')))
 
 
-
-
 def indent(elem, level=0):
     "Adds whitespace to the tree, so that it results in a pretty printed tree."
     XMLindentation = "    "
@@ -76,7 +74,17 @@ class Menu(object):
         self.entry_path = join(datadir, 'desktop-directories', self.entry_fn)
 
     def remove(self):
-        pass
+        rm_rf(self.entry_path)
+        if not isfile(self.menu_file):
+            return
+
+        tree = ET.parse(self.menu_file)
+        root = tree.getroot()
+        for element in root.findall('Menu'):
+            if element.find('Name').text == self.name:
+                root.remove(element)
+        tree.write(self.menu_file)
+        self._add_dtd_and_format()
 
     def create(self):
         self._create_dirs()
@@ -232,4 +240,4 @@ class ShortCut(object):
 
 if __name__ == '__main__':
     m = Menu('Foo')
-    m.create()
+    m.remove()
