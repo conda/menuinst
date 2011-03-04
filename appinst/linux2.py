@@ -96,20 +96,7 @@ class Menu(object):
         pass
 
     def create(self):
-        """
-        Install application menus according to the install mode.
-
-        We install into both KDE and Gnome desktops.  If the mode isn't
-        exactly 'system', a user install is done.
-        """
-        # Ensure the three directories we're going to write menu and shortcut
-        # resources to all exist.
-        for dir_path in [join(sysconfdir, 'menus'),
-                         join(datadir, 'applications'),
-                         join(datadir, 'desktop-directories')]:
-            if not isdir(dir_path):
-                os.makedirs(dir_path)
-
+        self._create_dirs()
         # Create a menu file for just the top-level menus.  Later on, we will
         # add the sub-menus to them, which means we need to record where each
         # one was on the disk, plus its tree (to be able to write it), plus the
@@ -172,6 +159,15 @@ class Menu(object):
         _ensure_child_element(include_element, 'Category', self.name)
         tree.write(menu_file)
         add_dtd_and_format(menu_file)
+
+    def _create_dirs(self):
+        # Ensure the three directories we're going to write menu and shortcut
+        # resources to all exist.
+        for dir_path in [join(sysconfdir, 'menus'),
+                         join(datadir, 'applications'),
+                         join(datadir, 'desktop-directories')]:
+            if not isdir(dir_path):
+                os.makedirs(dir_path)
 
 
 class ShortCut(object):
