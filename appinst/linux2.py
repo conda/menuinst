@@ -135,7 +135,7 @@ class Menu(object):
             if not isdir(dir_path):
                 os.makedirs(dir_path)
 
-    def _is_valid_menu_file(self):        
+    def _is_valid_menu_file(self):
         try:
             tree = ET.parse(self.menu_file)
             root = tree.getroot()
@@ -170,6 +170,9 @@ class Menu(object):
 </Menu>
 """)
             fo.close()
+
+        # sanity check
+        assert self._is_valid_menu_file()
 
 
 class ShortCut(object):
