@@ -29,8 +29,10 @@ else:
 
 
 def indent(elem, level=0):
-    "Adds whitespace to the tree, so that it results in a pretty printed tree."
-    XMLindentation = "    "
+    """
+    adds whitespace to the tree, so that it results in a pretty printed tree
+    """
+    XMLindentation = "    " # 4 spaces, just like in Python!
     i = "\n" + level * XMLindentation
     if len(elem):
         if not elem.text or not elem.text.strip():
@@ -52,12 +54,12 @@ def ensure_child_element(parent_element, tag, text=None):
     The sub-element is given the specified text content if text is not None.
     The sub-element is returned.
     """
-    # Ensure the element exists.
+    # ensure the element exists
     element = parent_element.find(tag)
     if element is None:
         element = ET.SubElement(parent_element, tag)
 
-    # If specified, set its text
+    # if specified, set its text
     if text is not None:
         element.text = text
 
@@ -76,6 +78,7 @@ class Menu(object):
     def remove(self):
         rm_rf(self.entry_path)
 
+        # remove name from XML menu file
         tree = ET.parse(self.menu_file)
         root = tree.getroot()
         for element in root.findall('Menu'):
@@ -92,7 +95,7 @@ class Menu(object):
         tree = ET.parse(self.menu_file)
         root = tree.getroot()
 
-        # Ensure the menu file documents this menu.
+        # ensure the menu file documents this menu
         for element in root.findall('Menu'):
             if element.find('Name').text == self.name:
                 menu_element = element
@@ -151,8 +154,9 @@ class Menu(object):
             return False
 
     def _ensure_menu_file(self):
-        # create a menu file for the top-level menu
-        # Ensure any existing version is a file.
+        # create a menu file for our (top-level) menu
+
+        # ensure any existing version is a file
         if exists(self.menu_file) and not isfile(self.menu_file):
             shutil.rmtree(self.menu_file)
 
@@ -186,7 +190,7 @@ class ShortCut(object):
     fn_pat = re.compile(r'[\w.-]+$')
 
     def __init__(self, menu, shortcut):
-        # Note that this is the path WITHOUT extension
+        # note that this is the path WITHOUT extension
         fn = '%s_%s' % (menu.name, shortcut['id'])
         assert self.fn_pat.match(fn)
         self.path = join(datadir, 'applications', fn)
@@ -232,7 +236,7 @@ class ShortCut(object):
         spec['cmd'] = cmd
         spec['path'] = path
 
-        # Create the shortcuts.
+        # create the shortcuts
         make_desktop_entry(spec)
 
 
