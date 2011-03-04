@@ -1,6 +1,7 @@
 # Copyright (c) 2008-2011 by Enthought, Inc.
 # All rights reserved.
 
+import re
 import os
 import shutil
 import sys
@@ -168,9 +169,14 @@ class Menu(object):
 
 class ShortCut(object):
 
+    fn_pat = re.compile(r'[\w.-]+$')
+
     def __init__(self, menu, shortcut):
-        self.path = join(datadir, 'applications',
-                         '%s_%s' % (menu.name, shortcut['id']))
+        # Note that this is the path WITHOUT extension
+        fn = '%s_%s' % (menu.name, shortcut['id'])
+        assert fn_pat.match(fn)
+        self.path = join(datadir, 'applications', fn)
+
         shortcut['categories'] = menu.name
         self.shortcut = shortcut
         for var_name in ('name', 'cmd'):
