@@ -169,6 +169,7 @@ class ShortCut(object):
 
     def __init__(self, menu, shortcut):
         shortcut['id'] = '%s_%s' % (menu.name, shortcut['id'])
+        shortcut['categories'] = menu.name
         self.shortcut = shortcut
         for var_name in ('name', 'cmd'):
             if var_name in shortcut:
@@ -184,12 +185,11 @@ class ShortCut(object):
         # for a webbrowser request, we invoke the Python standard lib's
         # webbrowser script so we can force the url(s) to open in new tabs.
         spec = self.shortcut.copy()
+        spec['tp'] = tp
 
         if tp == 'gnome':
-            spec['not_show_in'] = 'KDE'
             filebrowser = 'gnome-open'
         elif tp == 'kde':
-            spec['only_show_in'] = 'KDE'
             filebrowser = 'kfmclient openURL'
 
         cmd = self.cmd

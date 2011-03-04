@@ -15,7 +15,7 @@ def filesystem_escape(s):
     return s
 
 
-def make_desktop_entry(dict):
+def make_desktop_entry(d):
     """
     Create a desktop entry that conforms to the format of the Desktop Entry
     Specification by freedesktop.org.  See:
@@ -53,21 +53,26 @@ def make_desktop_entry(dict):
     """
 
     # Ensure default values.
-    dict.setdefault('comment', '')
-    dict.setdefault('encoding', 'UTF-8')
-    dict.setdefault('icon', '')
-    dict.setdefault('type', 'Application')
+    d.setdefault('comment', '')
+    d.setdefault('encoding', 'UTF-8')
+    d.setdefault('icon', '')
+    d.setdefault('type', 'Application')
 
     # Format the command to a single string.
-    if isinstance(dict['cmd'], list):
-        dict['cmd'] = ' '.join(dict['cmd'])
+    if isinstance(d['cmd'], list):
+        d['cmd'] = ' '.join(d['cmd'])
 
     # Swap the terminal boolean to a string.
-    if isinstance(dict['terminal'], bool):
-        dict['terminal'] = str(dict['terminal']).lower()
+    if isinstance(d['terminal'], bool):
+        d['terminal'] = str(d['terminal']).lower()
+
+    ext = ('', 'KDE')[d['tp'] == 'kde']
+    path = join(d['location'],
+                '%s%s.desktop' % (filesystem_escape(d['id']), ext))
+    fo = open(path, "w")
 
     # Build the basic text to go within the .desktop file.
-    entry_code = """[Desktop Entry]
+    fo.write("""[Desktop Entry]
 Type=%(type)s
 Encoding=%(encoding)s
 Name=%(name)s
@@ -75,35 +80,23 @@ Comment=%(comment)s
 Exec=%(cmd)s
 Terminal=%(terminal)s
 Icon=%(icon)s
-""" % dict
+""" % d)
+    cats = d['categories']
+    if isinstance(cats, list):
+        cats = ';'.join(cats)
+    fo.write('Categories=%s\n' % cats)
 
-    # Only add a categories line if categories were truely specified.
-    if dict.has_key('categories') and len(dict['categories']) > 0:
-        cats = dict['categories']
-        if isinstance(cats, list):
-            cats = ';'.join(cats)
-        entry_code = entry_code + 'Categories=%s\n' % cats
+    if d['tp'] == 'kde':
+        fo.write('OnlyShowIn=KDE\n')
+    else:
+        fo.write('NotShowIn=KDE\n')
 
-    ext = ''
-    if dict.has_key('only_show_in'):
-        desktop = dict['only_show_in']
-        entry_code = entry_code + 'OnlyShowIn=%s\n' % desktop
-        ext = desktop
-    elif dict.has_key('not_show_in'):
-        desktop = dict['not_show_in']
-        entry_code = entry_code + 'NotShowIn=%s\n' % desktop
-
-    # Create the desktop entry file.
-    path = join(dict['location'],
-                '%s%s.desktop' % (filesystem_escape(dict['id']), ext))
-    fo = open(path, "w")
-    fo.write(entry_code)
     fo.close()
 
     return path
 
 
-def make_directory_entry(dict):
+def make_directory_entry(d):
     """
     Create a directory entry that conforms to the format of the Desktop Entry
     Specification by freedesktop.org.  See:
@@ -135,10 +128,10 @@ def make_directory_entry(dict):
     """
 
     # Ensure default values.
-    dict.setdefault('comment', '')
-    dict.setdefault('encoding', 'UTF-8')
-    dict.setdefault('icon', '')
-    dict.setdefault('type', 'Directory')
+    d.setdefault('comment', '')
+    d.setdefault('encoding', 'UTF-8')
+    d.setdefault('icon', '')
+    d.setdefault('type', 'Directory')
 
     # Build the text to go within the .directory file.
     entry_code = """[Desktop Entry]
@@ -147,13 +140,13 @@ Encoding=%(encoding)s
 Name=%(name)s
 Comment=%(comment)s
 Icon=%(icon)s
-""" % dict
+""" % d
 
     # Ensure we have a filename for the .directory file.
-    filename = dict.get('filename', filesystem_escape(dict['name']))
+    filename = d.get('filename', filesystem_escape(d['name']))
 
     # Create the desktop entry file.
-    path = join(dict['location'], '%s.directory' % filename)
+    path = join(d['location'], '%s.directory' % filename)
     fo = open(path, "w")
     fo.write(entry_code)
     fo.close()
