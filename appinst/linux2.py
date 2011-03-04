@@ -73,6 +73,7 @@ class Menu(object):
 
     def __init__(self, name):
         self.name = name
+        self.entry_fn = '%s.directory' % self.name
 
     def remove(self):
         pass
@@ -80,21 +81,7 @@ class Menu(object):
     def create(self):
         self._create_dirs()
         self._ensure_menu_file()
-
-        # Create the menu resources.  Note that the .directory
-        # files all go in the same directory, so to help ensure uniqueness of
-        # filenames we the name.
-        d = dict(name=self.name,
-                 path=join(datadir, 'desktop-directories',
-                                              '%s.directory' % self.name))
-        try:
-            import custom_tools
-            icon_path = join(dirname(custom_tools.__file__), 'menu.ico')
-            if isfile(icon_path):
-                d['icon'] = icon_path
-        except ImportError:
-            pass
-        make_directory_entry(d)
+        self._create_directory_entry()
 
         tree = ET.parse(self.menu_file)
         root = tree.getroot()
@@ -108,11 +95,25 @@ class Menu(object):
             menu_element = ET.SubElement(root, 'Menu')
 
         ensure_child_element(menu_element, 'Name', self.name)
-        ensure_child_element(menu_element, 'Directory', basename(d['path']))
+        ensure_child_element(menu_element, 'Directory', self.entry_fn)
         include_element = ensure_child_element(menu_element, 'Include')
         ensure_child_element(include_element, 'Category', self.name)
         tree.write(self.menu_file)
         self._add_dtd_and_format()
+
+    def _create_directory_entry(self):
+        # Create the menu resources.  Note that the .directory files all go
+        # in the same directory.     
+        d = dict(name=self.name,
+                 path=join(datadir, 'desktop-directories', self.entry_fn))
+        try:
+            import custom_tools
+            icon_path = join(dirname(custom_tools.__file__), 'menu.ico')
+            if isfile(icon_path):
+                d['icon'] = icon_path
+        except ImportError:
+            pass       
+        make_directory_entry(d)
 
     def _add_dtd_and_format(self):
         tree = ET.ElementTree(None, self.menu_file)
@@ -228,3 +229,8 @@ class ShortCut(object):
 
         # Create the shortcuts.
         make_desktop_entry(spec)
+
+
+if __name__ == '__main__':
+    m = Menu('Foo')
+    m.create()
