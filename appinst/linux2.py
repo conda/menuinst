@@ -95,13 +95,21 @@ class Menu(object):
         tree.write(self.menu_file)
         self._add_dtd_and_format()
 
+    def _is_valid_menu_file(self):
+        try:
+            root = ET.parse(self.menu_file).getroot()
+            assert root is not None and root.tag == 'Menu'
+            return True
+        except:
+            return False
+
+    def _has_this_menu(self):
+        root = ET.parse(self.menu_file).getroot()
+        return any(e.text == self.name for e in root.findall('Menu/Name'))
+
     def create(self):
-        if self._is_valid_menu_file():
-            rt = ET.parse(self.menu_file).getroot()
-            # if we have the menu element, we're done
-            for element in rt.findall('Menu'):
-                if element.find('Name').text == self.name:
-                    return
+        if self._is_valid_menu_file() and self._has_this_menu():
+            return
 
         self._create_dirs()
         self._create_directory_entry()
@@ -151,15 +159,6 @@ class Menu(object):
             if not isdir(dir_path):
                 os.makedirs(dir_path)
 
-    def _is_valid_menu_file(self):
-        try:
-            tree = ET.parse(self.menu_file)
-            root = tree.getroot()
-            assert root is not None and root.tag == 'Menu'
-            return True
-        except:
-            return False
-
     def _ensure_menu_file(self):
         # create a menu file for our (top-level) menu
 
@@ -187,9 +186,6 @@ class Menu(object):
 </Menu>
 """)
             fo.close()
-
-        # sanity check
-        assert self._is_valid_menu_file()
 
 
 class ShortCut(object):
@@ -249,4 +245,8 @@ class ShortCut(object):
 
 if __name__ == '__main__':
     m = Menu('Foo')
-    m.remove()
+    rm_rf(m.menu_file)
+    #m.remove()
+    m.create()
+    print m._is_valid_menu_file()
+    print m._has_this_menu()
