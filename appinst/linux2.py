@@ -54,12 +54,10 @@ def indent(elem, level=0):
 
 def add_child(parent, tag, text=None):
     """
-    Add a child element of specified tag type to parent, if it does not exist
-    yet.  The new child element is returned.
+    Add a child element of specified tag type to parent.
+    The new child element is returned.
     """
-    elem = parent.find(tag)
-    if elem is None:
-        elem = ET.SubElement(parent, tag)
+    elem = ET.SubElement(parent, tag)
     if text is not None:
         elem.text = text
     return elem
@@ -93,7 +91,7 @@ def ensure_menu_file():
 
     # ensure any existing file is actually a menu file
     if isfile(menu_file):
-        # Make a backup of the menu file to be edited
+        # make a backup of the menu file to be edited
         cur_time = time.strftime('%Y-%m-%d_%Hh%Mm%S')
         backup_menu_file = "%s.%s" % (menu_file, cur_time)
         shutil.copyfile(menu_file, backup_menu_file)
@@ -121,10 +119,10 @@ class Menu(object):
         self.entry_path = join(datadir, 'desktop-directories', self.entry_fn)
 
     def create(self):
-#        if is_valid_menu_file() and self._has_this_menu():
-#            return
         self._create_dirs()
         self._create_directory_entry()
+        if is_valid_menu_file() and self._has_this_menu():
+            return
         ensure_menu_file()
         self._add_this_menu()
 
@@ -237,9 +235,8 @@ class ShortCut(object):
 
 
 if __name__ == '__main__':
-    print is_valid_menu_file()
-    m = Menu('Qux')
-    #rm_rf(m.menu_file)
-    #m.remove()
-    m.create()
-    print m._has_this_menu()
+    rm_rf(menu_file)
+    Menu('Foo').create()
+    Menu('Bar').create()
+    Menu('Foo').remove()
+    Menu('Foo').remove()
