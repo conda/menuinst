@@ -14,20 +14,19 @@ from egginst.utils import rm_rf
 from freedesktop import make_desktop_entry, make_directory_entry
 
 
-# datadir: the directory that should contain the desktop and directory entries
-# sysconfdir: the directory that should contain the XML menu files
+# datadir: the directory that contains the desktop and directory entries
+# confdir: the directory that contains the XML menu files
 if os.getuid() == 0:
-    mode = 'system'
     datadir = '/usr/share'
-    sysconfdir = '/etc/xdg'
+    confdir = '/etc/xdg'
 else:
-    mode = 'user'
     datadir = os.environ.get('XDG_DATA_HOME',
                              abspath(expanduser('~/.local/share')))
-    sysconfdir = os.environ.get('XDG_CONFIG_HOME',
-                                abspath(expanduser('~/.config')))
+    confdir = os.environ.get('XDG_CONFIG_HOME',
+                             abspath(expanduser('~/.config')))
 
 appdir = join(datadir, 'applications')
+menu_file = join(confdir, 'menus/applications.menu')
 
 
 def indent(elem, level=0):
@@ -61,9 +60,56 @@ def add_child(parent, tag, text=None):
     return elem
 
 
-class Menu(object):
+def is_valid_menu_file():
+    try:
+        root = ET.parse(menu_file).getroot()
+        assert root is not None and root.tag == 'Menu'
+        return True
+    except:
+        return False
 
-    menu_file = join(sysconfdir, 'menus/applications.menu')
+
+def ensure_menu_file(self):
+    # ensure any existing version is a file
+    if exists(menu_file) and not isfile(menu_file):
+        shutil.rmtree(menu_file)
+
+    # ensure any existing file is actually a menu file
+    if isfile(menu_file):
+        # Make a backup of the menu file to be edited
+        cur_time = time.strftime('%Y-%m-%d_%Hh%Mm%S')
+        backup_menu_file = "%s.%s" % (menu_file, cur_time)
+        shutil.copyfile(menu_file, backup_menu_file)
+
+        if not is_valid_menu_file():
+            os.remove(menu_file)
+
+    # create a new menu file if one doesn't yet exist
+    if not isfile(menu_file):
+        fo = open(menu_file, 'w')
+        fo.write("""\
+<Menu>
+    <Name>Applications</Name>
+    <MergeFile type="parent">/etc/xdg/menus/applications.menu</MergeFile>
+</Menu>
+""")
+        fo.close()
+
+
+def add_DTD_menu_file():
+    tree = ET.ElementTree(None, menu_file)
+    indent(tree.getroot())
+    fo = open(menu_file, 'w')
+    fo.write("""\
+<!DOCTYPE Menu PUBLIC '-//freedesktop//DTD Menu 1.0//EN'
+  'http://standards.freedesktop.org/menu-spec/menu-1.0.dtd'>
+""")
+    tree.write(fo)
+    fo.write('\n')
+    fo.close()
+
+
+class Menu(object):
 
     def __init__(self, name):
         self.name = name
@@ -72,11 +118,11 @@ class Menu(object):
         self.entry_path = join(datadir, 'desktop-directories', self.entry_fn)
 
     def create(self):
-        if self._is_valid_menu_file() and self._has_this_menu():
+        if is_valid_menu_file() and self._has_this_menu():
             return
         self._create_dirs()
         self._create_directory_entry()
-        self._ensure_menu_file()
+        ensure_menu_file()
         self._add_this_menu()
 
     def remove(self):
@@ -88,36 +134,28 @@ class Menu(object):
         self._remove_this_menu()
 
     def _remove_this_menu(self):
-        tree = ET.parse(self.menu_file)
+        tree = ET.parse(menu_file)
         root = tree.getroot()
         for elt in root.findall('Menu'):
             if elt.find('Name').text == self.name:
                 root.remove(elt)
-        tree.write(self.menu_file)
-        self._add_dtd_and_format()
-
-    def _is_valid_menu_file(self):
-        try:
-            root = ET.parse(self.menu_file).getroot()
-            assert root is not None and root.tag == 'Menu'
-            return True
-        except:
-            return False
+        tree.write(menu_file)
+        add_DTD_menu_file()
 
     def _has_this_menu(self):
-        root = ET.parse(self.menu_file).getroot()
+        root = ET.parse(menu_file).getroot()
         return any(e.text == self.name for e in root.findall('Menu/Name'))
 
     def _add_this_menu(self):
-        tree = ET.parse(self.menu_file)
+        tree = ET.parse(menu_file)
         root = tree.getroot()
         menu_elt = add_child(root, 'Menu')
         add_child(menu_elt, 'Name', self.name)
         add_child(menu_elt, 'Directory', self.entry_fn)
         inc_elt = add_child(menu_elt, 'Include')
         add_child(inc_elt, 'Category', self.name)
-        tree.write(self.menu_file)
-        self._add_dtd_and_format()
+        tree.write(menu_file)
+        add_DTD_menu_file()
 
     def _create_directory_entry(self):
         # Create the menu resources.  Note that the .directory files all go
@@ -132,54 +170,14 @@ class Menu(object):
             pass
         make_directory_entry(d)
 
-    def _add_dtd_and_format(self):
-        tree = ET.ElementTree(None, self.menu_file)
-        indent(tree.getroot())
-        fo = open(self.menu_file, 'w')
-        fo.write("""\
-<!DOCTYPE Menu PUBLIC '-//freedesktop//DTD Menu 1.0//EN'
-  'http://standards.freedesktop.org/menu-spec/menu-1.0.dtd'>
-""")
-        tree.write(fo)
-        fo.write('\n')
-        fo.close()
-
     def _create_dirs(self):
         # Ensure the three directories we're going to write menu and shortcut
         # resources to all exist.
-        for dir_path in [dirname(self.menu_file),
+        for dir_path in [dirname(menu_file),
                          dirname(self.entry_path),
                          appdir]:
             if not isdir(dir_path):
                 os.makedirs(dir_path)
-
-    def _ensure_menu_file(self):
-        # create a menu file for our (top-level) menu
-
-        # ensure any existing version is a file
-        if exists(self.menu_file) and not isfile(self.menu_file):
-            shutil.rmtree(self.menu_file)
-
-        # ensure any existing file is actually a menu file
-        if isfile(self.menu_file):
-            # Make a backup of the menu file to be edited
-            cur_time = time.strftime('%Y-%m-%d_%Hh%Mm%S')
-            backup_menu_file = "%s.%s" % (self.menu_file, cur_time)
-            shutil.copyfile(self.menu_file, backup_menu_file)
-
-            if not self._is_valid_menu_file():
-                os.remove(self.menu_file)
-
-        # create a new menu file if one doesn't yet exist
-        if not isfile(self.menu_file):
-            fo = open(self.menu_file, 'w')
-            fo.write("""\
-<Menu>
-    <Name>Applications</Name>
-    <MergeFile type="parent">/etc/xdg/menus/applications.menu</MergeFile>
-</Menu>
-""")
-            fo.close()
 
 
 class ShortCut(object):
@@ -238,9 +236,9 @@ class ShortCut(object):
 
 
 if __name__ == '__main__':
+    print is_valid_menu_file()
     m = Menu('Qux')
     #rm_rf(m.menu_file)
     #m.remove()
     m.create()
-    print m._is_valid_menu_file()
     print m._has_this_menu()
