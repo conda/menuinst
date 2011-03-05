@@ -16,6 +16,7 @@ from freedesktop import make_desktop_entry, make_directory_entry
 
 # datadir: contains the desktop and directory entries
 # confdir: contains the XML menu files
+sys_menu_file = '/etc/xdg/menus/applications.menu'
 if os.getuid() == 0:
     mode = 'system'
     datadir = '/usr/share'
@@ -84,10 +85,10 @@ def add_DTD_menu_file():
     fo.close()
 
 
-def ensure_menu_file(self):
+def ensure_menu_file():
     # ensure any existing version is a file
     if exists(menu_file) and not isfile(menu_file):
-        shutil.rmtree(menu_file)
+        rm_rf(menu_file)
 
     # ensure any existing file is actually a menu file
     if isfile(menu_file):
@@ -102,15 +103,11 @@ def ensure_menu_file(self):
     # create a new menu file if one doesn't yet exist
     if not isfile(menu_file):
         fo = open(menu_file, 'w')
-        if mode == 'system':
-            fo.write("<Menu><Name>Applications</Name></Menu>\n")
+        if mode == 'user':
+            merge = '<MergeFile type="parent">%s</MergeFile>' % sys_menu_file
         else:
-            fo.write("""\
-<Menu>
-    <Name>Applications</Name>
-    <MergeFile type="parent">/etc/xdg/menus/applications.menu</MergeFile>
-</Menu>
-""")
+            merge = ''
+        fo.write("<Menu><Name>Applications</Name>%s</Menu>\n" % merge)
         fo.close()
 
 
