@@ -93,7 +93,8 @@ class ShortCut(object):
         #        http://www.cyanwerks.com/file-format-url.html
         elif cmd == '{{WEBBROWSER}}':
             import webbrowser
-            args = [sys.executable, webbrowser.__file__, '-t'] + args
+            cmd = sys.executable
+            args = [webbrowser.__file__, '-t'] + args
 
         # Now create the actual Windows shortcut.  Note that the API to
         # create a windows shortcut requires that a path to the icon
