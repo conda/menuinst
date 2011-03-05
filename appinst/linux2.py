@@ -71,20 +71,28 @@ class Menu(object):
         self.entry_fn = '%s.directory' % self.name
         self.entry_path = join(datadir, 'desktop-directories', self.entry_fn)
 
+    def create(self):
+        if self._is_valid_menu_file() and self._has_this_menu():
+            return
+        self._create_dirs()
+        self._create_directory_entry()
+        self._ensure_menu_file()
+        self._add_this_menu()
+
     def remove(self):
         rm_rf(self.entry_path)
-
-        # if we find one shortcut, don't remove the name from the menu XML file
         for fn in os.listdir(appdir):
             if fn.startswith(self.name_):
+                # found one shortcut, so don't remove the name from menu
                 return
+        self._remove_this_menu()
 
-        # remove name from XML menu file
+    def _remove_this_menu(self):
         tree = ET.parse(self.menu_file)
         root = tree.getroot()
-        for element in root.findall('Menu'):
-            if element.find('Name').text == self.name:
-                root.remove(element)
+        for elt in root.findall('Menu'):
+            if elt.find('Name').text == self.name:
+                root.remove(elt)
         tree.write(self.menu_file)
         self._add_dtd_and_format()
 
@@ -100,14 +108,7 @@ class Menu(object):
         root = ET.parse(self.menu_file).getroot()
         return any(e.text == self.name for e in root.findall('Menu/Name'))
 
-    def create(self):
-        if self._is_valid_menu_file() and self._has_this_menu():
-            return
-
-        self._create_dirs()
-        self._create_directory_entry()
-        self._ensure_menu_file()
-
+    def _add_this_menu(self):
         tree = ET.parse(self.menu_file)
         root = tree.getroot()
         menu_elt = add_child(root, 'Menu')
@@ -162,7 +163,7 @@ class Menu(object):
         # ensure any existing file is actually a menu file
         if isfile(self.menu_file):
             # Make a backup of the menu file to be edited
-            cur_time = time.strftime('%Y-%m-%d_%H:%M:%S')
+            cur_time = time.strftime('%Y-%m-%d_%Hh%Mm%S')
             backup_menu_file = "%s.%s" % (self.menu_file, cur_time)
             shutil.copyfile(self.menu_file, backup_menu_file)
 
@@ -237,8 +238,8 @@ class ShortCut(object):
 
 
 if __name__ == '__main__':
-    m = Menu('Foo')
-    rm_rf(m.menu_file)
+    m = Menu('Qux')
+    #rm_rf(m.menu_file)
     #m.remove()
     m.create()
     print m._is_valid_menu_file()
