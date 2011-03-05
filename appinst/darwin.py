@@ -3,7 +3,7 @@
 
 import os
 import shutil
-from os.path import basename, dirname, isdir, isfile, join
+from os.path import basename, dirname, isdir, join
 from plistlib import Plist, writePlist
 
 from egginst.utils import rm_empty_dir, rm_rf
@@ -32,7 +32,7 @@ class ShortCut(object):
             if var_name in shortcut:
                 setattr(self, var_name, shortcut[var_name])
 
-        if isfile(self.cmd[0]) and os.access(self.cmd[0], os.X_OK):
+        if os.access(self.cmd[0], os.X_OK):
             self.tp = 'app'
             self.path = join(menu.path, self.name + '.app')
         else:
