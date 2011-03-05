@@ -69,6 +69,19 @@ def is_valid_menu_file():
         return False
 
 
+def add_DTD_menu_file():
+    tree = ET.ElementTree(None, menu_file)
+    indent(tree.getroot())
+    fo = open(menu_file, 'w')
+    fo.write("""\
+<!DOCTYPE Menu PUBLIC '-//freedesktop//DTD Menu 1.0//EN'
+  'http://standards.freedesktop.org/menu-spec/menu-1.0.dtd'>
+""")
+    tree.write(fo)
+    fo.write('\n')
+    fo.close()
+
+
 def ensure_menu_file(self):
     # ensure any existing version is a file
     if exists(menu_file) and not isfile(menu_file):
@@ -94,19 +107,6 @@ def ensure_menu_file(self):
 </Menu>
 """)
         fo.close()
-
-
-def add_DTD_menu_file():
-    tree = ET.ElementTree(None, menu_file)
-    indent(tree.getroot())
-    fo = open(menu_file, 'w')
-    fo.write("""\
-<!DOCTYPE Menu PUBLIC '-//freedesktop//DTD Menu 1.0//EN'
-  'http://standards.freedesktop.org/menu-spec/menu-1.0.dtd'>
-""")
-    tree.write(fo)
-    fo.write('\n')
-    fo.close()
 
 
 class Menu(object):
