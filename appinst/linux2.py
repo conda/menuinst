@@ -54,10 +54,12 @@ def indent(elem, level=0):
 
 def add_child(parent, tag, text=None):
     """
-    Add a child element of specified tag type to parent.
-    The new child element is returned.
+    Add a child element of specified tag type to parent, if it does not exist
+    yet.  The new child element is returned.
     """
-    elem = ET.SubElement(parent, tag)
+    elem = parent.find(tag)
+    if elem is None:
+        elem = ET.SubElement(parent, tag)
     if text is not None:
         elem.text = text
     return elem
@@ -72,8 +74,7 @@ def is_valid_menu_file():
         return False
 
 
-def add_DTD_menu_file():
-    tree = ET.ElementTree(None, menu_file)
+def write_menu_file(tree):
     indent(tree.getroot())
     fo = open(menu_file, 'w')
     fo.write("""\
@@ -120,8 +121,8 @@ class Menu(object):
         self.entry_path = join(datadir, 'desktop-directories', self.entry_fn)
 
     def create(self):
-        if is_valid_menu_file() and self._has_this_menu():
-            return
+#        if is_valid_menu_file() and self._has_this_menu():
+#            return
         self._create_dirs()
         self._create_directory_entry()
         ensure_menu_file()
@@ -141,8 +142,7 @@ class Menu(object):
         for elt in root.findall('Menu'):
             if elt.find('Name').text == self.name:
                 root.remove(elt)
-        tree.write(menu_file)
-        add_DTD_menu_file()
+        write_menu_file(tree)
 
     def _has_this_menu(self):
         root = ET.parse(menu_file).getroot()
@@ -156,8 +156,7 @@ class Menu(object):
         add_child(menu_elt, 'Directory', self.entry_fn)
         inc_elt = add_child(menu_elt, 'Include')
         add_child(inc_elt, 'Category', self.name)
-        tree.write(menu_file)
-        add_DTD_menu_file()
+        write_menu_file(tree)
 
     def _create_directory_entry(self):
         # Create the menu resources.  Note that the .directory files all go
