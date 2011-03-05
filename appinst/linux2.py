@@ -50,22 +50,15 @@ def indent(elem, level=0):
             elem.tail = i
 
 
-def ensure_child_element(parent_element, tag, text=None):
+def add_child(parent, tag, text=None):
     """
-    Ensure there is a sub-element of the specified tag type.
-    The sub-element is given the specified text content if text is not None.
-    The sub-element is returned.
+    Add a child element of specified tag type to parent.
+    The new child element is returned.
     """
-    # ensure the element exists
-    element = parent_element.find(tag)
-    if element is None:
-        element = ET.SubElement(parent_element, tag)
-
-    # if specified, set its text
+    elem = ET.SubElement(parent, tag)
     if text is not None:
-        element.text = text
-
-    return element
+        elem.text = text
+    return elem
 
 
 class Menu(object):
@@ -117,11 +110,11 @@ class Menu(object):
 
         tree = ET.parse(self.menu_file)
         root = tree.getroot()
-        menu_element = ET.SubElement(root, 'Menu')
-        ensure_child_element(menu_element, 'Name', self.name)
-        ensure_child_element(menu_element, 'Directory', self.entry_fn)
-        include_element = ensure_child_element(menu_element, 'Include')
-        ensure_child_element(include_element, 'Category', self.name)
+        menu_elt = add_child(root, 'Menu')
+        add_child(menu_elt, 'Name', self.name)
+        add_child(menu_elt, 'Directory', self.entry_fn)
+        inc_elt = add_child(menu_elt, 'Include')
+        add_child(inc_elt, 'Category', self.name)
         tree.write(self.menu_file)
         self._add_dtd_and_format()
 
