@@ -17,9 +17,9 @@ except ImportError:
     menu_name = 'Python-%i.%i' % sys.version_info[:2]
 
 
-def install(shortcuts, remove):
+def dispatched_install(shortcuts, remove):
     """
-    Install an application shortcut.
+    Install application shortcuts.
 
     This call is meant to work on all platforms.  If done on Linux, the menu
     will be installed to both Gnome and KDE desktops if they are available.
@@ -29,14 +29,11 @@ def install(shortcuts, remove):
     by freedesktop.org.  See:
             http://freedesktop.org/Standards/desktop-entry-spec
 
-    shortcuts: A list of shortcut specifications to be created within the
-        previously specified menus.   A shortcut specification is a dictionary
-        consisting of the following keys and values:
-            categories: A list of the menu categories this shortcut should
-                appear in.  We only support your own menus at this time due to
-                cross-platform difficulties with identifying "standard"
-                locations.
-            cmd: A list of strings where the first item in the list is the
+    A list of shortcut specifications to be created within the menu.
+    A shortcut specification is a dictionary consisting of the following
+    keys and values:
+
+    cmd:        A list of strings where the first item in the list is the
                 executable command and the other items are arguments to be
                 passed to that command.   Each argument should be a separate
                 item in the list.   Note that you can use the special text
@@ -49,21 +46,19 @@ def install(shortcuts, remove):
                     paths to be opened in the OS's standard, or user's default,
                     web browser.
 
-            comment: A description for the shortcut, typically becomes fly-over
+    comment:    A description for the shortcut, typically becomes fly-over
                 help.
-            icon: An optional path to an .ico file to use as the icon for this
+
+    icon:       An optional path to an .ico file to use as the icon for this
                 shortcut.
-            id: A string that can be used to represent the resources needed to
-                represent the shortcut.  i.e. on Linux, the id is used for the
-                name of the '.desktop' file.  If no id is provided, the name
-                is used as the id.
-            name: The display name for this shortcut.
-            terminal: A boolean value representing whether the shortcut should
+
+    id:         On Linux, the id is used for the name of the '.desktop' file.
+
+    name:       The display name for this shortcut.
+
+    terminal:   A boolean value representing whether the shortcut should
                 run within a shell / terminal.
     """
-    #import pprint
-    #pp = pprint.PrettyPrinter(indent=4, width=20)
-    #print 'SHORTCUTS: %s' % pp.pformat(shortcuts)
     if sys.platform == 'linux2':
         from linux2 import Menu, ShortCut
 
@@ -72,10 +67,6 @@ def install(shortcuts, remove):
 
     elif sys.platform == 'win32':
         from win32 import Menu, ShortCut
-
-    else:
-        print 'Unhandled platform. Unable to create application menu(s).'
-        return
 
     m = Menu(menu_name)
     if remove:
@@ -130,11 +121,11 @@ def install_from_dat(dat_path):
     Does a complete install given a data file.
     For an example see examples/appinst.dat.
     """
-    install(get_shortcuts(dat_path), remove=False)
+    dispatched_install(get_shortcuts(dat_path), remove=False)
 
 
 def uninstall_from_dat(dat_path):
     """
     Uninstalls all items in a data file.
     """
-    install(get_shortcuts(dat_path), remove=True)
+    dispatched_install(get_shortcuts(dat_path), remove=True)
