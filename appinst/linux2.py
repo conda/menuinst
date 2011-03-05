@@ -14,12 +14,14 @@ from egginst.utils import rm_rf
 from freedesktop import make_desktop_entry, make_directory_entry
 
 
-# datadir: the directory that contains the desktop and directory entries
-# confdir: the directory that contains the XML menu files
+# datadir: contains the desktop and directory entries
+# confdir: contains the XML menu files
 if os.getuid() == 0:
+    mode = 'system'
     datadir = '/usr/share'
     confdir = '/etc/xdg'
 else:
+    mode = 'user'
     datadir = os.environ.get('XDG_DATA_HOME',
                              abspath(expanduser('~/.local/share')))
     confdir = os.environ.get('XDG_CONFIG_HOME',
@@ -100,7 +102,10 @@ def ensure_menu_file(self):
     # create a new menu file if one doesn't yet exist
     if not isfile(menu_file):
         fo = open(menu_file, 'w')
-        fo.write("""\
+        if mode == 'system':
+            fo.write("<Menu><Name>Applications</Name></Menu>\n")
+        else:
+            fo.write("""\
 <Menu>
     <Name>Applications</Name>
     <MergeFile type="parent">/etc/xdg/menus/applications.menu</MergeFile>
