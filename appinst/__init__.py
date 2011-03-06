@@ -28,36 +28,6 @@ def dispatched_install(shortcuts, remove):
     menus on systems that follow the format of the Desktop Entry Specification
     by freedesktop.org.  See:
             http://freedesktop.org/Standards/desktop-entry-spec
-
-    A list of shortcut specifications to be created within the menu.
-    A shortcut specification is a dictionary consisting of the following
-    keys and values:
-
-    cmd:        A list of strings where the first item in the list is the
-                executable command and the other items are arguments to be
-                passed to that command.   Each argument should be a separate
-                item in the list.   Note that you can use the special text
-                markers listed here as the first command string to represent
-                standard commands that are platform dependent:
-
-                '{{FILEBROWSER}}' specifies that the following arguments are
-                    paths to be opened in the OS's file system explorer.
-                '{{WEBBROWSER}}' specifies that the following arguments are
-                    paths to be opened in the OS's standard, or user's default,
-                    web browser.
-
-    comment:    A description for the shortcut, typically becomes fly-over
-                help.
-
-    icon:       An optional path to an .ico file to use as the icon for this
-                shortcut.
-
-    id:         On Linux, the id is used for the name of the '.desktop' file.
-
-    name:       The display name for this shortcut.
-
-    terminal:   A boolean value representing whether the shortcut should
-                run within a shell / terminal.
     """
     if sys.platform == 'linux2':
         from linux2 import Menu, ShortCut
