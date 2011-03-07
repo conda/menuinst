@@ -41,37 +41,44 @@ way.  That is:
 SHORTCUTS is a list of dictionaries, one dictionary per desired shortcut.
 Each shortcut dictionary can have the following keys:
 
-    cmd:        A list of strings where the first item in the list is the
-                executable command and the other items are arguments to be
-                passed to that command.   Each argument should be a separate
-                item in the list.   Note that you can use the special text
-                markers listed here as the first command string to represent
-                standard commands that are platform dependent:
+    cmd: (required)
+        A list of strings where the first item in the list is the executable
+        command and the other items are arguments to be passed to that
+        command.   Each argument should be a separate item in the list.
+        Note that you can use the special text markers listed here as the
+        first command string to represent standard commands that are platform
+        dependent:
 
-                '{{FILEBROWSER}}' specifies that the following arguments are
-                    paths to be opened in the OS's file system explorer.
-                '{{WEBBROWSER}}' specifies that the following arguments are
-                    paths to be opened in the OS's standard, or user's default,
-                    web browser.
+        '{{FILEBROWSER}}' specifies that the following arguments are
+                paths to be opened in the OS's file system explorer.
+        '{{WEBBROWSER}}' specifies that the following arguments are
+                paths to be opened in the OS's standard, or user's default,
+                web browser.
 
-    name:       The display name for this shortcut.
+    name: (required)
+        The display name for this shortcut.
 
-    comment:    A description for the shortcut, typically becomes fly-over
-                help.  On Windows, this is what you see in a yellow box when
-                hovering over a menu item.
+    comment: (required)
+        A description for the shortcut, typically becomes fly-over
+        help.  On Windows, this is what you see in a yellow box when
+        hovering over a menu item.
 
-    icon:       Optional path to an .ico file to use as the icon for this
-                shortcut.  Used on both Windows and Linux.
+    terminal: (required)
+        A boolean value representing whether the shortcut should
+        run within a shell / terminal (like ipython does).
 
-    icns:       Optional path to a MacOSX .icns file,
-                default to 'PythonInterpreter.icns' (Python rocket)
+    id: (required on Linux)
+         On Linux, the id is used for the name of the '.desktop' file.
+         This is used to name the shortcut files on platforms where
+         the filename is not the display name the user sees.
 
-    id:         On Linux, the id is used for the name of the '.desktop' file.
-                This is used to name the shortcut files on platforms where
-                the filename is not the display name the user sees.
+    icon: (optional, only effects Windows and Linux)
+        Optional path to an .ico file to use as the icon for this
+        shortcut.  Used on both Windows and Linux.
 
-    terminal:   A boolean value representing whether the shortcut should
-                run within a shell / terminal (like ipython does).
+    icns: (optional, only effects MacOSX)
+        Optional path to a MacOSX .icns file,
+        default to 'PythonInterpreter.icns' (Python rocket)
 
     quicklaunch: (optional, boolean)
         Whether or not a quicklaunch item should be created for this shortcut.
@@ -100,7 +107,7 @@ Notes:
     location of this (appinst data) file.
   * The location of the executable command, i.e. the first element in the
     value corresponding to 'cmd', is assumed to be located in sys.prefex/bin
-    (on Windows sys.prefex/Scripts, unless the string starts with '..'.
+    (on Windows <sys.prefex>/Scripts, unless the string starts with '..'.
     In the later case it is assumed to be relative to the location of this
     (appinst data) file.
 """

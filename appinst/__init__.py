@@ -17,17 +17,9 @@ except ImportError:
     menu_name = 'Python-%i.%i' % sys.version_info[:2]
 
 
-def dispatched_install(shortcuts, remove):
+def install(shortcuts, remove):
     """
-    Install application shortcuts.
-
-    This call is meant to work on all platforms.  If done on Linux, the menu
-    will be installed to both Gnome and KDE desktops if they are available.
-
-    Note that the information required is sufficient to install application
-    menus on systems that follow the format of the Desktop Entry Specification
-    by freedesktop.org.  See:
-            http://freedesktop.org/Standards/desktop-entry-spec
+    install Menu and shortcuts
     """
     if sys.platform == 'linux2':
         from linux2 import Menu, ShortCut
@@ -51,7 +43,7 @@ def dispatched_install(shortcuts, remove):
 
 def transform_shortcut(dat_dir, sc):
     """
-    Transform the shortcuts relative paths to absolute paths.
+    transform the shortcuts relative paths to absolute paths
     """
     # Make the path to the executable absolute
     bin = sc['cmd'][0]
@@ -88,14 +80,13 @@ def get_shortcuts(dat_path):
 
 def install_from_dat(dat_path):
     """
-    Does a complete install given a data file.
-    For an example see examples/appinst.dat.
+    does a complete install given a data file
     """
-    dispatched_install(get_shortcuts(dat_path), remove=False)
+    install(get_shortcuts(dat_path), remove=False)
 
 
 def uninstall_from_dat(dat_path):
     """
-    Uninstalls all items in a data file.
+    uninstalls all items in a data file
     """
-    dispatched_install(get_shortcuts(dat_path), remove=True)
+    install(get_shortcuts(dat_path), remove=True)

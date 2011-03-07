@@ -1,6 +1,13 @@
 # Copyright (c) 2008-2011 by Enthought, Inc.
 # All rights reserved.
-
+"""
+The menu will be installed to both Gnome and KDE desktops if they are
+available.
+Note that the information required is sufficient to install application
+menus on systems that follow the format of the Desktop Entry Specification
+by freedesktop.org.  See:
+    http://freedesktop.org/Standards/desktop-entry-spec
+"""
 import re
 import os
 import shutil
