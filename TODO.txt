@@ -1,5 +1,7 @@
-- Refactor the common.py module such that it's creation of Window's "Start"
-    menus are driven by the same data definitions as the application_menus.py
-    module, and move the code into application_menus.py so that we have only
-    one entry point for creating application menu's across all supported
-    platforms.
+Bugs:
+=====
+
+
+Enhancements:
+=============
+  * should we create Desktop icons on MaxOSX as well?
