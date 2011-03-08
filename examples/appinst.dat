@@ -80,6 +80,10 @@ Each shortcut dictionary can have the following keys:
         Optional path to a MacOSX .icns file,
         default to 'PythonInterpreter.icns' (Python rocket)
 
+    version: (optional, only effects MacOSX)
+        Optional MacOSX CFBundleVersion in Info.plist of .app,
+        defaults to '1.0.0'
+
     quicklaunch: (optional, boolean)
         Whether or not a quicklaunch item should be created for this shortcut.
         This does not solely determine if a quicklaunch item will be created
