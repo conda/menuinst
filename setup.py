@@ -19,7 +19,7 @@ else:
 
 setup(
     name = "AppInst",
-    version = "2.1.0",
+    version = "2.1.1",
     description = "Cross platform APIs used to install applications",
     ext_modules = extensions,
     include_package_data = True,
