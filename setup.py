@@ -18,9 +18,9 @@ else:
 
 
 setup(
-    name = "AppInst",
+    name = "appinst",
     version = "2.1.1",
-    description = "Cross platform APIs used to install applications",
+    description = "cross platform APIs to install applications menu items",
     ext_modules = extensions,
     include_package_data = True,
     package_data = {"appinst" : ["*.icns"]},
