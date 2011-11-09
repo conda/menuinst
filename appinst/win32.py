@@ -96,13 +96,29 @@ class ShortCut(object):
             cmd = sys.executable
             args = [webbrowser.__file__, '-t'] + args
 
-        # Now create the actual Windows shortcut.  Note that the API to
-        # create a windows shortcut requires that a path to the icon
-        # file be in a weird place -- second in a variable length
-        # list of args.
-        icon = self.shortcut.get('icon')
-        if icon:
+        # The API for the call to 'wininst.create_shortcut' has 3 required
+        # arguments:-
+        #
+        # path, description and filename
+        #
+        # and 4 optional arguments:-
+        #
+        # args, working_dir, icon_path and icon_index
+        #
+        # We always pass the args argument, but we only pass the working
+        # directory and the icon path if given, and we never currently pass the
+        # icon index.
+        working_dir = quoted(self.shortcut.get('working_dir', ''))
+        icon        = self.shortcut.get('icon')
+        if working_dir and icon:
+            shortcut_args = [working_dir, icon]
+
+        elif working_dir and not icon:
+            shortcut_args = [working_dir]
+
+        elif not working_dir and icon:
             shortcut_args = ['', icon]
+
         else:
             shortcut_args = []
 

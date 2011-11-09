@@ -76,6 +76,10 @@ Each shortcut dictionary can have the following keys:
         Optional path to an .ico file to use as the icon for this
         shortcut.  Used on both Windows and Linux.
 
+    working_dir: (optional, only effects Windows)
+        Optional path of the directory to start the executable command in (the
+        is 'Start in' field in the shortcut properties dialog).
+
     icns: (optional, only effects MacOSX)
         Optional path to a MacOSX .icns file,
         default to 'PythonInterpreter.icns' (Python rocket)
