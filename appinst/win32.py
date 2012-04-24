@@ -92,9 +92,8 @@ class ShortCut(object):
         #   http://delphi.about.com/gi/dynamic/offsite.htm?site= \
         #        http://www.cyanwerks.com/file-format-url.html
         elif cmd == '{{WEBBROWSER}}':
-            import webbrowser
             cmd = sys.executable
-            args = [webbrowser.__file__, '-t'] + args
+            args = ['-m', 'webbrowser', '-t'] + args
 
         # The API for the call to 'wininst.create_shortcut' has 3 required
         # arguments:-
