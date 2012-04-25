@@ -1,24 +1,32 @@
-2011-??-??: 2.1.1
+2012-04-25: 2.1.1
 -----------------
+  * added ability to specify a working directory via a 'working_dir' key
+ …  in a shortcut definition.  This is then used on win32 only to set
+    the 'Start in' directory of the created shortcut.
+
+  * On windows the target length is limited to about 260 chars and we use
+    python -m webbrowser instead of running the full path to the module to
+    reduce the length of the target.
 
 
 
 2011-03-14: 2.1.0
 -----------------
-* added menu and shortcut removal ability on MaxOSX and Linux
+  * added menu and shortcut removal ability on MaxOSX and Linux
 
-* removed registry path stuff on Windows, and hence pywin32 dependency
+  * removed registry path stuff on Windows, and hence pywin32 dependency
 
-* add ability to have a menu icon on Linux <custom_tools>/menu.ico
+  * add ability to have a menu icon on Linux <custom_tools>/menu.ico
 
-* removed separate rh3 and rh4 modules
+  * removed separate rh3 and rh4 modules
 
-* simplified much of the code
+  * simplified much of the code
+
 
 
 2010-12-09: 2.0.4
 -----------------
-* This version has been used for a long time.
+  * This version has been used for a long time.
 
 
 10 October, 2008 (DP):
