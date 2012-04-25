@@ -1,3 +1,8 @@
+2012-??-??: 2.1.2
+-----------------
+
+
+
 2012-04-25: 2.1.1
 -----------------
   * added ability to specify a working directory via a 'working_dir' key

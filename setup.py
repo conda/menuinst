@@ -1,4 +1,4 @@
-# Copyright (c) 2008-2011 by Enthought, Inc.
+# Copyright (c) 2008-2012 by Enthought, Inc.
 # All rights reserved.
 import sys
 from setuptools import Extension, setup
@@ -19,7 +19,7 @@ else:
 
 setup(
     name = "appinst",
-    version = "2.1.1",
+    version = "2.1.2",
     description = "cross platform APIs to install applications menu items",
     ext_modules = extensions,
     include_package_data = True,
