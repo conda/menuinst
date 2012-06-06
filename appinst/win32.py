@@ -74,12 +74,14 @@ class ShortCut(object):
         cmd = self.cmd[0]
         args = self.cmd[1:]
 
-        # Handle the special '{{FILEBROWSER}}' command by stripping it
-        # out since File Explorer will automatically be launched when a
-        # folder link is separated.
+        # Handle the special '{{FILEBROWSER}}' command by using webbrowser
+        # since using just the path name pops up a dialog asking for which 
+        # application to use.  Using 'explorer.exe' picks up 
+        # c:/windows/system32/explorer.exe which does not work.  Webbrowser
+        # does the right thing.
         if cmd == '{{FILEBROWSER}}':
-            cmd = args[0]
-            args = args[1:]
+            cmd = sys.executable
+            args = ['-m', 'webbrowser'] + args
 
         # Otherwise, handle the special '{{WEBBROWSER}}' command by
         # invoking the Python standard lib's 'webbrowser' script.  This
