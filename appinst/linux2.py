@@ -16,7 +16,7 @@ import time
 import xml.etree.ElementTree as ET
 from os.path import abspath, dirname, exists, expanduser, isdir, isfile, join
 
-from egginst.utils import rm_rf
+from egginst.utils import rm_rf, get_executable
 
 from freedesktop import make_desktop_entry, make_directory_entry
 
@@ -190,7 +190,7 @@ class ShortCut(object):
 
     fn_pat = re.compile(r'[\w.-]+$')
 
-    def __init__(self, menu, shortcut):
+    def __init__(self, menu, shortcut, prefix=None):
         # note that this is the path WITHOUT extension
         fn = menu.name_ + shortcut['id']
         assert self.fn_pat.match(fn)
@@ -201,6 +201,8 @@ class ShortCut(object):
         for var_name in ('name', 'cmd'):
             if var_name in shortcut:
                 setattr(self, var_name, shortcut[var_name])
+                
+        self.prefix = prefix if prefix is not None else sys.prefix
 
     def create(self):
         self._install_desktop_entry('gnome')
@@ -232,7 +234,8 @@ class ShortCut(object):
             cmd[0] = filebrowser
         elif cmd[0] == '{{WEBBROWSER}}':
             import webbrowser
-            cmd[0:1] = [sys.executable, webbrowser.__file__, '-t']
+            executable = get_executable(self.prefix)
+            cmd[0:1] = [executable, webbrowser.__file__, '-t']
 
         spec['cmd'] = cmd
         spec['path'] = path

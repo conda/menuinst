@@ -5,7 +5,7 @@ import os
 import sys
 from os.path import isdir, join
 
-from egginst.utils import rm_empty_dir, rm_rf
+from egginst.utils import rm_empty_dir, rm_rf, get_executable
 
 import wininst
 
@@ -60,9 +60,14 @@ class Menu(object):
 
 class ShortCut(object):
 
-    def __init__(self, menu, shortcut):
+    def __init__(self, menu, shortcut, prefix=None):
+        """
+        Prefix is the system prefix to be used -- this is needed since 
+        there is the possibility of a different Python's packages being managed.
+        """
         self.menu = menu
         self.shortcut = shortcut
+        self.prefix = prefix if prefix is not None else sys.prefix
         self.cmd = shortcut['cmd']
 
     def remove(self):
@@ -73,6 +78,7 @@ class ShortCut(object):
         # itself.
         cmd = self.cmd[0]
         args = self.cmd[1:]
+        executable = get_executable(self.prefix)
 
         # Handle the special '{{FILEBROWSER}}' command by using webbrowser
         # since using just the path name pops up a dialog asking for which 
@@ -80,7 +86,7 @@ class ShortCut(object):
         # c:/windows/system32/explorer.exe which does not work.  Webbrowser
         # does the right thing.
         if cmd == '{{FILEBROWSER}}':
-            cmd = sys.executable
+            cmd = executable
             args = ['-m', 'webbrowser'] + args
 
         # Otherwise, handle the special '{{WEBBROWSER}}' command by
@@ -94,7 +100,7 @@ class ShortCut(object):
         #   http://delphi.about.com/gi/dynamic/offsite.htm?site= \
         #        http://www.cyanwerks.com/file-format-url.html
         elif cmd == '{{WEBBROWSER}}':
-            cmd = sys.executable
+            cmd = executable
             args = ['-m', 'webbrowser', '-t'] + args
 
         # The API for the call to 'wininst.create_shortcut' has 3 required

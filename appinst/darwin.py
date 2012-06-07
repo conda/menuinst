@@ -25,9 +25,10 @@ class Menu(object):
 
 class ShortCut(object):
 
-    def __init__(self, menu, shortcut):
+    def __init__(self, menu, shortcut, prefix=None):
         self.menu = menu
         self.shortcut = shortcut
+        self.prefix = prefix
         for var_name in ('name', 'cmd'):
             if var_name in shortcut:
                 setattr(self, var_name, shortcut[var_name])
