@@ -17,7 +17,7 @@ except ImportError:
     menu_name = 'Python-%i.%i' % sys.version_info[:2]
 
 
-def install(shortcuts, remove):
+def install(shortcuts, remove, prefix=None):
     """
     install Menu and shortcuts
     """
@@ -33,29 +33,30 @@ def install(shortcuts, remove):
     m = Menu(menu_name)
     if remove:
         for sc in shortcuts:
-            ShortCut(m, sc).remove()
+            ShortCut(m, sc, prefix=prefix).remove()
         m.remove()
     else:
         m.create()
         for sc in shortcuts:
-            ShortCut(m, sc).create()
+            ShortCut(m, sc, prefix=prefix).create()
 
 
-def transform_shortcut(dat_dir, sc):
+def transform_shortcut(dat_dir, sc, prefix=None):
     """
     transform the shortcuts relative paths to absolute paths
     """
+    prefix = prefix if prefix is not None else sys.prefix
     # Make the path to the executable absolute
     bin = sc['cmd'][0]
     if bin.startswith('..'):
         bin = abspath(join(dat_dir, bin))
     elif not bin.startswith('{{'):
-        bin = join(sys.prefix, bin_dir_name, bin)
+        bin = join(prefix, bin_dir_name, bin)
     sc['cmd'][0] = bin
 
     if (sys.platform == 'win32' and sc['terminal'] is False and
              not bin.startswith('{{') and isfile(bin + '-script.py')):
-        argv = [join(sys.prefix, 'pythonw.exe'), bin + '-script.py']
+        argv = [join(prefix, 'pythonw.exe'), bin + '-script.py']
         argv.extend(sc['cmd'][1:])
         sc['cmd'] = argv
 
@@ -65,7 +66,7 @@ def transform_shortcut(dat_dir, sc):
             sc[kw] = abspath(join(dat_dir, sc[kw]))
 
 
-def get_shortcuts(dat_path):
+def get_shortcuts(dat_path, prefix=None):
     """
     reads and parses the appinst data file and returns the shortcuts
     """
@@ -74,19 +75,21 @@ def get_shortcuts(dat_path):
 
     shortcuts = d['SHORTCUTS']
     for sc in shortcuts:
-        transform_shortcut(dirname(dat_path), sc)
+        transform_shortcut(dirname(dat_path), sc, prefix=prefix)
     return shortcuts
 
 
-def install_from_dat(dat_path):
+def install_from_dat(dat_path, prefix=None):
     """
-    does a complete install given a data file
+    does a complete install given a data file, the prefix is the system prefix
+    to use.
     """
-    install(get_shortcuts(dat_path), remove=False)
+    install(get_shortcuts(dat_path, prefix=prefix), remove=False, prefix=prefix)
 
 
-def uninstall_from_dat(dat_path):
+def uninstall_from_dat(dat_path, prefix=None):
     """
-    uninstalls all items in a data file
+    uninstalls all items in a data file, the prefix is the system prefix to 
+    use.
     """
-    install(get_shortcuts(dat_path), remove=True)
+    install(get_shortcuts(dat_path, prefix=prefix), remove=True, prefix=prefix)
