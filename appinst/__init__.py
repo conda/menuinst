@@ -89,7 +89,7 @@ def install_from_dat(dat_path, prefix=None):
 
 def uninstall_from_dat(dat_path, prefix=None):
     """
-    uninstalls all items in a data file, the prefix is the system prefix to 
+    uninstalls all items in a data file, the prefix is the system prefix to
     use.
     """
     install(get_shortcuts(dat_path, prefix=prefix), remove=True, prefix=prefix)

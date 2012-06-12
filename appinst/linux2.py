@@ -201,7 +201,7 @@ class ShortCut(object):
         for var_name in ('name', 'cmd'):
             if var_name in shortcut:
                 setattr(self, var_name, shortcut[var_name])
-                
+
         self.prefix = prefix if prefix is not None else sys.prefix
 
     def create(self):

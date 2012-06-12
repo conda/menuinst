@@ -62,7 +62,7 @@ class ShortCut(object):
 
     def __init__(self, menu, shortcut, prefix=None):
         """
-        Prefix is the system prefix to be used -- this is needed since 
+        Prefix is the system prefix to be used -- this is needed since
         there is the possibility of a different Python's packages being managed.
         """
         self.menu = menu
@@ -81,8 +81,8 @@ class ShortCut(object):
         executable = get_executable(self.prefix)
 
         # Handle the special '{{FILEBROWSER}}' command by using webbrowser
-        # since using just the path name pops up a dialog asking for which 
-        # application to use.  Using 'explorer.exe' picks up 
+        # since using just the path name pops up a dialog asking for which
+        # application to use.  Using 'explorer.exe' picks up
         # c:/windows/system32/explorer.exe which does not work.  Webbrowser
         # does the right thing.
         if cmd == '{{FILEBROWSER}}':
