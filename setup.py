@@ -19,7 +19,7 @@ else:
 
 setup(
     name = "appinst",
-    version = "2.1.2",
+    version = "2.1.3",
     description = "cross platform APIs to install applications menu items",
     ext_modules = extensions,
     include_package_data = True,
