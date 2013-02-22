@@ -7,15 +7,8 @@ from os.path import abspath, dirname, isfile, join
 
 from utils import bin_dir_name
 
-# The custom_tools package is importable when the Python was created by an
-# "enicab" installer, in which case the directory custom_tools contains
-# platform-independent install information in __init__.py and platform-specific
-# information about user setting chosen during the install process.
-try:
-    import custom_tools
-    menu_name = custom_tools.FULL_NAME
-except ImportError:
-    menu_name = 'Python-%i.%i' % sys.version_info[:2]
+
+menu_name = 'Python-%i.%i' % sys.version_info[:2]
 
 
 def install(shortcuts, remove, prefix=None):
