@@ -6,7 +6,7 @@ import shutil
 from os.path import basename, dirname, isdir, join
 from plistlib import Plist, writePlist
 
-from egginst.utils import rm_empty_dir, rm_rf
+from utils import rm_empty_dir, rm_rf
 
 
 

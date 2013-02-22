@@ -1,7 +1,8 @@
 # Copyright (c) 2008-2012 by Enthought, Inc.
+# Copyright (c) 2013 Continuum Analytics, Inc.
 # All rights reserved.
 import sys
-from setuptools import Extension, setup
+from distutils import Extension, setup
 
 
 if sys.platform == "win32":
@@ -25,8 +26,6 @@ setup(
     include_package_data = True,
     package_data = {"appinst" : ["*.icns"]},
     license = "BSD",
-    maintainer = "Enthought, Inc.",
-    maintainer_email = "info@enthought.com",
     packages = ['appinst'],
     zip_safe = False,
 )

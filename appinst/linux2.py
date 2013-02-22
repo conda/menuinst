@@ -16,8 +16,7 @@ import time
 import xml.etree.ElementTree as ET
 from os.path import abspath, dirname, exists, expanduser, isdir, isfile, join
 
-from egginst.utils import rm_rf, get_executable
-
+from utils import rm_rf, get_executable
 from freedesktop import make_desktop_entry, make_directory_entry
 
 

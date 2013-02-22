@@ -1,10 +1,11 @@
 # Copyright (c) 2008-2011 by Enthought, Inc.
+# Copyright (c) 2013 Continuum Analytics, Inc.
 # All rights reserved.
 
 import sys
 from os.path import abspath, dirname, isfile, join
 
-from egginst.utils import bin_dir_name
+from utils import bin_dir_name
 
 # The custom_tools package is importable when the Python was created by an
 # "enicab" installer, in which case the directory custom_tools contains

@@ -5,7 +5,7 @@ import os
 import sys
 from os.path import isdir, join
 
-from egginst.utils import rm_empty_dir, rm_rf, get_executable
+from utils import rm_empty_dir, rm_rf
 
 import wininst
 
@@ -78,7 +78,7 @@ class ShortCut(object):
         # itself.
         cmd = self.cmd[0]
         args = self.cmd[1:]
-        executable = get_executable(self.prefix)
+        executable = join(self.prefix, 'python.exe')
 
         # Handle the special '{{FILEBROWSER}}' command by using webbrowser
         # since using just the path name pops up a dialog asking for which
