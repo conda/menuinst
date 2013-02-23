@@ -84,6 +84,8 @@ class ShortCut(object):
         else:
             raise Exception("Nothing to do: %r" % self.shortcut)
 
+        workdir = self.shortcut.get('workdir', '')
+        icon = self.shortcut.get('icon', '')
         for a, b in [
             ('${PYTHON_SCRIPTS}', join(sys.prefix, 'Scripts')),
             ('${PERSONALDIR}', get_folder('CSIDL_PERSONAL')),
@@ -91,6 +93,8 @@ class ShortCut(object):
             ]:
             cmd = cmd.replace(a, b)
             args = [s.replace(a, b) for s in args]
+            workdir = workdir.replace(a, b)
+            icon = icon.replace(a, b)
 
         # The API for the call to 'wininst.create_shortcut' has 3 required
         # arguments:-
@@ -104,8 +108,7 @@ class ShortCut(object):
         # We always pass the args argument, but we only pass the working
         # directory and the icon path if given, and we never currently pass the
         # icon index.
-        working_dir = quoted(self.shortcut.get('workdir', ''))
-        icon = self.shortcut.get('icon')
+        working_dir = quoted(workdir)
         if working_dir and icon:
             shortcut_args = [working_dir, icon]
 
