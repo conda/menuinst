@@ -75,11 +75,11 @@ class ShortCut(object):
     def create(self, remove=False):
         if "pywscript" in self.shortcut:
             cmd = join(self.prefix, 'pythonw.exe')
-            args = self.shortcut.split()
+            args = self.shortcut["pywscript"].split()
 
         elif "pyscript" in self.shortcut:
             cmd = join(self.prefix, 'python.exe')
-            args = self.shortcut.split()
+            args = self.shortcut["pyscript"].split()
 
         else:
             raise Exception("Nothing to do: %r" % self.shortcut)
