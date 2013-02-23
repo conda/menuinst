@@ -8,6 +8,7 @@ from os.path import isdir, join
 from utils import rm_empty_dir, rm_rf
 
 import wininst
+from wininst import get_special_folder_path as get_folder
 
 
 try:
@@ -21,16 +22,15 @@ except ImportError:
     addtolauncher = True
 
 
-quicklaunch_dir = join(wininst.get_special_folder_path('CSIDL_APPDATA'),
+quicklaunch_dir = join(get_folder('CSIDL_APPDATA'),
                        "Microsoft", "Internet Explorer", "Quick Launch")
 
 if mode == 'system':
-    desktop_dir = wininst.get_special_folder_path(
-                                           'CSIDL_COMMON_DESKTOPDIRECTORY')
-    start_menu = wininst.get_special_folder_path('CSIDL_COMMON_PROGRAMS')
+    desktop_dir = get_folder('CSIDL_COMMON_DESKTOPDIRECTORY')
+    start_menu = get_folder('CSIDL_COMMON_PROGRAMS')
 else:
-    desktop_dir = wininst.get_special_folder_path('CSIDL_DESKTOPDIRECTORY')
-    start_menu = wininst.get_special_folder_path('CSIDL_PROGRAMS')
+    desktop_dir = get_folder('CSIDL_DESKTOPDIRECTORY')
+    start_menu = get_folder('CSIDL_PROGRAMS')
 
 
 def quoted(s):
@@ -60,48 +60,37 @@ class Menu(object):
 
 class ShortCut(object):
 
-    def __init__(self, menu, shortcut, prefix=None):
+    def __init__(self, menu, shortcut, prefix=sys.prefix):
         """
         Prefix is the system prefix to be used -- this is needed since
         there is the possibility of a different Python's packages being managed.
         """
         self.menu = menu
         self.shortcut = shortcut
-        self.prefix = prefix if prefix is not None else sys.prefix
-        self.cmd = shortcut['cmd']
+        self.prefix = prefix
 
     def remove(self):
         self.create(remove=True)
 
     def create(self, remove=False):
-        # Separate the arguments to the invoked command from the command
-        # itself.
-        cmd = self.cmd[0]
-        args = self.cmd[1:]
-        executable = join(self.prefix, 'python.exe')
+        if "pywscript" in self.shortcut:
+            cmd = join(self.prefix, 'pythonw.exe')
+            args = self.shortcut.split()
 
-        # Handle the special '{{FILEBROWSER}}' command by using webbrowser
-        # since using just the path name pops up a dialog asking for which
-        # application to use.  Using 'explorer.exe' picks up
-        # c:/windows/system32/explorer.exe which does not work.  Webbrowser
-        # does the right thing.
-        if cmd == '{{FILEBROWSER}}':
-            cmd = executable
-            args = ['-m', 'webbrowser'] + args
+        elif "pyscript" in self.shortcut:
+            cmd = join(self.prefix, 'python.exe')
+            args = self.shortcut.split()
 
-        # Otherwise, handle the special '{{WEBBROWSER}}' command by
-        # invoking the Python standard lib's 'webbrowser' script.  This
-        # allows us to specify that the url(s) should be opened in new
-        # tabs.
-        #
-        # If this doesn't work, see the following website for details of
-        # the special URL shortcut file format.  While split across two
-        # lines it is one URL:
-        #   http://delphi.about.com/gi/dynamic/offsite.htm?site= \
-        #        http://www.cyanwerks.com/file-format-url.html
-        elif cmd == '{{WEBBROWSER}}':
-            cmd = executable
-            args = ['-m', 'webbrowser', '-t'] + args
+        else:
+            raise Exception("Nothing to do: %r" % self.shortcut)
+
+        for a, b in [
+            ('${PYTHON_SCRIPTS}', join(sys.prefix, 'Scripts')),
+            ('${PERSONALDIR}', get_folder('CSIDL_PERSONAL')),
+            ('${USERPROFILE}', get_folder('CSIDL_PROFILE')),
+            ]:
+            cmd = cmd.replace(a, b)
+            args = [s.replace(a, b) for s in args]
 
         # The API for the call to 'wininst.create_shortcut' has 3 required
         # arguments:-
@@ -115,8 +104,8 @@ class ShortCut(object):
         # We always pass the args argument, but we only pass the working
         # directory and the icon path if given, and we never currently pass the
         # icon index.
-        working_dir = quoted(self.shortcut.get('working_dir', ''))
-        icon        = self.shortcut.get('icon')
+        working_dir = quoted(self.shortcut.get('workdir', ''))
+        icon = self.shortcut.get('icon')
         if working_dir and icon:
             shortcut_args = [working_dir, icon]
 
@@ -147,7 +136,7 @@ class ShortCut(object):
             else:
                 wininst.create_shortcut(
                     quoted(cmd),
-                    self.shortcut['comment'],
+                    self.shortcut['name'],
                     dst,
                     ' '.join(quoted(arg) for arg in args),
                     *shortcut_args)
