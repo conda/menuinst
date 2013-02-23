@@ -231,6 +231,9 @@ struct {
 
         /* Virtual folder containing fonts. */
         DEF_CSIDL(CSIDL_FONTS),
+
+        DEF_CSIDL(CSIDL_PROFILE),
+        DEF_CSIDL(CSIDL_PERSONAL),
 };
 
 #define DIM(a) (sizeof(a) / sizeof((a)[0]))
