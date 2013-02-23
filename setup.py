@@ -2,7 +2,7 @@
 # Copyright (c) 2013 Continuum Analytics, Inc.
 # All rights reserved.
 import sys
-from distutils import Extension, setup
+from distutils.core import Extension, setup
 
 
 if sys.platform == "win32":
