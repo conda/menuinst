@@ -81,11 +81,11 @@ class ShortCut(object):
         workdir = self.shortcut.get('workdir', '')
         icon = self.shortcut.get('icon', '')
         for a, b in [
-            ('${PYTHON_SCRIPTS}', join(sys.prefix, 'Scripts')),
+            ('${PYTHON_SCRIPTS}', join(self.prefix, 'Scripts')),
+            ('${MENU_DIR}', join(self.prefix, 'Menu')),
             ('${PERSONALDIR}', get_folder('CSIDL_PERSONAL')),
             ('${USERPROFILE}', get_folder('CSIDL_PROFILE')),
             ]:
-            cmd = cmd.replace(a, b)
             args = [s.replace(a, b) for s in args]
             workdir = workdir.replace(a, b)
             icon = icon.replace(a, b)
