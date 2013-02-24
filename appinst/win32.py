@@ -71,6 +71,10 @@ class ShortCut(object):
             cmd = join(self.prefix, 'python.exe')
             args = self.shortcut["pyscript"].split()
 
+        elif "webbrowser" in self.shortcut:
+            cmd = join(self.prefix, 'pythonw.exe')
+            args = ['-m', 'webbrowser', '-t', self.shortcut['webbrowser']]
+
         else:
             raise Exception("Nothing to do: %r" % self.shortcut)
 
