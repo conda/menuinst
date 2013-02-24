@@ -4,6 +4,13 @@
 import sys
 from distutils.core import Extension, setup
 
+import versioneer
+
+versioneer.versionfile_source = 'appinst/_version.py'
+versioneer.versionfile_build = 'appinst/_version.py'
+versioneer.tag_prefix = ''
+versioneer.parentdir_prefix = 'appinst-'
+
 
 if sys.platform == "win32":
     extensions = [Extension(
@@ -20,12 +27,12 @@ else:
 
 setup(
     name = "appinst",
-    version = "2.1.3",
+    version = versioneer.get_version(),
+    cmdclass=versioneer.get_cmdclass(),
     description = "cross platform APIs to install applications menu items",
     ext_modules = extensions,
     include_package_data = True,
     package_data = {"appinst" : ["*.icns"]},
     license = "BSD",
     packages = ['appinst'],
-    zip_safe = False,
 )
