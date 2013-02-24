@@ -17,13 +17,16 @@ elif sys.platform == 'win32':
 
 
 
-def install(path, remove=False, prefix=sys.prefix):
+def install(path, remove=False, prefix=sys.prefix, menu_name=None):
     """
     install Menu and shortcuts
     """
     shortcuts = json.load(open(path))
 
-    m = Menu('Python-%i.%i' % sys.version_info[:2])
+    if menu_name is None:
+        menu_name = 'Python-%i.%i' % sys.version_info[:2]
+
+    m = Menu(menu_name)
     if remove:
         for sc in shortcuts:
             ShortCut(m, sc, prefix=prefix).remove()

@@ -1,5 +1,8 @@
 2013-??-??: 3.0.0
 -----------------
+  * simplified and changed API
+
+  * removed egginst dependency
 
 
 
@@ -49,4 +52,4 @@
         The RH4 implementation creates application menu files that conform to
         FreeDesktop.org's Desktop Menu Specification 1.0.  Though users may
         need to modify the application_menus.py module to get it to try that
-        implementation on another distribution or version. [22265]
+        implementation on another distribution or version.

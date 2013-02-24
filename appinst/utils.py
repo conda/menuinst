@@ -1,13 +1,7 @@
 import os
-import sys
 import shutil
 from os.path import isdir, isfile, islink
 
-
-if sys.platform == 'win32':
-    bin_dir_name = 'Scripts'
-else:
-    bin_dir_name = 'bin'
 
 
 def rm_empty_dir(path):

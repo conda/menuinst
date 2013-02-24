@@ -11,17 +11,7 @@ import wininst
 from wininst import get_special_folder_path as get_folder
 
 
-try:
-    from custom_tools.msi_property import get
-    mode = ('user', 'system')[get('ALLUSERS') == '1']
-    addtodesktop = bool(get('ADDTODESKTOP') == '1')
-    addtolauncher = bool(get('ADDTOLAUNCHER') == '1')
-except ImportError:
-    mode = 'user'
-    addtodesktop = True
-    addtolauncher = True
-
-
+mode = 'user'
 quicklaunch_dir = join(get_folder('CSIDL_APPDATA'),
                        "Microsoft", "Internet Explorer", "Quick Launch")
 
@@ -125,11 +115,11 @@ class ShortCut(object):
         dst_dirs = [self.menu.path]
 
         # Desktop link
-        if self.shortcut.get('desktop') and addtodesktop:
+        if self.shortcut.get('desktop'):
             dst_dirs.append(desktop_dir)
 
         # Quicklaunch link
-        if self.shortcut.get('quicklaunch') and addtolauncher:
+        if self.shortcut.get('quicklaunch'):
             dst_dirs.append(quicklaunch_dir)
 
         for dst_dir in dst_dirs:
