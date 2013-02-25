@@ -27,6 +27,7 @@ else:
 
 setup(
     name = "menuinst",
+    url = "https://github.com/ContinuumIO/menuinst",
     version = versioneer.get_version(),
     cmdclass=versioneer.get_cmdclass(),
     description = "cross platform install of menu items",
