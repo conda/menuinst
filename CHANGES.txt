@@ -1,9 +1,12 @@
-2013-??-??: 3.0.0
+2013-02-25: 1.0.0
 -----------------
   * simplified and changed API
-
   * removed egginst dependency
+  * renamed appinst to menuinst
+  * only supports Windows for now
 
+
+----------- historical AppInst changelog -----------------------------
 
 
 2012-06-12: 2.1.2
