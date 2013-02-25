@@ -332,8 +332,8 @@ static PyObject *CreateShortcut(PyObject *self, PyObject *args)
         }
 
         if (!PyArg_ParseTuple(args, "sss|sssi",
-                                &path, &description, &filename,
-                                &arguments, &workdir, &iconpath, &iconindex))
+                              &path, &description, &filename,
+                              &arguments, &workdir, &iconpath, &iconindex))
                 return NULL;
 
         hr = CoCreateInstance(&CLSID_ShellLink,

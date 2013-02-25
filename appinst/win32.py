@@ -90,31 +90,6 @@ class ShortCut(object):
             workdir = workdir.replace(a, b)
             icon = icon.replace(a, b)
 
-        # The API for the call to 'wininst.create_shortcut' has 3 required
-        # arguments:-
-        #
-        # path, description and filename
-        #
-        # and 4 optional arguments:-
-        #
-        # args, working_dir, icon_path and icon_index
-        #
-        # We always pass the args argument, but we only pass the working
-        # directory and the icon path if given, and we never currently pass the
-        # icon index.
-        working_dir = quoted(workdir)
-        if working_dir and icon:
-            shortcut_args = [working_dir, icon]
-
-        elif working_dir and not icon:
-            shortcut_args = [working_dir]
-
-        elif not working_dir and icon:
-            shortcut_args = ['', icon]
-
-        else:
-            shortcut_args = []
-
         # Menu link
         dst_dirs = [self.menu.path]
 
@@ -131,9 +106,14 @@ class ShortCut(object):
             if remove:
                 rm_rf(dst)
             else:
+                # The API for the call to 'wininst.create_shortcut' has 3
+                # required arguments (path, description and filename)
+                # and 4 optional ones (args, working_dir, icon_path and
+                # icon_index).
                 wininst.create_shortcut(
                     quoted(cmd),
                     self.shortcut['name'],
                     dst,
                     ' '.join(quoted(arg) for arg in args),
-                    *shortcut_args)
+                    quoted(workdir),
+                    quoted(icon))
