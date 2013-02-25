@@ -79,7 +79,7 @@ class ShortCut(object):
             raise Exception("Nothing to do: %r" % self.shortcut)
 
         workdir = self.shortcut.get('workdir', '')
-        icon = self.shortcut.get('icon', '')
+        icon = self.shortcut['icon']
         for a, b in [
             ('${PYTHON_SCRIPTS}', join(self.prefix, 'Scripts')),
             ('${MENU_DIR}', join(self.prefix, 'Menu')),
