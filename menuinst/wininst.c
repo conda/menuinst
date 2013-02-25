@@ -922,7 +922,7 @@ static BOOL OpenLogfile(char *dir)
                 }
         }
 
-        sprintf(buffer, "%s\\%s-appinst.log", dir, meta_name);
+        sprintf(buffer, "%s\\%s-menuinst.log", dir, meta_name);
         logfile = fopen(buffer, "a");
         time(&ltime);
         now = localtime(&ltime);
@@ -973,7 +973,7 @@ static BOOL OpenLogfile(char *dir)
                 fwrite(arc_data, exe_size, 1, fp);
                 fclose(fp);
 
-                sprintf(buffer, "\"%s\\Remove%s.exe\" -u \"%s\\%s-appinst.log\"",
+                sprintf(buffer, "\"%s\\Remove%s.exe\" -u \"%s\\%s-menuinst.log\"",
                         dir, meta_name, dir, meta_name);
 
                 result = RegSetValueEx(hSubkey, "UninstallString",
