@@ -1,6 +1,6 @@
-===============================================================
-appinst: cross platform APIs to install applications menu items
-===============================================================
+================================================================
+menuinst: cross platform APIs to install applications menu items
+================================================================
 
 This package is developed and maintained by Enthought.
 The name appinst is a rename of what used to be called 'wininst'.
