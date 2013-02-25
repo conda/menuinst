@@ -1,12 +1,11 @@
 # Copyright (c) 2008-2011 by Enthought, Inc.
+# Copyright (c) 2013 Continuum Analytics, Inc.
 # All rights reserved.
 
 import os
-import sys
 from os.path import isdir, join
 
 from utils import rm_empty_dir, rm_rf
-
 import wininst
 from wininst import get_special_folder_path as get_folder
 
@@ -50,7 +49,7 @@ class Menu(object):
 
 class ShortCut(object):
 
-    def __init__(self, menu, shortcut, prefix=sys.prefix):
+    def __init__(self, menu, shortcut, prefix):
         """
         Prefix is the system prefix to be used -- this is needed since
         there is the possibility of a different Python's packages being managed.
@@ -116,4 +115,5 @@ class ShortCut(object):
                     dst,
                     ' '.join(quoted(arg) for arg in args),
                     quoted(workdir),
-                    quoted(icon))
+                    quoted(icon),
+                )

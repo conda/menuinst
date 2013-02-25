@@ -8,7 +8,6 @@ import json
 from ._version import get_versions
 __version__ = get_versions()['version']
 
-
 if sys.platform.startswith('linux'):
     from linux import Menu, ShortCut
 
@@ -20,15 +19,17 @@ elif sys.platform == 'win32':
 
 
 
-def install(path, remove=False, prefix=sys.prefix, menu_name=None):
+def install(path, remove=False, prefix=sys.prefix):
     """
     install Menu and shortcuts
     """
-    shortcuts = json.load(open(path))
+    data = json.load(open(path))
+    try:
+        menu_name = data['menu_name']
+    except KeyError:
+        menu_name = 'Python-%d.%d' % sys.version_info[:2]
 
-    if menu_name is None:
-        menu_name = 'Python-%i.%i' % sys.version_info[:2]
-
+    shortcuts = data['menu_items']
     m = Menu(menu_name)
     if remove:
         for sc in shortcuts:
