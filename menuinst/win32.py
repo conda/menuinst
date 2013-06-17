@@ -3,6 +3,7 @@
 # All rights reserved.
 
 import os
+from os import mkdir
 from os.path import isdir, join
 
 from utils import rm_empty_dir, rm_rf
@@ -28,7 +29,7 @@ def quoted(s):
     """
     # strip any existing quotes
     s = s.strip('"')
-    if ' ' in s:
+    if ' ' in s or '/' in s:
         return '"%s"' % s
     else:
         return s
@@ -88,6 +89,13 @@ class ShortCut(object):
             args = [s.replace(a, b) for s in args]
             workdir = workdir.replace(a, b)
             icon = icon.replace(a, b)
+        # Fix up the '/' to '\'
+        workdir = workdir.replace('/', '\\')
+        icon = icon.replace('/', '\\')
+
+        # Create the working directory if it doesn't exist
+        if not isdir(workdir):
+            mkdir(workdir)
 
         # Menu link
         dst_dirs = [self.menu.path]
@@ -114,6 +122,6 @@ class ShortCut(object):
                     self.shortcut['name'],
                     dst,
                     ' '.join(quoted(arg) for arg in args),
-                    quoted(workdir),
-                    quoted(icon),
+                    workdir,
+                    icon,
                 )
