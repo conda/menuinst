@@ -1,3 +1,9 @@
+2013-06-XX: 1.0.1
+-----------------
+  * fix minor bug on Windows
+  * add OSX support
+
+
 2013-02-25: 1.0.0
 -----------------
   * simplified and changed API

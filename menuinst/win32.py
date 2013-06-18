@@ -3,7 +3,6 @@
 # All rights reserved.
 
 import os
-from os import mkdir
 from os.path import isdir, join
 
 from utils import rm_empty_dir, rm_rf
@@ -95,7 +94,7 @@ class ShortCut(object):
 
         # Create the working directory if it doesn't exist
         if not isdir(workdir):
-            mkdir(workdir)
+            os.mkdir(workdir)
 
         # Menu link
         dst_dirs = [self.menu.path]
