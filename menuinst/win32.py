@@ -10,7 +10,7 @@ import wininst
 from wininst import get_special_folder_path as get_folder
 
 
-mode = 'user'
+mode = 'system'
 quicklaunch_dir = join(get_folder('CSIDL_APPDATA'),
                        "Microsoft", "Internet Explorer", "Quick Launch")
 
