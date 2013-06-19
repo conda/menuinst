@@ -3,7 +3,7 @@
 # All rights reserved.
 
 import os
-from os.path import isdir, join
+from os.path import expanduser, isdir, join
 
 from utils import rm_empty_dir, rm_rf
 import wininst
@@ -93,8 +93,11 @@ class ShortCut(object):
         icon = icon.replace('/', '\\')
 
         # Create the working directory if it doesn't exist
-        if not isdir(workdir):
-            os.makedirs(workdir)
+        if workdir:
+            if not isdir(workdir):
+                os.makedirs(workdir)
+        else:
+            workdir = expanduser('~')
 
         # Menu link
         dst_dirs = [self.menu.path]
