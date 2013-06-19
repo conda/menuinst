@@ -12,6 +12,8 @@ from utils import rm_rf
 
 
 class Menu(object):
+    def __init__(self, unused_name):
+        pass
     def create(self):
         pass
     def remove(self):
