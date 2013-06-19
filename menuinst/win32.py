@@ -94,7 +94,7 @@ class ShortCut(object):
 
         # Create the working directory if it doesn't exist
         if not isdir(workdir):
-            os.mkdir(workdir)
+            os.makedirs(workdir)
 
         # Menu link
         dst_dirs = [self.menu.path]
