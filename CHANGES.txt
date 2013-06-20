@@ -1,8 +1,7 @@
-2013-06-XX: 1.1.0
+2013-06-19: 1.0.1
 -----------------
   * fix minor bug on Windows
   * install system wide on Windows
-  * add OSX support
 
 
 2013-02-25: 1.0.0
