@@ -5,13 +5,15 @@
 from __future__ import absolute_import
 
 import os
-from os.path import expanduser, isdir, join
+import sys
+from os.path import expanduser, isdir, join, exists
 
 from .utils import rm_empty_dir, rm_rf
 from .csidl import get_folder_path
 from .winshortcut import create_shortcut
 
-mode = 'system'
+mode = ('user' if exists(join(sys.prefix, '.nonadmin')) else 'system')
+
 quicklaunch_dir = join(get_folder_path('CSIDL_APPDATA'),
                        "Microsoft", "Internet Explorer", "Quick Launch")
 
