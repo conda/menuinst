@@ -36,5 +36,5 @@ setup(
     include_package_data = True,
     package_data = {"menuinst" : ["*.icns"]},
     license = "BSD",
-    packages = ['menuinst'],
+    packages = ['menuinst', 'menuinst.winutil'],
 )

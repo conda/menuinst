@@ -189,53 +189,6 @@ static void add_to_filelist(char *path)
         file_list = p;
 }
 
-
-#define DEF_CSIDL(name) { name, #name }
-
-struct {
-        int nFolder;
-        char *name;
-} csidl_names[] = {
-        /* Startup menu for all users.
-           NT only */
-        DEF_CSIDL(CSIDL_COMMON_STARTMENU),
-        /* Startup menu. */
-        DEF_CSIDL(CSIDL_STARTMENU),
-
-/*    DEF_CSIDL(CSIDL_COMMON_APPDATA), */
-/*    DEF_CSIDL(CSIDL_LOCAL_APPDATA), */
-        /* Repository for application-specific data.
-           Needs Internet Explorer 4.0 */
-        DEF_CSIDL(CSIDL_APPDATA),
-
-        /* The desktop for all users.
-           NT only */
-        DEF_CSIDL(CSIDL_COMMON_DESKTOPDIRECTORY),
-        /* The desktop. */
-        DEF_CSIDL(CSIDL_DESKTOPDIRECTORY),
-
-        /* Startup folder for all users.
-           NT only */
-        DEF_CSIDL(CSIDL_COMMON_STARTUP),
-        /* Startup folder. */
-        DEF_CSIDL(CSIDL_STARTUP),
-
-        /* Programs item in the start menu for all users.
-           NT only */
-        DEF_CSIDL(CSIDL_COMMON_PROGRAMS),
-        /* Program item in the user's start menu. */
-        DEF_CSIDL(CSIDL_PROGRAMS),
-
-/*    DEF_CSIDL(CSIDL_PROGRAM_FILES_COMMON), */
-/*    DEF_CSIDL(CSIDL_PROGRAM_FILES), */
-
-        /* Virtual folder containing fonts. */
-        DEF_CSIDL(CSIDL_FONTS),
-
-        DEF_CSIDL(CSIDL_PROFILE),
-        DEF_CSIDL(CSIDL_PERSONAL),
-};
-
 #define DIM(a) (sizeof(a) / sizeof((a)[0]))
 
 static PyObject *FileCreated(PyObject *self, PyObject *args)
@@ -254,56 +207,6 @@ static PyObject *DirectoryCreated(PyObject *self, PyObject *args)
                 return NULL;
         notify(DIR_CREATED, path);
         return Py_BuildValue("");
-}
-
-static PyObject *GetSpecialFolderPath(PyObject *self, PyObject *args)
-{
-        char *name;
-        char lpszPath[MAX_PATH];
-        int i;
-        static HRESULT (WINAPI *My_SHGetSpecialFolderPath)(HWND hwnd,
-                                                           LPTSTR lpszPath,
-                                                           int nFolder,
-                                                           BOOL fCreate);
-
-        if (!My_SHGetSpecialFolderPath) {
-                HINSTANCE hLib = LoadLibrary("shell32.dll");
-                if (!hLib) {
-                        PyErr_Format(PyExc_OSError,
-                                       "function not available");
-                        return NULL;
-                }
-                My_SHGetSpecialFolderPath = (BOOL (WINAPI *)(HWND, LPTSTR,
-                                                             int, BOOL))
-                        GetProcAddress(hLib,
-                                       "SHGetSpecialFolderPathA");
-        }
-
-        if (!PyArg_ParseTuple(args, "s", &name))
-                return NULL;
-
-        if (!My_SHGetSpecialFolderPath) {
-                PyErr_Format(PyExc_OSError, "function not available");
-                return NULL;
-        }
-
-        for (i = 0; i < DIM(csidl_names); ++i) {
-                if (0 == strcmpi(csidl_names[i].name, name)) {
-                        int nFolder;
-                        nFolder = csidl_names[i].nFolder;
-                        if (My_SHGetSpecialFolderPath(NULL, lpszPath,
-                                                      nFolder, 0))
-                                return Py_BuildValue("s", lpszPath);
-                        else {
-                                PyErr_Format(PyExc_OSError,
-                                               "no such folder (%s)", name);
-                                return NULL;
-                        }
-
-                }
-        };
-        PyErr_Format(PyExc_ValueError, "unknown CSIDL (%s)", name);
-        return NULL;
 }
 
 static PyObject *CreateShortcut(PyObject *self, PyObject *args)
@@ -452,7 +355,6 @@ static PyObject *GetRootHKey(PyObject *self)
 
 PyMethodDef meth[] = {
         {"create_shortcut", CreateShortcut, METH_VARARGS, NULL},
-        {"get_special_folder_path", GetSpecialFolderPath, METH_VARARGS, NULL},
         {"get_root_hkey", (PyCFunction)GetRootHKey, METH_NOARGS, NULL},
         {"file_created", FileCreated, METH_VARARGS, NULL},
         {"directory_created", DirectoryCreated, METH_VARARGS, NULL},

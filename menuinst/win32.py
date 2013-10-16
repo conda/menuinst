@@ -2,24 +2,26 @@
 # Copyright (c) 2013 Continuum Analytics, Inc.
 # All rights reserved.
 
+from __future__ import absolute_import
+
 import os
 from os.path import expanduser, isdir, join
 
-from utils import rm_empty_dir, rm_rf
-import wininst
-from wininst import get_special_folder_path as get_folder
+from .utils import rm_empty_dir, rm_rf
+from .winutil import get_folder_path
+from . import wininst
 
 
 mode = 'system'
-quicklaunch_dir = join(get_folder('CSIDL_APPDATA'),
+quicklaunch_dir = join(get_folder_path('CSIDL_APPDATA'),
                        "Microsoft", "Internet Explorer", "Quick Launch")
 
 if mode == 'system':
-    desktop_dir = get_folder('CSIDL_COMMON_DESKTOPDIRECTORY')
-    start_menu = get_folder('CSIDL_COMMON_PROGRAMS')
+    desktop_dir = get_folder_path('CSIDL_COMMON_DESKTOPDIRECTORY')
+    start_menu = get_folder_path('CSIDL_COMMON_PROGRAMS')
 else:
-    desktop_dir = get_folder('CSIDL_DESKTOPDIRECTORY')
-    start_menu = get_folder('CSIDL_PROGRAMS')
+    desktop_dir = get_folder_path('CSIDL_DESKTOPDIRECTORY')
+    start_menu = get_folder_path('CSIDL_PROGRAMS')
 
 
 def quoted(s):
@@ -82,8 +84,8 @@ class ShortCut(object):
         for a, b in [
             ('${PYTHON_SCRIPTS}', join(self.prefix, 'Scripts')),
             ('${MENU_DIR}', join(self.prefix, 'Menu')),
-            ('${PERSONALDIR}', get_folder('CSIDL_PERSONAL')),
-            ('${USERPROFILE}', get_folder('CSIDL_PROFILE')),
+            ('${PERSONALDIR}', get_folder_path('CSIDL_PERSONAL')),
+            ('${USERPROFILE}', get_folder_path('CSIDL_PROFILE')),
             ]:
             args = [s.replace(a, b) for s in args]
             workdir = workdir.replace(a, b)
