@@ -8,9 +8,8 @@ import os
 from os.path import expanduser, isdir, join
 
 from .utils import rm_empty_dir, rm_rf
-from .winutil import get_folder_path
-from . import wininst
-
+from .csidl import get_folder_path
+from .winshortcut import create_shortcut
 
 mode = 'system'
 quicklaunch_dir = join(get_folder_path('CSIDL_APPDATA'),
@@ -23,21 +22,19 @@ else:
     desktop_dir = get_folder_path('CSIDL_DESKTOPDIRECTORY')
     start_menu = get_folder_path('CSIDL_PROGRAMS')
 
-
 def quoted(s):
     """
     quotes a string if necessary.
     """
     # strip any existing quotes
-    s = s.strip('"')
-    if ' ' in s or '/' in s:
-        return '"%s"' % s
+    s = s.strip(u'"')
+    if u' ' in s or u'/' in s:
+        return u'"%s"' % s
     else:
         return s
 
 
 class Menu(object):
-
     def __init__(self, name):
         self.path = join(start_menu, name)
 
@@ -50,7 +47,6 @@ class Menu(object):
 
 
 class ShortCut(object):
-
     def __init__(self, menu, shortcut, prefix):
         """
         Prefix is the system prefix to be used -- this is needed since
@@ -117,15 +113,15 @@ class ShortCut(object):
             if remove:
                 rm_rf(dst)
             else:
-                # The API for the call to 'wininst.create_shortcut' has 3
+                # The API for the call to 'create_shortcut' has 3
                 # required arguments (path, description and filename)
                 # and 4 optional ones (args, working_dir, icon_path and
                 # icon_index).
-                wininst.create_shortcut(
-                    quoted(cmd),
-                    self.shortcut['name'],
-                    dst,
-                    ' '.join(quoted(arg) for arg in args),
-                    workdir,
-                    icon,
+                create_shortcut(
+                    u'' + quoted(cmd),
+                    u'' + self.shortcut['name'],
+                    u'' + dst,
+                    u' '.join(quoted(arg) for arg in args),
+                    u'' + workdir,
+                    u'' + icon,
                 )

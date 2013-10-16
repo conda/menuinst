@@ -14,8 +14,8 @@ versioneer.parentdir_prefix = 'menuinst-'
 
 if sys.platform == "win32":
     extensions = [Extension(
-            "menuinst.wininst",
-            sources=["menuinst/wininst.c"],
+            "menuinst.winshortcut",
+            sources=["menuinst/winshortcut.cpp"],
             include_dirs=["menuinst"],
             libraries=["comctl32",  "kernel32", "user32", "gdi32", "winspool",
                        "comdlg32", "advapi32", "shell32", "ole32", "oleaut32",
@@ -36,5 +36,5 @@ setup(
     include_package_data = True,
     package_data = {"menuinst" : ["*.icns"]},
     license = "BSD",
-    packages = ['menuinst', 'menuinst.winutil'],
+    packages = ['menuinst'],
 )
