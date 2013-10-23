@@ -158,11 +158,31 @@ PyMethodDef meth[] = {
         "\n"
         "  Creates a shortcut ``filename`` (a .lnk file), whose\n"
         "  target path is ``path``. All the input strings must be\n"
-        "  unicode."},
+        "  unicode.\n"
+        "\n"
+        "  >>>winshortcut.create_shortcut(\"C:\\Target\\Path\\File.txt\",\n"
+        "                                 \"Shortcut description\",\n"
+        "                                 \"C:\\Shortcut\\Path\\Shortcut.lnk\"\n"},
     {NULL, NULL}
 };
 
+#if PY_VERSION_HEX >= 0x03000000
+static struct PyModuleDef winshortcutmodule = {
+   PyModuleDef_HEAD_INIT,
+   "winshortcut",
+   NULL, /* module documentation */
+   -1,
+   meth
+};
+
+PyMODINIT_FUNC
+PyInit_winshortcut(void)
+{
+    return PyModule_Create(&winshortcutmodule);
+}
+#else
 void initwinshortcut(void)
 {
     Py_InitModule("winshortcut", meth);
 }
+#endif

@@ -2,6 +2,7 @@
 # Copyright (c) 2013 Continuum Analytics, Inc.
 # All rights reserved.
 
+from __future__ import absolute_import
 import sys
 import json
 
@@ -9,13 +10,13 @@ from ._version import get_versions
 __version__ = get_versions()['version']
 
 if sys.platform.startswith('linux'):
-    from linux import Menu, ShortCut
+    from .linux import Menu, ShortCut
 
 elif sys.platform == 'darwin':
-    from darwin import Menu, ShortCut
+    from .darwin import Menu, ShortCut
 
 elif sys.platform == 'win32':
-    from win32 import Menu, ShortCut
+    from .win32 import Menu, ShortCut
 
 
 

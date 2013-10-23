@@ -23,7 +23,7 @@ csidl_consts = {
         }
 
 SHGetFolderPath = ctypes.windll.shell32.SHGetFolderPathW
-SHGetFolderPath.restype = wintypes.HRESULT
+SHGetFolderPath.restype = wintypes.HANDLE
 SHGetFolderPath.argtypes = [wintypes.HWND, ctypes.c_int,
         wintypes.HANDLE, wintypes.DWORD, wintypes.LPWSTR]
 SHGFP_TYPE_CURRENT = 0
@@ -34,7 +34,7 @@ def get_folder_path(path_name):
     csidl = csidl_consts.get(path_name, None)
     if csidl:
         out_str = ctypes.create_unicode_buffer(MAX_PATH)
-        if SHGetFolderPath(None, csidl, None, SHGFP_TYPE_CURRENT, out_str) != 0:
+        if SHGetFolderPath(None, csidl, None, SHGFP_TYPE_CURRENT, out_str):
             raise ctypes.WinError()
         return out_str.value
     else:

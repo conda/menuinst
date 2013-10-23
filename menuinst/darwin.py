@@ -108,7 +108,7 @@ class Application(object):
 %s/python.app/Contents/MacOS/python %s
 """ % (self.prefix, self.cmd))
         fo.close()
-        os.chmod(self.executable_path, 0755)
+        os.chmod(self.executable_path, 0o755)
 
 
 if __name__ == '__main__':
