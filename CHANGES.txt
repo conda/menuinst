@@ -1,3 +1,14 @@
+2013-10-28: 1.0.3
+-----------------
+  * make it compatible with python 3
+
+
+2013-10-16: 1.0.2
+-----------------
+  * add initial support for recognition of non-admin installations
+  * make the shortcut function unicode
+
+
 2013-06-19: 1.0.1
 -----------------
   * fix minor bug on Windows
