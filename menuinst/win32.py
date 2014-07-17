@@ -74,12 +74,17 @@ class ShortCut(object):
             cmd = join(self.prefix, 'pythonw.exe')
             args = ['-m', 'webbrowser', '-t', self.shortcut['webbrowser']]
 
+        elif "script" in self.shortcut:
+            cmd = join(self.prefix, self.shortcut["script"].replace('/', '\\'))
+            args = [self.shortcut['scriptargument']]
+
         else:
             raise Exception("Nothing to do: %r" % self.shortcut)
 
         workdir = self.shortcut.get('workdir', '')
         icon = self.shortcut.get('icon', '')
         for a, b in [
+            ('${PREFIX}', self.prefix),
             ('${PYTHON_SCRIPTS}', join(self.prefix, 'Scripts')),
             ('${MENU_DIR}', join(self.prefix, 'Menu')),
             ('${PERSONALDIR}', get_folder_path('CSIDL_PERSONAL')),
