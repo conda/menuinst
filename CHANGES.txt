@@ -2,6 +2,7 @@
 -----------------
   * support 'script' key to shortcut to arbitrary executable
 
+
 2013-10-28: 1.0.3
 -----------------
   * make it compatible with python 3

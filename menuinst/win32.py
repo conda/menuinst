@@ -89,6 +89,7 @@ class ShortCut(object):
             ('${MENU_DIR}', join(self.prefix, 'Menu')),
             ('${PERSONALDIR}', get_folder_path('CSIDL_PERSONAL')),
             ('${USERPROFILE}', get_folder_path('CSIDL_PROFILE')),
+            #('${HOME}', XXX),
             ]:
             args = [s.replace(a, b) for s in args]
             workdir = workdir.replace(a, b)

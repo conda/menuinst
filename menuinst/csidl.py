@@ -4,23 +4,23 @@ from ctypes import wintypes
 __all__ = ['get_folder_path']
 
 csidl_consts = {
-        'CSIDL_COMMON_STARTMENU': 0x0016,
-        'CSIDL_STARTMENU': 0x000b,
-        'CSIDL_COMMON_APPDATA': 0x0023,
-        'CSIDL_LOCAL_APPDATA': 0x001c,
-        'CSIDL_APPDATA': 0x001a,
-        'CSIDL_COMMON_DESKTOPDIRECTORY': 0x0019,
-        'CSIDL_DESKTOPDIRECTORY': 0x0010,
-        'CSIDL_COMMON_STARTUP': 0x0018,
-        'CSIDL_STARTUP': 0x0007,
-        'CSIDL_COMMON_PROGRAMS': 0x0017,
-        'CSIDL_PROGRAMS': 0x0002,
-        'CSIDL_PROGRAM_FILES_COMMON': 0x002b,
-        'CSIDL_PROGRAM_FILES': 0x0026,
-        'CSIDL_FONTS': 0x0014,
-        'CSIDL_PROFILE': 0x0028,
-        'CSIDL_PERSONAL': 0x0005,
-        }
+    'CSIDL_COMMON_STARTMENU': 0x0016,
+    'CSIDL_STARTMENU': 0x000b,
+    'CSIDL_COMMON_APPDATA': 0x0023,
+    'CSIDL_LOCAL_APPDATA': 0x001c,
+    'CSIDL_APPDATA': 0x001a,
+    'CSIDL_COMMON_DESKTOPDIRECTORY': 0x0019,
+    'CSIDL_DESKTOPDIRECTORY': 0x0010,
+    'CSIDL_COMMON_STARTUP': 0x0018,
+    'CSIDL_STARTUP': 0x0007,
+    'CSIDL_COMMON_PROGRAMS': 0x0017,
+    'CSIDL_PROGRAMS': 0x0002,
+    'CSIDL_PROGRAM_FILES_COMMON': 0x002b,
+    'CSIDL_PROGRAM_FILES': 0x0026,
+    'CSIDL_FONTS': 0x0014,
+    'CSIDL_PROFILE': 0x0028,
+    'CSIDL_PERSONAL': 0x0005,
+}
 
 SHGetFolderPath = ctypes.windll.shell32.SHGetFolderPathW
 SHGetFolderPath.restype = wintypes.HANDLE
@@ -39,4 +39,3 @@ def get_folder_path(path_name):
         return out_str.value
     else:
         raise ValueError("%s is an unknown CSIDL path ID" % (path_name))
-
