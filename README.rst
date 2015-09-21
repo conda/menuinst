@@ -13,6 +13,8 @@ This application is used by Conda to create shortcuts on a wide variety of
 systems.  To create shortcuts, you'll need to add a menu entry file named
 **menu-windows.json** to your conda recipe.  An example file's contents would be:
 
+.. code-block::
+
     [
         {
             "name": "IPython (Py __PY_VER__)",
@@ -38,6 +40,6 @@ Making icons accessible:
 
 To make your desired icon accessible, copy it in your bld.bat file to %MENU_DIR%, which conda defines.
 
+.. code-block::
+
     copy %RECIPE_DIR%\IPython.ico %MENU_DIR%
-
-
