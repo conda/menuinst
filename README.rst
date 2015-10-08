@@ -13,7 +13,7 @@ This application is used by Conda to create shortcuts on a wide variety of
 systems.  To create shortcuts, you'll need to add a menu entry file named
 **menu-windows.json** to your conda recipe.  An example file's contents would be:
 
-.. code-block::
+.. code-block:: javascript
 
     [
         {
@@ -29,6 +29,8 @@ Note that two fields are required for each shortcut: "name" and some action type
 
 By default, this puts your shortcut under the Anaconda menu entry.  To create your own folder, you can add additional keys:
 
+.. code-block:: javascript
+
     {
         "menu_name": "World",
         "menu_items":
@@ -42,6 +44,8 @@ By default, this puts your shortcut under the Anaconda menu entry.  To create yo
    
 
 Make sure that you copy the menu-windows.json file in your blt.bat script:
+
+.. code-block:: 
 
     copy menu-windows.json %PREFIX%\Menu\
 
