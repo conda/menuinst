@@ -7,7 +7,7 @@ under the name AppInst.  The name appinst is a rename of what used
 to be called 'wininst'.
 
 Usage on Windows:
-======
+=================
 
 This application is used by Conda to create shortcuts on a wide variety of
 systems.  To create shortcuts, you'll need to add a menu entry file named
@@ -25,10 +25,28 @@ systems.  To create shortcuts, you'll need to add a menu entry file named
 
 There can be more than one dictionary per JSON file (one per shortcut).
 
-Note that two fields are required: "name" and some action type.
+Note that two fields are required for each shortcut: "name" and some action type.
+
+By default, this puts your shortcut under the Anaconda menu entry.  To create your own folder, you can add additional keys:
+
+    {
+        "menu_name": "World",
+        "menu_items":
+            [
+                {
+                    "name": "Hello World",
+                    "pyscript": "${PYTHON_SCRIPTS}/helloworld-script.py"
+                }
+            ]
+    }
+   
+
+Make sure that you copy the menu-windows.json file in your blt.bat script:
+
+    copy menu-windows.json %PREFIX%\Menu\
 
 Supported action types on Windows:
----------------------
+----------------------------------
 
   * **pyscript**: Run supplied python script with interpreter on PATH
   * **pywscript**: Run supplied python script with pythonw interpreter on PATH
