@@ -25,7 +25,7 @@ systems.  To create shortcuts, you'll need to add a menu entry file named
 
 There can be more than one dictionary per JSON file (one per shortcut).
 
-Note that two fields are required for each shortcut: "name" and some action type.
+**Note:** two fields are required for each shortcut: "name" and some action type.
 
 By default, this puts your shortcut under the Anaconda menu entry.  To create your own folder, you can add additional keys:
 
@@ -47,7 +47,7 @@ Make sure that you copy the menu-windows.json file in your blt.bat script:
 
 .. code-block:: 
 
-    copy menu-windows.json %PREFIX%\Menu\
+    copy menu-windows.json %MENU_DIR%\
 
 Supported action types on Windows:
 ----------------------------------
@@ -64,4 +64,4 @@ To make your desired icon accessible, copy it in your bld.bat file to %MENU_DIR%
 
 .. code-block::
 
-    copy %RECIPE_DIR%\IPython.ico %MENU_DIR%
+    copy %RECIPE_DIR%\IPython.ico %MENU_DIR%\
