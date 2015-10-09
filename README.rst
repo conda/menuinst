@@ -9,4 +9,4 @@ name `AppInst`.  The name `AppInst` is a rename of what used to be called
 For basic instructions how to use `menuinst`, please `read the wiki`_.
 
 
-.. _read the wiki: ./wiki/
+.. _read the wiki: https://github.com/ContinuumIO/menuinst/wiki/
