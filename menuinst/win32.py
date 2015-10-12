@@ -24,6 +24,7 @@ else:
     desktop_dir = get_folder_path('CSIDL_DESKTOPDIRECTORY')
     start_menu = get_folder_path('CSIDL_PROGRAMS')
 
+
 def quoted(s):
     """
     quotes a string if necessary.
@@ -34,6 +35,12 @@ def quoted(s):
         return u'"%s"' % s
     else:
         return s
+
+
+def append_env_name(shortcut_name):
+    conda_env_name = os.getenv("CONDA_DEFAULT_ENV")
+    appendage = " ({})".format(conda_env_name) if conda_env_name else ""
+    return shortcut_name + appendage
 
 
 class Menu(object):
@@ -56,6 +63,7 @@ class ShortCut(object):
         """
         self.menu = menu
         self.shortcut = shortcut
+        self.shortcut["name"] = append_env_name(self.shortcut["name"])
         self.prefix = prefix
 
     def remove(self):
@@ -89,7 +97,6 @@ class ShortCut(object):
             ('${MENU_DIR}', join(self.prefix, 'Menu')),
             ('${PERSONALDIR}', get_folder_path('CSIDL_PERSONAL')),
             ('${USERPROFILE}', get_folder_path('CSIDL_PROFILE')),
-            #('${HOME}', XXX),
             ]:
             args = [s.replace(a, b) for s in args]
             workdir = workdir.replace(a, b)
