@@ -189,12 +189,11 @@ class ShortCut(object):
 
     fn_pat = re.compile(r'[\w.-]+$')
 
-    def __init__(self, menu, shortcut, prefix=None):
+    def __init__(self, menu, shortcut, prefix, env_name, env_setup_cmd):
         # note that this is the path WITHOUT extension
         fn = menu.name_ + shortcut['id']
         assert self.fn_pat.match(fn)
         self.path = join(appdir, fn)
-
         shortcut['categories'] = menu.name
         self.shortcut = shortcut
         for var_name in ('name', 'cmd'):
@@ -202,6 +201,9 @@ class ShortCut(object):
                 setattr(self, var_name, shortcut[var_name])
 
         self.prefix = prefix if prefix is not None else sys.prefix
+        self.env_name = env_name
+        self.env_setup_cmd = env_setup_cmd
+
 
     def create(self):
         self._install_desktop_entry('gnome')

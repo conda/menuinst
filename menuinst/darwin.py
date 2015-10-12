@@ -42,7 +42,7 @@ class Application(object):
     be standalone executable, but more likely a Python script which is
     interpreted by the framework Python interpreter.
     """
-    def __init__(self, app_path, shortcut, prefix):
+    def __init__(self, app_path, shortcut, prefix, env_name, env_setup_cmd):
         """
         Required:
         ---------
@@ -54,6 +54,9 @@ class Application(object):
         self.name = shortcut['name']
         self.cmd = shortcut['cmd']
         self.icns = shortcut['icns']
+        self.env_name = env_name
+        self.env_setup_cmd = env_setup_cmd
+
 
         for a, b in [
             ('${BIN_DIR}', join(prefix, 'bin')),

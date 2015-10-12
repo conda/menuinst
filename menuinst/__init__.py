@@ -20,7 +20,8 @@ elif sys.platform == 'win32':
 
 
 
-def install(path, remove=False, prefix=sys.prefix):
+def install(path, remove=False, prefix=sys.prefix,
+            env_name=None, env_setup_cmd=None):
     """
     install Menu and shortcuts
     """
@@ -34,9 +35,11 @@ def install(path, remove=False, prefix=sys.prefix):
     m = Menu(menu_name)
     if remove:
         for sc in shortcuts:
-            ShortCut(m, sc, prefix=prefix).remove()
+            ShortCut(m, sc, prefix=prefix, env_name=env_name,
+                     env_setup_cmd=env_setup_cmd).remove()
         m.remove()
     else:
         m.create()
         for sc in shortcuts:
-            ShortCut(m, sc, prefix=prefix).create()
+            ShortCut(m, sc, prefix=prefix, env_name=env_name,
+                     env_setup_cmd=env_setup_cmd).create()

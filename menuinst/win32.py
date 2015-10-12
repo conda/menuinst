@@ -37,12 +37,6 @@ def quoted(s):
         return s
 
 
-def append_env_name(shortcut_name):
-    conda_env_name = os.getenv("CONDA_DEFAULT_ENV")
-    appendage = " ({})".format(conda_env_name) if conda_env_name else ""
-    return shortcut_name + appendage
-
-
 class Menu(object):
     def __init__(self, name):
         self.path = join(start_menu, name)
@@ -56,34 +50,36 @@ class Menu(object):
 
 
 class ShortCut(object):
-    def __init__(self, menu, shortcut, prefix):
+    def __init__(self, menu, shortcut, prefix, env_name, env_setup_cmd):
         """
         Prefix is the system prefix to be used -- this is needed since
         there is the possibility of a different Python's packages being managed.
         """
         self.menu = menu
         self.shortcut = shortcut
-        self.shortcut["name"] = append_env_name(self.shortcut["name"])
         self.prefix = prefix
+        self.env_name = env_name
+        self.env_setup_cmd = env_setup_cmd
 
     def remove(self):
         self.create(remove=True)
 
     def create(self, remove=False):
+        cmd = self.env_setup_cmd + " && " if self.env_setup_cmd else ""
         if "pywscript" in self.shortcut:
-            cmd = join(self.prefix, 'pythonw.exe')
+            cmd = cmd + join(self.prefix, 'pythonw.exe')
             args = self.shortcut["pywscript"].split()
 
         elif "pyscript" in self.shortcut:
-            cmd = join(self.prefix, 'python.exe')
+            cmd = cmd + join(self.prefix, 'python.exe')
             args = self.shortcut["pyscript"].split()
 
         elif "webbrowser" in self.shortcut:
-            cmd = join(self.prefix, 'pythonw.exe')
+            cmd = cmd + join(self.prefix, 'pythonw.exe')
             args = ['-m', 'webbrowser', '-t', self.shortcut['webbrowser']]
 
         elif "script" in self.shortcut:
-            cmd = join(self.prefix, self.shortcut["script"].replace('/', '\\'))
+            cmd = cmd + join(self.prefix, self.shortcut["script"].replace('/', '\\'))
             args = [self.shortcut['scriptargument']]
 
         else:
@@ -97,6 +93,7 @@ class ShortCut(object):
             ('${MENU_DIR}', join(self.prefix, 'Menu')),
             ('${PERSONALDIR}', get_folder_path('CSIDL_PERSONAL')),
             ('${USERPROFILE}', get_folder_path('CSIDL_PROFILE')),
+            ('${ENV_NAME}', self.env_name),
             ]:
             args = [s.replace(a, b) for s in args]
             workdir = workdir.replace(a, b)
@@ -123,8 +120,9 @@ class ShortCut(object):
         if self.shortcut.get('quicklaunch'):
             dst_dirs.append(quicklaunch_dir)
 
+        name_suffix = " ({})".format(self.env_name) if self.env_name else ""
         for dst_dir in dst_dirs:
-            dst = join(dst_dir, self.shortcut['name'] + '.lnk')
+            dst = join(dst_dir, self.shortcut['name'] + name_suffix + '.lnk')
             if remove:
                 rm_rf(dst)
             else:
@@ -134,7 +132,7 @@ class ShortCut(object):
                 # icon_index).
                 create_shortcut(
                     u'' + quoted(cmd),
-                    u'' + self.shortcut['name'],
+                    u'' + self.shortcut['name'] + name_suffix,
                     u'' + dst,
                     u' '.join(quoted(arg) for arg in args),
                     u'' + workdir,
