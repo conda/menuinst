@@ -1,1 +1,2 @@
 appinst/_version.py export-subst
+menuinst/_version.py export-subst
