@@ -4,10 +4,11 @@
 
 from __future__ import absolute_import
 
-import os
-import sys
-from os.path import expanduser, isdir, join, exists
 from functools import partial
+import os
+from os.path import expanduser, isdir, join, exists
+import platform
+import sys
 
 from .utils import rm_empty_dir, rm_rf
 from .csidl import get_folder_path
@@ -57,6 +58,8 @@ def substitute_env_variables(text, prefix, env_name=None):
             ('${PERSONALDIR}', get_folder_path('CSIDL_PERSONAL')),
             ('${USERPROFILE}', get_folder_path('CSIDL_PROFILE')),
             ('${ENV_NAME}', env_name if env_name else ""),
+            ('${PY_VER}', sys.version_info.major),
+            ('${PLATFORM}', platform.machine()),
             ]:
             text = text.replace(a, b)
         return text
