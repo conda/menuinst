@@ -1,0 +1,2 @@
+include versioneer.py
+include menuinst/_version.py

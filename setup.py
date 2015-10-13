@@ -6,11 +6,6 @@ from distutils.core import Extension, setup
 
 import versioneer
 
-versioneer.versionfile_source = 'menuinst/_version.py'
-versioneer.versionfile_build = 'menuinst/_version.py'
-versioneer.tag_prefix = ''
-versioneer.parentdir_prefix = 'menuinst-'
-
 
 if sys.platform == "win32":
     extensions = [Extension(

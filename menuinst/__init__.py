@@ -43,3 +43,7 @@ def install(path, remove=False, prefix=sys.prefix,
         for sc in shortcuts:
             ShortCut(m, sc, prefix=prefix, env_name=env_name,
                      env_setup_cmd=env_setup_cmd).create()
+
+from ._version import get_versions
+__version__ = get_versions()['version']
+del get_versions
