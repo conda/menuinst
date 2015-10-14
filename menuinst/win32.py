@@ -8,6 +8,7 @@ from functools import partial
 import os
 from os.path import expanduser, isdir, join, exists
 import platform
+import subprocess
 import sys
 
 from .utils import rm_empty_dir, rm_rf
@@ -39,9 +40,31 @@ def quoted(s):
         return s
 
 
+def substitute_env_variables(text, root_prefix=sys.prefix, env_prefix=sys.prefix, env_name=None):
+    py_ver_subprocess = subprocess.Popen([join(root_prefix, "python"), "-c",
+                                          "import sys; print(sys.version_info.major)"],
+                                         stdout=subprocess.PIPE, shell=True)
+    py_major_ver = py_ver_subprocess.stdout.readline().strip()
+    if sys.version_info.major >= 3:
+        py_major_ver = str(py_major_ver, encoding="utf-8")
+    for a, b in [
+        ('${PREFIX}', env_prefix),
+        ('${ROOT_PREFIX}', root_prefix),
+        ('${PYTHON_SCRIPTS}', join(env_prefix, 'Scripts')),
+        ('${MENU_DIR}', join(env_prefix, 'Menu')),
+        ('${PERSONALDIR}', get_folder_path('CSIDL_PERSONAL')),
+        ('${USERPROFILE}', get_folder_path('CSIDL_PROFILE')),
+        ('${ENV_NAME}', env_name if env_name else ""),
+        ('${PY_VER}', py_major_ver),
+        ('${PLATFORM}', platform.machine()),
+        ]:
+        text = text.replace(a, b)
+    return text
+
+
 class Menu(object):
-    def __init__(self, name):
-        self.path = join(start_menu, name)
+    def __init__(self, name, prefix=sys.prefix):
+        self.path = join(start_menu, substitute_env_variables(name, root_prefix=prefix))
 
     def create(self):
         if not isdir(self.path):
@@ -50,23 +73,9 @@ class Menu(object):
     def remove(self):
         rm_empty_dir(self.path)
 
-def substitute_env_variables(text, prefix, env_name=None):
-        for a, b in [
-            ('${PREFIX}', prefix),
-            ('${PYTHON_SCRIPTS}', join(prefix, 'Scripts')),
-            ('${MENU_DIR}', join(prefix, 'Menu')),
-            ('${PERSONALDIR}', get_folder_path('CSIDL_PERSONAL')),
-            ('${USERPROFILE}', get_folder_path('CSIDL_PROFILE')),
-            ('${ENV_NAME}', env_name if env_name else ""),
-            ('${PY_VER}', sys.version_info.major),
-            ('${PLATFORM}', platform.machine()),
-            ]:
-            text = text.replace(a, b)
-        return text
-
 
 def write_bat_file(prefix, setup_cmd, other_cmd, args):
-    args = [substitute_env_variables(arg, prefix) for arg in args]
+    args = [substitute_env_variables(arg, env_prefix=prefix) for arg in args]
     args[0] = args[0].replace("/", "\\")
     scriptname = os.path.split(args[0])[1]
     filename = join(prefix, "Scripts\\launch_{}_{}.bat".format(other_cmd, scriptname))
@@ -77,14 +86,15 @@ def write_bat_file(prefix, setup_cmd, other_cmd, args):
 
 
 class ShortCut(object):
-    def __init__(self, menu, shortcut, prefix, env_name, env_setup_cmd):
+    def __init__(self, menu, shortcut, root_prefix, target_prefix, env_name, env_setup_cmd):
         """
         Prefix is the system prefix to be used -- this is needed since
         there is the possibility of a different Python's packages being managed.
         """
         self.menu = menu
         self.shortcut = shortcut
-        self.prefix = prefix
+        self.prefix = target_prefix
+        self.root_prefix = root_prefix
         self.env_name = env_name
         self.env_setup_cmd = env_setup_cmd
 
@@ -127,9 +137,9 @@ class ShortCut(object):
         elif "system" in self.shortcut:
             cmd = self.shortcut["system"].replace('/', '\\')
             args = self.shortcut['scriptargument']
-            # Always goes to system prefix, NOT the local prefix.  This is so that
-            #    Activate.bat can be located.
-            args = [substitute_env_variables(s, sys.prefix, self.env_name) for s in args]
+            args = [substitute_env_variables(s, root_prefix=self.root_prefix,
+                                             env_prefix=self.prefix,
+                                             env_name=self.env_name) for s in args]
 
         else:
             raise Exception("Nothing to do: %r" % self.shortcut)
@@ -137,9 +147,9 @@ class ShortCut(object):
         workdir = self.shortcut.get('workdir', '')
         icon = self.shortcut.get('icon', '')
 
-        args = [substitute_env_variables(s, self.prefix, self.env_name) for s in args]
-        workdir = substitute_env_variables(workdir, self.prefix, self.env_name)
-        icon = substitute_env_variables(icon, self.prefix, self.env_name)
+        args = [substitute_env_variables(s, env_prefix=self.prefix, env_name=self.env_name) for s in args]
+        workdir = substitute_env_variables(workdir, env_prefix=self.prefix, env_name=self.env_name)
+        icon = substitute_env_variables(icon, env_prefix=self.prefix, env_name=self.env_name)
 
         # Fix up the '/' to '\'
         workdir = workdir.replace('/', '\\')
