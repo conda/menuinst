@@ -4,9 +4,12 @@
 
 from __future__ import absolute_import
 
+from functools import partial
 import os
-import sys
 from os.path import expanduser, isdir, join, exists
+import platform
+import subprocess
+import sys
 
 from .utils import rm_empty_dir, rm_rf
 from .csidl import get_folder_path
@@ -24,6 +27,7 @@ else:
     desktop_dir = get_folder_path('CSIDL_DESKTOPDIRECTORY')
     start_menu = get_folder_path('CSIDL_PROGRAMS')
 
+
 def quoted(s):
     """
     quotes a string if necessary.
@@ -36,9 +40,31 @@ def quoted(s):
         return s
 
 
+def substitute_env_variables(text, root_prefix=sys.prefix, env_prefix=sys.prefix, env_name=None):
+    py_ver_subprocess = subprocess.Popen([join(root_prefix, "python"), "-c",
+                                          "import sys; print(sys.version_info.major)"],
+                                         stdout=subprocess.PIPE, shell=True)
+    py_major_ver = py_ver_subprocess.stdout.readline().strip()
+    if sys.version_info.major >= 3:
+        py_major_ver = str(py_major_ver, encoding="utf-8")
+    for a, b in [
+        ('${PREFIX}', env_prefix),
+        ('${ROOT_PREFIX}', root_prefix),
+        ('${PYTHON_SCRIPTS}', join(env_prefix, 'Scripts')),
+        ('${MENU_DIR}', join(env_prefix, 'Menu')),
+        ('${PERSONALDIR}', get_folder_path('CSIDL_PERSONAL')),
+        ('${USERPROFILE}', get_folder_path('CSIDL_PROFILE')),
+        ('${ENV_NAME}', env_name if env_name else ""),
+        ('${PY_VER}', py_major_ver),
+        ('${PLATFORM}', platform.machine()),
+        ]:
+        text = text.replace(a, b)
+    return text
+
+
 class Menu(object):
-    def __init__(self, name):
-        self.path = join(start_menu, name)
+    def __init__(self, name, prefix=sys.prefix):
+        self.path = join(start_menu, substitute_env_variables(name, root_prefix=prefix))
 
     def create(self):
         if not isdir(self.path):
@@ -48,52 +74,83 @@ class Menu(object):
         rm_empty_dir(self.path)
 
 
+def write_bat_file(prefix, setup_cmd, other_cmd, args):
+    args = [substitute_env_variables(arg, env_prefix=prefix) for arg in args]
+    args[0] = args[0].replace("/", "\\")
+    scriptname = os.path.split(args[0])[1]
+    filename = join(prefix, "Scripts\\launch_{}_{}.bat".format(other_cmd, scriptname))
+    with open(filename, "w") as f:
+        f.write(setup_cmd+" && ")
+        f.write(join(prefix, other_cmd) + " " + " ".join(args) + "\n")
+    return filename
+
+
 class ShortCut(object):
-    def __init__(self, menu, shortcut, prefix):
+    def __init__(self, menu, shortcut, root_prefix, target_prefix, env_name, env_setup_cmd):
         """
         Prefix is the system prefix to be used -- this is needed since
         there is the possibility of a different Python's packages being managed.
         """
         self.menu = menu
         self.shortcut = shortcut
-        self.prefix = prefix
+        self.prefix = target_prefix
+        self.root_prefix = root_prefix
+        self.env_name = env_name
+        self.env_setup_cmd = env_setup_cmd
 
     def remove(self):
         self.create(remove=True)
 
     def create(self, remove=False):
+        args = []
+        bat_func = partial(write_bat_file, self.prefix, self.env_setup_cmd)
         if "pywscript" in self.shortcut:
-            cmd = join(self.prefix, 'pythonw.exe')
-            args = self.shortcut["pywscript"].split()
+            if self.env_setup_cmd:
+                cmd = bat_func('pythonw.exe', self.shortcut["pywscript"].split())
+            else:
+                cmd = join(self.prefix, 'pythonw.exe')
+                args = self.shortcut["pywscript"].split()
 
         elif "pyscript" in self.shortcut:
-            cmd = join(self.prefix, 'python.exe')
-            args = self.shortcut["pyscript"].split()
+            if self.env_setup_cmd:
+                cmd = bat_func('python.exe', self.shortcut["pyscript"].split())
+            else:
+                cmd = join(self.prefix, 'python.exe')
+                args = self.shortcut["pyscript"].split()
 
         elif "webbrowser" in self.shortcut:
-            cmd = join(self.prefix, 'pythonw.exe')
-            args = ['-m', 'webbrowser', '-t', self.shortcut['webbrowser']]
+            if self.env_setup_cmd:
+                cmd = bat_func('pythonw.exe', ['-m', 'webbrowser', '-t',
+                                               self.shortcut['webbrowser']])
+            else:
+                cmd = join(self.prefix, 'pythonw.exe')
+                args = ['-m', 'webbrowser', '-t', self.shortcut['webbrowser']]
 
         elif "script" in self.shortcut:
-            cmd = join(self.prefix, self.shortcut["script"].replace('/', '\\'))
-            args = [self.shortcut['scriptargument']]
+            if self.env_setup_cmd:
+                cmd = bat_func(join(self.prefix, self.shortcut["script"].replace('/', '\\')),
+                               self.shortcut["pyscript"].split())
+            else:
+                cmd = join(self.prefix, self.shortcut["script"].replace('/', '\\'))
+                args = self.shortcut['scriptargument']
+
+        elif "system" in self.shortcut:
+            cmd = self.shortcut["system"].replace('/', '\\')
+            args = self.shortcut['scriptargument']
+            args = [substitute_env_variables(s, root_prefix=self.root_prefix,
+                                             env_prefix=self.prefix,
+                                             env_name=self.env_name) for s in args]
 
         else:
             raise Exception("Nothing to do: %r" % self.shortcut)
 
         workdir = self.shortcut.get('workdir', '')
         icon = self.shortcut.get('icon', '')
-        for a, b in [
-            ('${PREFIX}', self.prefix),
-            ('${PYTHON_SCRIPTS}', join(self.prefix, 'Scripts')),
-            ('${MENU_DIR}', join(self.prefix, 'Menu')),
-            ('${PERSONALDIR}', get_folder_path('CSIDL_PERSONAL')),
-            ('${USERPROFILE}', get_folder_path('CSIDL_PROFILE')),
-            #('${HOME}', XXX),
-            ]:
-            args = [s.replace(a, b) for s in args]
-            workdir = workdir.replace(a, b)
-            icon = icon.replace(a, b)
+
+        args = [substitute_env_variables(s, env_prefix=self.prefix, env_name=self.env_name) for s in args]
+        workdir = substitute_env_variables(workdir, env_prefix=self.prefix, env_name=self.env_name)
+        icon = substitute_env_variables(icon, env_prefix=self.prefix, env_name=self.env_name)
+
         # Fix up the '/' to '\'
         workdir = workdir.replace('/', '\\')
         icon = icon.replace('/', '\\')
@@ -116,8 +173,9 @@ class ShortCut(object):
         if self.shortcut.get('quicklaunch'):
             dst_dirs.append(quicklaunch_dir)
 
+        name_suffix = " ({})".format(self.env_name) if self.env_name else ""
         for dst_dir in dst_dirs:
-            dst = join(dst_dir, self.shortcut['name'] + '.lnk')
+            dst = join(dst_dir, self.shortcut['name'] + name_suffix + '.lnk')
             if remove:
                 rm_rf(dst)
             else:
@@ -127,7 +185,7 @@ class ShortCut(object):
                 # icon_index).
                 create_shortcut(
                     u'' + quoted(cmd),
-                    u'' + self.shortcut['name'],
+                    u'' + self.shortcut['name'] + name_suffix,
                     u'' + dst,
                     u' '.join(quoted(arg) for arg in args),
                     u'' + workdir,
