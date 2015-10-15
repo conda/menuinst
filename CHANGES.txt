@@ -1,4 +1,4 @@
-2015-10-XX: 1.1.0
+2015-10-15: 1.1.0
 -----------------
   * add suffix for environment name to shortcuts on win, #4
   * clarify root prefix / env prefix distinction (affects menu names)
