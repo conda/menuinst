@@ -41,12 +41,22 @@ def quoted(s):
 
 
 def substitute_env_variables(text, root_prefix=sys.prefix, env_prefix=sys.prefix, env_name=None):
+    # these subprocesses are a little hairy, but required to have the menu
+    #   entry reflect the ROOT conda installation, not our environment.
     py_ver_subprocess = subprocess.Popen([join(root_prefix, "python"), "-c",
                                           "import sys; print(sys.version_info.major)"],
                                          stdout=subprocess.PIPE, shell=True)
     py_major_ver = py_ver_subprocess.stdout.readline().strip()
     if sys.version_info.major >= 3:
         py_major_ver = str(py_major_ver, encoding="utf-8")
+    py_bitness_subprocess = subprocess.Popen([join(root_prefix, "python"), "-c",
+                                              "print(tuple.__itemsize__)"],
+                                             stdout=subprocess.PIPE, shell=True)
+    py_bitness = py_bitness_subprocess.stdout.readline().strip()
+    if sys.version_info.major >= 3:
+        py_bitness = str(py_bitness, encoding="utf-8")
+    py_bitness = 8 * int(py_bitness)
+
     for a, b in [
         ('${PREFIX}', env_prefix),
         ('${ROOT_PREFIX}', root_prefix),
@@ -56,7 +66,7 @@ def substitute_env_variables(text, root_prefix=sys.prefix, env_prefix=sys.prefix
         ('${USERPROFILE}', get_folder_path('CSIDL_PROFILE')),
         ('${ENV_NAME}', env_name if env_name else ""),
         ('${PY_VER}', py_major_ver),
-        ('${PLATFORM}', platform.machine()),
+        ('${PLATFORM}', "%s-bit" % py_bitness),
         ]:
         text = text.replace(a, b)
     return text
