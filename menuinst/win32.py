@@ -52,7 +52,7 @@ def substitute_env_variables(text, env_prefix=sys.prefix, env_name=None):
         ('${PERSONALDIR}', get_folder_path('CSIDL_PERSONAL')),
         ('${USERPROFILE}', get_folder_path('CSIDL_PROFILE')),
         ('${ENV_NAME}', env_name if env_name else ""),
-        ('${PY_VER}', py_major_ver),
+        ('${PY_VER}', str(py_major_ver)),
         ('${PLATFORM}', "(%s-bit)" % py_bitness),
         ]:
         text = text.replace(a, b)
