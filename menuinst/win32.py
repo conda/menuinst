@@ -7,8 +7,6 @@ from __future__ import absolute_import
 from functools import partial
 import os
 from os.path import expanduser, isdir, join, exists
-import platform
-import subprocess
 import sys
 
 from .utils import rm_empty_dir, rm_rf
@@ -40,26 +38,15 @@ def quoted(s):
         return s
 
 
-def substitute_env_variables(text, root_prefix=sys.prefix, env_prefix=sys.prefix, env_name=None):
+def substitute_env_variables(text, env_prefix=sys.prefix, env_name=None):
     # these subprocesses are a little hairy, but required to have the menu
     #   entry reflect the ROOT conda installation, not our environment.
-    py_ver_subprocess = subprocess.Popen([join(root_prefix, "python"), "-c",
-                                          "import sys; print(sys.version_info.major)"],
-                                         stdout=subprocess.PIPE, shell=True)
-    py_major_ver = py_ver_subprocess.stdout.readline().strip()
-    if sys.version_info.major >= 3:
-        py_major_ver = str(py_major_ver, encoding="utf-8")
-    py_bitness_subprocess = subprocess.Popen([join(root_prefix, "python"), "-c",
-                                              "print(tuple.__itemsize__)"],
-                                             stdout=subprocess.PIPE, shell=True)
-    py_bitness = py_bitness_subprocess.stdout.readline().strip()
-    if sys.version_info.major >= 3:
-        py_bitness = str(py_bitness, encoding="utf-8")
-    py_bitness = 8 * int(py_bitness)
+    py_major_ver = sys.version_info[0]
+    py_bitness = 8 * tuple.__itemsize__
 
     for a, b in [
         ('${PREFIX}', env_prefix),
-        ('${ROOT_PREFIX}', root_prefix),
+        ('${ROOT_PREFIX}', sys.prefix),
         ('${PYTHON_SCRIPTS}', join(env_prefix, 'Scripts')),
         ('${MENU_DIR}', join(env_prefix, 'Menu')),
         ('${PERSONALDIR}', get_folder_path('CSIDL_PERSONAL')),
@@ -74,7 +61,7 @@ def substitute_env_variables(text, root_prefix=sys.prefix, env_prefix=sys.prefix
 
 class Menu(object):
     def __init__(self, name, prefix=sys.prefix):
-        self.path = join(start_menu, substitute_env_variables(name, root_prefix=prefix))
+        self.path = join(start_menu, substitute_env_variables(name))
 
     def create(self):
         if not isdir(self.path):
@@ -96,7 +83,7 @@ def write_bat_file(prefix, setup_cmd, other_cmd, args):
 
 
 class ShortCut(object):
-    def __init__(self, menu, shortcut, root_prefix, target_prefix, env_name, env_setup_cmd):
+    def __init__(self, menu, shortcut, target_prefix, env_name, env_setup_cmd):
         """
         Prefix is the system prefix to be used -- this is needed since
         there is the possibility of a different Python's packages being managed.
@@ -104,7 +91,6 @@ class ShortCut(object):
         self.menu = menu
         self.shortcut = shortcut
         self.prefix = target_prefix
-        self.root_prefix = root_prefix
         self.env_name = env_name
         self.env_setup_cmd = env_setup_cmd
 
@@ -147,7 +133,7 @@ class ShortCut(object):
         elif "system" in self.shortcut:
             cmd = self.shortcut["system"].replace('/', '\\')
             args = self.shortcut['scriptargument']
-            args = [substitute_env_variables(s, root_prefix=self.root_prefix,
+            args = [substitute_env_variables(s,
                                              env_prefix=self.prefix,
                                              env_name=self.env_name) for s in args]
 
