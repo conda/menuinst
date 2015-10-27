@@ -1,3 +1,9 @@
+2015-10-15: 1.1.2
+-----------------
+  * remove all use of root_prefix (it is always sys.prefix), and subprocess
+    calls to Python (which does not work on Windows XP with pythonw.exe)
+
+
 2015-10-15: 1.1.0
 -----------------
   * add suffix for environment name to shortcuts on win, #4
