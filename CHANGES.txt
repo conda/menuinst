@@ -1,4 +1,4 @@
-2015-10-15: 1.1.2
+2015-10-27: 1.1.2
 -----------------
   * remove all use of root_prefix (it is always sys.prefix), and subprocess
     calls to Python (which does not work on Windows XP with pythonw.exe)
