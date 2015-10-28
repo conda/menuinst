@@ -77,8 +77,8 @@ def write_bat_file(prefix, setup_cmd, other_cmd, args):
     scriptname = os.path.split(args[0])[1]
     filename = join(prefix, "Scripts\\launch_{}_{}.bat".format(other_cmd, scriptname))
     with open(filename, "w") as f:
-        f.write(setup_cmd+" && ")
-        f.write(join(prefix, other_cmd) + " " + " ".join(args) + "\n")
+        f.write("\"" + join(prefix, "Scripts", setup_cmd) + "\"" + " && ")
+        f.write("\"" + join(prefix, other_cmd) + "\" \"" + "\" \"".join(args) + "\"\n")
     return filename
 
 
@@ -101,34 +101,15 @@ class ShortCut(object):
         args = []
         bat_func = partial(write_bat_file, self.prefix, self.env_setup_cmd)
         if "pywscript" in self.shortcut:
-            if self.env_setup_cmd:
-                cmd = bat_func('pythonw.exe', self.shortcut["pywscript"].split())
-            else:
-                cmd = join(self.prefix, 'pythonw.exe')
-                args = self.shortcut["pywscript"].split()
-
+            cmd = bat_func('pythonw.exe', self.shortcut["pywscript"].split())
         elif "pyscript" in self.shortcut:
-            if self.env_setup_cmd:
-                cmd = bat_func('python.exe', self.shortcut["pyscript"].split())
-            else:
-                cmd = join(self.prefix, 'python.exe')
-                args = self.shortcut["pyscript"].split()
-
+            cmd = bat_func('python.exe', self.shortcut["pyscript"].split())
         elif "webbrowser" in self.shortcut:
-            if self.env_setup_cmd:
-                cmd = bat_func('pythonw.exe', ['-m', 'webbrowser', '-t',
+            cmd = bat_func('pythonw.exe', ['-m', 'webbrowser', '-t',
                                                self.shortcut['webbrowser']])
-            else:
-                cmd = join(self.prefix, 'pythonw.exe')
-                args = ['-m', 'webbrowser', '-t', self.shortcut['webbrowser']]
-
         elif "script" in self.shortcut:
-            if self.env_setup_cmd:
-                cmd = bat_func(join(self.prefix, self.shortcut["script"].replace('/', '\\')),
+            cmd = bat_func(join(self.prefix, self.shortcut["script"].replace('/', '\\')),
                                self.shortcut["pyscript"].split())
-            else:
-                cmd = join(self.prefix, self.shortcut["script"].replace('/', '\\'))
-                args = self.shortcut['scriptargument']
 
         elif "system" in self.shortcut:
             cmd = substitute_env_variables(self.shortcut["system"], root_prefix=self.root_prefix,
