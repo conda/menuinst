@@ -131,11 +131,10 @@ class ShortCut(object):
                 args = self.shortcut['scriptargument']
 
         elif "system" in self.shortcut:
-            cmd = self.shortcut["system"].replace('/', '\\')
-            args = self.shortcut['scriptargument']
-            args = [substitute_env_variables(s,
+            cmd = substitute_env_variables(self.shortcut["system"], root_prefix=self.root_prefix,
                                              env_prefix=self.prefix,
-                                             env_name=self.env_name) for s in args]
+                                             env_name=self.env_name).replace('/', '\\')
+            args = self.shortcut['scriptargument']
 
         else:
             raise Exception("Nothing to do: %r" % self.shortcut)
