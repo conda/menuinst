@@ -39,8 +39,8 @@ def quoted(s):
 
 
 def substitute_env_variables(text, env_prefix=sys.prefix, env_name=None):
-    # these subprocesses are a little hairy, but required to have the menu
-    #   entry reflect the ROOT conda installation, not our environment.
+    # When conda is using Menuinst, only the root Conda installation ever calls menuinst.  Thus,
+    #    these calls to sys refer to the root Conda installation, NOT the child environment
     py_major_ver = sys.version_info[0]
     py_bitness = 8 * tuple.__itemsize__
 
@@ -112,11 +112,10 @@ class ShortCut(object):
                                self.shortcut["pyscript"].split())
 
         elif "system" in self.shortcut:
-            cmd = self.shortcut["system"].replace('/', '\\')
-            args = self.shortcut['scriptargument']
-            args = [substitute_env_variables(s,
+            cmd = substitute_env_variables(self.shortcut["system"],
                                              env_prefix=self.prefix,
-                                             env_name=self.env_name) for s in args]
+                                             env_name=self.env_name).replace('/', '\\')
+            args = self.shortcut['scriptargument']
 
         else:
             raise Exception("Nothing to do: %r" % self.shortcut)
