@@ -81,7 +81,7 @@ def write_bat_file(prefix, setup_cmd, other_cmd, args):
         activate_script = join(sys.prefix, "Scripts", setup_cmd[0])
         f.write('"{activate_script}" "{env}" && "{other_cmd}" "{args}"\n'.format(
                   activate_script=activate_script,
-                  env=setup_cmd[1] if len(setup_cmd) > 1 else os.path.normpath(activate_script),
+                  env=setup_cmd[1] if len(setup_cmd) > 1 else sys.prefix,
                   other_cmd=join(prefix, other_cmd),
                   args = '" "'.join(args)
                   )
