@@ -77,8 +77,11 @@ def write_bat_file(prefix, setup_cmd, other_cmd, args):
     scriptname = os.path.split(args[0])[1]
     filename = join(prefix, "Scripts\\launch_{}_{}.bat".format(other_cmd, scriptname))
     with open(filename, "w") as f:
-        f.write('"{activate_script}" && "{other_cmd}" "{args}"\n"'.format(
-                  activate_script=join(prefix, "Scripts", setup_cmd),
+        setup_cmd = setup_cmd.split()  # split into activate cmd + env
+        activate_script = join(sys.prefix, "Scripts", setup_cmd[0])
+        f.write('"{activate_script}" "{env}" && "{other_cmd}" "{args}"\n'.format(
+                  activate_script=activate_script,
+                  env=setup_cmd[1] if len(setup_cmd) > 1 else os.path.normpath(activate_script),
                   other_cmd=join(prefix, other_cmd),
                   args = '" "'.join(args)
                   )
