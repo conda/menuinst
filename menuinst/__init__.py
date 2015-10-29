@@ -22,7 +22,7 @@ elif sys.platform == 'win32':
 
 def install(path, remove=False, root_prefix=None,
             target_prefix=sys.prefix, env_name=None,
-            env_setup_cmd=None):
+            env_setup_cmd="activate"):
     """
     install Menu and shortcuts
 

@@ -99,7 +99,7 @@ class ShortCut(object):
         self.shortcut = shortcut
         self.prefix = target_prefix
         self.env_name = env_name
-        self.env_setup_cmd = env_setup_cmd
+        self.env_setup_cmd = env_setup_cmd if env_setup_cmd else "activate %s" % self.prefix
 
     def remove(self):
         self.create(remove=True)
