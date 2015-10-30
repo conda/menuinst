@@ -1,13 +1,12 @@
 # Copyright (c) 2008-2011 by Enthought, Inc.
-# Copyright (c) 2013 Continuum Analytics, Inc.
+# Copyright (c) 2013-2015 Continuum Analytics, Inc.
 # All rights reserved.
 
 from __future__ import absolute_import
 
-from functools import partial
 import os
-from os.path import expanduser, isdir, join, exists
 import sys
+from os.path import expanduser, isdir, join, exists
 
 from .utils import rm_empty_dir, rm_rf
 from .csidl import get_folder_path
@@ -39,15 +38,17 @@ def quoted(s):
 
 
 def substitute_env_variables(text, env_prefix=sys.prefix, env_name=None):
-    # When conda is using Menuinst, only the root Conda installation ever calls menuinst.  Thus,
-    #    these calls to sys refer to the root Conda installation, NOT the child environment
+    # When conda is using Menuinst, only the root Conda installation ever
+    # calls menuinst.  Thus, these calls to sys refer to the root Conda
+    # installation, NOT the child environment
     py_major_ver = sys.version_info[0]
     py_bitness = 8 * tuple.__itemsize__
 
     for a, b in [
         ('${PREFIX}', env_prefix),
         ('${ROOT_PREFIX}', sys.prefix),
-        ('${PYTHON_SCRIPTS}', os.path.normpath(join(env_prefix, 'Scripts')).replace("\\", "/")),
+        ('${PYTHON_SCRIPTS}',
+         os.path.normpath(join(env_prefix, 'Scripts')).replace("\\", "/")),
         ('${MENU_DIR}', join(env_prefix, 'Menu')),
         ('${PERSONALDIR}', get_folder_path('CSIDL_PERSONAL')),
         ('${USERPROFILE}', get_folder_path('CSIDL_PROFILE')),
@@ -75,10 +76,13 @@ def get_python_args_for_subprocess(prefix, args, cmd):
     path_addon = os.path.pathsep.join([prefix,
                                        os.path.join(prefix, "Scripts"),
                                        os.path.join(prefix, "Library", "bin")])
-    return ['-c', "import subprocess;import os;env=os.environ.copy();"
-                  "env['PATH']=os.path.pathsep.join(['{path_addon}', env['PATH']]);"
-                  "subprocess.call(['{cmd}', '{args}'], env=env)".format(path_addon=path_addon, cmd=cmd,
-                                                                            args="', '".join(args)).replace("\\", "/")]
+    return ['-c',
+            "import subprocess;import os;env=os.environ.copy();"
+            "env['PATH']=os.path.pathsep.join(['{path_addon}', env['PATH']]);"
+            "subprocess.call(['{cmd}', '{args}'], env=env)".format(
+            path_addon=path_addon, cmd=cmd,
+            args="', '".join(args)).replace("\\", "/")]
+
 
 class ShortCut(object):
     def __init__(self, menu, shortcut, target_prefix, env_name, env_setup_cmd):
@@ -90,7 +94,9 @@ class ShortCut(object):
         self.shortcut = shortcut
         self.prefix = target_prefix
         self.env_name = env_name
-        self.env_setup_cmd = env_setup_cmd if env_setup_cmd else "activate %s" % self.prefix
+        self.env_setup_cmd = (env_setup_cmd
+                              if env_setup_cmd else
+                              "activate %s" % self.prefix)
 
     def remove(self):
         self.create(remove=True)
@@ -114,9 +120,10 @@ class ShortCut(object):
             args = get_python_args_for_subprocess(self.prefix, args, cmd)
             cmd = join(sys.prefix, "pythonw.exe").replace("\\", "/")
         elif "system" in self.shortcut:
-            cmd = substitute_env_variables(self.shortcut["system"],
-                                             env_prefix=self.prefix,
-                                             env_name=self.env_name).replace('/', '\\')
+            cmd = substitute_env_variables(
+                     self.shortcut["system"],
+                     env_prefix=self.prefix,
+                     env_name=self.env_name).replace('/', '\\')
             args = self.shortcut['scriptarguments']
         else:
             raise Exception("Nothing to do: %r" % self.shortcut)
@@ -124,9 +131,13 @@ class ShortCut(object):
         workdir = self.shortcut.get('workdir', '')
         icon = self.shortcut.get('icon', '')
 
-        args = [substitute_env_variables(s, env_prefix=self.prefix, env_name=self.env_name) for s in args]
-        workdir = substitute_env_variables(workdir, env_prefix=self.prefix, env_name=self.env_name)
-        icon = substitute_env_variables(icon, env_prefix=self.prefix, env_name=self.env_name)
+        args = [substitute_env_variables(s, env_prefix=self.prefix,
+                                         env_name=self.env_name) for s in args]
+        workdir = substitute_env_variables(workdir,
+                                           env_prefix=self.prefix,
+                                           env_name=self.env_name)
+        icon = substitute_env_variables(icon, env_prefix=self.prefix,
+                                        env_name=self.env_name)
 
         # Fix up the '/' to '\'
         workdir = workdir.replace('/', '\\')
