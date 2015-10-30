@@ -73,15 +73,7 @@ class Menu(object):
 
 
 def get_python_args_for_subprocess(prefix, args, cmd):
-    path_addon = os.path.pathsep.join([prefix,
-                                       os.path.join(prefix, "Scripts"),
-                                       os.path.join(prefix, "Library", "bin")])
-    return ['-c',
-            "import subprocess;import os;env=os.environ.copy();"
-            "env['PATH']=os.path.pathsep.join(['{path_addon}', env['PATH']]);"
-            "subprocess.call(['{cmd}', '{args}'], env=env)".format(
-            path_addon=path_addon, cmd=cmd,
-            args="', '".join(args)).replace("\\", "/")]
+    return [join(prefix, 'cwp.py'), cmd] + args
 
 
 def extend_script_args(args, shortcut):
