@@ -100,7 +100,7 @@ class ShortCut(object):
         if "pywscript" in self.shortcut:
             cmd = join(self.prefix, "pythonw.exe").replace("\\", "/")
             args = self.shortcut["pywscript"].split()
-            args = get_python_args_for_subprocess(self.prefix, args, cmd
+            args = get_python_args_for_subprocess(self.prefix, args, cmd)
         elif "pyscript" in self.shortcut:
             cmd = join(self.prefix, "python.exe").replace("\\", "/")
             args = self.shortcut["pyscript"].split()
@@ -109,7 +109,7 @@ class ShortCut(object):
             cmd = join(sys.prefix, 'pythonw.exe')
             args = ['-m', 'webbrowser', '-t', self.shortcut['webbrowser']]
         elif "script" in self.shortcut:
-            cmd = self.shortcut["script"].replace('/', '\\'))
+            cmd = self.shortcut["script"].replace('/', '\\')
             args = self.shortcut["pyscript"].split()
             args = get_python_args_for_subprocess(self.prefix, args, cmd)
             cmd = join(sys.prefix, "pythonw.exe").replace("\\", "/")
