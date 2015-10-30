@@ -84,6 +84,17 @@ def get_python_args_for_subprocess(prefix, args, cmd):
             args="', '".join(args)).replace("\\", "/")]
 
 
+def extend_script_args(args, shortcut):
+    try:
+        args.append(shortcut['scriptargument'])
+    except KeyError:
+        pass
+    try:
+        args.extend(shortcut['scriptarguments'])
+    except KeyError:
+        pass
+
+
 class ShortCut(object):
     def __init__(self, menu, shortcut, target_prefix, env_name, env_setup_cmd):
         """
@@ -116,7 +127,7 @@ class ShortCut(object):
             args = ['-m', 'webbrowser', '-t', self.shortcut['webbrowser']]
         elif "script" in self.shortcut:
             cmd = self.shortcut["script"].replace('/', '\\')
-            args = self.shortcut["scriptarguments"]
+            extend_script_args(args, self.shortcut)
             args = get_python_args_for_subprocess(self.prefix, args, cmd)
             cmd = join(sys.prefix, "pythonw.exe").replace("\\", "/")
         elif "system" in self.shortcut:
@@ -124,7 +135,7 @@ class ShortCut(object):
                      self.shortcut["system"],
                      env_prefix=self.prefix,
                      env_name=self.env_name).replace('/', '\\')
-            args = self.shortcut['scriptarguments']
+            extend_script_args(args, self.shortcut)
         else:
             raise Exception("Nothing to do: %r" % self.shortcut)
 
