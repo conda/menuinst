@@ -47,7 +47,7 @@ def substitute_env_variables(text, env_prefix=sys.prefix, env_name=None):
     for a, b in [
         ('${PREFIX}', env_prefix),
         ('${ROOT_PREFIX}', sys.prefix),
-        ('${PYTHON_SCRIPTS}', join(env_prefix, 'Scripts')),
+        ('${PYTHON_SCRIPTS}', os.path.normpath(join(env_prefix, 'Scripts')).replace("\\", "/")),
         ('${MENU_DIR}', join(env_prefix, 'Menu')),
         ('${PERSONALDIR}', get_folder_path('CSIDL_PERSONAL')),
         ('${USERPROFILE}', get_folder_path('CSIDL_PROFILE')),
@@ -71,23 +71,14 @@ class Menu(object):
         rm_empty_dir(self.path)
 
 
-def write_bat_file(prefix, setup_cmd, other_cmd, args):
-    args = [substitute_env_variables(arg, env_prefix=prefix) for arg in args]
-    args[0] = args[0].replace("/", "\\")
-    scriptname = os.path.split(args[0])[1]
-    filename = join(prefix, "Scripts\\launch_{}_{}.bat".format(other_cmd, scriptname))
-    with open(filename, "w") as f:
-        setup_cmd = setup_cmd.split()  # split into activate cmd + env
-        activate_script = join(sys.prefix, "Scripts", setup_cmd[0])
-        f.write('"{activate_script}" "{env}" && "{other_cmd}" "{args}"\n'.format(
-                  activate_script=activate_script,
-                  env=setup_cmd[1] if len(setup_cmd) > 1 else sys.prefix,
-                  other_cmd=join(prefix, other_cmd),
-                  args = '" "'.join(args)
-                  )
-                )
-    return filename
-
+def get_python_args_for_subprocess(prefix, args, cmd):
+    path_addon = os.path.pathsep.join([prefix,
+                                       os.path.join(prefix, "Scripts"),
+                                       os.path.join(prefix, "Library", "bin")])
+    return ['-c', "import subprocess;import os;env=os.environ.copy();"
+                  "env['PATH']=os.path.pathsep.join(['{path_addon}', env['PATH']]);"
+                  "subprocess.call(['{cmd}', '{args}'], env=env)".format(path_addon=path_addon, cmd=cmd,
+                                                                            args="', '".join(args)).replace("\\", "/")]
 
 class ShortCut(object):
     def __init__(self, menu, shortcut, target_prefix, env_name, env_setup_cmd):
@@ -106,24 +97,27 @@ class ShortCut(object):
 
     def create(self, remove=False):
         args = []
-        bat_func = partial(write_bat_file, self.prefix, self.env_setup_cmd)
         if "pywscript" in self.shortcut:
-            cmd = bat_func('pythonw.exe', self.shortcut["pywscript"].split())
+            cmd = join(self.prefix, "pythonw.exe").replace("\\", "/")
+            args = self.shortcut["pywscript"].split()
+            args = get_python_args_for_subprocess(self.prefix, args, cmd)
         elif "pyscript" in self.shortcut:
-            cmd = bat_func('python.exe', self.shortcut["pyscript"].split())
+            cmd = join(self.prefix, "python.exe").replace("\\", "/")
+            args = self.shortcut["pyscript"].split()
+            args = get_python_args_for_subprocess(self.prefix, args, cmd)
         elif "webbrowser" in self.shortcut:
-            cmd = bat_func('pythonw.exe', ['-m', 'webbrowser', '-t',
-                                               self.shortcut['webbrowser']])
+            cmd = join(sys.prefix, 'pythonw.exe')
+            args = ['-m', 'webbrowser', '-t', self.shortcut['webbrowser']]
         elif "script" in self.shortcut:
-            cmd = bat_func(join(self.prefix, self.shortcut["script"].replace('/', '\\')),
-                               self.shortcut["pyscript"].split())
-
+            cmd = self.shortcut["script"].replace('/', '\\')
+            args = self.shortcut["scriptarguments"]
+            args = get_python_args_for_subprocess(self.prefix, args, cmd)
+            cmd = join(sys.prefix, "pythonw.exe").replace("\\", "/")
         elif "system" in self.shortcut:
             cmd = substitute_env_variables(self.shortcut["system"],
                                              env_prefix=self.prefix,
                                              env_name=self.env_name).replace('/', '\\')
-            args = self.shortcut['scriptargument']
-
+            args = self.shortcut['scriptarguments']
         else:
             raise Exception("Nothing to do: %r" % self.shortcut)
 
