@@ -110,14 +110,14 @@ class ShortCut(object):
             args = ['-m', 'webbrowser', '-t', self.shortcut['webbrowser']]
         elif "script" in self.shortcut:
             cmd = self.shortcut["script"].replace('/', '\\')
-            args = self.shortcut["pyscript"].split()
+            args = self.shortcut["scriptarguments"]
             args = get_python_args_for_subprocess(self.prefix, args, cmd)
             cmd = join(sys.prefix, "pythonw.exe").replace("\\", "/")
         elif "system" in self.shortcut:
             cmd = substitute_env_variables(self.shortcut["system"],
                                              env_prefix=self.prefix,
                                              env_name=self.env_name).replace('/', '\\')
-            args = self.shortcut['scriptargument']
+            args = self.shortcut['scriptarguments']
         else:
             raise Exception("Nothing to do: %r" % self.shortcut)
 
