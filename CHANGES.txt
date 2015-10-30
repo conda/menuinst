@@ -1,3 +1,11 @@
+2015-10-30: 1.2.1
+-----------------
+  * fixes for Windows XP
+
+
+???
+
+
 2015-10-27: 1.1.2
 -----------------
   * remove all use of root_prefix (it is always sys.prefix), and subprocess
