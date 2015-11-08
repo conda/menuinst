@@ -4,6 +4,7 @@
 
 from __future__ import absolute_import
 
+import logging
 import os
 import sys
 from os.path import expanduser, isdir, join, exists
@@ -12,18 +13,14 @@ from .utils import rm_empty_dir, rm_rf
 from .csidl import get_folder_path
 from .winshortcut import create_shortcut
 
-mode = ('user' if exists(join(sys.prefix, '.nonadmin')) else 'system')
 
 quicklaunch_dir = join(get_folder_path('CSIDL_APPDATA'),
                        "Microsoft", "Internet Explorer", "Quick Launch")
 
-if mode == 'system':
-    desktop_dir = get_folder_path('CSIDL_COMMON_DESKTOPDIRECTORY')
-    start_menu = get_folder_path('CSIDL_COMMON_PROGRAMS')
-else:
-    desktop_dir = get_folder_path('CSIDL_DESKTOPDIRECTORY')
-    start_menu = get_folder_path('CSIDL_PROGRAMS')
-
+dirs = {"system": {"desktop": get_folder_path('CSIDL_COMMON_DESKTOPDIRECTORY'),
+                   "start": get_folder_path('CSIDL_COMMON_PROGRAMS')},
+        "user": {"desktop": get_folder_path('CSIDL_DESKTOPDIRECTORY'),
+                 "start": get_folder_path('CSIDL_PROGRAMS')}}
 
 def quoted(s):
     """
@@ -62,7 +59,20 @@ def substitute_env_variables(text, env_prefix=sys.prefix, env_name=None):
 
 class Menu(object):
     def __init__(self, name, prefix=sys.prefix):
-        self.path = join(start_menu, substitute_env_variables(name))
+        self.mode = ('user' if exists(join(prefix, '.nonadmin')) else 'system')
+        folder_name = substitute_env_variables(name)
+        self.path = join(dirs[self.mode]["start"], folder_name)
+        try:
+            self.create()
+        except WindowsError:
+            # We get here if we aren't elevated.  This is different from
+            #   permissions: a user can have permission, but elevation is still
+            #   required.  If the process isn't elevated, we get the
+            #   WindowsError
+            logging.warn("Insufficient permissions to write menu folder.  "
+                         "Falling back to user location")
+            self.path = join(dirs["user"]["start"], folder_name)
+            self.mode = "user"
 
     def create(self):
         if not isdir(self.path):
@@ -158,11 +168,11 @@ class ShortCut(object):
 
         # Desktop link
         if self.shortcut.get('desktop'):
-            dst_dirs.append(desktop_dir)
+            dst_dirs.append(dirs[self.menu.mode]['desktop'])
 
         # Quicklaunch link
         if self.shortcut.get('quicklaunch'):
-            dst_dirs.append(quicklaunch_dir)
+            dst_dirs.append(dirs[self.menu.mode]['quicklaunch'])
 
         name_suffix = " ({})".format(self.env_name) if self.env_name else ""
         for dst_dir in dst_dirs:
