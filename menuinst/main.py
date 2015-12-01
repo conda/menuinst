@@ -18,7 +18,14 @@ def main():
     p.add_option('--remove',
                  action="store_true")
 
+    p.add_option('--version',
+                 action="store_true")
+
     opts, args = p.parse_args()
+
+    if opts.version:
+        sys.stdout.write("menuinst: %s" % menuinst.__version__)
+        return
 
     if abspath(opts.prefix) == abspath(sys.prefix):
         env_name = None
