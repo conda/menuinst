@@ -24,7 +24,7 @@ def main():
     opts, args = p.parse_args()
 
     if opts.version:
-        sys.stdout.write("menuinst: %s" % menuinst.__version__)
+        sys.stdout.write("menuinst: %s\n" % menuinst.__version__)
         return
 
     if abspath(opts.prefix) == abspath(sys.prefix):
