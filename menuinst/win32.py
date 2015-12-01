@@ -83,7 +83,8 @@ class Menu(object):
 
 
 def get_python_args_for_subprocess(prefix, args, cmd):
-    return [join(sys.prefix, 'cwp.py'), prefix, cmd] + args
+    return [quoted(join(sys.prefix, 'cwp.py')), quoted(prefix),
+            quoted(cmd)] + args
 
 
 def extend_script_args(args, shortcut):
