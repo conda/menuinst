@@ -5,7 +5,9 @@
 from __future__ import absolute_import
 import sys
 import json
+import shutil
 import subprocess
+import tempfile
 from os.path import abspath, basename, exists, join
 
 from ._version import get_versions
@@ -21,11 +23,54 @@ elif sys.platform == 'win32':
     from .win32 import Menu, ShortCut
 
 
+
 def elevated_install(path, remove, prefix):
-    subprocess.check_call([join(sys.prefix, "Scripts", "mk_menus.bat"),
-                           prefix,
-                           path,
-                           "REMOVE" if remove else "INSTALL"])
+    tmp_dir = tempfile.mkdtemp()
+    py_path = join(tmp_dir, 'menu.py')
+    bat_path = join(tmp_dir, 'menu.bat')
+
+    with open(py_path, 'w') as fo:
+        fo.write("""\
+import menuinst
+menuinst._install(%r, %r, %r)
+""" % (path, bool(remove), prefix))
+
+# http://stackoverflow.com/questions/4051883/batch-script-how-to-check-for-admin-rights
+# Quick test for Windows generation: UAC aware or not ; all OS before NT4 ignored for simplicity
+    with open(bat_path, 'w') as fo:
+        fo.write(r"""\
+@setlocal enableextensions enabledelayedexpansion
+@echo off
+
+set "PYTHON=@@SYSPREFIX@@\pythonw.exe"
+set "SCRIPT=@@PY_PATH@@"
+
+SET NewOSWith_UAC=YES
+VER | FINDSTR /IL "5." > NUL
+IF %ERRORLEVEL% == 0 SET NewOSWith_UAC=NO
+VER | FINDSTR /IL "4." > NUL
+IF %ERRORLEVEL% == 0 SET NewOSWith_UAC=NO
+
+REM Test if Admin
+CALL NET SESSION >nul 2>&1
+IF NOT %ERRORLEVEL% == 0 (
+
+if /i "%NewOSWith_UAC%"=="YES" (
+    echo Set UAC = CreateObject^("Shell.Application"^) > "%temp%\getadmin.vbs"
+    echo UAC.ShellExecute "%PYTHON%", "%SCRIPT%", "", "runas", 1 >> "%temp%\getadmin.vbs"
+    "%SystemRoot%\System32\WScript.exe" "%temp%\getadmin.vbs"
+    del "%temp%\getadmin.vbs"
+) else (
+    REM  Already elevated.  Just run the script.
+    "%PYTHON%" "%SCRIPT%"
+)
+
+endlocal
+""".replace('@@SYSPREFIX@@', sys.prefix).replace('@@PY_PATH@@', py_path))
+
+    subprocess.check_call([bat_path])
+
+    shutil.rmtree(tmp_dir)
 
 
 def _install(path, remove=False, prefix=sys.prefix):
