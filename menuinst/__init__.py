@@ -42,8 +42,7 @@ menuinst._install(%r, %r, %r)
 # http://stackoverflow.com/questions/4051883/batch-script-how-to-check-for-admin-rights
 # Quick test for Windows generation: UAC aware or not ; all OS before NT4 ignored for simplicity
     with open(bat_path, 'w') as fo:
-        fo.write(r"""\
-@setlocal enableextensions enabledelayedexpansion
+        fo.write(r"""@setlocal enableextensions enabledelayedexpansion
 @echo off
 
 set "PYTHON=@@SYSPREFIX@@\pythonw.exe"
