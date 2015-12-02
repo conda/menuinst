@@ -23,9 +23,13 @@ elif sys.platform == 'win32':
     from .win32 import Menu, ShortCut
 
 
+DEBUG = 1
+
 
 def elevated_install(path, remove, prefix):
     tmp_dir = tempfile.mkdtemp()
+    if DEBUG:
+        sys.stdout.write('MENU-TMP_DIR: %s' % tmp_dir)
     py_path = join(tmp_dir, 'menu.py')
     bat_path = join(tmp_dir, 'menu.bat')
 
@@ -70,7 +74,8 @@ endlocal
 
     subprocess.check_call([bat_path])
 
-    shutil.rmtree(tmp_dir)
+    if not DEBUG:
+        shutil.rmtree(tmp_dir)
 
 
 def _install(path, remove=False, prefix=sys.prefix):
