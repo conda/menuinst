@@ -1,4 +1,4 @@
-2015-12-XX: 1.3.0
+2015-12-02: 1.3.0
 -----------------
   * add menuinst entry point module menuinst.main
   * fixes for Windows XP
