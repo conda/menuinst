@@ -1,5 +1,5 @@
 import sys
-from os.path import abspath, basename
+from os.path import join
 
 import menuinst
 
@@ -27,19 +27,8 @@ def main():
         sys.stdout.write("menuinst: %s\n" % menuinst.__version__)
         return
 
-    if abspath(opts.prefix) == abspath(sys.prefix):
-        env_name = None
-        env_setup_cmd = None
-    else:
-        env_name = basename(opts.prefix)
-        env_setup_cmd = 'activate "%s"' % env_name
-
-    for path in args:
-        menuinst.install(path,
-                         remove=opts.remove,
-                         target_prefix=opts.prefix,
-                         env_name=env_name,
-                         env_setup_cmd=env_setup_cmd)
+    for arg in args:
+        menuinst.install(join(opts.prefix, arg), opts.remove, opts.prefix)
 
 
 if __name__ == '__main__':
