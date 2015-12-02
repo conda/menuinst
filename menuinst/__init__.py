@@ -26,7 +26,7 @@ def install(path, remove=False, prefix=sys.prefix):
     """
     install Menu and shortcuts
     """
-    if sys.platform == 'win32':
+    if sys.platform == 'win32' and not exists(join(sys.prefix, '.nonadmin')):
         subprocess.check_call([join(sys.prefix, "Scripts", "mk_menus.bat"),
                                prefix,
                                path,
