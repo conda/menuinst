@@ -5,7 +5,8 @@
 from __future__ import absolute_import
 import sys
 import json
-from os.path import abspath, basename
+import subprocess
+from os.path import abspath, basename, join
 
 from ._version import get_versions
 __version__ = get_versions()['version']
@@ -25,6 +26,16 @@ def install(path, remove=False, prefix=sys.prefix):
     """
     install Menu and shortcuts
     """
+    if sys.platform == 'win32':
+        subprocess.check_call([join(sys.prefix, "Scripts", "mk_menus.bat"),
+                               prefix,
+                               path,
+                               "REMOVE" if remove else "INSTALL"])
+    else:
+        _install(path, remove, prefix)
+
+
+def _install(path, remove=False, prefix=sys.prefix):
     if abspath(prefix) == abspath(sys.prefix):
         env_name = None
         env_setup_cmd = None

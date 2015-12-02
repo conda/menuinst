@@ -2,7 +2,7 @@
 @echo off
 
 REM Menu installation needs to be always done with the root python for sake
-REM    of correct menu grouping
+REM of correct menu grouping
 
 set "PYTHON=%~dp0..\pythonw.exe"
 set "SCRIPT=install_menu.py"
@@ -10,16 +10,8 @@ set "PREFIX=%~1"
 set "MENU_FILE=%~2"
 if "%~3" == "REMOVE" (set REMOVE=1) else (set REMOVE=0)
 
-echo import sys > "%SCRIPT%"
-echo import os >> "%SCRIPT%"
-echo from os.path import abspath, basename, join >> "%SCRIPT%"
 echo import menuinst >> "%SCRIPT%"
-echo prefix = r"%%s" %% "%PREFIX%" >> "%SCRIPT%"
-echo env_name = (None if abspath(prefix) == abspath(sys.prefix) else >> "%SCRIPT%"
-echo     basename(prefix)) >> "%SCRIPT%"
-echo env_setup_cmd = ('activate "%%s"' %% env_name) if env_name else None >> "%SCRIPT%"
-echo menuinst.install(join(prefix, "%MENU_FILE%"), int("%REMOVE%"), root_prefix=sys.prefix, >> "%SCRIPT%"
-echo         target_prefix=prefix, env_name=env_name, env_setup_cmd=env_setup_cmd) >> "%SCRIPT%"
+echo menuinst._install("%MENU_FILE%", int("%REMOVE%"), "%PREFIX%") >> "%SCRIPT%"
 
 :: User-level install
 if EXIST "%PREFIX%\.nonadmin" call :install_user_menu "%PYTHON%" "%SCRIPT%" & goto finish
