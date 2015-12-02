@@ -6,7 +6,7 @@ from __future__ import absolute_import
 import sys
 import json
 import subprocess
-from os.path import abspath, basename, join
+from os.path import abspath, basename, exists, join
 
 from ._version import get_versions
 __version__ = get_versions()['version']
@@ -21,18 +21,11 @@ elif sys.platform == 'win32':
     from .win32 import Menu, ShortCut
 
 
-
-def install(path, remove=False, prefix=sys.prefix):
-    """
-    install Menu and shortcuts
-    """
-    if sys.platform == 'win32' and not exists(join(sys.prefix, '.nonadmin')):
-        subprocess.check_call([join(sys.prefix, "Scripts", "mk_menus.bat"),
-                               prefix,
-                               path,
-                               "REMOVE" if remove else "INSTALL"])
-    else:
-        _install(path, remove, prefix)
+def elevated_install(path, remove, prefix):
+    subprocess.check_call([join(sys.prefix, "Scripts", "mk_menus.bat"),
+                           prefix,
+                           path,
+                           "REMOVE" if remove else "INSTALL"])
 
 
 def _install(path, remove=False, prefix=sys.prefix):
@@ -63,6 +56,16 @@ def _install(path, remove=False, prefix=sys.prefix):
             ShortCut(m, sc,
                      target_prefix=prefix, env_name=env_name,
                      env_setup_cmd=env_setup_cmd).create()
+
+
+def install(path, remove=False, prefix=sys.prefix):
+    """
+    install Menu and shortcuts
+    """
+    if sys.platform == 'win32' and not exists(join(sys.prefix, '.nonadmin')):
+        elevated_install(path, remove, prefix)
+    else:
+        _install(path, remove, prefix)
 
 
 from ._version import get_versions
