@@ -23,7 +23,7 @@ elif sys.platform == 'win32':
     from .win32 import Menu, ShortCut
 
 
-DEBUG = 1
+DEBUG = 0
 
 
 def elevated_install(path, remove, prefix):
