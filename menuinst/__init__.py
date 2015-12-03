@@ -45,8 +45,8 @@ menuinst._install(%r, %r, %r)
         fo.write(r"""@setlocal enableextensions enabledelayedexpansion
 @echo off
 
-set "PYTHON=@@SYSPREFIX@@\pythonw.exe"
-set "SCRIPT=@@PY_PATH@@"
+SET "PYTHON=@@SYSPREFIX@@\pythonw.exe"
+SET "SCRIPT=@@PY_PATH@@"
 
 SET NewOSWith_UAC=YES
 VER | FINDSTR /IL "5." > NUL
@@ -55,15 +55,18 @@ VER | FINDSTR /IL "4." > NUL
 IF %ERRORLEVEL% == 0 SET NewOSWith_UAC=NO
 
 REM Test if Admin
-CALL NET SESSION >nul 2>&1
-IF NOT %ERRORLEVEL% == 0 (
-
-if /i "%NewOSWith_UAC%"=="YES" (
-    echo Set UAC = CreateObject^("Shell.Application"^) > "%temp%\getadmin.vbs"
-    echo UAC.ShellExecute "%PYTHON%", "%SCRIPT%", "", "runas", 1 >> "%temp%\getadmin.vbs"
-    "%SystemRoot%\System32\WScript.exe" "%temp%\getadmin.vbs"
-    del "%temp%\getadmin.vbs"
-) else (
+IF /i "%NewOSWith_UAC%"=="YES" (
+    CALL NET SESSION >nul 2>&1
+    IF NOT %ERRORLEVEL% == 0 (
+        echo Set UAC = CreateObject^("Shell.Application"^) > "%temp%\getadmin.vbs"
+        echo UAC.ShellExecute "%PYTHON%", "%SCRIPT%", "", "runas", 1 >> "%temp%\getadmin.vbs"
+        "%SystemRoot%\System32\WScript.exe" "%temp%\getadmin.vbs"
+        del "%temp%\getadmin.vbs"
+    ) ELSE (
+        REM  Already elevated.  Just run the script.
+       "%PYTHON%" "%SCRIPT%"
+    )
+) ELSE (
     REM  Already elevated.  Just run the script.
     "%PYTHON%" "%SCRIPT%"
 )
