@@ -10,17 +10,16 @@ import sys
 from os.path import expanduser, isdir, join, exists
 
 from .utils import rm_empty_dir, rm_rf
-from .csidl import get_folder_path
 from .winshortcut import create_shortcut
 
+from .knownpaths import get_path, FOLDERID, UserHandle
+user = UserHandle.current
 
-quicklaunch_dir = join(get_folder_path('CSIDL_APPDATA'),
-                       "Microsoft", "Internet Explorer", "Quick Launch")
-
-dirs = {"system": {"desktop": get_folder_path('CSIDL_COMMON_DESKTOPDIRECTORY'),
-                   "start": get_folder_path('CSIDL_COMMON_PROGRAMS')},
-        "user": {"desktop": get_folder_path('CSIDL_DESKTOPDIRECTORY'),
-                 "start": get_folder_path('CSIDL_PROGRAMS')}}
+quicklaunch_dir = get_path(FOLDERID.QuickLaunch, user)
+dirs = {"system": {"desktop": get_path(FOLDERID.PublicDesktop, user),
+                   "start": get_path(FOLDERID.CommonPrograms, user)},
+        "user": {"desktop": get_path(FOLDERID.Desktop, user),
+                 "start": get_path(FOLDERID.Programs, user)}}
 
 def quoted(s):
     """
@@ -47,8 +46,8 @@ def substitute_env_variables(text, env_prefix=sys.prefix, env_name=None):
         ('${PYTHON_SCRIPTS}',
          os.path.normpath(join(env_prefix, 'Scripts')).replace("\\", "/")),
         ('${MENU_DIR}', join(env_prefix, 'Menu')),
-        ('${PERSONALDIR}', get_folder_path('CSIDL_PERSONAL')),
-        ('${USERPROFILE}', get_folder_path('CSIDL_PROFILE')),
+        ('${PERSONALDIR}', get_path(FOLDERID.Documents, user)),
+        ('${USERPROFILE}', get_path(FOLDERID.Profile, user)),
         ('${ENV_NAME}', env_name if env_name else ""),
         ('${PY_VER}', str(py_major_ver)),
         ('${PLATFORM}', "(%s-bit)" % py_bitness),
