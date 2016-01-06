@@ -8,6 +8,7 @@ import json
 import shutil
 import subprocess
 import tempfile
+import time
 from os.path import abspath, basename, exists, join
 
 from ._version import get_versions
@@ -77,6 +78,7 @@ endlocal
     subprocess.check_call([bat_path])
 
     if not DEBUG:
+        time.sleep(0.5)
         shutil.rmtree(tmp_dir)
 
 
