@@ -5,7 +5,6 @@
 from __future__ import absolute_import
 import sys
 import json
-import shutil
 import subprocess
 import tempfile
 from os.path import abspath, basename, exists, join
@@ -75,9 +74,6 @@ endlocal
 """.replace('@@SYSPREFIX@@', sys.prefix).replace('@@PY_PATH@@', py_path))
 
     subprocess.check_call([bat_path])
-
-    if not DEBUG:
-        shutil.rmtree(tmp_dir)
 
 
 def _install(path, remove=False, prefix=sys.prefix):
