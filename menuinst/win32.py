@@ -10,12 +10,19 @@ import sys
 from os.path import expanduser, isdir, join, exists
 
 from .utils import rm_empty_dir, rm_rf
-from .csidl import get_folder_path
+import platform
+if platform.release() == "XP":
+    from .csidl import get_folder_path
+    # CSIDL does not provide a direct path to Quick launch.  Start with APPDATA path, go from there.
+    quicklaunch_dirs = ["Microsoft", "Internet Explorer", "Quick Launch"]
+else:
+    from .knownpaths import get_folder_path
+    # KNOWNFOLDERID does provide a direct path to Quick luanch.  No additional path necessary.
+    quicklaunch_dirs = []
 from .winshortcut import create_shortcut
 
 
-quicklaunch_dir = join(get_folder_path('CSIDL_APPDATA'),
-                       "Microsoft", "Internet Explorer", "Quick Launch")
+quicklaunch_dir = join(get_folder_path('CSIDL_APPDATA'), *quicklaunch_dirs)
 
 dirs = {"system": {"desktop": get_folder_path('CSIDL_COMMON_DESKTOPDIRECTORY'),
                    "start": get_folder_path('CSIDL_COMMON_PROGRAMS')},
@@ -58,8 +65,8 @@ def substitute_env_variables(text, env_prefix=sys.prefix, env_name=None):
 
 
 class Menu(object):
-    def __init__(self, name, prefix=sys.prefix):
-        self.mode = ('user' if exists(join(prefix, '.nonadmin')) else 'system')
+    def __init__(self, name, prefix=sys.prefix, mode=None):
+        self.mode = mode if mode else ('user' if exists(join(prefix, '.nonadmin')) else 'system')
         folder_name = substitute_env_variables(name)
         self.path = join(dirs[self.mode]["start"], folder_name)
         try:
