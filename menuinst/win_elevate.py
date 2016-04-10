@@ -8,7 +8,13 @@
 # Released under the same license as Python 2.6.5
 
 
+from __future__ import print_function
 import sys, os, traceback, types
+
+if sys.version_info < (3,):
+    text_type = basestring
+else:
+    text_type = str
 
 def isUserAdmin():
 
@@ -19,18 +25,18 @@ def isUserAdmin():
             return ctypes.windll.shell32.IsUserAnAdmin()
         except:
             traceback.print_exc()
-            print "Admin check failed, assuming not an admin."
+            print("Admin check failed, assuming not an admin.")
             return False
     elif os.name == 'posix':
         # Check for root on Posix
         return os.getuid() == 0
     else:
-        raise RuntimeError, "Unsupported operating system for this module: %s" % (os.name,)
+        raise RuntimeError("Unsupported operating system for this module: %s" % (os.name,))
 
 def runAsAdmin(cmdLine=None, wait=True):
 
     if os.name != 'nt':
-        raise RuntimeError, "This function is only implemented on Windows."
+        raise RuntimeError("This function is only implemented on Windows.")
 
     import win32api, win32con, win32event, win32process
     from win32com.shell.shell import ShellExecuteEx
@@ -40,8 +46,9 @@ def runAsAdmin(cmdLine=None, wait=True):
 
     if cmdLine is None:
         cmdLine = [python_exe] + sys.argv
-    elif type(cmdLine) not in (types.TupleType,types.ListType):
-        raise ValueError, "cmdLine is not a sequence."
+    #elif type(cmdLine) not in (types.TupleType,types.ListType):
+    elif not hasattr(cmdLine, "__iter__") or isinstance(cmdLine, text_type):
+        raise ValueError("cmdLine is not a sequence.")
     cmd = '"%s"' % (cmdLine[0],)
     # XXX TODO: isn't there a function or something we can call to massage command line params?
     params = " ".join(['"%s"' % (x,) for x in cmdLine[1:]])
@@ -49,8 +56,6 @@ def runAsAdmin(cmdLine=None, wait=True):
     showCmd = win32con.SW_SHOWNORMAL
     #showCmd = win32con.SW_HIDE
     lpVerb = 'runas'  # causes UAC elevation prompt.
-
-    # print "Running", cmd, params
 
     # ShellExecute() doesn't seem to allow us to fetch the PID or handle
     # of the process, so we can't get anything useful from it. Therefore
@@ -68,7 +73,6 @@ def runAsAdmin(cmdLine=None, wait=True):
         procHandle = procInfo['hProcess']
         obj = win32event.WaitForSingleObject(procHandle, win32event.INFINITE)
         rc = win32process.GetExitCodeProcess(procHandle)
-        #print "Process handle %s returned code %s" % (procHandle, rc)
     else:
         rc = None
 

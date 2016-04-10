@@ -27,10 +27,8 @@ elif sys.platform == 'win32':
 def _install(path, remove=False, prefix=sys.prefix):
     if abspath(prefix) == abspath(sys.prefix):
         env_name = None
-        env_setup_cmd = None
     else:
         env_name = basename(prefix)
-        env_setup_cmd = 'activate "%s"' % env_name
 
     data = json.load(open(path))
     try:
@@ -42,16 +40,14 @@ def _install(path, remove=False, prefix=sys.prefix):
     m = Menu(menu_name)
     if remove:
         for sc in shortcuts:
-            ShortCut(m, sc,
-                     target_prefix=prefix, env_name=env_name,
-                     env_setup_cmd=env_setup_cmd).remove()
+            ShortCut(m, sc, target_prefix=prefix,
+                     env_name=env_name).remove()
         m.remove()
     else:
         m.create()
         for sc in shortcuts:
-            ShortCut(m, sc,
-                     target_prefix=prefix, env_name=env_name,
-                     env_setup_cmd=env_setup_cmd).create()
+            ShortCut(m, sc, target_prefix=prefix,
+                     env_name=env_name).create()
 
 
 def install(path, remove=False, prefix=sys.prefix):

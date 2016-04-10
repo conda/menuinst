@@ -2,7 +2,7 @@
 # Copyright (c) 2013-2015 Continuum Analytics, Inc.
 # All rights reserved.
 
-from __future__ import absolute_import
+from __future__ import absolute_import, unicode_literals
 
 import logging
 import os
@@ -20,7 +20,6 @@ else:
     # KNOWNFOLDERID does provide a direct path to Quick luanch.  No additional path necessary.
     quicklaunch_dirs = []
 from .winshortcut import create_shortcut
-
 
 quicklaunch_dir = join(get_folder_path('CSIDL_APPDATA'), *quicklaunch_dirs)
 
@@ -41,32 +40,57 @@ def quoted(s):
         return s
 
 
-def substitute_env_variables(text, env_prefix=sys.prefix, env_name=None):
+def to_unicode(var, codec=sys.getdefaultencoding()):
+    if not codec:
+        codec="utf-8"
+    if hasattr(var, "decode"):
+        var = var.decode(codec)
+    return var
+
+
+def to_bytes(var, codec=sys.getdefaultencoding()):
+    if not codec:
+        codec="utf-8"
+    if hasattr(var, "encode"):
+        var = var.encode(codec)
+    return var
+
+
+unicode_prefix = to_unicode(sys.prefix)
+
+
+def substitute_env_variables(text, env_prefix=unicode_prefix, env_name=None):
     # When conda is using Menuinst, only the root Conda installation ever
     # calls menuinst.  Thus, these calls to sys refer to the root Conda
     # installation, NOT the child environment
     py_major_ver = sys.version_info[0]
     py_bitness = 8 * tuple.__itemsize__
 
+    env_prefix = to_unicode(env_prefix)
+    text = to_unicode(text)
+    env_name = to_unicode(env_name)
+
     for a, b in [
-        ('${PREFIX}', env_prefix),
-        ('${ROOT_PREFIX}', sys.prefix),
-        ('${PYTHON_SCRIPTS}',
-         os.path.normpath(join(env_prefix, 'Scripts')).replace("\\", "/")),
-        ('${MENU_DIR}', join(env_prefix, 'Menu')),
-        ('${PERSONALDIR}', get_folder_path('CSIDL_PERSONAL')),
-        ('${USERPROFILE}', get_folder_path('CSIDL_PROFILE')),
-        ('${ENV_NAME}', env_name if env_name else ""),
-        ('${PY_VER}', str(py_major_ver)),
-        ('${PLATFORM}', "(%s-bit)" % py_bitness),
+        (u'${PREFIX}', env_prefix),
+        (u'${ROOT_PREFIX}', unicode_prefix),
+        (u'${PYTHON_SCRIPTS}',
+          os.path.normpath(join(env_prefix, u'Scripts')).replace(u"\\", u"/")),
+        (u'${MENU_DIR}', join(env_prefix, u'Menu')),
+        (u'${PERSONALDIR}', get_folder_path('CSIDL_PERSONAL')),
+        (u'${USERPROFILE}', get_folder_path('CSIDL_PROFILE')),
+        (u'${ENV_NAME}', env_name if env_name else u""),
+        (u'${PY_VER}', u'%d' % (py_major_ver)),
+        (u'${PLATFORM}', u"(%s-bit)" % py_bitness),
         ]:
         text = text.replace(a, b)
     return text
 
 
 class Menu(object):
-    def __init__(self, name, prefix=sys.prefix, mode=None):
-        self.mode = mode if mode else ('user' if exists(join(prefix, '.nonadmin')) else 'system')
+    def __init__(self, name, prefix=unicode_prefix, mode=None):
+        # bytestrings passed in need to become unicode
+        prefix = to_unicode(prefix)
+        self.mode = mode if mode else ('user' if exists(join(prefix, u'.nonadmin')) else 'system')
         folder_name = substitute_env_variables(name)
         self.path = join(dirs[self.mode]["start"], folder_name)
         try:
@@ -90,7 +114,7 @@ class Menu(object):
 
 
 def get_python_args_for_subprocess(prefix, args, cmd):
-    return [quoted(join(sys.prefix, 'cwp.py')), quoted(prefix),
+    return [quoted(join(unicode_prefix, u'cwp.py')), quoted(prefix),
             quoted(cmd)] + args
 
 
@@ -106,18 +130,15 @@ def extend_script_args(args, shortcut):
 
 
 class ShortCut(object):
-    def __init__(self, menu, shortcut, target_prefix, env_name, env_setup_cmd):
+    def __init__(self, menu, shortcut, target_prefix, env_name):
         """
         Prefix is the system prefix to be used -- this is needed since
         there is the possibility of a different Python's packages being managed.
         """
         self.menu = menu
         self.shortcut = shortcut
-        self.prefix = target_prefix
+        self.prefix = to_unicode(target_prefix)
         self.env_name = env_name
-        self.env_setup_cmd = (env_setup_cmd
-                              if env_setup_cmd else
-                              "activate %s" % self.prefix)
 
     def remove(self):
         self.create(remove=True)
@@ -125,21 +146,21 @@ class ShortCut(object):
     def create(self, remove=False):
         args = []
         if "pywscript" in self.shortcut:
-            cmd = join(self.prefix, "pythonw.exe").replace("\\", "/")
+            cmd = join(self.prefix, u"pythonw.exe").replace("\\", "/")
             args = self.shortcut["pywscript"].split()
             args = get_python_args_for_subprocess(self.prefix, args, cmd)
         elif "pyscript" in self.shortcut:
-            cmd = join(self.prefix, "python.exe").replace("\\", "/")
+            cmd = join(self.prefix, u"python.exe").replace("\\", "/")
             args = self.shortcut["pyscript"].split()
             args = get_python_args_for_subprocess(self.prefix, args, cmd)
         elif "webbrowser" in self.shortcut:
-            cmd = join(sys.prefix, 'pythonw.exe')
+            cmd = join(unicode_prefix, u'pythonw.exe')
             args = ['-m', 'webbrowser', '-t', self.shortcut['webbrowser']]
         elif "script" in self.shortcut:
             cmd = self.shortcut["script"].replace('/', '\\')
             extend_script_args(args, self.shortcut)
             args = get_python_args_for_subprocess(self.prefix, args, cmd)
-            cmd = join(sys.prefix, "pythonw.exe").replace("\\", "/")
+            cmd = join(unicode_prefix, u"pythonw.exe").replace("\\", "/")
         elif "system" in self.shortcut:
             cmd = substitute_env_variables(
                      self.shortcut["system"],
