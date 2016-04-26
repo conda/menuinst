@@ -14,13 +14,24 @@ from .csidl import get_folder_path
 from .winshortcut import create_shortcut
 
 
-quicklaunch_dir = join(get_folder_path('CSIDL_APPDATA'),
-                       "Microsoft", "Internet Explorer", "Quick Launch")
+try:
+    quicklaunch_dir = join(get_folder_path('CSIDL_APPDATA'),
+                           "Microsoft", "Internet Explorer", "Quick Launch")
 
-dirs = {"system": {"desktop": get_folder_path('CSIDL_COMMON_DESKTOPDIRECTORY'),
-                   "start": get_folder_path('CSIDL_COMMON_PROGRAMS')},
-        "user": {"desktop": get_folder_path('CSIDL_DESKTOPDIRECTORY'),
-                 "start": get_folder_path('CSIDL_PROGRAMS')}}
+    dirs = {"system": {"desktop": get_folder_path('CSIDL_COMMON_DESKTOPDIRECTORY'),
+                       "start": get_folder_path('CSIDL_COMMON_PROGRAMS')},
+            "user": {"desktop": get_folder_path('CSIDL_DESKTOPDIRECTORY'),
+                     "start": get_folder_path('CSIDL_PROGRAMS')}}
+    personaldir = get_folder_path('CSIDL_PERSONAL')
+    userprofile = get_folder_path('CSIDL_PROFILE')
+except WindowsError as win_err:
+    # Raise an Import error if any of these directories
+    # can't be found. This indicates to other packages
+    # that menuinst can't be used on the given system.
+    raise ImportError("Failed to find a system directory "
+                      "required for menu installation. "
+                      "Windows raised error %s." %
+                      (repr(win_err),))
 
 def quoted(s):
     """
@@ -47,8 +58,8 @@ def substitute_env_variables(text, env_prefix=sys.prefix, env_name=None):
         ('${PYTHON_SCRIPTS}',
          os.path.normpath(join(env_prefix, 'Scripts')).replace("\\", "/")),
         ('${MENU_DIR}', join(env_prefix, 'Menu')),
-        ('${PERSONALDIR}', get_folder_path('CSIDL_PERSONAL')),
-        ('${USERPROFILE}', get_folder_path('CSIDL_PROFILE')),
+        ('${PERSONALDIR}', personaldir),
+        ('${USERPROFILE}', userprofile),
         ('${ENV_NAME}', env_name if env_name else ""),
         ('${PY_VER}', str(py_major_ver)),
         ('${PLATFORM}', "(%s-bit)" % py_bitness),
