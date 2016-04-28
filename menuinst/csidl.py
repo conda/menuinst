@@ -36,6 +36,15 @@ def get_folder_path(path_name):
         out_str = ctypes.create_unicode_buffer(MAX_PATH)
         if SHGetFolderPath(None, csidl, None, SHGFP_TYPE_CURRENT, out_str):
             raise ctypes.WinError()
-        return out_str.value
+
+        path = out_str.value
+
+        codec = sys.getdefaultencoding()
+        if not codec:
+            codec="utf-8"
+        if hasattr(path, "decode"):
+            path = path.decode(codec)
+
+        return path
     else:
         raise ValueError("%s is an unknown CSIDL path ID" % (path_name))
