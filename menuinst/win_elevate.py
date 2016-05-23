@@ -77,3 +77,9 @@ def runAsAdmin(cmdLine=None, wait=True):
         rc = None
 
     return rc
+
+if __name__ == '__main__':
+    userIsAdmin = isUserAdmin()
+    print('userIsAdmin = %d' % (userIsAdmin))
+    if not userIsAdmin:
+        runAsAdmin([sys.executable] + sys.argv, wait=True)

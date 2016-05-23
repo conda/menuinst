@@ -118,11 +118,13 @@ def ensure_menu_file():
 
 class Menu(object):
 
-    def __init__(self, name):
+    def __init__(self, name, prefix, env_name):
         self.name = name
         self.name_ = name + '_'
         self.entry_fn = '%s.directory' % self.name
         self.entry_path = join(datadir, 'desktop-directories', self.entry_fn)
+        self.prefix = prefix
+        self.env_name = env_name
 
     def create(self):
         self._create_dirs()
@@ -189,7 +191,7 @@ class ShortCut(object):
 
     fn_pat = re.compile(r'[\w.-]+$')
 
-    def __init__(self, menu, shortcut, prefix, env_name, env_setup_cmd):
+    def __init__(self, menu, shortcut, env_setup_cmd):
         # note that this is the path WITHOUT extension
         fn = menu.name_ + shortcut['id']
         assert self.fn_pat.match(fn)
@@ -200,8 +202,8 @@ class ShortCut(object):
             if var_name in shortcut:
                 setattr(self, var_name, shortcut[var_name])
 
-        self.prefix = prefix if prefix is not None else sys.prefix
-        self.env_name = env_name
+        self.prefix = menu.prefix if menu.prefix is not None else sys.prefix
+        self.env_name = menu.env_name
         self.env_setup_cmd = env_setup_cmd
 
 

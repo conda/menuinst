@@ -21,12 +21,22 @@ else:
     quicklaunch_dirs = []
 from .winshortcut import create_shortcut
 
-quicklaunch_dir = join(get_folder_path('CSIDL_APPDATA'), *quicklaunch_dirs)
-
 dirs = {"system": {"desktop": get_folder_path('CSIDL_COMMON_DESKTOPDIRECTORY'),
-                   "start": get_folder_path('CSIDL_COMMON_PROGRAMS')},
-        "user": {"desktop": get_folder_path('CSIDL_DESKTOPDIRECTORY'),
-                 "start": get_folder_path('CSIDL_PROGRAMS')}}
+                   "start": get_folder_path('CSIDL_COMMON_PROGRAMS'),
+                   "quicklaunch": join(get_folder_path('CSIDL_COMMON_APPDATA'), *quicklaunch_dirs),
+                   "documents": get_folder_path('CSIDL_COMMON_DOCUMENTS'),
+                   "profile": get_folder_path('CSIDL_PROFILE')}}
+try:
+    dirs["user"] = {"desktop": get_folder_path('CSIDL_DESKTOPDIRECTORY'),
+                    "start": get_folder_path('CSIDL_PROGRAMS'),
+                    # LOCAL_APPDATA because that is what the NSIS installer uses
+                    # 'as this is the only place guaranteed to not be backed by a network share
+                    #  or included in a user's roaming profile'
+                    "quicklaunch": join(get_folder_path('CSIDL_LOCAL_APPDATA'), *quicklaunch_dirs),
+                    "documents": get_folder_path('CSIDL_PERSONAL'),
+                    "profile": get_folder_path('CSIDL_PROFILE')}
+except:
+    pass
 
 def quoted(s):
     """
@@ -59,51 +69,72 @@ def to_bytes(var, codec=sys.getdefaultencoding()):
 unicode_prefix = to_unicode(sys.prefix)
 
 
-def substitute_env_variables(text, env_prefix=unicode_prefix, env_name=None):
+def substitute_env_variables(text, dir):
     # When conda is using Menuinst, only the root Conda installation ever
     # calls menuinst.  Thus, these calls to sys refer to the root Conda
     # installation, NOT the child environment
     py_major_ver = sys.version_info[0]
     py_bitness = 8 * tuple.__itemsize__
 
-    env_prefix = to_unicode(env_prefix)
+    env_prefix = to_unicode(dir['prefix'])
     text = to_unicode(text)
-    env_name = to_unicode(env_name)
+    env_name = to_unicode(dir['env_name'])
 
-    for a, b in [
+    for a, b in (
         (u'${PREFIX}', env_prefix),
         (u'${ROOT_PREFIX}', unicode_prefix),
         (u'${PYTHON_SCRIPTS}',
           os.path.normpath(join(env_prefix, u'Scripts')).replace(u"\\", u"/")),
         (u'${MENU_DIR}', join(env_prefix, u'Menu')),
-        (u'${PERSONALDIR}', get_folder_path('CSIDL_PERSONAL')),
-        (u'${USERPROFILE}', get_folder_path('CSIDL_PROFILE')),
-        (u'${ENV_NAME}', env_name if env_name else u""),
+        (u'${PERSONALDIR}', dir['documents']),
+        (u'${USERPROFILE}', dir['profile']),
+        (u'${ENV_NAME}', env_name),
         (u'${PY_VER}', u'%d' % (py_major_ver)),
         (u'${PLATFORM}', u"(%s-bit)" % py_bitness),
-        ]:
-        text = text.replace(a, b)
+        ):
+        if b:
+            text = text.replace(a, b)
     return text
 
 
 class Menu(object):
-    def __init__(self, name, prefix=unicode_prefix, mode=None):
+    def __init__(self, name, prefix=unicode_prefix, env_name=u"", mode=None):
+        """
+        Prefix is the system prefix to be used -- this is needed since
+        there is the possibility of a different Python's packages being managed.
+        """
+
         # bytestrings passed in need to become unicode
-        prefix = to_unicode(prefix)
-        self.mode = mode if mode else ('user' if exists(join(prefix, u'.nonadmin')) else 'system')
-        folder_name = substitute_env_variables(name)
-        self.path = join(dirs[self.mode]["start"], folder_name)
+        self.prefix = to_unicode(prefix)
+        if 'user' in dirs:
+            used_mode = mode if mode else ('user' if exists(join(prefix, u'.nonadmin')) else 'system')
+        else:
+            used_mode = 'system'
         try:
-            self.create()
+            self.set_dir(name, prefix, env_name, used_mode)
         except WindowsError:
             # We get here if we aren't elevated.  This is different from
             #   permissions: a user can have permission, but elevation is still
             #   required.  If the process isn't elevated, we get the
             #   WindowsError
-            logging.warn("Insufficient permissions to write menu folder.  "
-                         "Falling back to user location")
-            self.path = join(dirs["user"]["start"], folder_name)
-            self.mode = "user"
+            if 'user' in dirs:
+                logging.warn("Insufficient permissions to write menu folder.  "
+                             "Falling back to user location")
+                try:
+                    self.set_dir(name, prefix, env_name, 'user')
+                except:
+                    pass
+            else:
+                logging.fatal("Unable to create AllUsers menu folder")
+
+    def set_dir(self, name, prefix, env_name, mode):
+        self.mode = mode
+        self.dir = dirs[mode]
+        self.dir['prefix'] = prefix
+        self.dir['env_name'] = env_name
+        folder_name = substitute_env_variables(name, self.dir)
+        self.path = join(self.dir["start"], folder_name)
+        self.create()
 
     def create(self):
         if not isdir(self.path):
@@ -130,15 +161,9 @@ def extend_script_args(args, shortcut):
 
 
 class ShortCut(object):
-    def __init__(self, menu, shortcut, target_prefix, env_name):
-        """
-        Prefix is the system prefix to be used -- this is needed since
-        there is the possibility of a different Python's packages being managed.
-        """
+    def __init__(self, menu, shortcut):
         self.menu = menu
         self.shortcut = shortcut
-        self.prefix = to_unicode(target_prefix)
-        self.env_name = env_name
 
     def remove(self):
         self.create(remove=True)
@@ -146,26 +171,25 @@ class ShortCut(object):
     def create(self, remove=False):
         args = []
         if "pywscript" in self.shortcut:
-            cmd = join(self.prefix, u"pythonw.exe").replace("\\", "/")
+            cmd = join(self.menu.prefix, u"pythonw.exe").replace("\\", "/")
             args = self.shortcut["pywscript"].split()
-            args = get_python_args_for_subprocess(self.prefix, args, cmd)
+            args = get_python_args_for_subprocess(self.menu.prefix, args, cmd)
         elif "pyscript" in self.shortcut:
-            cmd = join(self.prefix, u"python.exe").replace("\\", "/")
+            cmd = join(self.menu.prefix, u"python.exe").replace("\\", "/")
             args = self.shortcut["pyscript"].split()
-            args = get_python_args_for_subprocess(self.prefix, args, cmd)
+            args = get_python_args_for_subprocess(self.menu.prefix, args, cmd)
         elif "webbrowser" in self.shortcut:
             cmd = join(unicode_prefix, u'pythonw.exe')
             args = ['-m', 'webbrowser', '-t', self.shortcut['webbrowser']]
         elif "script" in self.shortcut:
             cmd = self.shortcut["script"].replace('/', '\\')
             extend_script_args(args, self.shortcut)
-            args = get_python_args_for_subprocess(self.prefix, args, cmd)
+            args = get_python_args_for_subprocess(self.menu.prefix, args, cmd)
             cmd = join(unicode_prefix, u"pythonw.exe").replace("\\", "/")
         elif "system" in self.shortcut:
             cmd = substitute_env_variables(
                      self.shortcut["system"],
-                     env_prefix=self.prefix,
-                     env_name=self.env_name).replace('/', '\\')
+                     self.menu.dir).replace('/', '\\')
             extend_script_args(args, self.shortcut)
         else:
             raise Exception("Nothing to do: %r" % self.shortcut)
@@ -173,13 +197,9 @@ class ShortCut(object):
         workdir = self.shortcut.get('workdir', '')
         icon = self.shortcut.get('icon', '')
 
-        args = [substitute_env_variables(s, env_prefix=self.prefix,
-                                         env_name=self.env_name) for s in args]
-        workdir = substitute_env_variables(workdir,
-                                           env_prefix=self.prefix,
-                                           env_name=self.env_name)
-        icon = substitute_env_variables(icon, env_prefix=self.prefix,
-                                        env_name=self.env_name)
+        args = [substitute_env_variables(s, self.menu.dir) for s in args]
+        workdir = substitute_env_variables(workdir, self.menu.dir)
+        icon = substitute_env_variables(icon, self.menu.dir)
 
         # Fix up the '/' to '\'
         workdir = workdir.replace('/', '\\')
@@ -197,13 +217,13 @@ class ShortCut(object):
 
         # Desktop link
         if self.shortcut.get('desktop'):
-            dst_dirs.append(dirs[self.menu.mode]['desktop'])
+            dst_dirs.append(self.menu.dir['desktop'])
 
         # Quicklaunch link
         if self.shortcut.get('quicklaunch'):
-            dst_dirs.append(dirs[self.menu.mode]['quicklaunch'])
+            dst_dirs.append(self.menu.dir['quicklaunch'])
 
-        name_suffix = " ({})".format(self.env_name) if self.env_name else ""
+        name_suffix = " ({})".format(self.menu.dir['env_name']) if self.menu.dir['env_name'] else ""
         for dst_dir in dst_dirs:
             dst = join(dst_dir, self.shortcut['name'] + name_suffix + '.lnk')
             if remove:

@@ -175,15 +175,19 @@ def get_path(folderid, user_handle=UserHandle.common):
 # wrapper to mimic CSIDL path IDs for Menuinst
 def get_folder_path(csidl_id):
     user = UserHandle.current
-    folders = {"CSIDL_COMMON_DESKTOPDIRECTORY": get_path(FOLDERID.PublicDesktop, user),
-               "CSIDL_COMMON_PROGRAMS": get_path(FOLDERID.CommonPrograms, user),
-               "CSIDL_DESKTOPDIRECTORY": get_path(FOLDERID.Desktop, user),
-               "CSIDL_PROGRAMS": get_path(FOLDERID.Programs, user),
-               "CSIDL_PERSONAL": get_path(FOLDERID.Documents, user),
-               "CSIDL_PROFILE": get_path(FOLDERID.Profile, user),
-               "CSIDL_APPDATA": get_path(FOLDERID.QuickLaunch, user), # quicklaunch hack
+    # We may want to support modifying the 'Default' user here too for SCCM-based installations.
+    # New users created on the machine have their folders created by copying those of 'Default'.
+    folders = {"CSIDL_COMMON_DESKTOPDIRECTORY": FOLDERID.PublicDesktop,
+               "CSIDL_COMMON_PROGRAMS": FOLDERID.CommonPrograms,
+               "CSIDL_COMMON_DOCUMENTS": FOLDERID.PublicDocuments,
+               "CSIDL_PROGRAMS": FOLDERID.Programs,
+               "CSIDL_PERSONAL": FOLDERID.Documents,
+               "CSIDL_PROFILE": FOLDERID.Profile,
+               "CSIDL_APPDATA": FOLDERID.RoamingAppData,
+               "CSIDL_LOCAL_APPDATA": FOLDERID.LocalAppData,
+               "CSIDL_COMMON_APPDATA": FOLDERID.ProgramData,
     }
-    return folders[csidl_id]
+    return get_path(folders[csidl_id], user)
 
 if __name__ == '__main__':
     if len(sys.argv) < 2 or sys.argv[1] in ['-?', '/?']:
