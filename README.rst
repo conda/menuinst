@@ -3,8 +3,8 @@ menuinst: cross platform menu item installation
 ===============================================
 
 
-.. image:: https://ci.appveyor.com/api/projects/status/jfkcum99nj5af2rb?svg=true
-               :target: https://ci.appveyor.com/project/ironmancio54716/menuinst
+.. image:: https://ci.appveyor.com/api/projects/status/w4kcvjq21plm1ovj?svg=true
+               :target: https://ci.appveyor.com/project/ContinuumAnalytics/menuinst
 
 
 This package is was originally developed and maintained by Enthought
