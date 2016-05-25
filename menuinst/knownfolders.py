@@ -172,26 +172,17 @@ def get_path(folderid, user_handle=UserHandle.common):
         path = path.decode(codec)
     return path
 
-# wrapper to mimic CSIDL path IDs for Menuinst
-def get_folder_path(csidl_id):
-    user = UserHandle.current
+
+def get_folder_path(folder_id, user=None):
+    if not user:
+        user = UserHandle.current
     # We may want to support modifying the 'Default' user here too for SCCM-based installations.
     # New users created on the machine have their folders created by copying those of 'Default'.
-    folders = {"CSIDL_COMMON_DESKTOPDIRECTORY": FOLDERID.PublicDesktop,
-               "CSIDL_COMMON_PROGRAMS": FOLDERID.CommonPrograms,
-               "CSIDL_COMMON_DOCUMENTS": FOLDERID.PublicDocuments,
-               "CSIDL_PROGRAMS": FOLDERID.Programs,
-               "CSIDL_PERSONAL": FOLDERID.Documents,
-               "CSIDL_PROFILE": FOLDERID.Profile,
-               "CSIDL_APPDATA": FOLDERID.RoamingAppData,
-               "CSIDL_LOCAL_APPDATA": FOLDERID.LocalAppData,
-               "CSIDL_COMMON_APPDATA": FOLDERID.ProgramData,
-    }
-    return get_path(folders[csidl_id], user)
+    return get_path(folder_id, user)
 
 if __name__ == '__main__':
     if len(sys.argv) < 2 or sys.argv[1] in ['-?', '/?']:
-        print('python knownpaths.py FOLDERID {current|common}')
+        print('python knownfolders.py FOLDERID {current|common}')
         sys.exit(0)
 
     try:

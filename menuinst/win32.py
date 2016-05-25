@@ -11,32 +11,22 @@ from os.path import expanduser, isdir, join, exists
 
 from .utils import rm_empty_dir, rm_rf
 import platform
-if platform.release() == "XP":
-    from .csidl import get_folder_path
-    # CSIDL does not provide a direct path to Quick launch.  Start with APPDATA path, go from there.
-    quicklaunch_dirs = ["Microsoft", "Internet Explorer", "Quick Launch"]
-else:
-    from .knownpaths import get_folder_path
-    # KNOWNFOLDERID does provide a direct path to Quick luanch.  No additional path necessary.
-    quicklaunch_dirs = []
+from .knownfolders import get_folder_path, FOLDERID
+# KNOWNFOLDERID does provide a direct path to Quick luanch.  No additional path necessary.
 from .winshortcut import create_shortcut
 
-dirs = {"system": {"desktop": get_folder_path('CSIDL_COMMON_DESKTOPDIRECTORY'),
-                   "start": get_folder_path('CSIDL_COMMON_PROGRAMS'),
-                   "quicklaunch": join(get_folder_path('CSIDL_COMMON_APPDATA'), *quicklaunch_dirs),
-                   "documents": get_folder_path('CSIDL_COMMON_DOCUMENTS'),
-                   "profile": get_folder_path('CSIDL_PROFILE')}}
-try:
-    dirs["user"] = {"desktop": get_folder_path('CSIDL_DESKTOPDIRECTORY'),
-                    "start": get_folder_path('CSIDL_PROGRAMS'),
-                    # LOCAL_APPDATA because that is what the NSIS installer uses
-                    # 'as this is the only place guaranteed to not be backed by a network share
-                    #  or included in a user's roaming profile'
-                    "quicklaunch": join(get_folder_path('CSIDL_LOCAL_APPDATA'), *quicklaunch_dirs),
-                    "documents": get_folder_path('CSIDL_PERSONAL'),
-                    "profile": get_folder_path('CSIDL_PROFILE')}
-except:
-    pass
+dirs = {"system": {"desktop": get_folder_path(FOLDERID.PublicDesktop),
+                   "start": get_folder_path(FOLDERID.CommonPrograms),
+                   "quicklaunch": get_folder_path(FOLDERID.QuickLaunch),
+                   "documents": get_folder_path(FOLDERID.PublicDocuments),
+                   "profile": get_folder_path(FOLDERID.Profile)},
+        "user": {"desktop": get_folder_path(FOLDERID.Desktop),
+                    "start": get_folder_path(FOLDERID.Programs),
+                    "quicklaunch": get_folder_path(FOLDERID.QuickLaunch),
+                    "documents": get_folder_path(FOLDERID.Documents),
+                    "profile": get_folder_path(FOLDERID.Profile)}
+}
+
 
 def quoted(s):
     """
