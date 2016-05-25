@@ -1,6 +1,12 @@
-2016-05-24: 1.3.3
+2016-05-25: 1.4.0
 -----------------
-  * support istalling as SYSTEM user on Windows
+  * Add license explicitly (BSD 3-clause) (#26)
+  * Rework elevation on Windows to not use separate batch file (#27)
+  * Improve support for non-ascii characters (#27)
+  * Migrate to Windows KnownFolder instead of CSIDL for win > XP (#27)
+  * support istalling as SYSTEM user on Windows (for SCCM usage) (#29)
+  * Add Appveyor for build testing (#30)
+  * Drop CSIDL support in favor of uniform KnownFolder usage (#31)
 
 
 2016-01-11: 1.3.2
