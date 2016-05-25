@@ -12,8 +12,9 @@ from utils import rm_rf
 
 
 class Menu(object):
-    def __init__(self, unused_name):
-        pass
+    def __init__(self, unused_name, prefix, env_name):
+        self.prefix = prefix
+        self.env_name = env_name
     def create(self):
         pass
     def remove(self):
@@ -22,9 +23,9 @@ class Menu(object):
 
 class ShortCut(object):
 
-    def __init__(self, menu, shortcut, prefix=sys.prefix):
+    def __init__(self, menu, shortcut):
         self.shortcut = shortcut
-        self.prefix = prefix
+        self.prefix = menu.prefix
         self.name = shortcut['name']
         self.path = '/Applications/%s.app' % self.name
         self.shortcut = shortcut

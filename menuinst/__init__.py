@@ -37,17 +37,15 @@ def _install(path, remove=False, prefix=sys.prefix):
         menu_name = 'Python-%d.%d' % sys.version_info[:2]
 
     shortcuts = data['menu_items']
-    m = Menu(menu_name)
+    m = Menu(menu_name, prefix=prefix, env_name=env_name)
     if remove:
         for sc in shortcuts:
-            ShortCut(m, sc, target_prefix=prefix,
-                     env_name=env_name).remove()
+            ShortCut(m, sc).remove()
         m.remove()
     else:
         m.create()
         for sc in shortcuts:
-            ShortCut(m, sc, target_prefix=prefix,
-                     env_name=env_name).create()
+            ShortCut(m, sc).create()
 
 
 def install(path, remove=False, prefix=sys.prefix):
