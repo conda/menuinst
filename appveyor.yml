@@ -46,10 +46,11 @@ install:
   - conda install -q conda-build
   - python --version
   - python -c "import struct; print(struct.calcsize('P') * 8)"
-  - python setup.py install
+  # Hack because we don't find VC for Python right away...  Not used in conda package!!  Just for testing here.
   - set PATH
   - conda build --version
   - copy "C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\bin\vcvars64.bat" "C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\bin\amd64\vcvarsamd64.bat"
+  - python setup.py install
 
 
 # Not a .NET project, we build package in the install step instead
