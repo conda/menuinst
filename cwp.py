@@ -1,13 +1,12 @@
+# this script is used on windows to wrap shortcuts so that they are executed within an environment
+#   It only sets the appropriate prefix PATH entries - it does not actually activate environments
+
 import os
 import sys
 import subprocess
 from os.path import join
-import ctypes, ctypes.wintypes
-import logging
-CSIDL_PERSONAL=5
-SHGFP_TYPE_CURRENT=0
-CSIDL_COMMON_DOCUMENTS=46
-CSIDL_COMMON_STARTMENU=22
+
+from menuinst.knownfolders import FOLDERID, get_folder_path, PathNotFoundException
 
 # call as: python cwp.py PREFIX ARGs...
 
@@ -21,8 +20,10 @@ env['PATH'] = os.path.pathsep.join([
         join(prefix, "Library", "bin"),
         env['PATH'],
 ])
-buf=ctypes.create_unicode_buffer(ctypes.wintypes.MAX_PATH)
-if ctypes.windll.shell32.SHGetFolderPathW(0, CSIDL_PERSONAL, 0, SHGFP_TYPE_CURRENT, buf):
-    ctypes.windll.shell32.SHGetFolderPathW(0, CSIDL_COMMON_DOCUMENTS, 0, SHGFP_TYPE_CURRENT, buf)
-os.chdir(buf.value)
+
+try:
+    documents_folder = get_folder_path(FOLDERID.Documents)
+except PathNotFoundException:
+    documents_folder = get_folder_path(FOLDERID.PublicDocuments)
+os.chdir(documents_folder)
 subprocess.call(args, env=env)

@@ -182,7 +182,7 @@ def get_folder_path(folder_id, user=None):
 
 if __name__ == '__main__':
     if len(sys.argv) < 2 or sys.argv[1] in ['-?', '/?']:
-        print('python knownpaths.py FOLDERID {current|common}')
+        print('python knownfolders.py FOLDERID {current|common}')
         sys.exit(0)
 
     try:

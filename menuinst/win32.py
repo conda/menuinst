@@ -11,7 +11,7 @@ from os.path import expanduser, isdir, join, exists
 
 from .utils import rm_empty_dir, rm_rf
 import platform
-from .knownpaths import get_folder_path, FOLDERID
+from .knownfolders import get_folder_path, FOLDERID
 # KNOWNFOLDERID does provide a direct path to Quick luanch.  No additional path necessary.
 from .winshortcut import create_shortcut
 
