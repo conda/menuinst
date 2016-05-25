@@ -2,6 +2,11 @@
 menuinst: cross platform menu item installation
 ===============================================
 
+
+.. image:: https://ci.appveyor.com/api/projects/status/jfkcum99nj5af2rb?svg=true
+               :target: https://ci.appveyor.com/project/ironmancio54716/menuinst
+
+
 This package is was originally developed and maintained by Enthought
 under the name AppInst.  The name appinst is a rename of what used
 to be called 'wininst'.
