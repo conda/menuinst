@@ -10,23 +10,26 @@ import sys
 from os.path import expanduser, isdir, join, exists
 
 from .utils import rm_empty_dir, rm_rf
-import platform
 from .knownfolders import get_folder_path, FOLDERID
 # KNOWNFOLDERID does provide a direct path to Quick luanch.  No additional path necessary.
 from .winshortcut import create_shortcut
 
 dirs = {"system": {"desktop": get_folder_path(FOLDERID.PublicDesktop),
                    "start": get_folder_path(FOLDERID.CommonPrograms),
-                   "quicklaunch": get_folder_path(FOLDERID.QuickLaunch),
                    "documents": get_folder_path(FOLDERID.PublicDocuments),
-                   "profile": get_folder_path(FOLDERID.Profile)},
-        "user": {"desktop": get_folder_path(FOLDERID.Desktop),
+                   "profile": get_folder_path(FOLDERID.Profile)}}
+# When running as 'nt authority/system' as sometimes people do via SCCM,
+# various folders do not exist, such as QuickLaunch. This doesn't matter
+# as we'll use the "system" key finally and check for the "quicklaunch"
+# subkey before adding any quicklaunch menu items.
+try:
+    dirs["user"] = {"desktop": get_folder_path(FOLDERID.Desktop),
                     "start": get_folder_path(FOLDERID.Programs),
                     "quicklaunch": get_folder_path(FOLDERID.QuickLaunch),
                     "documents": get_folder_path(FOLDERID.Documents),
                     "profile": get_folder_path(FOLDERID.Profile)}
-}
-
+except:
+    pass
 
 def quoted(s):
     """
@@ -210,7 +213,7 @@ class ShortCut(object):
             dst_dirs.append(self.menu.dir['desktop'])
 
         # Quicklaunch link
-        if self.shortcut.get('quicklaunch'):
+        if self.shortcut.get('quicklaunch') and 'quicklaunch' in self.menu.dir:
             dst_dirs.append(self.menu.dir['quicklaunch'])
 
         name_suffix = " ({})".format(self.menu.dir['env_name']) if self.menu.dir['env_name'] else ""
