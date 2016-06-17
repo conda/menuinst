@@ -10,7 +10,7 @@ import sys
 from os.path import expanduser, isdir, join, exists
 
 from .utils import rm_empty_dir, rm_rf
-from .knownfolders import get_folder_path, FOLDERID
+from .knownfolders import get_folder_path, FOLDERID, PathNotFoundException
 # KNOWNFOLDERID does provide a direct path to Quick luanch.  No additional path necessary.
 from .winshortcut import create_shortcut
 
@@ -138,8 +138,12 @@ class Menu(object):
 
 
 def get_python_args_for_subprocess(prefix, args, cmd):
+    try:
+        documents_folder = get_folder_path(FOLDERID.Documents)
+    except PathNotFoundException:
+        documents_folder = get_folder_path(FOLDERID.PublicDocuments)
     return [quoted(join(unicode_prefix, u'cwp.py')), quoted(prefix),
-            quoted(cmd)] + args
+            quoted(documents_folder), quoted(cmd)] + args
 
 
 def extend_script_args(args, shortcut):

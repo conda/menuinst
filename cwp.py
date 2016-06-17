@@ -6,24 +6,20 @@ import sys
 import subprocess
 from os.path import join
 
-from menuinst.knownfolders import FOLDERID, get_folder_path, PathNotFoundException
-
 # call as: python cwp.py PREFIX ARGs...
 
 prefix = sys.argv[1]
-args = sys.argv[2:]
+cwd = sys.argv[2]
+args = sys.argv[3:]
 
 env = os.environ.copy()
 env['PATH'] = os.path.pathsep.join([
         prefix,
         join(prefix, "Scripts"),
         join(prefix, "Library", "bin"),
+        join(prefix, "Library", "usr", "bin"),
+        join(prefix, "Library", "mingw-64", "bin"),
         env['PATH'],
 ])
 
-try:
-    documents_folder = get_folder_path(FOLDERID.Documents)
-except PathNotFoundException:
-    documents_folder = get_folder_path(FOLDERID.PublicDocuments)
-os.chdir(documents_folder)
-subprocess.call(args, env=env)
+subprocess.call(args, env=env, cwd=cwd)
