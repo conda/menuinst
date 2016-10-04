@@ -16,6 +16,7 @@ args = sys.argv[2:]
 env = os.environ.copy()
 env['PATH'] = os.path.pathsep.join([
         prefix,
+        join(prefix, "Library", "mingw-w64", "bin"),
         join(prefix, "Scripts"),
         join(prefix, "Library", "bin"),
         env['PATH'],
