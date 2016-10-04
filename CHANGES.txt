@@ -1,3 +1,7 @@
+2016-10-04: 1.4.2
+-----------------
+  * Add Library/mingw-w64/bin to PATH
+
 2016-05-26: 1.4.1
 -----------------
   * Disable 'quicklaunch' shortcuts for SYSTEM user (#33)
