@@ -1,6 +1,12 @@
+2017-01-19: 1.4.3:
+------------------
+  * fix fallback to user-mode shortcut if elevation denied, #39
+
+
 2016-05-26: 1.4.1
 -----------------
   * Disable 'quicklaunch' shortcuts for SYSTEM user (#33)
+
 
 2016-05-25: 1.4.0
 -----------------
