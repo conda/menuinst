@@ -12,7 +12,7 @@ from utils import rm_rf
 
 
 class Menu(object):
-    def __init__(self, unused_name, prefix, env_name):
+    def __init__(self, unused_name, prefix, env_name, mode=None):
         self.prefix = prefix
         self.env_name = env_name
     def create(self):

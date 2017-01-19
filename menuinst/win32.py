@@ -9,6 +9,8 @@ import os
 import sys
 from os.path import expanduser, isdir, join, exists
 
+import pywintypes
+
 from .utils import rm_empty_dir, rm_rf
 from .knownfolders import get_folder_path, FOLDERID
 # KNOWNFOLDERID does provide a direct path to Quick luanch.  No additional path necessary.
@@ -105,7 +107,7 @@ class Menu(object):
             used_mode = 'system'
         try:
             self.set_dir(name, prefix, env_name, used_mode)
-        except WindowsError:
+        except (WindowsError, pywintypes.error):
             # We get here if we aren't elevated.  This is different from
             #   permissions: a user can have permission, but elevation is still
             #   required.  If the process isn't elevated, we get the

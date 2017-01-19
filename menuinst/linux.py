@@ -118,7 +118,7 @@ def ensure_menu_file():
 
 class Menu(object):
 
-    def __init__(self, name, prefix, env_name):
+    def __init__(self, name, prefix, env_name, mode=None):
         self.name = name
         self.name_ = name + '_'
         self.entry_fn = '%s.directory' % self.name
