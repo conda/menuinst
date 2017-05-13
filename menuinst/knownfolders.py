@@ -154,14 +154,48 @@ _SHGetKnownFolderPath.argtypes = [
     ctypes.POINTER(GUID), wintypes.DWORD, wintypes.HANDLE, ctypes.POINTER(ctypes.c_wchar_p)
 ]
 
+'''
+# Please keep this code around in-case we need to debug tricky installations
+# http://stackoverflow.com/a/15016751/3257826
+import pythoncom
+from win32com.shell import shell, shellcon
+from win32com import storagecon
+import os
+kfm = pythoncom.CoCreateInstance(shell.CLSID_KnownFolderManager, None,
+        pythoncom.CLSCTX_INPROC_SERVER, shell.IID_IKnownFolderManager)
+dir(kfm)
+folders = kfm.GetFolderIds()
+for folder in folders:
+    print(folder)
+try:
+    docs_folder = kfm.GetFolder(shell.FOLDERID_Documents)
+    docs_path = docs_folder.GetPath()
+    print(docs_path)
+except:
+    pass
+'''
+
 class PathNotFoundException(Exception): pass
+class PathNotVerifiableException(Exception): pass
 
 def get_path(folderid, user_handle=UserHandle.common):
     fid = GUID(folderid)
     pPath = ctypes.c_wchar_p()
+    pPathUnverified = ctypes.c_wchar_p()
     S_OK = 0
-    if _SHGetKnownFolderPath(ctypes.byref(fid), 0, user_handle, ctypes.byref(pPath)) != S_OK:
-        raise PathNotFoundException()
+    KF_FLAG_DONT_VERIFY = 0x00004000
+    result = _SHGetKnownFolderPath(ctypes.byref(fid), KF_FLAG_DONT_VERIFY, user_handle, ctypes.byref(pPathUnverified))
+    exception = None
+    if result != S_OK:
+        exception = PathNotFoundException()
+    else:
+        result = _SHGetKnownFolderPath(ctypes.byref(fid), 0, user_handle, ctypes.byref(pPath))
+        if result != S_OK:
+            exception = PathNotVerifiableException()
+            pPath = pPathUnverified
+        else:
+            _CoTaskMemFree(pPathUnverified)
+
     path = pPath.value
     _CoTaskMemFree(pPath)
     # convert to unicode
@@ -170,7 +204,7 @@ def get_path(folderid, user_handle=UserHandle.common):
         codec="utf-8"
     if hasattr(path, "decode"):
         path = path.decode(codec)
-    return path
+    return (path, exception)
 
 
 def get_folder_path(folder_id, user=None):

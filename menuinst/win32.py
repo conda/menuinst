@@ -1,37 +1,103 @@
 # Copyright (c) 2008-2011 by Enthought, Inc.
-# Copyright (c) 2013-2015 Continuum Analytics, Inc.
+# Copyright (c) 2013-2017 Continuum Analytics, Inc.
 # All rights reserved.
 
 from __future__ import absolute_import, unicode_literals
 
+import ctypes
 import logging
 import os
-import sys
-from os.path import expanduser, isdir, join, exists
-
+from os.path import expanduser, isdir, join, exists, dirname
 import pywintypes
+import sys
+
 
 from .utils import rm_empty_dir, rm_rf
 from .knownfolders import get_folder_path, FOLDERID
-# KNOWNFOLDERID does provide a direct path to Quick luanch.  No additional path necessary.
+# KNOWNFOLDERID does provide a direct path to Quick Launch.  No additional path necessary.
 from .winshortcut import create_shortcut
 
-dirs = {"system": {"desktop": get_folder_path(FOLDERID.PublicDesktop),
-                   "start": get_folder_path(FOLDERID.CommonPrograms),
-                   "documents": get_folder_path(FOLDERID.PublicDocuments),
-                   "profile": get_folder_path(FOLDERID.Profile)}}
+
+# This allows debugging installer issues using DebugView from Microsoft.
+OutputDebugString = ctypes.windll.kernel32.OutputDebugStringW
+OutputDebugString.argtypes = [ctypes.c_wchar_p]
+
+class DbgViewHandler(logging.Handler):
+    def emit(self, record):
+        OutputDebugString(self.format(record))
+
+logger = logging.getLogger("menuinst_win32")
+logger.setLevel(logging.DEBUG)
+stream_handler = logging.StreamHandler()
+stream_handler.setLevel(logging.WARNING)
+dbgview = DbgViewHandler()
+dbgview.setLevel(logging.DEBUG)
+logger.addHandler(dbgview)
+logger.addHandler(stream_handler)
+
 # When running as 'nt authority/system' as sometimes people do via SCCM,
 # various folders do not exist, such as QuickLaunch. This doesn't matter
 # as we'll use the "system" key finally and check for the "quicklaunch"
-# subkey before adding any quicklaunch menu items.
-try:
-    dirs["user"] = {"desktop": get_folder_path(FOLDERID.Desktop),
-                    "start": get_folder_path(FOLDERID.Programs),
-                    "quicklaunch": get_folder_path(FOLDERID.QuickLaunch),
-                    "documents": get_folder_path(FOLDERID.Documents),
-                    "profile": get_folder_path(FOLDERID.Profile)}
-except:
-    pass
+# subkey before adding any Quick Launch menu items.
+
+# It can happen that some of the dirs[] entires refer to folders that do not
+# exist, in which case, the 2nd entry of the value tuple is a sub-class of
+# Exception.
+
+dirs_src = {"system": {  "desktop": get_folder_path(FOLDERID.PublicDesktop),
+                           "start": get_folder_path(FOLDERID.CommonPrograms),
+                       "documents": get_folder_path(FOLDERID.PublicDocuments),
+                         "profile": get_folder_path(FOLDERID.Profile)},
+
+            "user": {    "desktop": get_folder_path(FOLDERID.Desktop),
+                           "start": get_folder_path(FOLDERID.Programs),
+                     "quicklaunch": get_folder_path(FOLDERID.QuickLaunch),
+                       "documents": get_folder_path(FOLDERID.Documents),
+                         "profile": get_folder_path(FOLDERID.Profile)}}
+
+
+def folder_path(preferred_mode, check_other_mode, key):
+    ''' This function implements all heuristics and workarounds for messed up
+        KNOWNFOLDERID registry values. It's also verbose (OutputDebugStringW)
+        about whether fallbacks worked or whether they would have worked if
+        check_other_mode had been allowed.
+    '''
+    other_mode = 'system' if preferred_mode == 'user' else 'user'
+    path, exception = dirs_src[preferred_mode][key]
+    if not exception:
+        return path
+    logger.info("WARNING: menuinst key: '%s'\n"
+                "                 path: '%s'\n"
+                "     .. excepted with: '%s' in knownfolders.py, implementing workarounds .."
+                % (key, path, type(exception).__name__))
+    # Since I have seen 'user', 'documents' set as '\\vmware-host\Shared Folders\Documents'
+    # when there's no such server, we check 'user', 'profile' + '\Documents' before maybe
+    # trying the other_mode (though I have chickened out on that idea).
+    if preferred_mode == 'user' and key == 'documents':
+        user_profile, exception = dirs_src['user']['profile']
+        if not exception:
+            path = join(user_profile, 'Documents')
+            if os.access(path, os.W_OK):
+                logger.info("  .. worked-around to: '%s'" % (path))
+                return path
+    path, exception = dirs_src[other_mode][key]
+    # Do not fall back to something we cannot write to.
+    if exception:
+        if check_other_mode:
+            logger.info("     .. despite 'check_other_mode'\n"
+                        "        and 'other_mode' 'path' of '%s'\n"
+                        "        it excepted with: '%s' in knownfolders.py" % (path, type(exception).__name__))
+        else:
+            logger.info("     .. 'check_other_mode' is False,\n"
+                        "        and 'other_mode' 'path' is '%s'\n"
+                        "        but it excepted anyway with: '%s' in knownfolders.py" % (path, type(exception).__name__))
+        return None
+    if not check_other_mode:
+        logger.info("     .. due to lack of 'check_other_mode' not picking\n"
+                    "        non-excepting path of '%s'\n in knownfolders.py" % (path))
+        return None
+    return path
+
 
 def quoted(s):
     """
@@ -61,12 +127,14 @@ def to_bytes(var, codec=sys.getdefaultencoding()):
     return var
 
 
+if '\\envs\\' in sys.prefix:
+    logger.warn('menuinst called from non-root env %s' % (sys.prefix))
 unicode_prefix = to_unicode(sys.prefix)
 
 
 def substitute_env_variables(text, dir):
-    # When conda is using Menuinst, only the root Conda installation ever
-    # calls menuinst.  Thus, these calls to sys refer to the root Conda
+    # When conda is using Menuinst, only the root conda installation ever
+    # calls menuinst.  Thus, these calls to sys refer to the root conda
     # installation, NOT the child environment
     py_major_ver = sys.version_info[0]
     py_bitness = 8 * tuple.__itemsize__
@@ -101,10 +169,12 @@ class Menu(object):
 
         # bytestrings passed in need to become unicode
         self.prefix = to_unicode(prefix)
-        if 'user' in dirs:
+        if 'user' in dirs_src:
             used_mode = mode if mode else ('user' if exists(join(prefix, u'.nonadmin')) else 'system')
         else:
             used_mode = 'system'
+        logger.info("Menu: name: '%s', prefix: '%s', env_name: '%s', mode: '%s', used_mode: '%s'"
+                    % (name, prefix, env_name, mode, used_mode))
         try:
             self.set_dir(name, prefix, env_name, used_mode)
         except (WindowsError, pywintypes.error):
@@ -112,19 +182,30 @@ class Menu(object):
             #   permissions: a user can have permission, but elevation is still
             #   required.  If the process isn't elevated, we get the
             #   WindowsError
-            if 'user' in dirs:
-                logging.warn("Insufficient permissions to write menu folder.  "
-                             "Falling back to user location")
+            if 'user' in dirs_src and used_mode == 'system':
+                logger.warn("Insufficient permissions to write menu folder.  "
+                            "Falling back to user location")
                 try:
                     self.set_dir(name, prefix, env_name, 'user')
                 except:
                     pass
             else:
-                logging.fatal("Unable to create AllUsers menu folder")
+                logger.fatal("Unable to create AllUsers menu folder")
 
     def set_dir(self, name, prefix, env_name, mode):
         self.mode = mode
-        self.dir = dirs[mode]
+        self.dir = dict()
+        # I have chickened out on allowing check_other_mode. Really there needs
+        # to be 3 distinct cases that 'menuinst' cares about:
+        # priv-user doing system install
+        # priv-user doing user-only install
+        # non-priv-user doing user-only install
+        # (priv-user only exists in an AllUsers installation).
+        check_other_mode = False
+        for k, v in dirs_src[mode].items():
+            # We may want to cache self.dir to some files, one for AllUsers
+            # (system) installs and one for each subsequent user install?
+            self.dir[k] = folder_path(mode, check_other_mode, k)
         self.dir['prefix'] = prefix
         self.dir['env_name'] = env_name
         folder_name = substitute_env_variables(name, self.dir)

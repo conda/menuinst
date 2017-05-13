@@ -20,7 +20,7 @@ elif sys.platform == 'darwin':
     from .darwin import Menu, ShortCut
 
 elif sys.platform == 'win32':
-    from .win32 import Menu, ShortCut, dirs
+    from .win32 import Menu, ShortCut
     from .win_elevate import isUserAdmin, runAsAdmin
 
 

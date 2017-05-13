@@ -1,3 +1,8 @@
+2017-05-13: 1.4.5:
+------------------
+  * Also use OutputDebugStringW for logging for pythonw.exe
+
+
 2017-01-23: 1.4.4:
 ------------------
   * Set CONDA_PREFIX environment variable in cwp.py, fix PATH
