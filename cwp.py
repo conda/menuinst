@@ -22,9 +22,9 @@ env = os.environ.copy()
 env['PATH'] = new_paths + pathsep + env['PATH']
 env['CONDA_PREFIX'] = prefix
 
-try:
-    documents_folder = get_folder_path(FOLDERID.Documents)
-except PathNotFoundException:
-    documents_folder = get_folder_path(FOLDERID.PublicDocuments)
-os.chdir(documents_folder)
+documents_folder, exception = get_folder_path(FOLDERID.Documents)
+if exception:
+    documents_folder, exception = get_folder_path(FOLDERID.PublicDocuments)
+if not exception:
+    os.chdir(documents_folder)
 subprocess.call(args, env=env)
