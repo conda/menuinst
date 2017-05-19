@@ -10,6 +10,7 @@ import os
 from os.path import expanduser, isdir, join, exists, dirname
 import pywintypes
 import sys
+import locale
 
 
 from .utils import rm_empty_dir, rm_rf
@@ -111,7 +112,9 @@ def quoted(s):
         return s
 
 
-def to_unicode(var, codec=sys.getdefaultencoding()):
+def to_unicode(var, codec=locale.getpreferredencoding()):
+    if sys.version_info[0] < 3 and isinstance(var, unicode):
+        return var
     if not codec:
         codec="utf-8"
     if hasattr(var, "decode"):
@@ -119,7 +122,9 @@ def to_unicode(var, codec=sys.getdefaultencoding()):
     return var
 
 
-def to_bytes(var, codec=sys.getdefaultencoding()):
+def to_bytes(var, codec=locale.getpreferredencoding()):
+    if isinstance(var, bytes):
+        return var
     if not codec:
         codec="utf-8"
     if hasattr(var, "encode"):
@@ -127,7 +132,7 @@ def to_bytes(var, codec=sys.getdefaultencoding()):
     return var
 
 
-if '\\envs\\' in sys.prefix:
+if u'\\envs\\' in to_unicode(sys.prefix):
     logger.warn('menuinst called from non-root env %s' % (sys.prefix))
 unicode_prefix = to_unicode(sys.prefix)
 
@@ -170,13 +175,13 @@ class Menu(object):
         # bytestrings passed in need to become unicode
         self.prefix = to_unicode(prefix)
         if 'user' in dirs_src:
-            used_mode = mode if mode else ('user' if exists(join(prefix, u'.nonadmin')) else 'system')
+            used_mode = mode if mode else ('user' if exists(join(self.prefix, u'.nonadmin')) else 'system')
         else:
             used_mode = 'system'
         logger.info("Menu: name: '%s', prefix: '%s', env_name: '%s', mode: '%s', used_mode: '%s'"
-                    % (name, prefix, env_name, mode, used_mode))
+                    % (name, self.prefix, env_name, mode, used_mode))
         try:
-            self.set_dir(name, prefix, env_name, used_mode)
+            self.set_dir(name, self.prefix, env_name, used_mode)
         except (WindowsError, pywintypes.error):
             # We get here if we aren't elevated.  This is different from
             #   permissions: a user can have permission, but elevation is still
@@ -186,7 +191,7 @@ class Menu(object):
                 logger.warn("Insufficient permissions to write menu folder.  "
                             "Falling back to user location")
                 try:
-                    self.set_dir(name, prefix, env_name, 'user')
+                    self.set_dir(name, self.prefix, env_name, 'user')
                 except:
                     pass
             else:
