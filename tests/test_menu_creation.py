@@ -13,9 +13,9 @@ menu_dir = os.path.dirname(__file__)
 class TestWindowsShortcuts(object):
 
     def test_install_folders_exist(self):
-        from menuinst import dirs
+        from menuinst import dirs_src
         for mode in ["user", "system"]:
-            for path in dirs[mode].values():
+            for path, _ in dirs_src[mode].values():
                 assert os.path.exists(path)
 
     def test_create_and_remove_shortcut(self):
