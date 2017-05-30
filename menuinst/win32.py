@@ -7,7 +7,7 @@ from __future__ import absolute_import, unicode_literals
 import ctypes
 import logging
 import os
-from os.path import expanduser, isdir, join, exists, dirname
+from os.path import expanduser, isdir, join, exists
 import pywintypes
 import sys
 import locale
@@ -23,9 +23,11 @@ from .winshortcut import create_shortcut
 OutputDebugString = ctypes.windll.kernel32.OutputDebugStringW
 OutputDebugString.argtypes = [ctypes.c_wchar_p]
 
+
 class DbgViewHandler(logging.Handler):
     def emit(self, record):
         OutputDebugString(self.format(record))
+
 
 logger = logging.getLogger("menuinst_win32")
 logger.setLevel(logging.DEBUG)
@@ -87,7 +89,8 @@ def folder_path(preferred_mode, check_other_mode, key):
         if check_other_mode:
             logger.info("     .. despite 'check_other_mode'\n"
                         "        and 'other_mode' 'path' of '%s'\n"
-                        "        it excepted with: '%s' in knownfolders.py" % (path, type(exception).__name__))
+                        "        it excepted with: '%s' in knownfolders.py" % (path,
+                                                                    type(exception).__name__))
         else:
             logger.info("     .. 'check_other_mode' is False,\n"
                         "        and 'other_mode' 'path' is '%s'\n"
@@ -178,7 +181,7 @@ class Menu(object):
             used_mode = mode if mode else ('user' if exists(join(self.prefix, u'.nonadmin')) else 'system')
         else:
             used_mode = 'system'
-        logger.info("Menu: name: '%s', prefix: '%s', env_name: '%s', mode: '%s', used_mode: '%s'"
+        logger.debug("Menu: name: '%s', prefix: '%s', env_name: '%s', mode: '%s', used_mode: '%s'"
                     % (name, self.prefix, env_name, mode, used_mode))
         try:
             self.set_dir(name, self.prefix, env_name, used_mode)
@@ -251,26 +254,28 @@ class ShortCut(object):
 
     def create(self, remove=False):
         args = []
+        # cmd is our root installation interpreter
+        cmd = join(unicode_prefix, u"pythonw.exe").replace("\\", "/")
+        # each of these roll the subprocess cmd into args
         if "pywscript" in self.shortcut:
-            cmd = join(self.menu.prefix, u"pythonw.exe").replace("\\", "/")
+            subprocess_cmd = join(self.menu.prefix, u"pythonw.exe").replace("\\", "/")
             args = self.shortcut["pywscript"].split()
-            args = get_python_args_for_subprocess(self.menu.prefix, args, cmd)
+            args = get_python_args_for_subprocess(self.menu.prefix, args, subprocess_cmd)
         elif "pyscript" in self.shortcut:
-            cmd = join(self.menu.prefix, u"python.exe").replace("\\", "/")
+            subprocess_cmd = join(self.menu.prefix, u"python.exe").replace("\\", "/")
             args = self.shortcut["pyscript"].split()
-            args = get_python_args_for_subprocess(self.menu.prefix, args, cmd)
+            args = get_python_args_for_subprocess(self.menu.prefix, args, subprocess_cmd)
         elif "webbrowser" in self.shortcut:
-            cmd = join(unicode_prefix, u'pythonw.exe')
             args = ['-m', 'webbrowser', '-t', self.shortcut['webbrowser']]
         elif "script" in self.shortcut:
-            cmd = self.shortcut["script"].replace('/', '\\')
+            subprocess_cmd = join(unicode_prefix, u"pythonw.exe").replace("\\", "/")
+            args.append(self.shortcut["script"].replace('/', '\\'))
             extend_script_args(args, self.shortcut)
-            args = get_python_args_for_subprocess(self.menu.prefix, args, cmd)
-            cmd = join(unicode_prefix, u"pythonw.exe").replace("\\", "/")
+            args = get_python_args_for_subprocess(self.menu.prefix, args, subprocess_cmd)
         elif "system" in self.shortcut:
-            cmd = substitute_env_variables(
-                     self.shortcut["system"],
-                     self.menu.dir).replace('/', '\\')
+            subprocess_cmd = substitute_env_variables(self.shortcut["system"],
+                                                      self.menu.dir).replace('/', '\\')
+            args = get_python_args_for_subprocess(self.menu.prefix, args, subprocess_cmd)
             extend_script_args(args, self.shortcut)
         else:
             raise Exception("Nothing to do: %r" % self.shortcut)

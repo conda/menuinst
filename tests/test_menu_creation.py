@@ -13,7 +13,7 @@ menu_dir = os.path.dirname(__file__)
 class TestWindowsShortcuts(object):
 
     def test_install_folders_exist(self):
-        from menuinst import dirs_src
+        from menuinst.win32 import dirs_src
         for mode in ["user", "system"]:
             for path, _ in dirs_src[mode].values():
                 assert os.path.exists(path)
