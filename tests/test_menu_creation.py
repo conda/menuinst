@@ -36,11 +36,16 @@ class TestWindowsShortcuts(object):
         shortcut = os.path.join(menu_dir, "menu-windows.json")
         has_nonadmin = os.path.exists(nonadmin)
         for mode in ["user", "system"]:
-            if mode=="user":
-                open(nonadmin, 'a').close()
-            menuinst.api.install(shortcut, remove=False)
-            menuinst.api.install(shortcut, remove=True)
+            if mode == "user":
+                with open(nonadmin, 'a'):
+                    pass
+
+            menuinst.install(shortcut, remove=False)
+            menuinst.install(shortcut, remove=True)
+
             if os.path.exists(nonadmin):
                 os.remove(nonadmin)
+
         if has_nonadmin:
-            open(nonadmin, 'a').close()
+            with open(nonadmin, 'a'):
+                pass
