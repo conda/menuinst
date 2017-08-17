@@ -19,7 +19,7 @@ import pywintypes
 import sys
 
 # Local imports
-from menuinst.windows.utils import rm_empty_dir, rm_rf
+from menuinst.utils import rm_empty_dir, rm_rf
 from menuinst.windows.knownfolders import get_folder_path, FOLDERID
 # KNOWNFOLDERID does provide a direct path to Quick Launch.
 # No additional path necessary.
