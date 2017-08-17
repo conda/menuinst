@@ -1,9 +1,18 @@
-# Copyright (c) 2008-2012 by Enthought, Inc.
-# Copyright (c) 2013 Continuum Analytics, Inc.
+# -*- coding: utf-8 -*-
+# -----------------------------------------------------------------------------
+# Copyright (c) 2013-2017 Continuum Analytics, Inc.
+# Copyright (c) 2008-2011 by Enthought, Inc.
 # All rights reserved.
-import sys
-from distutils.core import Extension, setup
+#
+# Licensed under the terms of the BSD 3-clause License (See LICENSE.txt)
+# -----------------------------------------------------------------------------
+"""Menuinst setup."""
 
+# Standard library imports
+from distutils.core import Extension, setup
+import sys
+
+# Local imports
 import versioneer
 
 
