@@ -61,7 +61,7 @@ def install(path, remove=False, prefix=sys.prefix):
         from pywintypes import error
         try:
             runAsAdmin(['pythonw', '-c',
-                        "import menuinst; menuinst.api.install(%r, %r, %r)" % (
+                        "import menuinst; menuinst.install(%r, %r, %r)" % (
                             path, bool(remove), prefix)])
         except error:
             logging.warn("Insufficient permissions to write menu folder.  "

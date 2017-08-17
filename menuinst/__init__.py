@@ -14,7 +14,7 @@ from __future__ import absolute_import
 from ._version import get_versions
 from .api import install
 
-install= install
+install = install
 
 __version__ = get_versions()['version']
 del get_versions
