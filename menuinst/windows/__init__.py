@@ -8,7 +8,7 @@
 # -----------------------------------------------------------------------------
 """Linux menu and shortcut handlers."""
 
-from menuinst.windows.win32 import Menu, Shortcut
+from menuinst.windows.win32 import Menu, ShortCut
 
 Menu = Menu
-Shortcut = Shortcut
+ShortCut = ShortCut

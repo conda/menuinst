@@ -8,7 +8,7 @@
 # -----------------------------------------------------------------------------
 """Linux menu and shortcut handlers."""
 
-from menuinst.linux.linux import Menu, Shortcut
+from menuinst.linux.linux import Menu, ShortCut
 
 Menu = Menu
-Shortcut = Shortcut
+ShortCut = ShortCut
