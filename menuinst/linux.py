@@ -28,8 +28,8 @@ import time
 import xml.etree.ElementTree as ET
 
 # Local imports
-from freedesktop import make_desktop_entry, make_directory_entry
-from utils import rm_rf, get_executable
+from .freedesktop import make_desktop_entry, make_directory_entry
+from .utils import rm_rf, get_executable
 
 
 # datadir: contains the desktop and directory entries

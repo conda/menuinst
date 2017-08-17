@@ -225,6 +225,7 @@ def get_folder_path(folder_id, user=None):
     # New users created on the machine have their folders created by copying those of 'Default'.
     return get_path(folder_id, user)
 
+
 if __name__ == '__main__':
     if len(sys.argv) < 2 or sys.argv[1] in ['-?', '/?']:
         print('python knownfolders.py FOLDERID {current|common}')

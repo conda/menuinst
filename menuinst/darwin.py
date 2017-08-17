@@ -14,7 +14,7 @@ import plistlib
 import shutil
 
 # Local imports
-from utils import rm_rf
+from .utils import rm_rf
 
 
 class Menu(object):
