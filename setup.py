@@ -52,7 +52,7 @@ setup(
     ext_modules=extensions,
     include_package_data=True,
     install_requires=install_requires,
-    package_data={"menuinst": ["*.icns"]},
+    package_data={"menuinst": ["osx/*.icns"]},
     license="BSD 3-clause",
     packages=[
         'menuinst',
