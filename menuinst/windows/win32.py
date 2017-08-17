@@ -6,7 +6,7 @@
 #
 # Licensed under the terms of the BSD 3-clause License (See LICENSE.txt)
 # -----------------------------------------------------------------------------
-"""Cross platform Menu and shortcu handling."""
+"""Cross platform Menu and shortcut handling."""
 
 from __future__ import absolute_import, unicode_literals
 
