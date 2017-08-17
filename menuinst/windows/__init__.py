@@ -6,15 +6,9 @@
 #
 # Licensed under the terms of the BSD 3-clause License (See LICENSE.txt)
 # -----------------------------------------------------------------------------
-"""Menuinst: Cross platform menu item installation."""
+"""Linux menu and shortcut handlers."""
 
-from __future__ import absolute_import
+from menuinst.windows.win32 import Menu, ShortCut
 
-# Local imports
-from menuinst._version import get_versions
-from menuinst.api import install
-
-install = install
-
-__version__ = get_versions()['version']
-del get_versions
+Menu = Menu
+ShortCut = ShortCut
