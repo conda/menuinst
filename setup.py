@@ -18,7 +18,7 @@ import versioneer
 
 if sys.platform == "win32":
     extensions = [Extension(
-            "menuinst.winshortcut",
+            "menuinst.windows.winshortcut",
             sources=["menuinst/windows/winshortcut.cpp"],
             include_dirs=["menuinst"],
             libraries=["comctl32",  "kernel32", "user32", "gdi32", "winspool",
