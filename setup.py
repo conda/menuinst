@@ -10,10 +10,21 @@
 
 # Standard library imports
 from distutils.core import Extension, setup
+import os
 import sys
 
 # Local imports
 import versioneer
+
+
+HERE = os.path.abspath(os.path.dirname(__file__))
+
+
+def get_description():
+    """Get long description."""
+    with open(os.path.join(HERE, 'README.rst'), 'r') as f:
+        data = f.read()
+    return data
 
 
 if sys.platform == "win32":
@@ -32,16 +43,21 @@ else:
 
 
 setup(
-    name = "menuinst",
-    url = "https://github.com/ContinuumIO/menuinst",
-    version = versioneer.get_version(),
+    name="menuinst",
+    url="https://github.com/ContinuumIO/menuinst",
+    version=versioneer.get_version(),
     cmdclass=versioneer.get_cmdclass(),
-    description = "cross platform install of menu items",
-    long_description = open('README.rst').read(),
-    ext_modules = extensions,
-    include_package_data = True,
-    install_requires = install_requires,
-    package_data = {"menuinst" : ["*.icns"]},
-    license = "BSD",
-    packages = ['menuinst'],
+    description="cross platform install of menu items",
+    long_description=get_description(),
+    ext_modules=extensions,
+    include_package_data=True,
+    install_requires=install_requires,
+    package_data={"menuinst": ["*.icns"]},
+    license="BSD 3-clause",
+    packages=[
+        'menuinst',
+        'menuinst.linux',
+        'menuinst.osx',
+        'menuinst.windows',
+    ],
 )
