@@ -1,23 +1,31 @@
-#!/usr/bin/env python
-# -*- coding: utf-8; mode: python; py-indent-offset: 4; indent-tabs-mode: nil -*-
-# vim: fileencoding=utf-8 tabstop=4 expandtab shiftwidth=4
+# -*- coding: utf-8 -*-
+# -----------------------------------------------------------------------------
+# Copyright (c) 2013-2017 Continuum Analytics, Inc.
+# Copyright (c) 2010 Preston Landers (Released under the Python 2.6.5 license)
+# Copyright (c) 2008-2011 by Enthought, Inc.
+# All rights reserved.
 #
-# Copied from http://stackoverflow.com/a/19719292/1170370 on 20160407 MCS
-#
-# (C) COPYRIGHT © Preston Landers 2010
-# Released under the same license as Python 2.6.5
-
+# Licensed under the terms of the BSD 3-clause License (See LICENSE.txt)
+# -----------------------------------------------------------------------------
+"""
+See: http://stackoverflow.com/a/19719292/1170370 on 20160407 MCS.
+"""
 
 from __future__ import print_function
-import sys, os, traceback, types
+
+# Standard library imports
+import sys
+import os
+import traceback
+
 
 if sys.version_info < (3,):
     text_type = basestring
 else:
     text_type = str
 
-def isUserAdmin():
 
+def isUserAdmin():
     if os.name == 'nt':
         import ctypes
         # WARNING: requires Windows XP SP2 or higher!
@@ -33,12 +41,12 @@ def isUserAdmin():
     else:
         raise RuntimeError("Unsupported operating system for this module: %s" % (os.name,))
 
-def runAsAdmin(cmdLine=None, wait=True):
 
+def runAsAdmin(cmdLine=None, wait=True):
     if os.name != 'nt':
         raise RuntimeError("This function is only implemented on Windows.")
 
-    import win32api, win32con, win32event, win32process
+    import win32con, win32event, win32process
     from win32com.shell.shell import ShellExecuteEx
     from win32com.shell import shellcon
 
@@ -52,7 +60,7 @@ def runAsAdmin(cmdLine=None, wait=True):
     cmd = '"%s"' % (cmdLine[0],)
     # XXX TODO: isn't there a function or something we can call to massage command line params?
     params = " ".join(['"%s"' % (x,) for x in cmdLine[1:]])
-    cmdDir = ''
+    # cmdDir = ''
     showCmd = win32con.SW_SHOWNORMAL
     #showCmd = win32con.SW_HIDE
     lpVerb = 'runas'  # causes UAC elevation prompt.
@@ -72,6 +80,7 @@ def runAsAdmin(cmdLine=None, wait=True):
     if wait:
         procHandle = procInfo['hProcess']
         obj = win32event.WaitForSingleObject(procHandle, win32event.INFINITE)
+        obj
         rc = win32process.GetExitCodeProcess(procHandle)
     else:
         rc = None

@@ -1,6 +1,18 @@
-import sys
-from os.path import join
+# -*- coding: utf-8 -*-
+# -----------------------------------------------------------------------------
+# Copyright (c) 2013-2017 Continuum Analytics, Inc.
+# Copyright (c) 2008-2011 by Enthought, Inc.
+# All rights reserved.
+#
+# Licensed under the terms of the BSD 3-clause License (See LICENSE.txt)
+# -----------------------------------------------------------------------------
+"""Menuinst command line interface."""
 
+# Standard library imports
+import os
+import sys
+
+# Local imports
 import menuinst
 
 
@@ -28,7 +40,7 @@ def main():
         return
 
     for arg in args:
-        menuinst.install(join(opts.prefix, arg), opts.remove, opts.prefix)
+        menuinst.install(os.path.join(opts.prefix, arg), opts.remove, opts.prefix)
 
 
 if __name__ == '__main__':

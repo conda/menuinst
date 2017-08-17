@@ -1,21 +1,28 @@
-# Copyright (c) 2008-2011 by Enthought, Inc.
+# -*- coding: utf-8 -*-
+# -----------------------------------------------------------------------------
 # Copyright (c) 2013-2017 Continuum Analytics, Inc.
+# Copyright (c) 2008-2011 by Enthought, Inc.
 # All rights reserved.
+#
+# Licensed under the terms of the BSD 3-clause License (See LICENSE.txt)
+# -----------------------------------------------------------------------------
+"""Cross platform Menu and shortcu handling."""
 
 from __future__ import absolute_import, unicode_literals
 
+# Standard library imports
 import ctypes
+import locale
 import logging
 import os
-from os.path import expanduser, isdir, join, exists, dirname
 import pywintypes
 import sys
-import locale
 
-
+# Local imports
 from .utils import rm_empty_dir, rm_rf
 from .knownfolders import get_folder_path, FOLDERID
-# KNOWNFOLDERID does provide a direct path to Quick Launch.  No additional path necessary.
+# KNOWNFOLDERID does provide a direct path to Quick Launch.
+# No additional path necessary.
 from .winshortcut import create_shortcut
 
 
@@ -77,7 +84,7 @@ def folder_path(preferred_mode, check_other_mode, key):
     if preferred_mode == 'user' and key == 'documents':
         user_profile, exception = dirs_src['user']['profile']
         if not exception:
-            path = join(user_profile, 'Documents')
+            path = os.path.join(user_profile, 'Documents')
             if os.access(path, os.W_OK):
                 logger.info("  .. worked-around to: '%s'" % (path))
                 return path
@@ -152,8 +159,8 @@ def substitute_env_variables(text, dir):
         (u'${PREFIX}', env_prefix),
         (u'${ROOT_PREFIX}', unicode_prefix),
         (u'${PYTHON_SCRIPTS}',
-          os.path.normpath(join(env_prefix, u'Scripts')).replace(u"\\", u"/")),
-        (u'${MENU_DIR}', join(env_prefix, u'Menu')),
+          os.path.normpath(os.path.join(env_prefix, u'Scripts')).replace(u"\\", u"/")),
+        (u'${MENU_DIR}', os.path.join(env_prefix, u'Menu')),
         (u'${PERSONALDIR}', dir['documents']),
         (u'${USERPROFILE}', dir['profile']),
         (u'${ENV_NAME}', env_name),
@@ -175,7 +182,7 @@ class Menu(object):
         # bytestrings passed in need to become unicode
         self.prefix = to_unicode(prefix)
         if 'user' in dirs_src:
-            used_mode = mode if mode else ('user' if exists(join(self.prefix, u'.nonadmin')) else 'system')
+            used_mode = mode if mode else ('user' if os.path.exists(os.path.join(self.prefix, u'.nonadmin')) else 'system')
         else:
             used_mode = 'system'
         logger.info("Menu: name: '%s', prefix: '%s', env_name: '%s', mode: '%s', used_mode: '%s'"
@@ -214,11 +221,11 @@ class Menu(object):
         self.dir['prefix'] = prefix
         self.dir['env_name'] = env_name
         folder_name = substitute_env_variables(name, self.dir)
-        self.path = join(self.dir["start"], folder_name)
+        self.path = os.path.join(self.dir["start"], folder_name)
         self.create()
 
     def create(self):
-        if not isdir(self.path):
+        if not os.path.isdir(self.path):
             os.mkdir(self.path)
 
     def remove(self):
@@ -226,7 +233,7 @@ class Menu(object):
 
 
 def get_python_args_for_subprocess(prefix, args, cmd):
-    return [quoted(join(unicode_prefix, u'cwp.py')), quoted(prefix),
+    return [quoted(os.path.join(unicode_prefix, u'cwp.py')), quoted(prefix),
             quoted(cmd)] + args
 
 
@@ -252,21 +259,21 @@ class ShortCut(object):
     def create(self, remove=False):
         args = []
         if "pywscript" in self.shortcut:
-            cmd = join(self.menu.prefix, u"pythonw.exe").replace("\\", "/")
+            cmd = os.path.join(self.menu.prefix, u"pythonw.exe").replace("\\", "/")
             args = self.shortcut["pywscript"].split()
             args = get_python_args_for_subprocess(self.menu.prefix, args, cmd)
         elif "pyscript" in self.shortcut:
-            cmd = join(self.menu.prefix, u"python.exe").replace("\\", "/")
+            cmd = os.path.join(self.menu.prefix, u"python.exe").replace("\\", "/")
             args = self.shortcut["pyscript"].split()
             args = get_python_args_for_subprocess(self.menu.prefix, args, cmd)
         elif "webbrowser" in self.shortcut:
-            cmd = join(unicode_prefix, u'pythonw.exe')
+            cmd = os.path.join(unicode_prefix, u'pythonw.exe')
             args = ['-m', 'webbrowser', '-t', self.shortcut['webbrowser']]
         elif "script" in self.shortcut:
             cmd = self.shortcut["script"].replace('/', '\\')
             extend_script_args(args, self.shortcut)
             args = get_python_args_for_subprocess(self.menu.prefix, args, cmd)
-            cmd = join(unicode_prefix, u"pythonw.exe").replace("\\", "/")
+            cmd = os.path.join(unicode_prefix, u"pythonw.exe").replace("\\", "/")
         elif "system" in self.shortcut:
             cmd = substitute_env_variables(
                      self.shortcut["system"],
@@ -288,10 +295,10 @@ class ShortCut(object):
 
         # Create the working directory if it doesn't exist
         if workdir:
-            if not isdir(workdir):
+            if not os.path.isdir(workdir):
                 os.makedirs(workdir)
         else:
-            workdir = expanduser('~')
+            workdir = os.path.expanduser('~')
 
         # Menu link
         dst_dirs = [self.menu.path]
@@ -306,7 +313,7 @@ class ShortCut(object):
 
         name_suffix = " ({})".format(self.menu.dir['env_name']) if self.menu.dir['env_name'] else ""
         for dst_dir in dst_dirs:
-            dst = join(dst_dir, self.shortcut['name'] + name_suffix + '.lnk')
+            dst = os.path.join(dst_dir, self.shortcut['name'] + name_suffix + '.lnk')
             if remove:
                 rm_rf(dst)
             else:

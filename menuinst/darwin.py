@@ -1,22 +1,31 @@
+# -*- coding: utf-8 -*-
+# -----------------------------------------------------------------------------
+# Copyright (c) 2013-2017 Continuum Analytics, Inc.
 # Copyright (c) 2008-2011 by Enthought, Inc.
-# Copyright (c) 2013 Continuum Analytics, Inc.
 # All rights reserved.
+#
+# Licensed under the terms of the BSD 3-clause License (See LICENSE.txt)
+# -----------------------------------------------------------------------------
+"""OSX Menu and shortcut handling."""
 
+# Standard library imports
 import os
-import sys
+import plistlib
 import shutil
-from os.path import basename, join
-from plistlib import Plist, writePlist
 
+# Local imports
 from utils import rm_rf
 
 
 class Menu(object):
+
     def __init__(self, unused_name, prefix, env_name, mode=None):
         self.prefix = prefix
         self.env_name = env_name
+
     def create(self):
         pass
+
     def remove(self):
         pass
 
@@ -60,18 +69,18 @@ class Application(object):
 
 
         for a, b in [
-            ('${BIN_DIR}', join(prefix, 'bin')),
-            ('${MENU_DIR}', join(prefix, 'Menu')),
+            ('${BIN_DIR}', os.path.join(prefix, 'bin')),
+            ('${MENU_DIR}', os.path.join(prefix, 'Menu')),
             ]:
             self.cmd = self.cmd.replace(a, b)
             self.icns = self.icns.replace(a, b)
 
         # Calculate some derived values just once.
-        self.contents_dir = join(self.app_path, 'Contents')
-        self.resources_dir = join(self.contents_dir, 'Resources')
-        self.macos_dir = join(self.contents_dir, 'MacOS')
+        self.contents_dir = os.path.join(self.app_path, 'Contents')
+        self.resources_dir = os.path.join(self.contents_dir, 'Resources')
+        self.macos_dir = os.path.join(self.contents_dir, 'MacOS')
         self.executable = self.name
-        self.executable_path = join(self.macos_dir, self.executable)
+        self.executable_path = os.path.join(self.macos_dir, self.executable)
 
     def create(self):
         self._create_dirs()
@@ -86,7 +95,7 @@ class Application(object):
         os.makedirs(self.macos_dir)
 
     def _write_pkginfo(self):
-        fo = open(join(self.contents_dir, 'PkgInfo'), 'w')
+        fo = open(os.path.join(self.contents_dir, 'PkgInfo'), 'w')
         fo.write(('APPL%s????' % self.name.replace(' ', ''))[:8])
         fo.close()
 
@@ -94,16 +103,16 @@ class Application(object):
         """
         Writes the Info.plist file in the Contests directory.
         """
-        pl = Plist(
+        pl = plistlib.Plist(
             CFBundleExecutable=self.executable,
             CFBundleGetInfoString='%s-1.0.0' % self.name,
-            CFBundleIconFile=basename(self.icns),
+            CFBundleIconFile=os.path.basename(self.icns),
             CFBundleIdentifier='com.%s' % self.name,
             CFBundlePackageType='APPL',
             CFBundleVersion='1.0.0',
             CFBundleShortVersionString='1.0.0',
             )
-        writePlist(pl, join(self.contents_dir, 'Info.plist'))
+        plistlib.writePlist(pl, os.path.join(self.contents_dir, 'Info.plist'))
 
     def _write_script(self):
         fo = open(self.executable_path, 'w')

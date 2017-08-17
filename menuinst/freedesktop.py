@@ -1,17 +1,25 @@
+# -*- coding: utf-8 -*-
+# -----------------------------------------------------------------------------
+# Copyright (c) 2013-2017 Continuum Analytics, Inc.
 # Copyright (c) 2008-2011 by Enthought, Inc.
 # All rights reserved.
-
+#
+# Licensed under the terms of the BSD 3-clause License (See LICENSE.txt)
+# -----------------------------------------------------------------------------
+"""Freedesktop specification utilities."""
 
 def make_desktop_entry(d):
     """
-    Create a desktop entry that conforms to the format of the Desktop Entry
-    Specification by freedesktop.org.  See:
+    Create a desktop entry that conforms to the freedesktop.org specification.
+    
+    See:
             http://freedesktop.org/Standards/desktop-entry-spec
+
     These should work for both KDE and Gnome2
 
     An entry is a .desktop file that includes the application's type,
-    executable, name, etc.   It will be placed in the location specified within
-    the passed dict.
+    executable, name, etc.   It will be placed in the location specified
+    within the passed dict.
     """
     assert d['path'].endswith('.desktop')
 
