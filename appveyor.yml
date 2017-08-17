@@ -1,3 +1,8 @@
+# https://ci.appveyor.com/project/ContinuumAnalytics
+
+matrix:
+  fast_finish: true
+  
 environment:
   global:
     # SDK v7.0 MSVC Express 2008's SetEnv.cmd script will fail if the
