@@ -8,7 +8,7 @@
 # -----------------------------------------------------------------------------
 """OSX menu and shortcut handlers."""
 
-from .darwin import Menu, Shortcut
+from menuinst.osx.darwin import Menu, Shortcut
 
 Menu = Menu
 Shortcut = Shortcut

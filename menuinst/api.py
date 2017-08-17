@@ -18,14 +18,14 @@ import sys
 
 
 if sys.platform.startswith('linux'):
-    from .linux import Menu, ShortCut
+    from menuinst.linux import Menu, ShortCut
 
 elif sys.platform == 'darwin':
-    from .osx import Menu, ShortCut
+    from menuinst.osx import Menu, ShortCut
 
 elif sys.platform == 'win32':
-    from .windows import Menu, ShortCut
-    from .windows.win_elevate import isUserAdmin, runAsAdmin
+    from menuinst.windows import Menu, ShortCut
+    from menuinst.windows.win_elevate import isUserAdmin, runAsAdmin
 
 
 def _install(path, remove=False, prefix=sys.prefix, mode=None):

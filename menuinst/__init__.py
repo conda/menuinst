@@ -11,8 +11,8 @@
 from __future__ import absolute_import
 
 # Local imports
-from ._version import get_versions
-from .api import install
+from menuinst._version import get_versions
+from menuinst.api import install
 
 install = install
 

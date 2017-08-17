@@ -19,11 +19,11 @@ import pywintypes
 import sys
 
 # Local imports
-from .utils import rm_empty_dir, rm_rf
-from .knownfolders import get_folder_path, FOLDERID
+from menuinst.windows.utils import rm_empty_dir, rm_rf
+from menuinst.windows.knownfolders import get_folder_path, FOLDERID
 # KNOWNFOLDERID does provide a direct path to Quick Launch.
 # No additional path necessary.
-from .winshortcut import create_shortcut
+from menuinst.windows.winshortcut import create_shortcut
 
 
 # This allows debugging installer issues using DebugView from Microsoft.
