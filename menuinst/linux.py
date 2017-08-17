@@ -1,23 +1,35 @@
+# -*- coding: utf-8 -*-
+# -----------------------------------------------------------------------------
+# Copyright (c) 2013-2017 Continuum Analytics, Inc.
 # Copyright (c) 2008-2011 by Enthought, Inc.
 # All rights reserved.
+#
+# Licensed under the terms of the BSD 3-clause License (See LICENSE.txt)
+# -----------------------------------------------------------------------------
 """
+Linux Menu and shortcut handling.
+
 The menu will be installed to both Gnome and KDE desktops if they are
 available.
+
 Note that the information required is sufficient to install application
 menus on systems that follow the format of the Desktop Entry Specification
-by freedesktop.org.  See:
-    http://freedesktop.org/Standards/desktop-entry-spec
+by freedesktop.org.
+
+See: http://freedesktop.org/Standards/desktop-entry-spec
 """
-import re
+
+# Standard library imports
 import os
+import re
 import shutil
 import sys
 import time
 import xml.etree.ElementTree as ET
-from os.path import abspath, dirname, exists, expanduser, isdir, isfile, join
 
-from utils import rm_rf, get_executable
-from freedesktop import make_desktop_entry, make_directory_entry
+# Local imports
+from .freedesktop import make_desktop_entry, make_directory_entry
+from .utils import rm_rf, get_executable
 
 
 # datadir: contains the desktop and directory entries
@@ -30,17 +42,17 @@ if os.getuid() == 0:
 else:
     mode = 'user'
     datadir = os.environ.get('XDG_DATA_HOME',
-                             abspath(expanduser('~/.local/share')))
+                             os.path.abspath(os.path.expanduser('~/.local/share')))
     confdir = os.environ.get('XDG_CONFIG_HOME',
-                             abspath(expanduser('~/.config')))
+                             os.path.abspath(os.path.expanduser('~/.config')))
 
-appdir = join(datadir, 'applications')
-menu_file = join(confdir, 'menus/applications.menu')
+appdir = os.path.join(datadir, 'applications')
+menu_file = os.path.join(confdir, 'menus/applications.menu')
 
 
 def indent(elem, level=0):
     """
-    adds whitespace to the tree, so that it results in a pretty printed tree
+    Adds whitespace to the tree, so that it results in a pretty printed tree.
     """
     XMLindentation = "    " # 4 spaces, just like in Python!
     i = "\n" + level * XMLindentation
@@ -92,11 +104,11 @@ def write_menu_file(tree):
 
 def ensure_menu_file():
     # ensure any existing version is a file
-    if exists(menu_file) and not isfile(menu_file):
+    if os.path.exists(menu_file) and not os.path.isfile(menu_file):
         rm_rf(menu_file)
 
     # ensure any existing file is actually a menu file
-    if isfile(menu_file):
+    if os.path.isfile(menu_file):
         # make a backup of the menu file to be edited
         cur_time = time.strftime('%Y-%m-%d_%Hh%Mm%S')
         backup_menu_file = "%s.%s" % (menu_file, cur_time)
@@ -106,7 +118,7 @@ def ensure_menu_file():
             os.remove(menu_file)
 
     # create a new menu file if one doesn't yet exist
-    if not isfile(menu_file):
+    if not os.path.isfile(menu_file):
         fo = open(menu_file, 'w')
         if mode == 'user':
             merge = '<MergeFile type="parent">%s</MergeFile>' % sys_menu_file
@@ -122,7 +134,8 @@ class Menu(object):
         self.name = name
         self.name_ = name + '_'
         self.entry_fn = '%s.directory' % self.name
-        self.entry_path = join(datadir, 'desktop-directories', self.entry_fn)
+        self.entry_path = os.path.join(datadir, 'desktop-directories',
+                                       self.entry_fn)
         self.prefix = prefix
         self.env_name = env_name
 
@@ -170,8 +183,9 @@ class Menu(object):
         d = dict(name=self.name, path=self.entry_path)
         try:
             import custom_tools
-            icon_path = join(dirname(custom_tools.__file__), 'menu.ico')
-            if isfile(icon_path):
+            icon_path = os.path.join(os.path.dirname(custom_tools.__file__),
+                                     'menu.ico')
+            if os.path.isfile(icon_path):
                 d['icon'] = icon_path
         except ImportError:
             pass
@@ -180,10 +194,10 @@ class Menu(object):
     def _create_dirs(self):
         # Ensure the three directories we're going to write menu and shortcut
         # resources to all exist.
-        for dir_path in [dirname(menu_file),
-                         dirname(self.entry_path),
+        for dir_path in [os.path.dirname(menu_file),
+                         os.path.dirname(self.entry_path),
                          appdir]:
-            if not isdir(dir_path):
+            if not os.path.isdir(dir_path):
                 os.makedirs(dir_path)
 
 
@@ -195,7 +209,7 @@ class ShortCut(object):
         # note that this is the path WITHOUT extension
         fn = menu.name_ + shortcut['id']
         assert self.fn_pat.match(fn)
-        self.path = join(appdir, fn)
+        self.path = os.path.join(appdir, fn)
         shortcut['categories'] = menu.name
         self.shortcut = shortcut
         for var_name in ('name', 'cmd'):

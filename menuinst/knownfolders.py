@@ -1,3 +1,11 @@
+# -*- coding: utf-8 -*-
+# -----------------------------------------------------------------------------
+# Copyright (c) 2013-2017 Continuum Analytics, Inc.
+# Copyright (c) 2014 Michael Kropat (Under the terms of the MIT License)
+# All rights reserved.
+#
+# Licensed under the terms of the BSD 3-clause License (See LICENSE.txt)
+# -----------------------------------------------------------------------------
 """
 This code obtained from
 https://gist.github.com/mkropat/7550097
@@ -27,9 +35,12 @@ THE SOFTWARE.
 
 from __future__ import print_function
 
+
+# Standard library imports
 import ctypes, sys
 from ctypes import windll, wintypes
 from uuid import UUID
+
 
 class GUID(ctypes.Structure):   # [1]
     _fields_ = [
@@ -213,6 +224,7 @@ def get_folder_path(folder_id, user=None):
     # We may want to support modifying the 'Default' user here too for SCCM-based installations.
     # New users created on the machine have their folders created by copying those of 'Default'.
     return get_path(folder_id, user)
+
 
 if __name__ == '__main__':
     if len(sys.argv) < 2 or sys.argv[1] in ['-?', '/?']:
