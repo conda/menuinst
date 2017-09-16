@@ -27,4 +27,4 @@ if exception:
     documents_folder, exception = get_folder_path(FOLDERID.PublicDocuments)
 if not exception:
     os.chdir(documents_folder)
-subprocess.call(args, env=env)
+sys.exit(subprocess.call(args, env=env))
