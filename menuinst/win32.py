@@ -228,16 +228,6 @@ class Menu(object):
         rm_empty_dir(self.path)
 
 
-def get_python_args_for_subprocess(prefix, args, cmd):
-    if "CMD.EXE" or "%COMSPEC%" in upper(cmd) and any(' ' in arg for arg in args):
-        # cmd.exe expects a single string argument and requires
-        # doubled-up quotes when any sub-arguments have spaces.
-        # https://stackoverflow.com/a/6378038/3257826
-        args=[quoted(" ".join(quoted(arg) for arg in args))]
-    return [quoted(join(unicode_root_prefix, u'cwp.py')), quoted(prefix),
-            quoted(cmd)] + args
-
-
 def extend_script_args(args, shortcut):
     try:
         args.append(shortcut['scriptargument'])
@@ -258,37 +248,58 @@ class ShortCut(object):
         self.create(remove=True)
 
     def create(self, remove=False):
+        # Substitute env variables early because we may need to escape spaces in the value.
         args = []
-        # cmd is our root installation interpreter
-        cmd = join(unicode_root_prefix, u"pythonw.exe").replace("\\", "/")
-        # each of these roll the subprocess cmd into args
+        fix_win_slashes = [0]
+        prefix = self.menu.prefix.replace('/', '\\')
+        root_py  = join(unicode_root_prefix, u"python.exe")
+        root_pyw = join(unicode_root_prefix, u"pythonw.exe")
+        env_py  = join(prefix, u"python.exe")
+        env_pyw = join(prefix, u"pythonw.exe")
+        cwp_py  = [root_py,  join(unicode_root_prefix, u'cwp.py'), prefix, env_py]
+        cwp_pyw = [root_pyw, join(unicode_root_prefix, u'cwp.py'), prefix, env_pyw]
         if "pywscript" in self.shortcut:
-            subprocess_cmd = join(self.menu.prefix, u"pythonw.exe").replace("\\", "/")
-            args = self.shortcut["pywscript"].split()
-            args = get_python_args_for_subprocess(self.menu.prefix, args, subprocess_cmd)
+            args = cwp_pyw
+            fix_win_slashes = [len(args)]
+            args += self.shortcut["pywscript"].split()
         elif "pyscript" in self.shortcut:
-            subprocess_cmd = join(self.menu.prefix, u"python.exe").replace("\\", "/")
-            args = self.shortcut["pyscript"].split()
-            args = get_python_args_for_subprocess(self.menu.prefix, args, subprocess_cmd)
+            args = cwp_py
+            fix_win_slashes = [len(args)]
+            args += self.shortcut["pyscript"].split()
         elif "webbrowser" in self.shortcut:
-            args = ['-m', 'webbrowser', '-t', self.shortcut['webbrowser']]
+            args = [root_pyw, '-m', 'webbrowser', '-t', self.shortcut['webbrowser']]
         elif "script" in self.shortcut:
-            subprocess_cmd = join(unicode_root_prefix, u"pythonw.exe").replace("\\", "/")
-            args.append(self.shortcut["script"].replace('/', '\\'))
+            # It is unclear whether running through cwp.py is what we want here. In
+            # the long term I would rather this was made an explicit choice.
+            args = [root_py,  join(unicode_root_prefix, u'cwp.py'), prefix]
+            fix_win_slashes = [len(args)]
+            args += self.shortcut["script"].split()
             extend_script_args(args, self.shortcut)
-            args = get_python_args_for_subprocess(self.menu.prefix, args, subprocess_cmd)
         elif "system" in self.shortcut:
-            subprocess_cmd = substitute_env_variables(self.shortcut["system"],
-                                                      self.menu.dir).replace('/', '\\')
-            args = get_python_args_for_subprocess(self.menu.prefix, args, subprocess_cmd)
+            args = self.shortcut["system"].split()
             extend_script_args(args, self.shortcut)
         else:
             raise Exception("Nothing to do: %r" % self.shortcut)
+        args = [substitute_env_variables(arg, self.menu.dir) for arg in args]
+        for fws in fix_win_slashes:
+            args[fws] = args[fws].replace('/', '\\')
+        # cmd.exe /K or /C expects a single string argument and requires
+        # doubled-up quotes when any sub-arguments have spaces:
+        # https://stackoverflow.com/a/6378038/3257826
+        if len(args) > 2 and ("CMD.EXE" in args[0].upper() or "%COMSPEC%" in args[0].upper()) and \
+           (args[1].upper() == '/K' or args[1].upper() == '/C') and \
+            any(' ' in arg for arg in args[2:]):
+            args[0:2] = [quoted(arg) for arg in args[0:2]]
+            args=args[0:2] + [quoted(" ".join(quoted(arg) for arg in args[2:]))]
+        else:
+            args = [quoted(arg) for arg in args]
 
+        cmd = args[0]
+        args = args[1:]
+        logger.debug('Shortcut cmd is %s, args are %s' % (cmd, args))
         workdir = self.shortcut.get('workdir', '')
         icon = self.shortcut.get('icon', '')
 
-        args = [substitute_env_variables(s, self.menu.dir) for s in args]
         workdir = substitute_env_variables(workdir, self.menu.dir)
         icon = substitute_env_variables(icon, self.menu.dir)
 
@@ -325,10 +336,10 @@ class ShortCut(object):
                 # and 4 optional ones (args, working_dir, icon_path and
                 # icon_index).
                 create_shortcut(
-                    u'' + quoted(cmd),
+                    u'' + cmd,
                     u'' + self.shortcut['name'] + name_suffix,
                     u'' + dst,
-                    u' '.join(quoted(arg) for arg in args),
+                    u' '.join(arg for arg in args),
                     u'' + workdir,
                     u'' + icon,
                 )

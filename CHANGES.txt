@@ -1,3 +1,8 @@
+2017-10-17 1.4.10:
+-----------------
+  * better fix for shortcut handling and tidy-ups
+
+
 2017-10-17 1.4.9:
 -----------------
   * fix cmd.exe / %ComSpec% system shortcut quoting
