@@ -1,7 +1,12 @@
+2017-10-17 1.4.9:
+-----------------
+  * fix cmd.exe / %ComSpec% system shortcut quoting
+
+
 2017-09-16 1.4.8:
 -----------------
-
   * fix non-root pythons being used to call cwp.py  #47
+
 
 2017-05-19: 1.4.7:
 ------------------
