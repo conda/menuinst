@@ -137,7 +137,7 @@ def to_bytes(var, codec=locale.getpreferredencoding()):
 
 if u'\\envs\\' in to_unicode(sys.prefix):
     logger.warn('menuinst called from non-root env %s' % (sys.prefix))
-unicode_prefix = to_unicode(sys.prefix)
+unicode_root_prefix = to_unicode(sys.prefix)
 
 
 def substitute_env_variables(text, dir):
@@ -153,7 +153,7 @@ def substitute_env_variables(text, dir):
 
     for a, b in (
         (u'${PREFIX}', env_prefix),
-        (u'${ROOT_PREFIX}', unicode_prefix),
+        (u'${ROOT_PREFIX}', unicode_root_prefix),
         (u'${PYTHON_SCRIPTS}',
           os.path.normpath(join(env_prefix, u'Scripts')).replace(u"\\", u"/")),
         (u'${MENU_DIR}', join(env_prefix, u'Menu')),
@@ -169,7 +169,7 @@ def substitute_env_variables(text, dir):
 
 
 class Menu(object):
-    def __init__(self, name, prefix=unicode_prefix, env_name=u"", mode=None):
+    def __init__(self, name, prefix=unicode_root_prefix, env_name=u"", mode=None):
         """
         Prefix is the system prefix to be used -- this is needed since
         there is the possibility of a different Python's packages being managed.
@@ -229,7 +229,12 @@ class Menu(object):
 
 
 def get_python_args_for_subprocess(prefix, args, cmd):
-    return [quoted(join(unicode_prefix, u'cwp.py')), quoted(prefix),
+    if "CMD.EXE" or "%COMSPEC%" in upper(cmd) and any(' ' in arg for arg in args):
+        # cmd.exe expects a single string argument and requires
+        # doubled-up quotes when any sub-arguments have spaces.
+        # https://stackoverflow.com/a/6378038/3257826
+        args=[quoted(" ".join(quoted(arg) for arg in args))]
+    return [quoted(join(unicode_root_prefix, u'cwp.py')), quoted(prefix),
             quoted(cmd)] + args
 
 
@@ -255,7 +260,7 @@ class ShortCut(object):
     def create(self, remove=False):
         args = []
         # cmd is our root installation interpreter
-        cmd = join(unicode_prefix, u"pythonw.exe").replace("\\", "/")
+        cmd = join(unicode_root_prefix, u"pythonw.exe").replace("\\", "/")
         # each of these roll the subprocess cmd into args
         if "pywscript" in self.shortcut:
             subprocess_cmd = join(self.menu.prefix, u"pythonw.exe").replace("\\", "/")
@@ -268,7 +273,7 @@ class ShortCut(object):
         elif "webbrowser" in self.shortcut:
             args = ['-m', 'webbrowser', '-t', self.shortcut['webbrowser']]
         elif "script" in self.shortcut:
-            subprocess_cmd = join(unicode_prefix, u"pythonw.exe").replace("\\", "/")
+            subprocess_cmd = join(unicode_root_prefix, u"pythonw.exe").replace("\\", "/")
             args.append(self.shortcut["script"].replace('/', '\\'))
             extend_script_args(args, self.shortcut)
             args = get_python_args_for_subprocess(self.menu.prefix, args, subprocess_cmd)
