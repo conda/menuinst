@@ -42,6 +42,7 @@ dbgview = DbgViewHandler()
 dbgview.setLevel(logging.DEBUG)
 logger.addHandler(dbgview)
 logger.addHandler(stream_handler)
+logger.propagate = False
 
 # When running as 'nt authority/system' as sometimes people do via SCCM,
 # various folders do not exist, such as QuickLaunch. This doesn't matter
