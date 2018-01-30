@@ -115,6 +115,20 @@ def quoted(s):
         return s
 
 
+def ensure_pad(name, pad="_"):
+    """
+
+    Examples:
+        >>> ensure_pad('conda')
+        '_conda_'
+
+    """
+    if not name or name[0] == name[-1] == pad:
+        return name
+    else:
+        return "%s%s%s" % (pad, name, pad)
+
+
 def to_unicode(var, codec=locale.getpreferredencoding()):
     if sys.version_info[0] < 3 and isinstance(var, unicode):
         return var
@@ -239,6 +253,24 @@ def extend_script_args(args, shortcut):
         pass
 
 
+def quote_args(args):
+    # cmd.exe /K or /C expects a single string argument and requires
+    # doubled-up quotes when any sub-arguments have spaces:
+    # https://stackoverflow.com/a/6378038/3257826
+    if (len(args) > 2 and ("CMD.EXE" in args[0].upper() or "%COMSPEC%" in args[0].upper())
+            and (args[1].upper() == '/K' or args[1].upper() == '/C')
+            and any(' ' in arg for arg in args[2:])
+    ):
+        args = [
+            ensure_pad(args[0], '"'),  # cmd.exe
+            args[1],  # /K or /C
+            '"%s"' % (' '.join(ensure_pad(arg, '"') for arg in args[2:])),  # double-quoted
+        ]
+    else:
+        args = [quoted(arg) for arg in args]
+    return args
+
+
 class ShortCut(object):
     def __init__(self, menu, shortcut):
         self.menu = menu
@@ -283,16 +315,8 @@ class ShortCut(object):
         args = [substitute_env_variables(arg, self.menu.dir) for arg in args]
         for fws in fix_win_slashes:
             args[fws] = args[fws].replace('/', '\\')
-        # cmd.exe /K or /C expects a single string argument and requires
-        # doubled-up quotes when any sub-arguments have spaces:
-        # https://stackoverflow.com/a/6378038/3257826
-        if len(args) > 2 and ("CMD.EXE" in args[0].upper() or "%COMSPEC%" in args[0].upper()) and \
-           (args[1].upper() == '/K' or args[1].upper() == '/C') and \
-            any(' ' in arg for arg in args[2:]):
-            args[0:2] = [quoted(arg) for arg in args[0:2]]
-            args=args[0:2] + [quoted(" ".join(quoted(arg) for arg in args[2:]))]
-        else:
-            args = [quoted(arg) for arg in args]
+
+        args = quote_args(args)
 
         cmd = args[0]
         args = args[1:]
