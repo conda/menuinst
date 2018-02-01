@@ -123,10 +123,7 @@ def ensure_pad(name, pad="_"):
         '_conda_'
 
     """
-    if not name or name[0] == name[-1] == pad:
-        return name
-    else:
-        return "%s%s%s" % (pad, name, pad)
+    return name and "%s%s%s" % (pad, name.strip(pad), pad)
 
 
 def to_unicode(var, codec=locale.getpreferredencoding()):
