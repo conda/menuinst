@@ -198,12 +198,6 @@ def get_path(folderid, user_handle=UserHandle.common):
 
     path = pPath.value
     _CoTaskMemFree(pPath)
-    # convert to unicode
-    codec = sys.getdefaultencoding()
-    if not codec:
-        codec="utf-8"
-    if hasattr(path, "decode"):
-        path = path.decode(codec)
     return (path, exception)
 
 
