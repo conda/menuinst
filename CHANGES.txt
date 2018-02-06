@@ -1,3 +1,10 @@
+2018-02-06 1.4.11:
+-----------------
+  * fix #60 more cmd.exe-specific hacking (#61)
+  * fix #54 incorrect locale handling (#62)
+  * fix logging traceback from #54 (#63)
+
+
 2017-10-17 1.4.10:
 -----------------
   * better fix for shortcut handling and tidy-ups
