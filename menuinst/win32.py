@@ -149,9 +149,9 @@ def to_bytes(var, codec=locale.getpreferredencoding()):
     return var
 
 
-if u'\\envs\\' in to_unicode(sys.prefix):
-    logger.warn('menuinst called from non-root env %s' % (sys.prefix))
 unicode_root_prefix = to_unicode(sys.prefix)
+if u'\\envs\\' in unicode_root_prefix:
+    logger.warn('menuinst called from non-root env %s', unicode_root_prefix)
 
 
 def substitute_env_variables(text, dir):
