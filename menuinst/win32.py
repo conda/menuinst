@@ -336,7 +336,7 @@ class ShortCut(object):
             if not isdir(workdir):
                 os.makedirs(workdir)
         else:
-            workdir = expanduser('~')
+            workdir = '"%HOME%"'
 
         # Menu link
         dst_dirs = [self.menu.path]
