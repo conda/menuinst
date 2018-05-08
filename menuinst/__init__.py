@@ -48,17 +48,22 @@ def _install(path, remove=False, prefix=sys.prefix, mode=None):
             ShortCut(m, sc).create()
 
 
-def install(path, remove=False, prefix=sys.prefix):
+def install(path, remove=False, prefix=sys.prefix, recursing=False):
     """
     install Menu and shortcuts
     """
     if sys.platform == 'win32' and not exists(join(sys.prefix, '.nonadmin')) and not isUserAdmin():
         from pywintypes import error
         try:
-            runAsAdmin(['pythonw', '-c',
-                        "import menuinst; menuinst.install(%r, %r, %r)" % (
-                            path, bool(remove), prefix)])
+            if not recursing:
+                retcode = runAsAdmin(['pythonw', '-c',
+                                      "import menuinst; menuinst.install(%r, %r, %r, %r)" % (
+                                          path, bool(remove), prefix, True)])
+            else:
+                retcode = 1
         except error:
+            retcode = 1
+        if retcode != 0:
             logging.warn("Insufficient permissions to write menu folder.  "
                          "Falling back to user location")
             _install(path, remove, prefix, mode='user')
