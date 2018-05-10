@@ -1,3 +1,8 @@
+2018-05-10 1.4.12:
+-----------------
+  * set default workdir to %HOME% so that it is dynamic per-user
+  * fix recursion infinite loop with background processes that had insufficient permissions
+
 2018-02-06 1.4.11:
 -----------------
   * fix #60 more cmd.exe-specific hacking (#61)
