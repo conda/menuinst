@@ -9,12 +9,13 @@
 
 
 from __future__ import print_function
-import sys, os, traceback, types
+import sys, os, traceback
 
 if sys.version_info < (3,):
     text_type = basestring
 else:
     text_type = str
+
 
 def isUserAdmin():
 
@@ -33,8 +34,8 @@ def isUserAdmin():
     else:
         raise RuntimeError("Unsupported operating system for this module: %s" % (os.name,))
 
-def runAsAdmin(cmdLine=None, wait=True):
 
+def runAsAdmin(cmdLine=None, wait=True):
     if os.name != 'nt':
         raise RuntimeError("This function is only implemented on Windows.")
 
@@ -46,15 +47,12 @@ def runAsAdmin(cmdLine=None, wait=True):
 
     if cmdLine is None:
         cmdLine = [python_exe] + sys.argv
-    #elif type(cmdLine) not in (types.TupleType,types.ListType):
     elif not hasattr(cmdLine, "__iter__") or isinstance(cmdLine, text_type):
         raise ValueError("cmdLine is not a sequence.")
     cmd = '"%s"' % (cmdLine[0],)
     # XXX TODO: isn't there a function or something we can call to massage command line params?
     params = " ".join(['"%s"' % (x,) for x in cmdLine[1:]])
-    cmdDir = ''
-    showCmd = win32con.SW_SHOWNORMAL
-    #showCmd = win32con.SW_HIDE
+    showCmd = win32con.SW_HIDE
     lpVerb = 'runas'  # causes UAC elevation prompt.
 
     # ShellExecute() doesn't seem to allow us to fetch the PID or handle
@@ -71,12 +69,13 @@ def runAsAdmin(cmdLine=None, wait=True):
 
     if wait:
         procHandle = procInfo['hProcess']
-        obj = win32event.WaitForSingleObject(procHandle, win32event.INFINITE)
+        win32event.WaitForSingleObject(procHandle, win32event.INFINITE)
         rc = win32process.GetExitCodeProcess(procHandle)
     else:
         rc = None
 
     return rc
+
 
 if __name__ == '__main__':
     userIsAdmin = isUserAdmin()
