@@ -8,10 +8,10 @@ import sys
 import json
 from os.path import abspath, basename, exists, join
 
-
 from ._version import get_versions
-
 __version__ = get_versions()['version']
+del get_versions
+
 
 if sys.platform.startswith('linux'):
     from .linux import Menu, ShortCut
@@ -52,25 +52,25 @@ def install(path, remove=False, prefix=sys.prefix, recursing=False):
     """
     install Menu and shortcuts
     """
-    if sys.platform == 'win32' and not exists(join(sys.prefix, '.nonadmin')) and not isUserAdmin():
-        from pywintypes import error
-        try:
-            if not recursing:
-                retcode = runAsAdmin(['pythonw', '-c',
-                                      "import menuinst; menuinst.install(%r, %r, %r, %r)" % (
-                                          path, bool(remove), prefix, True)])
-            else:
+    # this sys.prefix is intentional.  We want to reflect the state of the root installation.
+    if sys.platform == 'win32' and not exists(join(sys.prefix, '.nonadmin')):
+        if isUserAdmin():
+            _install(path, remove, prefix, mode='system')
+        else:
+            from pywintypes import error
+            try:
+                if not recursing:
+                    retcode = runAsAdmin([join(sys.prefix, 'python'), '-c',
+                                          "import menuinst; menuinst.install(%r, %r, %r, %r)" % (
+                                              path, bool(remove), prefix, True)])
+                else:
+                    retcode = 1
+            except error:
                 retcode = 1
-        except error:
-            retcode = 1
-        if retcode != 0:
-            logging.warn("Insufficient permissions to write menu folder.  "
-                         "Falling back to user location")
-            _install(path, remove, prefix, mode='user')
+
+            if retcode != 0:
+                logging.warn("Insufficient permissions to write menu folder.  "
+                             "Falling back to user location")
+                _install(path, remove, prefix, mode='user')
     else:
-        _install(path, remove, prefix)
-
-
-from ._version import get_versions
-__version__ = get_versions()['version']
-del get_versions
+        _install(path, remove, prefix, mode='user')

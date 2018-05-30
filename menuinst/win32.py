@@ -7,7 +7,7 @@ from __future__ import absolute_import, unicode_literals
 import ctypes
 import logging
 import os
-from os.path import expanduser, isdir, join, exists
+from os.path import isdir, join, exists
 import pywintypes
 import sys
 import locale
@@ -133,7 +133,7 @@ def to_unicode(var, codec=locale.getpreferredencoding()):
     if sys.version_info[0] < 3 and isinstance(var, unicode):
         return var
     if not codec:
-        codec="utf-8"
+        codec = "utf-8"
     if hasattr(var, "decode"):
         var = var.decode(codec)
     return var
@@ -191,10 +191,7 @@ class Menu(object):
 
         # bytestrings passed in need to become unicode
         self.prefix = to_unicode(prefix)
-        if 'user' in dirs_src:
-            used_mode = mode if mode else ('user' if exists(join(self.prefix, u'.nonadmin')) else 'system')
-        else:
-            used_mode = 'system'
+        used_mode = mode if mode else ('user' if exists(join(self.prefix, u'.nonadmin')) else 'system')
         logger.debug("Menu: name: '%s', prefix: '%s', env_name: '%s', mode: '%s', used_mode: '%s'"
                     % (name, self.prefix, env_name, mode, used_mode))
         try:
@@ -336,7 +333,7 @@ class ShortCut(object):
             if not isdir(workdir):
                 os.makedirs(workdir)
         else:
-            workdir = '"%HOMEPATH%"'
+            workdir = '%HOMEPATH%'
 
         # Menu link
         dst_dirs = [self.menu.path]
