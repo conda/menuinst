@@ -1,3 +1,8 @@
+2018-05-29 1.4.14:
+------------------
+  * clean up and restructure elevation logic
+  * unquote HOMEPATH env var as default target location
+
 2018-05-23 1.4.13:
 ------------------
   * Change HOME to HOMEPATH for default shortcut start path
