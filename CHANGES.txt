@@ -1,3 +1,11 @@
+2019-03-13 1.4.16:
+------------------
+  * Command line option starting with minux, or a space shall not be quoted
+
+2019-03-13: 1.4.15:
+-------------------
+  * tagged in gonzalo_refactor branch
+
 2018-05-29 1.4.14:
 ------------------
   * clean up and restructure elevation logic
