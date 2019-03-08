@@ -110,7 +110,7 @@ def quoted(s):
     # strip any existing quotes
     s = s.strip(u'"')
     # don't add quotes for minus or leading space
-    if u'-' in s[:1] or u' ' in s[:1]:
+    if s[0] in (u'-', u' '):
         return s
     if u' ' in s or u'/' in s:
         return u'"%s"' % s
