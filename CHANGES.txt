@@ -1,3 +1,23 @@
+2018-03-13: 1.4.15:
+------------------
+  * Command line options starting with minus, or a space shall not be quoted
+  * Update cwp.py
+  * Fix groups files per OS
+  * Update setup.py to include pkg data, include modules, and add header
+  * Fail CI scripts on appveyor if one container fails
+  * Fix typo in shortcut imports
+  * Fix bad import
+  * Switch to absolute imports
+  * Add OS specific code in specific folder
+  * Various enhancements and clean up (#50)
+  * Fix code when run as admin
+  * Add pep8speaks config
+  * Add updated copyright header, and clean up code a bit
+  * Move __init__code to api.py
+
+2017-08-17: 1.4.8 up to 1.4.14:
+  * Fix tests
+
 2017-05-19: 1.4.7:
 ------------------
   * Fixes for Python 2 Unicode conversion in win32.py
