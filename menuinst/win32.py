@@ -7,7 +7,7 @@ from __future__ import absolute_import, unicode_literals
 import ctypes
 import logging
 import os
-from os.path import isdir, join, exists
+from os.path import isdir, join, exists, split
 import pywintypes
 import sys
 import locale
@@ -171,6 +171,7 @@ def substitute_env_variables(text, dir):
     for a, b in (
         (u'${PREFIX}', env_prefix),
         (u'${ROOT_PREFIX}', unicode_root_prefix),
+        (u'${DISTRIBUTION_NAME}', os.path.split(unicode_root_prefix)[-1].capitalize()),
         (u'${PYTHON_SCRIPTS}',
           os.path.normpath(join(env_prefix, u'Scripts')).replace(u"\\", u"/")),
         (u'${MENU_DIR}', join(env_prefix, u'Menu')),
@@ -351,7 +352,8 @@ class ShortCut(object):
 
         name_suffix = " ({})".format(self.menu.dir['env_name']) if self.menu.dir['env_name'] else ""
         for dst_dir in dst_dirs:
-            dst = join(dst_dir, self.shortcut['name'] + name_suffix + '.lnk')
+            name = substitute_env_variables(self.shortcut['name'], self.menu.dir)
+            dst = join(dst_dir, name + name_suffix + '.lnk')
             if remove:
                 rm_rf(dst)
             else:
@@ -361,7 +363,7 @@ class ShortCut(object):
                 # icon_index).
                 create_shortcut(
                     u'' + cmd,
-                    u'' + self.shortcut['name'] + name_suffix,
+                    u'' + name + name_suffix,
                     u'' + dst,
                     u' '.join(arg for arg in args),
                     u'' + workdir,
