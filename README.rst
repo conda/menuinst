@@ -3,9 +3,8 @@ menuinst: cross platform menu item installation
 ===============================================
 
 
-.. image:: https://ci.appveyor.com/api/projects/status/w4kcvjq21plm1ovj?svg=true
-               :target: https://ci.appveyor.com/project/ContinuumAnalytics/menuinst
-
+.. image:: https://github.com/conda/menuinst/actions/workflows/tests.yml/badge.svg
+   :target: https://github.com/conda/menuinst/actions/workflows/tests.yml
 
 This package is was originally developed and maintained by Enthought
 under the name AppInst.  The name appinst is a rename of what used

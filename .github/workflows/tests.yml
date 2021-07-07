@@ -45,5 +45,8 @@ jobs:
       - shell: bash -l {0}
         name: Run test suite
         run: |
-          pytest --cov
+          pytest tests --cov-append --cov-report=xml --cov=menuinst
 
+      - uses: codecov/codecov-action@v1
+        with:
+          name: ${{ matrix.os }}-py${{ matrix.python-version }}
