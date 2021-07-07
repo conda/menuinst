@@ -15,4 +15,4 @@ Menuinst is currently only supported on Windows.  Legacy code exists for Linux a
 
 For basic instructions how to use `menuinst`, please `read the wiki`_.
 
-.. _read the wiki: https://github.com/ContinuumIO/menuinst/wiki/
+.. _read the wiki: https://github.com/conda/menuinst/wiki/
