@@ -2,7 +2,7 @@
 ------------------
   * Use distribution name as part of the Start Menu item (#77)
   * Transfer repository to `conda` GitHub organization (#81)
-  * Switch to GitHub Actions for CI (#78, #82, #83)
+  * Switch from AppVeyor to GitHub Actions for CI (#78, #82, #83)
 
 2019-03-13 1.4.16:
 ------------------
