@@ -1,3 +1,9 @@
+2021-07-14 1.4.17:
+------------------
+  * Use distribution name as part of the Start Menu item (#77)
+  * Transfer repository to `conda` GitHub organization (#81)
+  * Switch from AppVeyor to GitHub Actions for CI (#78, #82, #83)
+
 2019-03-13 1.4.16:
 ------------------
   * Command line option starting with minux, or a space shall not be quoted
