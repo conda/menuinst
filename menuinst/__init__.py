@@ -51,13 +51,13 @@ def _install(path, remove=False, prefix=sys.prefix, mode=None, root_prefix=sys.p
 def install(path, remove=False, prefix=sys.prefix, recursing=False, root_prefix=sys.prefix):
     """
     Install Menu and shortcuts
-    
+
     # Specifying `root_prefix` is used with conda-standalone, because we can't use
     # `sys.prefix`, therefore we need to specify it  
     """
     # this root_prefix is intentional.  We want to reflect the state of the root installation.
     if sys.platform == 'win32' and not exists(join(root_prefix, '.nonadmin')):
-        if not isUserAdmin():
+        if isUserAdmin():
             _install(path, remove, prefix, mode='system', root_prefix=root_prefix)
         else:
             from pywintypes import error
