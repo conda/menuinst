@@ -9,7 +9,7 @@ jobs:
     timeout-minutes: 30
     env:
       dependencies: pywin32
-      test-dependencies: pytest pytest-cov
+      test-dependencies: pytest pytest-cov conda
     strategy:
       fail-fast: false
       matrix:
@@ -23,6 +23,7 @@ jobs:
         with:
           auto-update-conda: true
           python-version: ${{ matrix.python-version }}
+
 
       - shell: bash -l {0}
         name: Conda info

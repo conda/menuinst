@@ -165,13 +165,14 @@ def substitute_env_variables(text, dir):
     py_bitness = 8 * tuple.__itemsize__
 
     env_prefix = to_unicode(dir['prefix'])
+    root_prefix = to_unicode(dir['root_prefix'])
     text = to_unicode(text)
     env_name = to_unicode(dir['env_name'])
 
     for a, b in (
         (u'${PREFIX}', env_prefix),
-        (u'${ROOT_PREFIX}', unicode_root_prefix),
-        (u'${DISTRIBUTION_NAME}', os.path.split(unicode_root_prefix)[-1].capitalize()),
+        (u'${ROOT_PREFIX}', root_prefix),
+        (u'${DISTRIBUTION_NAME}', os.path.split(root_prefix)[-1].capitalize()),
         (u'${PYTHON_SCRIPTS}',
           os.path.normpath(join(env_prefix, u'Scripts')).replace(u"\\", u"/")),
         (u'${MENU_DIR}', join(env_prefix, u'Menu')),
@@ -187,7 +188,7 @@ def substitute_env_variables(text, dir):
 
 
 class Menu(object):
-    def __init__(self, name, prefix=unicode_root_prefix, env_name=u"", mode=None):
+    def __init__(self, name, prefix=unicode_root_prefix, env_name=u"", mode=None, root_prefix=unicode_root_prefix):
         """
         Prefix is the system prefix to be used -- this is needed since
         there is the possibility of a different Python's packages being managed.
@@ -195,11 +196,12 @@ class Menu(object):
 
         # bytestrings passed in need to become unicode
         self.prefix = to_unicode(prefix)
+        self.root_prefix = to_unicode(root_prefix)
         used_mode = mode if mode else ('user' if exists(join(self.prefix, u'.nonadmin')) else 'system')
-        logger.debug("Menu: name: '%s', prefix: '%s', env_name: '%s', mode: '%s', used_mode: '%s'"
-                    % (name, self.prefix, env_name, mode, used_mode))
+        logger.debug("Menu: name: '%s', prefix: '%s', env_name: '%s', mode: '%s', used_mode: '%s', root_prefix: '%s'"
+                    % (name, self.prefix, env_name, mode, used_mode, root_prefix))
         try:
-            self.set_dir(name, self.prefix, env_name, used_mode)
+            self.set_dir(name, self.prefix, env_name, used_mode, root_prefix)
         except (WindowsError, pywintypes.error):
             # We get here if we aren't elevated.  This is different from
             #   permissions: a user can have permission, but elevation is still
@@ -215,7 +217,7 @@ class Menu(object):
             else:
                 logger.fatal("Unable to create AllUsers menu folder")
 
-    def set_dir(self, name, prefix, env_name, mode):
+    def set_dir(self, name, prefix, env_name, mode, root_prefix):
         self.mode = mode
         self.dir = dict()
         # I have chickened out on allowing check_other_mode. Really there needs
@@ -230,6 +232,7 @@ class Menu(object):
             # (system) installs and one for each subsequent user install?
             self.dir[k] = folder_path(mode, check_other_mode, k)
         self.dir['prefix'] = prefix
+        self.dir['root_prefix'] = root_prefix
         self.dir['env_name'] = env_name
         folder_name = substitute_env_variables(name, self.dir)
         self.path = join(self.dir["start"], folder_name)
@@ -285,6 +288,7 @@ class ShortCut(object):
         args = []
         fix_win_slashes = [0]
         prefix = self.menu.prefix.replace('/', '\\')
+        unicode_root_prefix = self.menu.root_prefix.replace('/', '\\')
         root_py  = join(unicode_root_prefix, u"python.exe")
         root_pyw = join(unicode_root_prefix, u"pythonw.exe")
         env_py  = join(prefix, u"python.exe")
