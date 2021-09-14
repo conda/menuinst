@@ -1,3 +1,12 @@
+2021-09-10 1.4.18:
+------------------
+  * Merge in various patches used by conda-standalone (#85)
+
+    - Do not assume menuinst wants to operate on `sys.prefix`
+    - Do not use `runAsAdmin` when the user is not an admin
+    - Allow menuinst to operate on non-base prefix
+    - Update various tests
+
 2021-07-14 1.4.17:
 ------------------
   * Use distribution name as part of the Start Menu item (#77)
