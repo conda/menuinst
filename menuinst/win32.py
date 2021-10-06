@@ -295,6 +295,7 @@ class ShortCut(object):
         env_pyw = join(prefix, u"pythonw.exe")
         cwp_py  = [root_py,  join(unicode_root_prefix, u'cwp.py'), prefix, env_py]
         cwp_pyw = [root_pyw, join(unicode_root_prefix, u'cwp.py'), prefix, env_pyw]
+        cwp_no_console = [root_pyw, join(unicode_root_prefix, u'cwp.py'), "--no-console", prefix, env_py]
         if "pywscript" in self.shortcut:
             args = cwp_pyw
             fix_win_slashes = [len(args)]
@@ -303,6 +304,10 @@ class ShortCut(object):
             args = cwp_py
             fix_win_slashes = [len(args)]
             args += self.shortcut["pyscript"].split()
+        elif "pywscript_no_console" in self.shortcut:
+            args = cwp_no_console
+            fix_win_slashes = [len(args)]
+            args += self.shortcut["pywscript_no_console"].split()
         elif "webbrowser" in self.shortcut:
             args = [root_pyw, '-m', 'webbrowser', '-t', self.shortcut['webbrowser']]
         elif "script" in self.shortcut:

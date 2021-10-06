@@ -5,13 +5,23 @@ import os
 import sys
 import subprocess
 from os.path import join, pathsep
+import argparse
 
 from menuinst.knownfolders import FOLDERID, get_folder_path, PathNotFoundException
 
-# call as: python cwp.py PREFIX ARGs...
+# call as: python cwp.py [--no-console] PREFIX ARGs...
+parser = argparse.ArgumentParser()
+parser.add_argument("--no-console", action="store_true",
+               help="Create subprocess with CREATE_NO_WINDOW flag.")
+parser.add_argument("prefix",
+               help="Prefix to be 'activated' before calling `args`.")
+parser.add_argument("args", nargs="*",
+               help="Command (and arguments) to be executed.")
+parsed_args = parser.parse_args()
 
-prefix = sys.argv[1]
-args = sys.argv[2:]
+no_console = parsed_args.no_console
+prefix = parsed_args.prefix
+args = parsed_args.args
 
 new_paths = pathsep.join([prefix,
                          join(prefix, "Library", "mingw-w64", "bin"),
@@ -27,4 +37,8 @@ if exception:
     documents_folder, exception = get_folder_path(FOLDERID.PublicDocuments)
 if not exception:
     os.chdir(documents_folder)
-sys.exit(subprocess.call(args, env=env))
+
+creationflags = {}
+if no_console:
+    creationflags["creationflags"] = getattr(subprocess, "CREATE_NO_WINDOW", 0x08000000)
+sys.exit(subprocess.call(args, env=env, **creationflags))
