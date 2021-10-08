@@ -38,6 +38,30 @@ appdir = join(datadir, 'applications')
 menu_file = join(confdir, 'menus/applications.menu')
 
 
+def substitute_env_variables(text, env_prefix, env_name):
+    # When conda is using Menuinst, only the root conda installation ever
+    # calls menuinst.  Thus, these calls to sys refer to the root conda
+    # installation, NOT the child environment
+    root_prefix = sys.prefix
+    py_major_ver = sys.version_info[0]
+    py_bitness = 8 * tuple.__itemsize__
+
+    for a, b in (
+        ('${ROOT_PREFIX}', root_prefix),
+        ('${PREFIX}', env_prefix),
+        ('${BIN_DIR}', join(env_prefix, 'bin')),
+        ('${DISTRIBUTION_NAME}', os.path.split(root_prefix)[-1].capitalize()),
+        ('${MENU_DIR}', join(env_prefix, u'Menu')),
+        ('${ENV_NAME}', env_name),
+        ('${PY_VER}', '%d' % (py_major_ver)),
+        ('${PLATFORM}', "(%s-bit)" % py_bitness),
+        ('${HOME}', expanduser("~"))
+        ):
+        if b:
+            text = text.replace(a, b)
+    return text
+
+
 def indent(elem, level=0):
     """
     adds whitespace to the tree, so that it results in a pretty printed tree
@@ -221,7 +245,8 @@ class ShortCut(object):
         # filebrowser request, we simply used the passed filebrowser.  But
         # for a webbrowser request, we invoke the Python standard lib's
         # webbrowser script so we can force the url(s) to open in new tabs.
-        spec = self.shortcut.copy()
+        spec = {k: substitute_env_variables(v, self.prefix, self.env_name)
+                for k, v in self.shortcut.copy().items()}
         spec['tp'] = tp
 
         path = self.path
@@ -243,13 +268,14 @@ class ShortCut(object):
         spec['cmd'] = cmd
         spec['path'] = path
 
+        print(spec)
         # create the shortcuts
         make_desktop_entry(spec)
 
 
 if __name__ == '__main__':
     rm_rf(menu_file)
-    Menu('Foo').create()
-    Menu('Bar').create()
-    Menu('Foo').remove()
-    Menu('Foo').remove()
+    Menu('Foo', sys.prefix, "").create()
+    Menu('Bar', sys.prefix, "").create()
+    Menu('Foo', sys.prefix, "").remove()
+    Menu('Foo', sys.prefix, "").remove()
