@@ -5,16 +5,28 @@
 import os
 import sys
 import shutil
-from os.path import basename, join
-from plistlib import Plist, writePlist
+from os.path import basename, join, expanduser
+import plistlib
+import logging
 
-from utils import rm_rf
+from .utils import rm_rf, slugify
+
+logger = logging.getLogger("menuinst_osx")
+logger.setLevel(logging.DEBUG)
+stream_handler = logging.StreamHandler()
+stream_handler.setLevel(logging.WARNING)
+
+if '/envs/' in sys.prefix:
+    logger.warn('menuinst called from non-root env %s', sys.prefix)
 
 
 class Menu(object):
-    def __init__(self, unused_name, prefix, env_name, mode=None):
+    def __init__(self, name, prefix, env_name, mode=None, root_prefix=sys.prefix):
         self.prefix = prefix
         self.env_name = env_name
+        self.mode = mode
+        self.root_prefix = root_prefix
+
     def create(self):
         pass
     def remove(self):
@@ -23,18 +35,19 @@ class Menu(object):
 
 class ShortCut(object):
 
-    def __init__(self, menu, shortcut):
+    def __init__(self, menu, shortcut, location="/Applications"):
         self.shortcut = shortcut
+        self.root_prefix = menu.root_prefix
         self.prefix = menu.prefix
         self.name = shortcut['name']
-        self.path = '/Applications/%s.app' % self.name
-        self.shortcut = shortcut
+        self.path = '%s/%s.app' % (location, self.name)
 
     def remove(self):
         rm_rf(self.path)
 
     def create(self):
-        Application(self.path, self.shortcut, self.prefix).create()
+        Application(self.path, self.shortcut, self.prefix,
+                    root_prefix=self.root_prefix).create()
 
 
 class Application(object):
@@ -43,7 +56,8 @@ class Application(object):
     be standalone executable, but more likely a Python script which is
     interpreted by the framework Python interpreter.
     """
-    def __init__(self, app_path, shortcut, prefix, env_name, env_setup_cmd):
+    def __init__(self, app_path, shortcut, prefix, env_name=None, env_setup_cmd=None,
+                 root_prefix=sys.prefix, slug=None):
         """
         Required:
         ---------
@@ -58,19 +72,28 @@ class Application(object):
         self.env_name = env_name
         self.env_setup_cmd = env_setup_cmd
 
-
+        py_bitness = 8 * tuple.__itemsize__
         for a, b in [
             ('${BIN_DIR}', join(prefix, 'bin')),
             ('${MENU_DIR}', join(prefix, 'Menu')),
+            ('${PREFIX}', prefix),
+            ('${ROOT_PREFIX}', root_prefix),
+            ('${DISTRIBUTION_NAME}', os.path.split(root_prefix)[-1].capitalize()),
+            ('${MENU_DIR}', join(prefix, u'Menu')),
+            ('${ENV_NAME}', env_name),
+            ('${PY_VER}', '%d' % (sys.version_info[0])),
+            ('${PLATFORM}', "(%s-bit)" % py_bitness),
+            ('${HOME}', expanduser("~"))
             ]:
-            self.cmd = self.cmd.replace(a, b)
-            self.icns = self.icns.replace(a, b)
+            if b is not None:
+                self.cmd = self.cmd.replace(a, b)
+                self.icns = self.icns.replace(a, b)
 
         # Calculate some derived values just once.
         self.contents_dir = join(self.app_path, 'Contents')
         self.resources_dir = join(self.contents_dir, 'Resources')
         self.macos_dir = join(self.contents_dir, 'MacOS')
-        self.executable = self.name
+        self.executable = slugify(self.name).lower()
         self.executable_path = join(self.macos_dir, self.executable)
 
     def create(self):
@@ -94,7 +117,7 @@ class Application(object):
         """
         Writes the Info.plist file in the Contests directory.
         """
-        pl = Plist(
+        pl = dict(
             CFBundleExecutable=self.executable,
             CFBundleGetInfoString='%s-1.0.0' % self.name,
             CFBundleIconFile=basename(self.icns),
@@ -103,7 +126,8 @@ class Application(object):
             CFBundleVersion='1.0.0',
             CFBundleShortVersionString='1.0.0',
             )
-        writePlist(pl, join(self.contents_dir, 'Info.plist'))
+        with open(join(self.contents_dir, 'Info.plist'), "wb") as f:
+            plistlib.dump(pl, f)
 
     def _write_script(self):
         fo = open(self.executable_path, 'w')
