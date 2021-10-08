@@ -47,9 +47,9 @@ def get_executable(prefix):
         path = join(prefix, bin_dir_name, 'python')
         if isfile(path):
             from subprocess import Popen, PIPE
-            cmd = [path, '-c', 'import sys;print sys.executable']
+            cmd = [path, '-c', 'import sys;print(sys.executable)']
             p = Popen(cmd, stdout=PIPE)
-            return p.communicate()[0].strip()
+            return p.communicate()[0].strip().decode()
     return sys.executable
 
 
