@@ -23,9 +23,10 @@ def make_desktop_entry(d):
     if isinstance(d['cmd'], list):
         d['cmd'] = ' '.join(d['cmd'])
 
-    assert isinstance(d['terminal'], bool)
-    d['terminal'] = {False: 'false', True: 'true'}[d['terminal']]
+    assert isinstance(d.get('terminal', False), bool)
+    d['terminal'] = {False: 'false', True: 'true'}[d.get('terminal', False)]
 
+    print(d['path'])
     fo = open(d['path'], "w")
     fo.write("""\
 [Desktop Entry]
