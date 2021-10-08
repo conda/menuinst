@@ -16,8 +16,8 @@ import time
 import xml.etree.ElementTree as ET
 from os.path import abspath, dirname, exists, expanduser, isdir, isfile, join
 
-from utils import rm_rf, get_executable
-from freedesktop import make_desktop_entry, make_directory_entry
+from .utils import rm_rf, get_executable
+from .freedesktop import make_desktop_entry, make_directory_entry
 
 
 # datadir: contains the desktop and directory entries
@@ -38,13 +38,18 @@ appdir = join(datadir, 'applications')
 menu_file = join(confdir, 'menus/applications.menu')
 
 
-def substitute_env_variables(text, env_prefix, env_name):
+def substitute_env_variables(text_or_list, env_prefix, env_name):
     # When conda is using Menuinst, only the root conda installation ever
     # calls menuinst.  Thus, these calls to sys refer to the root conda
     # installation, NOT the child environment
     root_prefix = sys.prefix
     py_major_ver = sys.version_info[0]
     py_bitness = 8 * tuple.__itemsize__
+
+    return_first_elem = False
+    if not isinstance(text_or_list, (list, tuple)):
+        return_first_elem = True
+        text_or_list = [text_or_list]
 
     for a, b in (
         ('${ROOT_PREFIX}', root_prefix),
@@ -58,8 +63,12 @@ def substitute_env_variables(text, env_prefix, env_name):
         ('${HOME}', expanduser("~"))
         ):
         if b:
-            text = text.replace(a, b)
-    return text
+            text_or_list = [(text.replace(a, b) if isinstance(text, str) else text)
+                             for text in text_or_list]
+
+    if return_first_elem:
+        return text_or_list[0]
+    return text_or_list
 
 
 def indent(elem, level=0):
@@ -104,13 +113,13 @@ def is_valid_menu_file():
 
 def write_menu_file(tree):
     indent(tree.getroot())
-    fo = open(menu_file, 'w')
-    fo.write("""\
+    fo = open(menu_file, 'wb')
+    fo.write(b"""\
 <!DOCTYPE Menu PUBLIC '-//freedesktop//DTD Menu 1.0//EN'
   'http://standards.freedesktop.org/menu-spec/menu-1.0.dtd'>
 """)
     tree.write(fo)
-    fo.write('\n')
+    fo.write(b'\n')
     fo.close()
 
 
@@ -142,12 +151,13 @@ def ensure_menu_file():
 
 class Menu(object):
 
-    def __init__(self, name, prefix, env_name, mode=None):
+    def __init__(self, name, prefix, env_name, mode=None, root_prefix=sys.prefix):
         self.name = name
         self.name_ = name + '_'
         self.entry_fn = '%s.directory' % self.name
         self.entry_path = join(datadir, 'desktop-directories', self.entry_fn)
         self.prefix = prefix
+        self.root_prefix = root_prefix
         self.env_name = env_name
 
     def create(self):
@@ -215,7 +225,7 @@ class ShortCut(object):
 
     fn_pat = re.compile(r'[\w.-]+$')
 
-    def __init__(self, menu, shortcut, env_setup_cmd):
+    def __init__(self, menu, shortcut, env_setup_cmd=None):
         # note that this is the path WITHOUT extension
         fn = menu.name_ + shortcut['id']
         assert self.fn_pat.match(fn)
@@ -245,8 +255,7 @@ class ShortCut(object):
         # filebrowser request, we simply used the passed filebrowser.  But
         # for a webbrowser request, we invoke the Python standard lib's
         # webbrowser script so we can force the url(s) to open in new tabs.
-        spec = {k: substitute_env_variables(v, self.prefix, self.env_name)
-                for k, v in self.shortcut.copy().items()}
+        spec = self.shortcut.copy()
         spec['tp'] = tp
 
         path = self.path
@@ -268,7 +277,8 @@ class ShortCut(object):
         spec['cmd'] = cmd
         spec['path'] = path
 
-        print(spec)
+        spec = {k: substitute_env_variables(v, self.prefix, self.env_name)
+                for k, v in spec.copy().items()}
         # create the shortcuts
         make_desktop_entry(spec)
 
