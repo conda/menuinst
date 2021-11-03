@@ -1,7 +1,0 @@
-Bugs:
-=====
-
-
-Enhancements:
-=============
-  * should we create Desktop icons on MaxOSX as well?

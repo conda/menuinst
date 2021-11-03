@@ -1,0 +1,13 @@
+[tool.black]
+target-version = ['py37', 'py38', 'py39']
+include = '\.pyi?$'
+exclude = '''
+^/(
+    (
+        menuinst/_legacy
+      | tests/_legacy
+    )/
+    | menuinst/_version.py
+    | versioneer.py
+)
+'''

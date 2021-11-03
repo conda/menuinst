@@ -13,14 +13,18 @@ from menuinst.knownfolders import FOLDERID, get_folder_path, PathNotFoundExcepti
 prefix = sys.argv[1]
 args = sys.argv[2:]
 
-new_paths = pathsep.join([prefix,
-                         join(prefix, "Library", "mingw-w64", "bin"),
-                         join(prefix, "Library", "usr", "bin"),
-                         join(prefix, "Library", "bin"),
-                         join(prefix, "Scripts")])
+new_paths = pathsep.join(
+    [
+        prefix,
+        join(prefix, "Library", "mingw-w64", "bin"),
+        join(prefix, "Library", "usr", "bin"),
+        join(prefix, "Library", "bin"),
+        join(prefix, "Scripts"),
+    ]
+)
 env = os.environ.copy()
-env['PATH'] = new_paths + pathsep + env['PATH']
-env['CONDA_PREFIX'] = prefix
+env["PATH"] = new_paths + pathsep + env["PATH"]
+env["CONDA_PREFIX"] = prefix
 
 documents_folder, exception = get_folder_path(FOLDERID.Documents)
 if exception:

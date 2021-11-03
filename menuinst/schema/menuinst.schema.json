@@ -1,0 +1,252 @@
+{
+  "title": "MenuInstSchema",
+  "description": "Metadata required to create menu items across operating systems with `menuinst`",
+  "type": "object",
+  "properties": {
+    "menu_name": {
+      "title": "Menu Name",
+      "description": "Name for the category containing the items specified in `menu_items`.",
+      "minLength": 1,
+      "type": "string"
+    },
+    "menu_items": {
+      "title": "Menu Items",
+      "description": "List of menu entries to create across main desktop systems",
+      "minItems": 1,
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/MenuItem"
+      }
+    }
+  },
+  "required": [
+    "menu_name",
+    "menu_items"
+  ],
+  "additionalProperties": false,
+  "definitions": {
+    "quicklaunch": {
+      "title": "quicklaunch",
+      "description": "Windows-specific instructions. You can override global keys here if needed",
+      "type": "object",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "description": "The name of the menu item",
+          "minLength": 1,
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "description": "A longer description of the menu item. Shown on popup messages.",
+          "type": "string"
+        },
+        "icon": {
+          "title": "Icon",
+          "description": "Path to the file representing or containing the icon.",
+          "minLength": 1,
+          "type": "string"
+        },
+        "command": {
+          "title": "Command",
+          "description": "Command to run with the menu item, expressed as a list of strings where each string is an argument",
+          "minItems": 1,
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "working_dir": {
+          "title": "Working Dir",
+          "description": "Working directory for the running process. Defaults to user directory on each platform.",
+          "minLength": 1,
+          "type": "string"
+        },
+        "desktop": {
+          "title": "Desktop",
+          "description": "Whether to create a desktop icon in addition to the Start Menu item.",
+          "default": true,
+          "type": "boolean"
+        },
+        "quicklaunch": {
+          "title": "Quicklaunch",
+          "description": "Whether to create a quick launch icon in addition to the Start Menu item.",
+          "default": true,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "name",
+        "description",
+        "icon",
+        "command"
+      ],
+      "additionalProperties": false
+    },
+    "terminal": {
+      "title": "terminal",
+      "description": "Linux-specific instructions. You can override global keys here if needed",
+      "type": "object",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "description": "The name of the menu item",
+          "minLength": 1,
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "description": "A longer description of the menu item. Shown on popup messages.",
+          "type": "string"
+        },
+        "icon": {
+          "title": "Icon",
+          "description": "Path to the file representing or containing the icon.",
+          "minLength": 1,
+          "type": "string"
+        },
+        "command": {
+          "title": "Command",
+          "description": "Command to run with the menu item, expressed as a list of strings where each string is an argument",
+          "minItems": 1,
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "working_dir": {
+          "title": "Working Dir",
+          "description": "Working directory for the running process. Defaults to user directory on each platform.",
+          "minLength": 1,
+          "type": "string"
+        },
+        "terminal": {
+          "title": "Terminal",
+          "description": "Whether to run the command as part of a terminal shell or not.",
+          "default": false,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "name",
+        "description",
+        "icon",
+        "command"
+      ],
+      "additionalProperties": false
+    },
+    "MacOS": {
+      "title": "MacOS",
+      "description": "Mac-specific instructions. You can override global keys here if needed",
+      "type": "object",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "description": "The name of the menu item",
+          "minLength": 1,
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "description": "A longer description of the menu item. Shown on popup messages.",
+          "type": "string"
+        },
+        "icon": {
+          "title": "Icon",
+          "description": "Path to the file representing or containing the icon.",
+          "minLength": 1,
+          "type": "string"
+        },
+        "command": {
+          "title": "Command",
+          "description": "Command to run with the menu item, expressed as a list of strings where each string is an argument",
+          "minItems": 1,
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "working_dir": {
+          "title": "Working Dir",
+          "description": "Working directory for the running process. Defaults to user directory on each platform.",
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "description",
+        "icon",
+        "command"
+      ],
+      "additionalProperties": false
+    },
+    "Platforms": {
+      "title": "Platforms",
+      "description": "Platform specific options. Presence of a platform enables menu items in that platform",
+      "type": "object",
+      "properties": {
+        "windows": {
+          "$ref": "#/definitions/quicklaunch"
+        },
+        "linux": {
+          "$ref": "#/definitions/terminal"
+        },
+        "osx": {
+          "$ref": "#/definitions/MacOS"
+        }
+      },
+      "additionalProperties": false
+    },
+    "MenuItem": {
+      "title": "MenuItem",
+      "description": "Instructions to create a menu item across operating systems.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "description": "The name of the menu item",
+          "minLength": 1,
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "description": "A longer description of the menu item. Shown on popup messages.",
+          "type": "string"
+        },
+        "icon": {
+          "title": "Icon",
+          "description": "Path to the file representing or containing the icon.",
+          "minLength": 1,
+          "type": "string"
+        },
+        "command": {
+          "title": "Command",
+          "description": "Command to run with the menu item, expressed as a list of strings where each string is an argument",
+          "minItems": 1,
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "working_dir": {
+          "title": "Working Dir",
+          "description": "Working directory for the running process. Defaults to user directory on each platform.",
+          "minLength": 1,
+          "type": "string"
+        },
+        "platforms": {
+          "$ref": "#/definitions/Platforms"
+        }
+      },
+      "required": [
+        "name",
+        "description",
+        "icon",
+        "command",
+        "platforms"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

@@ -1,0 +1,10 @@
+"""
+"""
+
+
+class Menu:
+    ...
+
+
+class Shortcut:
+    ...
