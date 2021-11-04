@@ -25,8 +25,8 @@
   ],
   "additionalProperties": false,
   "definitions": {
-    "quicklaunch": {
-      "title": "quicklaunch",
+    "Windows": {
+      "title": "Windows",
       "description": "Windows-specific instructions. You can override global keys here if needed",
       "type": "object",
       "properties": {
@@ -75,16 +75,10 @@
           "type": "boolean"
         }
       },
-      "required": [
-        "name",
-        "description",
-        "icon",
-        "command"
-      ],
       "additionalProperties": false
     },
-    "terminal": {
-      "title": "terminal",
+    "Linux": {
+      "title": "Linux",
       "description": "Linux-specific instructions. You can override global keys here if needed",
       "type": "object",
       "properties": {
@@ -127,12 +121,6 @@
           "type": "boolean"
         }
       },
-      "required": [
-        "name",
-        "description",
-        "icon",
-        "command"
-      ],
       "additionalProperties": false
     },
     "MacOS": {
@@ -173,12 +161,6 @@
           "type": "string"
         }
       },
-      "required": [
-        "name",
-        "description",
-        "icon",
-        "command"
-      ],
       "additionalProperties": false
     },
     "Platforms": {
@@ -187,13 +169,37 @@
       "type": "object",
       "properties": {
         "windows": {
-          "$ref": "#/definitions/quicklaunch"
+          "title": "Windows",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Windows"
+            },
+            {
+              "type": "object"
+            }
+          ]
         },
         "linux": {
-          "$ref": "#/definitions/terminal"
+          "title": "Linux",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Linux"
+            },
+            {
+              "type": "object"
+            }
+          ]
         },
         "osx": {
-          "$ref": "#/definitions/MacOS"
+          "title": "Osx",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/MacOS"
+            },
+            {
+              "type": "object"
+            }
+          ]
         }
       },
       "additionalProperties": false
@@ -242,7 +248,6 @@
       "required": [
         "name",
         "description",
-        "icon",
         "command",
         "platforms"
       ],

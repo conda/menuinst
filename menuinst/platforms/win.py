@@ -4,7 +4,7 @@
 from .base import Menu, MenuItem
 
 
-class MacOSMenu(Menu):
+class WindowsMenu(Menu):
     def create(self):
         ...
 
@@ -12,7 +12,7 @@ class MacOSMenu(Menu):
         ...
 
 
-class MacOSMenuItem(MenuItem):
+class WindowsMenuItem(MenuItem):
     def create(self):
         ...
 

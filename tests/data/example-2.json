@@ -1,0 +1,16 @@
+{
+    "menu_name": "Example 2",
+    "menu_items": [
+        {
+            "name": "Example",
+            "description": "This won't install to any platform",
+            "icon": null,
+            "command": [
+                "python",
+                "-m",
+                "this"
+            ],
+            "platforms": {}
+        }
+    ]
+}

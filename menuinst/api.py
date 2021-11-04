@@ -6,8 +6,8 @@ import sys
 from typing import Union, List
 from pathlib import Path
 
-from .platforms import PlatformMenu
-from .schema import validate
+from .platforms import PlatformMenu, PlatformMenuItem
+from .schema.main import validate
 
 
 __all__ = [
@@ -21,45 +21,51 @@ __all__ = [
 def install(
     metadata_or_path: Union[PathLike, dict],
     target_prefix: PathLike = sys.prefix,
-    root_prefix: PathLike = sys.prefix,
+    base_prefix: PathLike = sys.prefix,
 ) -> List[PathLike]:
     metadata = validate(metadata_or_path)
-    menu = PlatformMenu.from_schema(metadata)
-    return menu.install()
+    menu = PlatformMenu(metadata.menu_name, target_prefix, base_prefix)
+    menu.create()
+    for item in metadata.menu_items:
+        menu_item = PlatformMenuItem(menu, item)
+        menu_item.create()
 
 
 def remove(
     metadata_or_path: Union[PathLike, dict],
     target_prefix: PathLike = sys.prefix,
-    root_prefix: PathLike = sys.prefix,
+    base_prefix: PathLike = sys.prefix,
 ) -> List[PathLike]:
     metadata = validate(metadata_or_path)
-    menu = PlatformMenu.from_schema(metadata)
-    return menu.remove()
+    menu = PlatformMenu(metadata.menu_name, target_prefix, base_prefix)
+    for item in metadata.menu_items:
+        menu_item = PlatformMenuItem(menu, item)
+        menu_item.remove()
+    menu.remove()
 
 
 def install_all(
-    prefix: PathLike,
-    root_prefix: PathLike = sys.prefix,
+    target_prefix: PathLike = sys.prefix,
+    base_prefix: PathLike = sys.prefix,
     filter: callable = None,
 ) -> List[List[PathLike]]:
-    return _process_all(prefix, filter, action="install")
+    return _process_all(target_prefix, base_prefix, filter, action="install")
 
 
 def remove_all(
-    prefix: Union[str, PathLike],
-    root_prefix: PathLike = sys.prefix,
+    target_prefix: PathLike = sys.prefix,
+    base_prefix: PathLike = sys.prefix,
     filter: callable = None,
 ) -> List[List[Union[str, PathLike]]]:
-    return _process_all(prefix, filter, action="remove")
+    return _process_all(target_prefix, base_prefix, filter, action="remove")
 
 
-def _process_all(prefix, filter, action="install"):
+def _process_all(target_prefix, base_prefix, filter, action="install"):
     actions = {"install": install, "remove": remove}
     assert action in actions, f"`action` must be one of {tuple(actions.keys())}"
-    jsons = (Path(prefix) / "Menu").glob("*.json")
+    jsons = (Path(target_prefix) / "Menu").glob("*.json")
     results = []
     for path in jsons:
         if filter is not None and filter(path):
-            results.append(actions[action](path))
+            results.append(actions[action](path, target_prefix, base_prefix))
     return results

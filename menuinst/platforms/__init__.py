@@ -1,24 +1,20 @@
 import sys
 
-_PLATFORMS = "windows", "osx", "linux"
-
 
 def menu_for_platform(platform=sys.platform):
-    assert platform in (
-        "windows",
-        "osx",
-        "linux",
-    ), f"`platform` must be one of {_PLATFORMS}"
-    if platform == "windows":
-        from .windows import WindowsMenu as Menu
+    if platform == "win32":
+        from .win import WindowsMenu as Menu, WindowsMenuItem as MenuItem
 
-    if platform == "osx":
-        from .osx import MacOSMenu as Menu
+    elif platform == "darwin":
+        from .osx import MacOSMenu as Menu, MacOSMenuItem as MenuItem
 
-    if platform == "linux":
-        from .linux import LinuxMenu as Menu
+    elif platform.startswith("linux"):
+        from .linux import LinuxMenu as Menu, LinuxMenuItem as MenuItem
 
-    return Menu
+    else:
+        raise ValueError(f"platform {platform} is not supported")
+
+    return Menu, MenuItem
 
 
-PlatformMenu = menu_for_platform()
+PlatformMenu, PlatformMenuItem = menu_for_platform()

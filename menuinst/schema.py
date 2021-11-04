@@ -2,11 +2,10 @@
 Generate JSON schemas from pydantic models
 """
 
-from typing import List, Union, Optional, Set
+from typing import Optional, Union
 import json
 from pathlib import Path
 
-import pydantic
 from pydantic import BaseModel as _BaseModel, Field, constr, conlist
 
 
@@ -15,30 +14,18 @@ class BaseModel(_BaseModel):
         extra = "forbid"
 
 
-class _AllOptional(pydantic.main.ModelMetaclass):
-    """
-    Turns all fields optional in a pydantic model
-    """
-
-    def __new__(self, name, bases, namespaces, **kwargs):
-        if "__annotations__" in namespaces:
-            for name, value in namespaces["__annotations__"].copy().items():
-                if not name.startswith("__"):
-                    namespaces["__annotations__"][name] = Optional[value]
-        return super().__new__(self, name, bases, namespaces, **kwargs)
-
-
 class MenuItemMetadata(BaseModel):
-    name: constr(min_length=1) = Field(description="The name of the menu item")
+    name: constr(min_length=1) = Field(..., description="The name of the menu item")
     description: str = Field(
-        description="A longer description of the menu item. Shown on popup messages."
+        ..., description="A longer description of the menu item. Shown on popup messages."
     )
     icon: constr(min_length=1) = Field(
-        description="Path to the file representing or containing the icon."
+        None, description="Path to the file representing or containing the icon."
     )
     command: conlist(str, min_items=1) = Field(
+        ...,
         description="Command to run with the menu item, expressed as a "
-        "list of strings where each string is an argument"
+        "list of strings where each string is an argument",
     )
     working_dir: constr(min_length=1) = Field(
         None,
@@ -47,8 +34,26 @@ class MenuItemMetadata(BaseModel):
     )
 
 
-class OptionalMenuItemMetadata(MenuItemMetadata, metaclass=_AllOptional):
-    """Same as MenuItemMetadata, but marked as Optional"""
+class OptionalMenuItemMetadata(MenuItemMetadata):
+    """Same as MenuItemMetadata, but all is optional. Keep up-to-date!"""
+
+    name: Optional[constr(min_length=1)] = Field(None, description="The name of the menu item")
+    description: Optional[str] = Field(
+        None, description="A longer description of the menu item. Shown on popup messages."
+    )
+    icon: Optional[constr(min_length=1)] = Field(
+        None, description="Path to the file representing or containing the icon."
+    )
+    command: Optional[conlist(str, min_items=1)] = Field(
+        None,
+        description="Command to run with the menu item, expressed as a "
+        "list of strings where each string is an argument",
+    )
+    working_dir: Optional[constr(min_length=1)] = Field(
+        None,
+        description="Working directory for the running process. "
+        "Defaults to user directory on each platform.",
+    )
 
 
 class MenuInstSchema(BaseModel):
@@ -62,12 +67,12 @@ class MenuInstSchema(BaseModel):
 
             class Windows(OptionalMenuItemMetadata):
                 "Windows-specific instructions. You can override global keys here if needed"
-                desktop: bool = Field(
+                desktop: Optional[bool] = Field(
                     True,
                     description="Whether to create a desktop icon in "
                     "addition to the Start Menu item.",
                 )
-                quicklaunch: bool = Field(
+                quicklaunch: Optional[bool] = Field(
                     True,
                     description="Whether to create a quick launch icon in "
                     "addition to the Start Menu item.",
@@ -75,7 +80,7 @@ class MenuInstSchema(BaseModel):
 
             class Linux(OptionalMenuItemMetadata):
                 "Linux-specific instructions. You can override global keys here if needed"
-                terminal: bool = Field(
+                terminal: Optional[bool] = Field(
                     False,
                     description="Whether to run the command as part "
                     "of a terminal shell or not.",
@@ -83,11 +88,10 @@ class MenuInstSchema(BaseModel):
 
             class MacOS(OptionalMenuItemMetadata):
                 "Mac-specific instructions. You can override global keys here if needed"
-                pass
 
-            windows: Windows = None
-            linux: Linux = None
-            osx: MacOS = None
+            win: Optional[Windows]
+            linux: Optional[Linux]
+            osx: Optional[MacOS]
 
         platforms: Platforms
 
@@ -99,13 +103,21 @@ class MenuInstSchema(BaseModel):
     )
 
 
-def main():
+def validate(metadata: Union[str, dict]) -> MenuInstSchema:
+    if isinstance(metadata, (str, Path)):
+        with open(metadata) as f:
+            metadata = json.load(f)
+
+    return MenuInstSchema.validate(metadata)
+
+
+def dump_to_json():
     here = Path(__file__).parent
     schema = json.dumps(MenuInstSchema.schema(), indent=2)
     print(schema)
-    with open(here / "menuinst.schema.json", "w") as f:
+    with open(here / "data" / "menuinst.schema.json", "w") as f:
         f.write(schema)
 
 
 if __name__ == "__main__":
-    main()
+    dump_to_json()
