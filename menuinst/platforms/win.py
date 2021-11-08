@@ -3,6 +3,7 @@
 import os
 import shutil
 import warnings
+from pathlib import Path
 
 from win32com.client import Dispatch
 
@@ -15,11 +16,11 @@ from .._legacy.win32 import folder_path
 class WindowsMenu(Menu):
     def create(self):
         # TODO: Check if elevated permissions are needed
-        os.makedirs(self.start_menu_location)
+        self.start_menu_location.mkdir(parents=True, exist_ok=False)
 
     def remove(self):
         # TODO: Check if elevated permissions are needed
-        shutil.rmtree(self.start_menu_location)
+        self.start_menu_location.rmdir()
 
     @property
     def location(self):
@@ -33,7 +34,7 @@ class WindowsMenu(Menu):
         In this property we only report the path to the Start menu.
         For other menus, check their respective properties.
         """
-        return folder_path(self.mode, False, "start")
+        return Path(folder_path(self.mode, False, "start")) / self.name
 
     start_menu_location = location
 
@@ -42,11 +43,11 @@ class WindowsMenu(Menu):
         if self.mode == "system":
             warnings.warn("Quick launch menus are not available for system level installs")
             return
-        return folder_path(self.mode, False, "quicklaunch")
+        return Path(folder_path(self.mode, False, "quicklaunch"))
 
     @property
     def desktop_location(self):
-        return folder_path(self.mode, False, "desktop")
+        return Path(folder_path(self.mode, False, "desktop"))
 
     @property
     def placeholders(self):
