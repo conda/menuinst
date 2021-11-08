@@ -23,6 +23,7 @@ jobs:
         with:
           auto-update-conda: true
           python-version: ${{ matrix.python-version }}
+          channels: conda-forge
 
       - shell: bash -l {0}
         name: Conda info
