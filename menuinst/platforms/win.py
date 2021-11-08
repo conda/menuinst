@@ -17,13 +17,15 @@ class WindowsMenu(Menu):
     def create(self):
         # TODO: Check if elevated permissions are needed
         self.start_menu_location.mkdir(parents=True, exist_ok=False)
+        return self.start_menu_location,
 
     def remove(self):
         # TODO: Check if elevated permissions are needed
         self.start_menu_location.rmdir()
+        return self.start_menu_location,
 
     @property
-    def location(self):
+    def start_menu_location(self):
         """
         On Windows we can create shortcuts in several places:
 
@@ -35,8 +37,6 @@ class WindowsMenu(Menu):
         For other menus, check their respective properties.
         """
         return Path(folder_path(self.mode, False, "start")) / self.name
-
-    start_menu_location = location
 
     @property
     def quick_launch_location(self):
@@ -88,7 +88,7 @@ class WindowsMenuItem(MenuItem):
             os.unlink(path)
 
     def _paths(self):
-        directories = [self.menu.smart_menu_location]
+        directories = [self.menu.start_menu_location]
         if self.metadata.platforms.win.quicklaunch:
             directories.append(self.menu.quick_launch_location)
         if self.metadata.platforms.win.desktop:
