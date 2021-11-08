@@ -50,6 +50,6 @@ def test_install_example_1_osx(delete_files):
         [str(app_location / "Contents" / "MacOS" / "Example")],
         universal_newlines=True,
     )
-    assert output == os.path.join(sys.prefix, "python.app", "Contents", "MacOS", "python")
+    assert output.strip() == os.path.join(sys.prefix, "python.app", "Contents", "MacOS", "python")
 
     delete_files.extend(paths)
