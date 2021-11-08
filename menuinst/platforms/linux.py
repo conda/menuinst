@@ -115,11 +115,11 @@ class LinuxMenu(Menu):
 
     def _write_menu_file(self, tree):
         indent_xml_tree(tree.getroot())  # inplace!
-        with open(self.menu_config_location, "w") as f:
-            f.write("    <!DOCTYPE Menu PUBLIC '-//freedesktop//DTD Menu 1.0//EN'\n")
-            f.write("   'http://standards.freedesktop.org/menu-spec/menu-1.0.dtd'>\n")
+        with open(self.menu_config_location, "wb") as f:
+            f.write(b"    <!DOCTYPE Menu PUBLIC '-//freedesktop//DTD Menu 1.0//EN'\n")
+            f.write(b"   'http://standards.freedesktop.org/menu-spec/menu-1.0.dtd'>\n")
             tree.write(f)
-            f.write("\n")
+            f.write(b"\n")
 
     def _ensure_menu_file(self):
         # ensure any existing version is a file
