@@ -2,7 +2,8 @@
 Generate JSON schemas from pydantic models
 """
 
-from typing import Optional, Union
+import sys
+from typing import Optional, Union, List
 import json
 from pathlib import Path
 
@@ -79,12 +80,26 @@ class MenuInstSchema(BaseModel):
                 )
 
             class Linux(OptionalMenuItemMetadata):
-                "Linux-specific instructions. You can override global keys here if needed"
-                terminal: Optional[bool] = Field(
-                    False,
-                    description="Whether to run the command as part "
-                    "of a terminal shell or not.",
-                )
+                """Linux-specific instructions. Check
+                https://specifications.freedesktop.org/desktop-entry-spec/desktop-entry-spec-latest.html#recognized-keys
+                for more information. You can override global keys here if needed"""
+
+                GenericName: Optional[str] = None
+                Terminal: Optional[bool] = None
+                NoDisplay: Optional[bool] = None
+                Hidden: Optional[bool] = None
+                OnlyShowIn: Optional[Union[List[str], str]] = None
+                NotShowIn: Optional[Union[List[str], str]] = None
+                DBusActivatable: Optional[bool] = None
+                TryExec: Optional[str] = None
+                Terminal: Optional[bool] = None
+                MimeType: Optional[Union[List[str], str]] = None
+                Categories: Optional[Union[List[str], str]] = None
+                Implements: Optional[Union[List[str], str]] = None
+                Keywords: Optional[Union[List[str], str]] = None
+                StartupNotify: Optional[bool] = None
+                StartupWMClass: Optional[str] = None
+                PrefersNonDefaultGPU: Optional[bool] = None
 
             class MacOS(OptionalMenuItemMetadata):
                 "Mac-specific instructions. You can override global keys here if needed"
@@ -94,6 +109,25 @@ class MenuInstSchema(BaseModel):
             osx: Optional[MacOS]
 
         platforms: Platforms
+
+        def merge_for_platform(self, platform=sys.platform):
+            """
+            Merge platform keys with global keys, overwriting if needed.
+            """
+            platform = platform_key(platform)
+            global_level = self.dict()
+            all_platforms = global_level.pop("platforms", None)
+            if all_platforms:
+                platform_options = all_platforms.pop(platform)
+                if platform_options:
+                    global_level.update(platform_options)
+
+            global_level["platforms"] = [key for key, value in self.platforms if value is not None]
+
+            # this builds an unvalidated model, but we have validated everything already
+            # we skip validation because we only want this as a convenient access to values
+            # through model.key syntax instead of model["key"]
+            return self.construct(**global_level)
 
     menu_name: constr(min_length=1) = Field(
         description="Name for the category containing the items specified in `menu_items`."
@@ -117,6 +151,17 @@ def dump_to_json():
     print(schema)
     with open(here / "data" / "menuinst.schema.json", "w") as f:
         f.write(schema)
+
+
+def platform_key(platform=sys.platform):
+    if platform == "win32":
+        return "win"
+    if platform == "darwin":
+        return "osx"
+    if platform.startswith("linux"):
+        return "linux"
+
+    raise ValueError(f"Platform {platform} is not supported")
 
 
 if __name__ == "__main__":

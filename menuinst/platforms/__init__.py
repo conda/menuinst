@@ -1,7 +1,7 @@
 import sys
 
 
-def menu_for_platform(platform=sys.platform):
+def menu_api_for_platform(platform=sys.platform):
     if platform == "win32":
         from .win import WindowsMenu as Menu, WindowsMenuItem as MenuItem
 
@@ -17,4 +17,4 @@ def menu_for_platform(platform=sys.platform):
     return Menu, MenuItem
 
 
-PlatformMenu, PlatformMenuItem = menu_for_platform()
+Menu, MenuItem = menu_api_for_platform()

@@ -8,12 +8,12 @@ jobs:
     runs-on: ${{ matrix.os }}-latest
     timeout-minutes: 30
     env:
-      dependencies: pywin32
+      dependencies: ""
       test-dependencies: pytest pytest-cov conda
     strategy:
       fail-fast: false
       matrix:
-        os: [windows]
+        os: [windows, ubuntu, macos]
         python-version: [3.7, 3.8, 3.9]
 
     steps:
@@ -24,12 +24,29 @@ jobs:
           auto-update-conda: true
           python-version: ${{ matrix.python-version }}
 
-
       - shell: bash -l {0}
         name: Conda info
         run: |
           conda info
           conda list
+
+      - shell: cmd /C {0}
+        name: Configure requirements (Windows)
+        if: os.runner == 'Windows'
+        run: |
+          echo dependencies=pywin32 >> %GITHUB_ENV%
+
+      # - shell: bash -l {0}
+      #   name: Configure requirements (Linux)
+      #   if: os.runner == 'Linux'
+      #   run: |
+      #     echo "dependencies=pywin32" >> ${GITHUB_ENV}
+
+      - shell: bash -l {0}
+        name: Configure requirements (MacOS)
+        if: os.runner == 'macOS'
+        run: |
+          echo "dependencies=python.app" >> ${GITHUB_ENV}
 
       - shell: bash -l {0}
         name: Install dependencies

@@ -6,8 +6,8 @@ import sys
 from typing import Union, List
 from pathlib import Path
 
-from .platforms import PlatformMenu, PlatformMenuItem
-from .schema.main import validate
+from .platforms import Menu, MenuItem
+from .schema import validate
 
 
 __all__ = [
@@ -24,11 +24,19 @@ def install(
     base_prefix: PathLike = sys.prefix,
 ) -> List[PathLike]:
     metadata = validate(metadata_or_path)
-    menu = PlatformMenu(metadata.menu_name, target_prefix, base_prefix)
-    menu.create()
+    menu = Menu(metadata.menu_name, target_prefix, base_prefix)
+    paths = []
+
+    menu_dir = menu.create()
+    if menu_dir:
+        paths.append(menu_dir)
+
     for item in metadata.menu_items:
-        menu_item = PlatformMenuItem(menu, item)
-        menu_item.create()
+        menu_item = MenuItem(menu, item)
+        menu_item_paths = menu_item.create()
+        paths.extend(list(menu_item_paths))
+
+    return paths
 
 
 def remove(
@@ -37,9 +45,9 @@ def remove(
     base_prefix: PathLike = sys.prefix,
 ) -> List[PathLike]:
     metadata = validate(metadata_or_path)
-    menu = PlatformMenu(metadata.menu_name, target_prefix, base_prefix)
+    menu = Menu(metadata.menu_name, target_prefix, base_prefix)
     for item in metadata.menu_items:
-        menu_item = PlatformMenuItem(menu, item)
+        menu_item = MenuItem(menu, item)
         menu_item.remove()
     menu.remove()
 

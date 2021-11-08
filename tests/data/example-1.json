@@ -6,9 +6,9 @@
             "description": "This will install to Windows and Linux with default options; no shortcut on MacOS",
             "icon": null,
             "command": [
-                "python",
-                "-m",
-                "this"
+                "{{ PYTHON }}",
+                "-c",
+                "import sys; print(sys.executable)"
             ],
             "platforms": {
                 "win": {},
