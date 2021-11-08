@@ -41,7 +41,7 @@ class LinuxMenu(Menu):
         self.directory_entry_location = (
             self.data_directory
             / "desktop-directories"
-            / f"{self.render(self.name, slug=False)}.directory"
+            / f"{self.render(self.name, slug=True)}.directory"
         )
         self.desktop_entries_location = self.data_directory / "applications"
 
@@ -101,7 +101,7 @@ class LinuxMenu(Menu):
         root = tree.getroot()
         menu_elt = add_xml_child(root, "Menu")
         add_xml_child(menu_elt, "Name", self.name)
-        add_xml_child(menu_elt, "Directory", self.entry_fn)
+        add_xml_child(menu_elt, "Directory", f"{self.render(self.name, slug=True)}.directory")
         inc_elt = add_xml_child(menu_elt, "Include")
         add_xml_child(inc_elt, "Category", self.name)
         self._write_menu_file(tree)
