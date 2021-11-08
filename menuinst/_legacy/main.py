@@ -1,7 +1,7 @@
 import sys
 from os.path import join
 
-import menuinst
+import menuinst._legacy as menuinst
 
 
 def main():

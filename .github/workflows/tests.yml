@@ -8,8 +8,8 @@ jobs:
     runs-on: ${{ matrix.os }}-latest
     timeout-minutes: 30
     env:
-      dependencies: "pydantic"
-      test-dependencies: pytest pytest-cov conda
+      dependencies: pydantic
+      test-dependencies: pytest pytest-cov conda hypothesis
     strategy:
       fail-fast: false
       matrix:

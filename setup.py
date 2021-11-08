@@ -7,12 +7,14 @@ from distutils.core import Extension, setup
 import versioneer
 
 
+extensions = []
+install_requires = ["pydantic"]
 if sys.platform == "win32":
-    extensions = [
+    extensions.append(
         Extension(
-            "menuinst.winshortcut",
-            sources=["menuinst/winshortcut.cpp"],
-            include_dirs=["menuinst"],
+            "menuinst._legacy.winshortcut",
+            sources=["menuinst/_legacy/winshortcut.cpp"],
+            include_dirs=["menuinst/_legacy"],
             libraries=[
                 "comctl32",
                 "kernel32",
@@ -29,11 +31,8 @@ if sys.platform == "win32":
                 "odbccp32",
             ],
         )
-    ]
-    install_requires = ["pywin32"]
-else:
-    extensions = []
-    install_requires = []
+    )
+    install_requires.append("pywin32")
 
 
 setup(

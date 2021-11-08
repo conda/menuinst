@@ -2,7 +2,7 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 from logging import getLogger
 
-from menuinst.win32 import quote_args
+from menuinst._legacy.win32 import quote_args
 
 log = getLogger(__name__)
 
