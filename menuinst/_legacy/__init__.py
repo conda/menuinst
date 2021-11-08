@@ -8,7 +8,7 @@ import sys
 import json
 from os.path import abspath, basename, exists, join
 
-from ._version import get_versions
+from .._version import get_versions
 __version__ = get_versions()['version']
 del get_versions
 
@@ -53,7 +53,7 @@ def install(path, remove=False, prefix=sys.prefix, recursing=False, root_prefix=
     Install Menu and shortcuts
 
     # Specifying `root_prefix` is used with conda-standalone, because we can't use
-    # `sys.prefix`, therefore we need to specify it  
+    # `sys.prefix`, therefore we need to specify it
     """
     # this root_prefix is intentional.  We want to reflect the state of the root installation.
     if sys.platform == 'win32' and not exists(join(root_prefix, '.nonadmin')):
