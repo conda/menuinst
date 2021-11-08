@@ -79,7 +79,7 @@
     },
     "Linux": {
       "title": "Linux",
-      "description": "Linux-specific instructions. You can override global keys here if needed",
+      "description": "Linux-specific instructions. Check\nhttps://specifications.freedesktop.org/desktop-entry-spec/desktop-entry-spec-latest.html#recognized-keys\nfor more information. You can override global keys here if needed",
       "type": "object",
       "properties": {
         "name": {
@@ -114,10 +114,124 @@
           "minLength": 1,
           "type": "string"
         },
-        "terminal": {
+        "GenericName": {
+          "title": "Genericname",
+          "type": "string"
+        },
+        "Terminal": {
           "title": "Terminal",
-          "description": "Whether to run the command as part of a terminal shell or not.",
-          "default": false,
+          "type": "boolean"
+        },
+        "NoDisplay": {
+          "title": "Nodisplay",
+          "type": "boolean"
+        },
+        "Hidden": {
+          "title": "Hidden",
+          "type": "boolean"
+        },
+        "OnlyShowIn": {
+          "title": "Onlyshowin",
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "NotShowIn": {
+          "title": "Notshowin",
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "DBusActivatable": {
+          "title": "Dbusactivatable",
+          "type": "boolean"
+        },
+        "TryExec": {
+          "title": "Tryexec",
+          "type": "string"
+        },
+        "MimeType": {
+          "title": "Mimetype",
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "Categories": {
+          "title": "Categories",
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "Implements": {
+          "title": "Implements",
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "Keywords": {
+          "title": "Keywords",
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "StartupNotify": {
+          "title": "Startupnotify",
+          "type": "boolean"
+        },
+        "StartupWMClass": {
+          "title": "Startupwmclass",
+          "type": "string"
+        },
+        "PrefersNonDefaultGPU": {
+          "title": "Prefersnondefaultgpu",
           "type": "boolean"
         }
       },
@@ -168,38 +282,14 @@
       "description": "Platform specific options. Presence of a platform enables menu items in that platform",
       "type": "object",
       "properties": {
-        "windows": {
-          "title": "Windows",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/Windows"
-            },
-            {
-              "type": "object"
-            }
-          ]
+        "win": {
+          "$ref": "#/definitions/Windows"
         },
         "linux": {
-          "title": "Linux",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/Linux"
-            },
-            {
-              "type": "object"
-            }
-          ]
+          "$ref": "#/definitions/Linux"
         },
         "osx": {
-          "title": "Osx",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/MacOS"
-            },
-            {
-              "type": "object"
-            }
-          ]
+          "$ref": "#/definitions/MacOS"
         }
       },
       "additionalProperties": false
