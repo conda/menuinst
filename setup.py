@@ -8,7 +8,7 @@ import versioneer
 
 
 extensions = []
-install_requires = ["pydantic"]
+install_requires = ["pydantic", "typing_extensions"]
 if sys.platform == "win32":
     extensions.append(
         Extension(

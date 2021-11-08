@@ -2,7 +2,11 @@
 """
 import os
 import sys
-from typing import Union, Literal
+from typing import Union
+try:
+    from typing import Literal
+except ImportError:
+    from typing_extensions import Literal
 
 from ..schema import MenuInstSchema
 from ..utils import slugify
