@@ -9,7 +9,7 @@ jobs:
     timeout-minutes: 30
     env:
       dependencies: pydantic typing_extensions
-      test-dependencies: pytest pytest-cov conda hypothesis
+      test-dependencies: pytest pytest-cov conda hypothesis hypothesis_jsonschema
     strategy:
       fail-fast: false
       matrix:

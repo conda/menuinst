@@ -1,11 +1,12 @@
 import os
 import sys
 
-from conda.cli.python_api import run_command
+# from conda.cli.python_api import run_command
 import pytest
 
-import menuinst._legacy as menuinst
-from menuinst._legacy.win32 import dirs_src
+if sys.platform == "win32":
+    import menuinst._legacy as menuinst
+    from menuinst._legacy.win32 import dirs_src
 
 
 def file_exist(mode, name):
