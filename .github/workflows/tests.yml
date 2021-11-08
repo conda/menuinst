@@ -64,6 +64,12 @@ jobs:
         run: |
           pytest tests --cov-append --cov-report=xml --cov=menuinst
 
+      - shell: bash -l {0}
+        name: Check schema is up-to-date
+        run: |
+          python menuinst/schema.py
+          git diff --exit-code menuinst/data/menuinst.schema.json
+
       - uses: codecov/codecov-action@v1
         with:
           name: ${{ matrix.os }}-py${{ matrix.python-version }}
