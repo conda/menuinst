@@ -9,7 +9,7 @@ from menuinst.schema import MenuInstSchema, validate
 from conftest import DATA
 
 # suppress_health_check=3 --> too_slow
-@settings(max_examples=100, suppress_health_check=3)
+@settings(max_examples=100, suppress_health_check=[3])
 @given(from_schema(MenuInstSchema.schema()))
 def test_schema_can_be_loaded(value):
     assert value
