@@ -33,7 +33,7 @@ class WindowsMenu(Menu):
         In this property we only report the path to the Start menu.
         For other menus, check their respective properties.
         """
-        return folder_path(self.mode, False, "start", self.render(self.name))
+        return folder_path(self.mode, False, "start")
 
     start_menu_location = location
 
