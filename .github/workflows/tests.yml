@@ -32,19 +32,19 @@ jobs:
 
       - shell: cmd /C {0}
         name: Configure requirements (Windows)
-        if: os.runner == 'Windows'
+        if: runner.os == 'Windows'
         run: |
           echo dependencies=pywin32 >> %GITHUB_ENV%
 
       # - shell: bash -l {0}
       #   name: Configure requirements (Linux)
-      #   if: os.runner == 'Linux'
+      #   if: runner.os == 'Linux'
       #   run: |
       #     echo "dependencies=pywin32" >> ${GITHUB_ENV}
 
       - shell: bash -l {0}
         name: Configure requirements (MacOS)
-        if: os.runner == 'macOS'
+        if: runner.os == 'macOS'
         run: |
           echo "dependencies=python.app" >> ${GITHUB_ENV}
 
