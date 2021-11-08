@@ -1,7 +1,7 @@
 import os
 import sys
 
-# from conda.cli.python_api import run_command
+from conda.cli.python_api import run_command
 import pytest
 
 if sys.platform == "win32":
