@@ -3,11 +3,12 @@
 import os
 import warnings
 from pathlib import Path
-from typing import Tuple
+from typing import Tuple, Union
 
 from win32com.client import Dispatch
 
 from .base import Menu, MenuItem
+from ..utils import WinLex
 
 # TODO: Reimplement/port to get rid of _legacy
 from .._legacy.win32 import folder_path
@@ -67,6 +68,26 @@ class WindowsMenu(Menu):
         )
         return placeholders
 
+    def render(self, value: Union[str, None], slug: bool = False):
+        """
+        We extend the render method here to replace forward slashes with backslashes.
+        We ONLY do it if the string does not start with /, because it might
+        be just a windows-style command-line flag (e.g. cmd /K something).
+
+        This will not escape strings such as `/flag:something`, common
+        in compiler stuff but we can assume such windows specific
+        constructs will have their platform override, which is always an option.
+
+        This is just a convenience for things like icon paths or Unix-like paths
+        in the command key.
+        """
+        value = super().render(value, slug=slug)
+        if value is None:
+            return value
+        if "/" in value and value[0] != "/":
+            value = value.replace("/", "\\")
+        return value
+
 
 class WindowsMenuItem(MenuItem):
     def create(self) -> Tuple[Path]:
@@ -74,11 +95,25 @@ class WindowsMenuItem(MenuItem):
         paths = self._paths()
         for path in paths:
             shortcut = shell.CreateShortCut(path)
-            shortcut.Targetpath = self.render("command")
-            shortcut.WorkingDirectory = self.render("working_dir")
-            icon = self.value_for("icon")
+
+            command = self.render("command")
+            target_path, *arguments = WinLex.quoted(command)
+
+            shortcut.Targetpath = target_path
+            if arguments:
+                shortcut.Arguments = " ".join(arguments)
+
+            working_dir = self.render("working_dir")
+            if working_dir:
+                Path(working_dir).mkdir(parents=True, exist_ok=True)
+            else:
+                working_dir = "%HOMEPATH%"
+            shortcut.WorkingDirectory = working_dir
+
+            icon = self.render(icon)
             if icon:
-                shortcut.IconLocation = self.menu.render(icon)
+                shortcut.IconLocation = icon
+
             # TODO: Check if elevated permissions are needed
             shortcut.save()
         return paths
@@ -92,10 +127,11 @@ class WindowsMenuItem(MenuItem):
 
     def _paths(self):
         directories = [self.menu.start_menu_location]
-        if self.metadata.quicklaunch:
-            directories.append(self.menu.quick_launch_location)
         if self.metadata.desktop:
             directories.append(self.menu.desktop_location)
+        if self.metadata.quicklaunch and self.menu.quick_launch_location:
+            directories.append(self.menu.quick_launch_location)
 
-        filename = f"{self.render('name')}.lnk"
+        env_suffix = f" ({self.menu.env_name})" if self.menu.env_name else ""
+        filename = f"{self.render('name')}{env_suffix}.lnk"
         return tuple(os.path.join(directory, filename) for directory in directories)

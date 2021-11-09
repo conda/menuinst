@@ -29,13 +29,15 @@ class Menu:
         self.prefix = prefix
         self.base_prefix = base_prefix
 
+        self.env_name = None
+
     def create(self) -> List[Path]:
         raise NotImplementedError
 
     def remove(self) -> List[Path]:
         raise NotImplementedError
 
-    def render(self, value, slug=False):
+    def render(self, value: Union[str, None], slug: bool = False):
         if value is None:
             return
         for placeholder, replacement in self.placeholders.items():
@@ -78,7 +80,7 @@ class MenuItem:
     def remove(self) -> List[Path]:
         raise NotImplementedError
 
-    def render(self, key, slug=False):
+    def render(self, key: str, slug=False):
         value = getattr(self.metadata, key)
         if value is None:
             return
