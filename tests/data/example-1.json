@@ -13,7 +13,7 @@
             "platforms": {
                 "win": {},
                 "linux": {},
-                "osx": null
+                "osx": {}
             }
         }
     ]
