@@ -3,7 +3,9 @@
 import os
 import sys
 import warnings
-from typing import Union
+from typing import Union, List
+from pathlib import Path
+
 try:
     from typing import Literal
 except ImportError:
@@ -27,10 +29,10 @@ class Menu:
         self.prefix = prefix
         self.base_prefix = base_prefix
 
-    def create(self):
+    def create(self) -> List[Path]:
         raise NotImplementedError
 
-    def remove(self):
+    def remove(self) -> List[Path]:
         raise NotImplementedError
 
     def render(self, value, slug=False):
@@ -70,11 +72,10 @@ class MenuItem:
 
         self.metadata = metadata.merge_for_platform()
 
-
-    def create(self):
+    def create(self) -> List[Path]:
         raise NotImplementedError
 
-    def remove(self):
+    def remove(self) -> List[Path]:
         raise NotImplementedError
 
     def render(self, key, slug=False):

@@ -47,24 +47,30 @@ class LinuxMenu(Menu):
 
     def create(self):
         self._ensure_directories_exist()
-        self._write_directory_entry()
+        path = self._write_directory_entry())
         if self._is_valid_menu_file() and self._has_this_menu():
-            return
+            return (path,)
         self._ensure_menu_file()
         self._add_this_menu()
+        return (path,)
 
     def remove(self):
         self.directory_entry_location.unlink()
         for fn in os.listdir(self.menu_entries_location):
             if fn.startswith(f"{self.render('name', slug=True)}_"):
                 # found one shortcut, so don't remove the name from menu
-                return
+                return (self.directory_entry_location,)
         self._remove_this_menu()
+        return (self.directory_entry_location,)
 
     def _ensure_directories_exist(self):
-        (self.config_directory / "menus").mkdir(parents=True, exist_ok=True)
-        (self.data_directory / "desktop-directories").mkdir(parents=True, exist_ok=True)
-        (self.data_directory / "applications").mkdir(parents=True, exist_ok=True)
+        paths = [
+            self.config_directory / "menus",
+            self.data_directory / "desktop-directories",
+            self.data_directory / "applications",
+        ]
+        for path in paths:
+            path.mkdir(parents=True, exist_ok=True)
 
     #
     # .directory stuff methods
@@ -79,6 +85,8 @@ class LinuxMenu(Menu):
         ]
         with open(self.directory_entry_location, "w") as f:
             f.write("\n".join(lines))
+
+        return self.directory_entry_location
 
     #
     # XML config stuff methods
@@ -157,9 +165,11 @@ class LinuxMenuItem(MenuItem):
 
     def create(self):
         self._write_desktop_file()
+        return (self.location,)
 
     def remove(self):
         self.location.unlink()
+        return (self.location,)
 
     def _write_desktop_file(self):
         cmd = " ".join([shlex.quote(s) for s in self.render("command")])

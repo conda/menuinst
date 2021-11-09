@@ -17,12 +17,12 @@ class WindowsMenu(Menu):
     def create(self):
         # TODO: Check if elevated permissions are needed
         self.start_menu_location.mkdir(parents=True, exist_ok=False)
-        return self.start_menu_location,
+        return (self.start_menu_location,)
 
     def remove(self):
         # TODO: Check if elevated permissions are needed
         self.start_menu_location.rmdir()
-        return self.start_menu_location,
+        return (self.start_menu_location,)
 
     @property
     def start_menu_location(self):
@@ -69,10 +69,10 @@ class WindowsMenu(Menu):
 
 
 class WindowsMenuItem(MenuItem):
-    def create(self):
+    def create(self) -> Tuple[Path]:
         shell = Dispatch("WScript.Shell")
-
-        for path in self._paths():
+        paths = self._paths()
+        for path in paths:
             shortcut = shell.CreateShortCut(path)
             shortcut.Targetpath = self.render("command")
             shortcut.WorkingDirectory = self.render("working_dir")
@@ -81,11 +81,14 @@ class WindowsMenuItem(MenuItem):
                 shortcut.IconLocation = self.menu.render(icon)
             # TODO: Check if elevated permissions are needed
             shortcut.save()
+        return paths
 
-    def remove(self):
-        for path in self._paths():
+    def remove(self) -> Tuple[Path]:
+        paths = self._paths()
+        for path in paths:
             # TODO: Check if elevated permissions are needed
             os.unlink(path)
+        return paths
 
     def _paths(self):
         directories = [self.menu.start_menu_location]
@@ -95,4 +98,4 @@ class WindowsMenuItem(MenuItem):
             directories.append(self.menu.desktop_location)
 
         filename = f"{self.render('name')}.lnk"
-        return [os.path.join(directory, filename) for directory in directories]
+        return tuple(os.path.join(directory, filename) for directory in directories)

@@ -56,8 +56,9 @@ class MacOSMenuItem(MenuItem):
         self._write_script()
         return (self.location,)
 
-    def remove(self):
+    def remove(self) -> Tuple[Path]:
         shutil.rmtree(self.location)
+        return (self.location,)
 
     def _create_application_tree(self):
         paths = [
