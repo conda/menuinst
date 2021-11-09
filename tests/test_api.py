@@ -32,13 +32,13 @@ def test_install_example_1_linux(delete_files):
     with open(desktop) as f:
         for line in f:
             if line.startswith("Exec="):
-                target = line.split("=", 1)[1]
+                target = line.split("=", 1)[1].strip()
                 break
         else:
             raise ValueError("Didn't find Exec line")
 
     output = subprocess.check_output(target, shell=True, universal_newlines=True)
-    assert output == os.path.join(sys.prefix, "bin", "python")
+    assert output.strip() == os.path.join(sys.prefix, "bin", "python")
 
 
 @pytest.mark.skipif(PLATFORM != "osx", reason="MacOS only")
