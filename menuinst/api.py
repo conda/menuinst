@@ -5,6 +5,7 @@ from os import PathLike
 import sys
 from typing import Union, List
 from pathlib import Path
+import warnings
 
 from .platforms import Menu, MenuItem
 from .schema import validate
@@ -25,8 +26,12 @@ def install(
 ) -> List[PathLike]:
     metadata = validate(metadata_or_path)
     menu = Menu(metadata.menu_name, target_prefix, base_prefix)
-    paths = []
 
+    if not metadata.enabled_for_platform():
+        warnings.warning(f"Metadata for {metadata.name} is not enabled for {sys.platform}")
+        return
+
+    paths = []
     menu_dir = menu.create()
     if menu_dir:
         paths.append(menu_dir)
@@ -46,6 +51,11 @@ def remove(
 ) -> List[PathLike]:
     metadata = validate(metadata_or_path)
     menu = Menu(metadata.menu_name, target_prefix, base_prefix)
+
+    if not metadata.enabled_for_platform():
+        warnings.warning(f"Metadata for {metadata.name} is not enabled for {sys.platform}")
+        return
+
     for item in metadata.menu_items:
         menu_item = MenuItem(menu, item)
         menu_item.remove()

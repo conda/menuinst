@@ -2,6 +2,7 @@
 """
 import os
 import sys
+import warnings
 from typing import Union
 try:
     from typing import Literal
@@ -63,7 +64,12 @@ class MenuItem:
     def __init__(self, menu: Menu, metadata: MenuInstSchema.MenuItem):
         self.menu = menu
         self.full_metadata = metadata
+
+        if not metadata.enabled_for_platform():
+            warnings.warning(f"Metadata for {metadata.name} is not enabled for {sys.platform}")
+
         self.metadata = metadata.merge_for_platform()
+
 
     def create(self):
         raise NotImplementedError
@@ -72,7 +78,6 @@ class MenuItem:
         raise NotImplementedError
 
     def render(self, key, slug=False):
-        print(self.metadata)
         value = getattr(self.metadata, key)
         if value is None:
             return

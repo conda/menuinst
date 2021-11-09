@@ -129,12 +129,19 @@ class MenuInstSchema(BaseModel):
             # through model.key syntax instead of model["key"]
             return self.construct(**global_level)
 
+        def enabled_for_platform(self, platform=sys.platform):
+            platform = platform_key(platform)
+            return getattr(self.platforms, platform, None) is not None
+
     menu_name: constr(min_length=1) = Field(
         description="Name for the category containing the items specified in `menu_items`."
     )
     menu_items: conlist(MenuItem, min_items=1) = Field(
         description="List of menu entries to create across main desktop systems"
     )
+
+    def enabled_for_platform(self, platform=sys.platform):
+        return any(item.enabled_for_platform(platform) for item in self.menu_items)
 
 
 def validate(metadata: Union[str, dict]) -> MenuInstSchema:
