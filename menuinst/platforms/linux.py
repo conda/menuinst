@@ -47,7 +47,7 @@ class LinuxMenu(Menu):
 
     def create(self):
         self._ensure_directories_exist()
-        path = self._write_directory_entry())
+        path = self._write_directory_entry()
         if self._is_valid_menu_file() and self._has_this_menu():
             return (path,)
         self._ensure_menu_file()

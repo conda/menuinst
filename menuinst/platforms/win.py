@@ -1,9 +1,9 @@
 """
 """
 import os
-import shutil
 import warnings
 from pathlib import Path
+from typing import Tuple
 
 from win32com.client import Dispatch
 
