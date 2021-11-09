@@ -6,9 +6,12 @@ import sys
 from typing import Optional, Union, List
 import json
 from pathlib import Path
+from logging import getLogger
 
 from pydantic import BaseModel as _BaseModel, Field, constr, conlist
 
+
+log = getLogger(__name__)
 
 class BaseModel(_BaseModel):
     class Config:
@@ -120,7 +123,15 @@ class MenuInstSchema(BaseModel):
             if all_platforms:
                 platform_options = all_platforms.pop(platform)
                 if platform_options:
-                    global_level.update({k: v for k, v in platform_options.items() if v is not None})
+                    for key, value in platform_options.items():
+                        if key not in global_level:
+                            # bring missing keys, since they are platform specific
+                            global_level[key] = value
+                        elif value is not None:
+                            # if the key was in global, it was not platform specific
+                            # this is an override and we only do so if is not None
+                            log.debug("Platform value %s=%s overrides global value", key, value)
+                            global_level[key] = value
 
             global_level["platforms"] = [key for key, value in self.platforms if value is not None]
 
