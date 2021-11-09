@@ -80,11 +80,11 @@ class WinLex:
                 '"%s"' % (" ".join(cls.ensure_pad(arg, '"') for arg in args[2:])),  # double-quoted
             ]
         else:
-            args = [cls.quoted(arg) for arg in args]
+            args = [cls.quote_string(arg) for arg in args]
         return args
 
     @classmethod
-    def quoted(cls, s):
+    def quote_string(cls, s):
         """
         quotes a string if necessary.
         """

@@ -97,7 +97,7 @@ class WindowsMenuItem(MenuItem):
             shortcut = shell.CreateShortCut(path)
 
             command = self.render("command")
-            target_path, *arguments = WinLex.quoted(command)
+            target_path, *arguments = WinLex.quote_args(command)
 
             shortcut.Targetpath = target_path
             if arguments:
