@@ -110,7 +110,7 @@ class WindowsMenuItem(MenuItem):
                 working_dir = "%HOMEPATH%"
             shortcut.WorkingDirectory = working_dir
 
-            icon = self.render(icon)
+            icon = self.render("icon")
             if icon:
                 shortcut.IconLocation = icon
 
