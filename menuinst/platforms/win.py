@@ -89,9 +89,9 @@ class WindowsMenuItem(MenuItem):
 
     def _paths(self):
         directories = [self.menu.start_menu_location]
-        if self.metadata.platforms.win.quicklaunch:
+        if self.metadata.quicklaunch:
             directories.append(self.menu.quick_launch_location)
-        if self.metadata.platforms.win.desktop:
+        if self.metadata.desktop:
             directories.append(self.menu.desktop_location)
 
         filename = f"{self.render('name')}.lnk"
