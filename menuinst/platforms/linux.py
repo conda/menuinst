@@ -162,7 +162,7 @@ class LinuxMenuItem(MenuItem):
         self.location.unlink()
 
     def _write_desktop_file(self):
-        cmd = " ".join([shlex.quote(s) for s in self.render("cmd")])
+        cmd = " ".join([shlex.quote(s) for s in self.render("command")])
         lines = [
             "[Desktop Entry]",
             "Type=Application",
