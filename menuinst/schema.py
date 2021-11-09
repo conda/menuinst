@@ -120,7 +120,7 @@ class MenuInstSchema(BaseModel):
             if all_platforms:
                 platform_options = all_platforms.pop(platform)
                 if platform_options:
-                    global_level.update(platform_options)
+                    global_level.update({k: v for k, v in platform_options.items() if v is not None})
 
             global_level["platforms"] = [key for key, value in self.platforms if value is not None]
 
