@@ -94,10 +94,9 @@ class WindowsMenuItem(MenuItem):
         shell = Dispatch("WScript.Shell")
         paths = self._paths()
         for path in paths:
-            shortcut = shell.CreateShortCut(path)
+            shortcut = shell.CreateShortCut(str(path))
 
-            command = self.render("command")
-            target_path, *arguments = WinLex.quote_args(command)
+            target_path, *arguments = WinLex.quote_args(self.render("command"))
 
             shortcut.Targetpath = target_path
             if arguments:
@@ -134,4 +133,4 @@ class WindowsMenuItem(MenuItem):
 
         env_suffix = f" ({self.menu.env_name})" if self.menu.env_name else ""
         filename = f"{self.render('name')}{env_suffix}.lnk"
-        return tuple(os.path.join(directory, filename) for directory in directories)
+        return tuple(directory / filename for directory in directories)
