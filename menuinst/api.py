@@ -32,9 +32,9 @@ def install(
         return
 
     paths = []
-    menu_dir = menu.create()
-    if menu_dir:
-        paths.append(menu_dir)
+    menu_dirs = menu.create()
+    if menu_dirs:
+        paths.extend(list(menu_dirs))
 
     for item in metadata.menu_items:
         menu_item = MenuItem(menu, item)
