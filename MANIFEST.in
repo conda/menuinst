@@ -1,2 +1,4 @@
 include versioneer.py
 include menuinst/_version.py
+include menuinst/data/*.json
+include menuinst/_legacy/*.icns

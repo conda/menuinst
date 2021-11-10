@@ -2,8 +2,7 @@
 # Copyright (c) 2013 Continuum Analytics, Inc.
 # All rights reserved.
 import sys
-from distutils.core import Extension, setup
-from setuptools import find_packages
+from setuptools import find_packages, Extension, setup
 
 import versioneer
 
@@ -46,7 +45,6 @@ setup(
     ext_modules=extensions,
     include_package_data=True,
     install_requires=install_requires,
-    package_data={"menuinst": ["*.icns"]},
     license="BSD",
     packages=find_packages(),
 )
