@@ -6,7 +6,7 @@ import sys
 import subprocess
 from os.path import join, pathsep
 
-from menuinst.knownfolders import FOLDERID, get_folder_path, PathNotFoundException
+from menuinst._legacy.knownfolders import FOLDERID, get_folder_path
 
 # call as: python cwp.py PREFIX ARGs...
 

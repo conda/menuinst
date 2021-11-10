@@ -3,6 +3,7 @@
 # All rights reserved.
 import sys
 from distutils.core import Extension, setup
+from setuptools import find_packages
 
 import versioneer
 
@@ -47,5 +48,5 @@ setup(
     install_requires=install_requires,
     package_data={"menuinst": ["*.icns"]},
     license="BSD",
-    packages=["menuinst"],
+    packages=find_packages(),
 )
