@@ -17,11 +17,29 @@
       "items": {
         "$ref": "#/definitions/MenuItem"
       }
+    },
+    "$id": {
+      "title": "$Id",
+      "description": "Version of the menuinst schema",
+      "enum": [
+        "https://schemas.conda.io/menuinst-1.schema.json"
+      ],
+      "type": "string"
+    },
+    "$schema": {
+      "title": "$Schema",
+      "description": "Standard of the JSON schema we adhere to",
+      "enum": [
+        "https://json-schema.org/draft-07/schema"
+      ],
+      "type": "string"
     }
   },
   "required": [
     "menu_name",
-    "menu_items"
+    "menu_items",
+    "$id",
+    "$schema"
   ],
   "additionalProperties": false,
   "definitions": {

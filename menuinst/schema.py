@@ -10,6 +10,11 @@ from logging import getLogger
 
 from pydantic import BaseModel as _BaseModel, Field, constr, conlist
 
+try:
+    from typing import Literal
+except ImportError:
+    from typing_extensions import Literal
+
 
 log = getLogger(__name__)
 
@@ -151,6 +156,16 @@ class MenuInstSchema(BaseModel):
         description="List of menu entries to create across main desktop systems"
     )
 
+    id_: Literal["https://schemas.conda.io/menuinst-1.schema.json"] = Field(
+        description="Version of the menuinst schema",
+        alias="$id",
+    )
+
+    schema_: Literal["https://json-schema.org/draft-07/schema"] = Field(
+        description="Standard of the JSON schema we adhere to",
+        alias="$schema",
+    )
+
     def enabled_for_platform(self, platform=sys.platform):
         return any(item.enabled_for_platform(platform) for item in self.menu_items)
 
@@ -165,7 +180,8 @@ def validate(metadata: Union[str, dict]) -> MenuInstSchema:
 
 def dump_to_json():
     here = Path(__file__).parent
-    schema = json.dumps(MenuInstSchema.schema(), indent=2)
+    schema_obj = MenuInstSchema.schema()
+    schema = json.dumps(schema_obj, indent=2)
     print(schema)
     with open(here / "data" / "menuinst.schema.json", "w") as f:
         f.write(schema)

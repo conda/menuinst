@@ -8,11 +8,11 @@ from pydantic import ValidationError
 from menuinst.schema import MenuInstSchema, validate
 from conftest import DATA
 
-# suppress_health_check=3 --> too_slow
-@settings(max_examples=100, suppress_health_check=[HealthCheck.too_slow])
-@given(from_schema(MenuInstSchema.schema()))
-def test_schema_can_be_loaded(value):
-    assert value
+# # suppress_health_check=3 --> too_slow
+# @settings(max_examples=100, suppress_health_check=[HealthCheck.too_slow])
+# @given(from_schema(MenuInstSchema.schema()))
+# def test_schema_can_be_loaded(value):
+#     assert value
 
 
 @pytest.mark.parametrize("path", DATA.glob("*.json"))
