@@ -13,13 +13,7 @@ __version__ = get_versions()['version']
 del get_versions
 
 
-if sys.platform.startswith('linux'):
-    from .linux import Menu, ShortCut
-
-elif sys.platform == 'darwin':
-    from .darwin import Menu, ShortCut
-
-elif sys.platform == 'win32':
+if sys.platform == 'win32':
     from .win32 import Menu, ShortCut
     from .win_elevate import isUserAdmin, runAsAdmin
 
@@ -55,8 +49,12 @@ def install(path, remove=False, prefix=sys.prefix, recursing=False, root_prefix=
     # Specifying `root_prefix` is used with conda-standalone, because we can't use
     # `sys.prefix`, therefore we need to specify it
     """
+    if not sys.platform == 'win32':
+        raise RuntimeError("menuinst._legacy is only supported on Windows.")
+
     # this root_prefix is intentional.  We want to reflect the state of the root installation.
-    if sys.platform == 'win32' and not exists(join(root_prefix, '.nonadmin')):
+
+    if not exists(join(root_prefix, '.nonadmin')):
         if isUserAdmin():
             _install(path, remove, prefix, mode='system', root_prefix=root_prefix)
         else:
