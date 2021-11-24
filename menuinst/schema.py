@@ -18,6 +18,7 @@ except ImportError:
 
 log = getLogger(__name__)
 
+
 class BaseModel(_BaseModel):
     class Config:
         extra = "forbid"
