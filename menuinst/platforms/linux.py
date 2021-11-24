@@ -157,11 +157,11 @@ class LinuxMenu(Menu):
 class LinuxMenuItem(MenuItem):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        menu_prefix = {self.menu.render(self.menu.name, slug=True)}
-        self.location = (
-            self.menu.desktop_entries_location
-            / f"{menu_prefix}_{self.render('name', slug=True)}.desktop"
-        )
+        menu_prefix = self.menu.render(self.menu.name, slug=True)
+        # TODO: filename should conform to D-Bus well known name conventions
+        # https://specifications.freedesktop.org/desktop-entry-spec/latest/ar01s02.html
+        filename = f"{menu_prefix}_{self.render('name', slug=True)}.desktop"
+        self.location = self.menu.desktop_entries_location / filename
 
     def create(self):
         self._write_desktop_file()
