@@ -178,11 +178,22 @@ class LinuxMenuItem(MenuItem):
             "Type=Application",
             "Encoding=UTF-8",
             f'Name={self.render("name")}',
-            f'Comment={self.render("description")}',
             f"Exec={cmd}",
-            f'Icon={self.render("icon")}',
-            f'Path={self.render("working_dir")}',
         ]
+
+        icon = self.render("icon")
+        if icon:
+            lines.append(f'Icon={self.render("icon")}')
+
+        description = self.render("description")
+        if description:
+            lines.append(f'Comment={self.render("description")}')
+
+        working_dir = self.render("working_dir")
+        if working_dir:
+            Path(working_dir).mkdir(parents=True, exist_ok=True)
+            lines.append(f"Path={working_dir}")
+
         for key in MenuInstSchema.MenuItem.Platforms.Linux.__fields__:
             if key in MenuInstSchema.MenuItem.__fields__:
                 continue

@@ -93,8 +93,12 @@ class MacOSMenuItem(MenuItem):
     def _write_script(self):
         script_path = self.location / "Contents" / "MacOS" / self.render("name", slug=True)
         cmd = " ".join([shlex.quote(s) for s in self.render("command")])
+        working_dir = self.render("working_dir")
         with open(script_path, "w") as f:
             f.write("#!/bin/bash\n")
+            if working_dir:
+                Path(working_dir).mkdir(parents=True, exist_ok=True)
+                f.write(f'cd "{working_dir}"\n')
             f.write(f"{cmd}\n")
 
         os.chmod(script_path, 0o755)
