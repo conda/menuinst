@@ -24,7 +24,7 @@ class MacOSMenu(Menu):
         placeholders.update(
             {
                 "{{ ICON_EXT }}": "icns",
-                "{{ PYTHON }}": str(
+                "{{ PYTHONAPP }}": str(
                     Path(self.prefix) / "python.app" / "Contents" / "MacOS" / "python"
                 ),
             }
