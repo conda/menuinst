@@ -2,12 +2,14 @@
 Integration tests with conda
 """
 import sys
-from subprocess import check_call
+from subprocess import check_call, check_output
 from tempfile import TemporaryDirectory
 from pathlib import Path
 from contextlib import contextmanager
+import json
 
 import pytest
+from conda.models.version import VersionOrder
 
 from conftest import DATA
 
@@ -28,6 +30,11 @@ def install_package_1():
         assert menu_file.is_file()
         yield prefix
     assert not menu_file.is_file()
+
+
+def test_conda_recent_enough():
+    data = json.loads(check_output(["conda", "info", "--json"]))
+    assert VersionOrder(data["conda_version"]) >= VersionOrder("4.11a0")
 
 
 @pytest.mark.skipif(not sys.platform.startswith("linux"), "Linux only")
