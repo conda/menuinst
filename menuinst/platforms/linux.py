@@ -68,7 +68,7 @@ class LinuxMenu(Menu):
         placeholders = super().placeholders
         placeholders.update(
             {
-                "SP_DIR": str(_site_packages_in_unix()),
+                "SP_DIR": str(_site_packages_in_unix(placeholders["PREFIX"])),
             }
         )
         return placeholders

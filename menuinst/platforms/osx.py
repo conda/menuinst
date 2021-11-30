@@ -23,7 +23,7 @@ class MacOSMenu(Menu):
         placeholders = super().placeholders
         placeholders.update(
             {
-                "SP_DIR": str(_site_packages_in_unix()),
+                "SP_DIR": str(_site_packages_in_unix(placeholders["PREFIX"])),
                 "ICON_EXT": "icns",
                 "PYTHONAPP": str(
                     Path(self.prefix) / "python.app" / "Contents" / "MacOS" / "python"
