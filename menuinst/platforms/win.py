@@ -168,7 +168,7 @@ class WindowsMenuItem(MenuItem):
         return f"{self.render('name')}{env_suffix}.{ext}"
 
     def _path_for_script(self):
-        return Path(self.menu.placeholders["{{ MENU_DIR }}"]) / self._shortcut_filename("bat")
+        return Path(self.menu.placeholders["MENU_DIR"]) / self._shortcut_filename("bat")
 
     def _write_script(self):
         """
@@ -178,8 +178,8 @@ class WindowsMenuItem(MenuItem):
         if self.metadata.activate:
             lines += [
                 "SETLOCAL ENABLEDELAYEDEXPANSION",
-                f'set "BASE_PREFIX={self.menu.placeholders["{{ BASE_PREFIX }}"]}"',
-                f'set "PREFIX={self.menu.placeholders["{{ PREFIX }}"]}"',
+                f'set "BASE_PREFIX={self.menu.placeholders["BASE_PREFIX"]}"',
+                f'set "PREFIX={self.menu.placeholders["PREFIX"]}"',
                 'FOR /F "usebackq tokens=*" %%i IN (`%BASE_PREFIX%\_conda.exe shell.cmd.exe activate "%PREFIX%"`) do set "ACTIVATOR=%%i"',
                 'CALL %ACTIVATOR%',
                 ":: This below is the user command"
