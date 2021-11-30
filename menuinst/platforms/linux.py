@@ -7,9 +7,11 @@ import shutil
 import xml.etree.ElementTree as XMLTree
 import time
 
+from tests.conftest import base_prefix
+
 from .base import Menu, MenuItem, _site_packages_in_unix
 from ..schema import MenuInstSchema
-from ..utils import indent_xml_tree, add_xml_child
+from ..utils import indent_xml_tree, add_xml_child, UnixLex
 
 
 class LinuxMenu(Menu):
@@ -68,7 +70,7 @@ class LinuxMenu(Menu):
         placeholders = super().placeholders
         placeholders.update(
             {
-                "SP_DIR": str(_site_packages_in_unix(placeholders["PREFIX"])),
+                "SP_DIR": str(_site_packages_in_unix(self.prefix)),
             }
         )
         return placeholders
@@ -181,21 +183,24 @@ class LinuxMenuItem(MenuItem):
         self.location.unlink()
         return (self.location,)
 
-    def _write_desktop_file(self):
+    def _command(self):
         cmd = ""
         if self.metadata.activate:
             cmd = (
-                f"eval $(\"{self.menu.placeholders['BASE_PREFIX']}/_conda.exe\" "
-                f"shell.bash activate \"{self.menu.placeholders['PREFIX']}\") "
+                f"eval $(\"{self.menu.conda_exe}\" "
+                f"shell.bash activate \"{self.menu.prefix}\") "
                 " && "
             )
-        cmd += " ".join([shlex.quote(s) for s in self.render("command")])
+        cmd += " ".join(UnixLex.quote_args(self.render("command")))
+        return cmd
+
+    def _write_desktop_file(self):
         lines = [
             "[Desktop Entry]",
             "Type=Application",
             "Encoding=UTF-8",
             f'Name={self.render("name")}',
-            f"Exec={cmd}",
+            f"Exec={self._command()}",
         ]
 
         icon = self.render("icon")

@@ -1,3 +1,4 @@
+import shlex
 import xml.etree.ElementTree as XMLTree
 
 
@@ -111,3 +112,15 @@ class WinLex:
             return name
         else:
             return "%s%s%s" % (pad, name, pad)
+
+class UnixLex:
+    @classmethod
+    def quote_args(cls, args):
+        return [cls.quote_string(a) for a in args]
+
+    @classmethod
+    def quote_string(cls, s):
+        quoted = shlex.quote(s)
+        if s.startswith(('$', '"')) and quoted.startswith("'"):
+            quoted = f'"{quoted[1:-1]}"'
+        return quoted

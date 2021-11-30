@@ -9,7 +9,7 @@ from typing import Tuple
 from tempfile import mkdtemp
 
 from .base import Menu, MenuItem, _site_packages_in_unix
-
+from ..utils import UnixLex
 
 class MacOSMenu(Menu):
     def create(self):
@@ -23,10 +23,10 @@ class MacOSMenu(Menu):
         placeholders = super().placeholders
         placeholders.update(
             {
-                "SP_DIR": str(_site_packages_in_unix(placeholders["PREFIX"])),
+                "SP_DIR": str(_site_packages_in_unix(self.prefix)),
                 "ICON_EXT": "icns",
                 "PYTHONAPP": str(
-                    Path(self.prefix) / "python.app" / "Contents" / "MacOS" / "python"
+                    self.prefix / "python.app" / "Contents" / "MacOS" / "python"
                 ),
             }
         )
@@ -91,7 +91,7 @@ class MacOSMenuItem(MenuItem):
         with open(self.location / "Contents" / "Info.plist", "wb") as f:
             plistlib.dump(pl, f)
 
-    def _write_script(self):
+    def _command(self):
         lines = ["#!/bin/bash"]
 
         working_dir = self.render("working_dir")
@@ -101,15 +101,18 @@ class MacOSMenuItem(MenuItem):
 
         if self.metadata.activate:
             lines.append(
-                f"eval $(\"{self.menu.placeholders['BASE_PREFIX']}/_conda.exe\" "
-                f"shell.bash activate \"{self.menu.placeholders['PREFIX']}\")"
+                f"eval $(\"{self.menu.conda_exe}\" "
+                f"shell.bash activate \"{self.menu.prefix}\")"
             )
 
-        lines.append(" ".join([shlex.quote(s) for s in self.render("command")]))
+        lines.append(" ".join(UnixLex.quote_args(self.render("command"))))
 
-        script_path = self.location / "Contents" / "MacOS" / self.render("name", slug=True)
+        return "\n".join(lines)
+
+    def _write_script(self, script_path=None):
+        if script_path is None:
+            script_path = self.location / "Contents" / "MacOS" / self.render("name", slug=True)
         with open(script_path, "w") as f:
-            f.write("\n".join(lines))
-
+            f.write(self._command())
         os.chmod(script_path, 0o755)
         return script_path

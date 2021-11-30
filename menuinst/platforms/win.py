@@ -55,18 +55,31 @@ class WindowsMenu(Menu):
         placeholders = super().placeholders
         placeholders.update(
             {
-                "SCRIPTS_DIR": os.path.join(self.prefix, "Scripts"),
-                "CWP": os.path.join(self.prefix, "cwp.py"),
-                "PYTHON": os.path.join(self.prefix, "python.exe"),
-                "PYTHONW": os.path.join(self.prefix, "pythonw.exe"),
-                "BASE_PYTHON": os.path.join(self.base_prefix, "python.exe"),
-                "BASE_PYTHONW": os.path.join(self.base_prefix, "pythonw.exe"),
-                "BIN_DIR": os.path.join(self.prefix, "Library", "bin"),
-                "SP_DIR": os.path.join(self.prefix, "Lib", "site-packages"),
+                "SCRIPTS_DIR": str(self.prefix / "Scripts"),
+                "CWP": str(self.prefix / "cwp.py"),
+                "PYTHON": str(self.prefix / "python.exe"),
+                "PYTHONW": str(self.prefix / "pythonw.exe"),
+                "BASE_PYTHON": str(self.base_prefix / "python.exe"),
+                "BASE_PYTHONW": str(self.base_prefix / "pythonw.exe"),
+                "BIN_DIR": str(self.prefix / "Library", "bin"),
+                "SP_DIR": str(self.prefix / "Lib", "site-packages"),
                 "ICON_EXT": "ico",
             }
         )
         return placeholders
+
+    @property
+    def conda_exe(self):
+        candidates = (
+            self.menu.base_prefix / "_conda.exe",
+            os.environ.get("CONDA_EXE", ""),
+            self.menu.base_prefix / "condabin" / "conda.bat",
+            self.menu.base_prefix / "bin" / "conda.bat",
+            os.environ.get("MAMBA_EXE", ""),
+            self.menu.base_prefix / "condabin" / "micromamba.exe",
+            self.menu.base_prefix / "bin" / "micromamba.exe",
+        )
+        return next((path for path in candidates if path.is_file()), "conda.exe")
 
     def render(self, value: Union[str, None], slug: bool = False):
         """
@@ -170,16 +183,13 @@ class WindowsMenuItem(MenuItem):
     def _path_for_script(self):
         return Path(self.menu.placeholders["MENU_DIR"]) / self._shortcut_filename("bat")
 
-    def _write_script(self):
-        """
-        This method generates the batch script that will be called by the shortcut
-        """
+    def _command(self):
         lines = ["@echo off"]
         if self.metadata.activate:
             lines += [
                 "SETLOCAL ENABLEDELAYEDEXPANSION",
-                f'set "BASE_PREFIX={self.menu.placeholders["BASE_PREFIX"]}"',
-                f'set "PREFIX={self.menu.placeholders["PREFIX"]}"',
+                f'set "BASE_PREFIX={self.menu.base_prefix}"',
+                f'set "PREFIX={self.menu.prefix}"',
                 r'FOR /F "usebackq tokens=*" %%i IN (`%BASE_PREFIX%\_conda.exe shell.cmd.exe activate "%PREFIX%"`) do set "ACTIVATOR=%%i"',
                 'CALL %ACTIVATOR%',
                 ":: This below is the user command"
@@ -187,9 +197,17 @@ class WindowsMenuItem(MenuItem):
 
         lines += self.render("command")
 
-        path = self._path_for_script()
-        Path(self.menu.placeholders["MENU_DIR"]).mkdir(parents=True, exist_ok=True)
-        with open(path, "w") as f:
-            f.write("\r\n".join(lines))
+        return "\r\n".join(lines)
 
-        return path
+    def _write_script(self, script_path=None):
+        """
+        This method generates the batch script that will be called by the shortcut
+        """
+        if script_path is None:
+            script_path = self._path_for_script()
+
+        script_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(script_path, "w") as f:
+            f.write(self._command())
+
+        return script_path

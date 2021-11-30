@@ -26,8 +26,8 @@ class Menu:
         assert mode in ("user", "system"), f"`mode` must be either `user` or `system`"
         self.mode = mode
         self.name = name
-        self.prefix = prefix
-        self.base_prefix = base_prefix
+        self.prefix = Path(prefix)
+        self.base_prefix = Path(base_prefix)
 
         self.env_name = None
 
@@ -49,18 +49,31 @@ class Menu:
     @property
     def placeholders(self):
         return {
-            "BASE_PREFIX": self.base_prefix,
-            "DISTRIBUTION_NAME": os.path.basename(self.base_prefix),
-            "BASE_PYTHON": os.path.join(self.base_prefix, "bin", "python"),
-            "PREFIX": self.prefix,
-            "ENV_NAME": os.path.basename(self.prefix),
-            "PYTHON": os.path.join(self.prefix, "bin", "python"),
-            "MENU_DIR": os.path.join(self.prefix, "Menu"),
-            "BIN_DIR": os.path.join(self.prefix, "bin"),
-            "PY_VER": "",
+            "BASE_PREFIX": str(self.base_prefix),
+            "DISTRIBUTION_NAME": self.base_prefix.name,
+            "BASE_PYTHON": str(self.base_prefix / "bin" / "python"),
+            "PREFIX": str(self.prefix),
+            "ENV_NAME": self.prefix.name,
+            "PYTHON": str(self.prefix / "bin" / "python"),
+            "MENU_DIR": str(self.prefix / "Menu"),
+            "BIN_DIR": str(self.prefix / "bin"),
+            "PY_VER": "N.A",
             "HOME": os.path.expanduser("~"),
             "ICON_EXT": "png",
         }
+
+    @property
+    def conda_exe(self):
+        candidates = (
+                self.base_prefix / "_conda.exe",
+                Path(os.environ.get("CONDA_EXE", "")),
+                self.base_prefix / "condabin" / "conda",
+                self.base_prefix / "bin" / "conda",
+                Path(os.environ.get("MAMBA_EXE", "")),
+                self.base_prefix / "condabin" / "micromamba",
+                self.base_prefix / "bin" / "micromamba",
+        )
+        return next((path for path in candidates if path.is_file()), "conda")
 
 
 class MenuItem:
