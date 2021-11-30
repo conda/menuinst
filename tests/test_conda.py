@@ -3,10 +3,11 @@ Integration tests with conda
 """
 import sys
 from subprocess import check_call, check_output
-from tempfile import TemporaryDirectory
+from tempfile import mkdtemp
 from pathlib import Path
 from contextlib import contextmanager
 import json
+import shutil
 
 import pytest
 from conda.models.version import VersionOrder
@@ -16,11 +17,12 @@ from conftest import DATA, PLATFORM
 
 @contextmanager
 def new_environment(*packages):
-    with TemporaryDirectory() as prefix:
-        check_call( ["conda", "create", "-y", "-p", prefix] + [str(p) for p in packages])
-        # check_call(["conda", "update", "--all", "-p", prefix])
-        yield prefix
-        check_call(["conda", "env", "remove", "-y", "-p", prefix])
+    prefix = mkdtemp()
+    check_call( ["conda", "create", "-y", "-p", prefix] + [str(p) for p in packages])
+    # check_call(["conda", "update", "--all", "-p", prefix])
+    yield prefix
+    check_call(["conda", "env", "remove", "-y", "-p", prefix])
+    shutil.rmtree(prefix, ignore_errors=True)
 
 
 @contextmanager
