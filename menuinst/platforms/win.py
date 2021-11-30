@@ -61,8 +61,8 @@ class WindowsMenu(Menu):
                 "PYTHONW": str(self.prefix / "pythonw.exe"),
                 "BASE_PYTHON": str(self.base_prefix / "python.exe"),
                 "BASE_PYTHONW": str(self.base_prefix / "pythonw.exe"),
-                "BIN_DIR": str(self.prefix / "Library", "bin"),
-                "SP_DIR": str(self.prefix / "Lib", "site-packages"),
+                "BIN_DIR": str(self.prefix / "Library" / "bin"),
+                "SP_DIR": str(self.prefix / "Lib" / "site-packages"),
                 "ICON_EXT": "ico",
             }
         )
