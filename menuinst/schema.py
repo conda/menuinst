@@ -42,10 +42,21 @@ class MenuItemMetadata(BaseModel):
         description="Working directory for the running process. "
         "Defaults to user directory on each platform.",
     )
+    activate: bool = Field(
+        True,
+        description="Whether to activate the target environment "
+        "before running `command`.",
+    )
 
 
 class OptionalMenuItemMetadata(MenuItemMetadata):
-    """Same as MenuItemMetadata, but all is optional. Keep up-to-date!"""
+    """
+    Same as MenuItemMetadata, but all is optional.
+
+    Note:
+    * This needs to be kept up-to-date!
+    * Default value is always None.
+    """
 
     name: Optional[constr(min_length=1)] = Field(None, description="The name of the menu item")
     description: Optional[str] = Field(
@@ -64,6 +75,11 @@ class OptionalMenuItemMetadata(MenuItemMetadata):
         description="Working directory for the running process. "
         "Defaults to user directory on each platform.",
     )
+    activate: Optional[bool] = Field(
+        None,
+        description="Whether to activate the target environment "
+        "before running `command`.",
+    )
 
 
 class MenuInstSchema(BaseModel):
@@ -77,6 +93,11 @@ class MenuInstSchema(BaseModel):
 
             class Windows(OptionalMenuItemMetadata):
                 "Windows-specific instructions. You can override global keys here if needed"
+                no_console: Optional[bool] = Field (
+                    True,
+                    description="Try not to show a CMD console when running the command. "
+                    "Only relevant if activate=True (default).",
+                )
                 desktop: Optional[bool] = Field(
                     True,
                     description="Whether to create a desktop icon in "

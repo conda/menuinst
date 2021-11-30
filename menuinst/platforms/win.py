@@ -55,15 +55,15 @@ class WindowsMenu(Menu):
         placeholders = super().placeholders
         placeholders.update(
             {
-                "{{ SCRIPTS_DIR }}": os.path.join(self.prefix, "Scripts"),
-                "{{ CWP }}": os.path.join(self.prefix, "cwp.py"),
-                "{{ PYTHON }}": os.path.join(self.prefix, "python.exe"),
-                "{{ PYTHONW }}": os.path.join(self.prefix, "pythonw.exe"),
-                "{{ BASE_PYTHON }}": os.path.join(self.base_prefix, "python.exe"),
-                "{{ BASE_PYTHONW }}": os.path.join(self.base_prefix, "pythonw.exe"),
-                "{{ BIN_DIR }}": os.path.join(self.prefix, "Library", "bin"),
-                "{{ SP_DIR }}": os.path.join(self.prefix, "Lib", "site-packages"),
-                "{{ ICON_EXT }}": "ico",
+                "SCRIPTS_DIR": os.path.join(self.prefix, "Scripts"),
+                "CWP": os.path.join(self.prefix, "cwp.py"),
+                "PYTHON": os.path.join(self.prefix, "python.exe"),
+                "PYTHONW": os.path.join(self.prefix, "pythonw.exe"),
+                "BASE_PYTHON": os.path.join(self.base_prefix, "python.exe"),
+                "BASE_PYTHONW": os.path.join(self.base_prefix, "pythonw.exe"),
+                "BIN_DIR": os.path.join(self.prefix, "Library", "bin"),
+                "SP_DIR": os.path.join(self.prefix, "Lib", "site-packages"),
+                "ICON_EXT": "ico",
             }
         )
         return placeholders
@@ -92,11 +92,34 @@ class WindowsMenu(Menu):
 class WindowsMenuItem(MenuItem):
     def create(self) -> Tuple[Path]:
         shell = Dispatch("WScript.Shell")
+        activate = self.render("activate")
+
+        if activate:
+            script = self._write_script()
         paths = self._paths()
+
         for path in paths:
+            if not path.suffix == ".lnk":
+                continue
+
             shortcut = shell.CreateShortCut(str(path))
 
-            target_path, *arguments = WinLex.quote_args(self.render("command"))
+            if activate:
+                if self.render("no_console"):
+                    command = [
+                        "powershell.exe",
+                        f'"start \"{script}\" -WindowStyle hidden"',
+                    ]
+                else:
+                    command = [
+                        "cmd.exe",
+                        "/K",
+                        script,
+                    ]
+            else:
+                command = self.render("command")
+
+            target_path, *arguments = WinLex.quote_args(command)
 
             shortcut.Targetpath = target_path
             if arguments:
@@ -131,6 +154,41 @@ class WindowsMenuItem(MenuItem):
         if self.metadata.quicklaunch and self.menu.quick_launch_location:
             directories.append(self.menu.quick_launch_location)
 
+        # These are the different lnk files
+        shortcuts = [directory / self._shortcut_filename() for directory in directories]
+
+        if self.render("activate"):
+            # This is the accessory launcher script for cmd
+            shortcuts.append(self._path_for_script())
+
+        return tuple(shortcuts)
+
+    def _shortcut_filename(self, ext="lnk"):
         env_suffix = f" ({self.menu.env_name})" if self.menu.env_name else ""
-        filename = f"{self.render('name')}{env_suffix}.lnk"
-        return tuple(directory / filename for directory in directories)
+        return f"{self.render('name')}{env_suffix}.{ext}"
+
+    def _path_for_script(self):
+        return Path(self.menu.placeholders["{{ MENU_DIR }}"]) / self._shortcut_filename("bat")
+
+    def _write_script(self):
+        """
+        This method generates the batch script that will be called by the shortcut
+        """
+        lines = ["@echo off"]
+        if self.render("activate"):
+            lines += [
+                "SETLOCAL ENABLEDELAYEDEXPANSION",
+                f'set "BASE_PREFIX={self.menu.placeholders["{{ BASE_PREFIX }}"]}"',
+                f'set "PREFIX={self.menu.placeholders["{{ PREFIX }}"]}"',
+                'FOR /F "usebackq tokens=*" %%i IN (`%BASE_PREFIX%\_conda.exe shell.cmd.exe activate "%PREFIX%"`) do set "ACTIVATOR=%%i"',
+                'CALL %ACTIVATOR%',
+                ":: This below is the user command"
+            ]
+
+        lines += self.render("command")
+
+        path = self._path_for_script()
+        with open(path, "w") as f:
+            f.write("\r\n".join(lines))
+
+        return path

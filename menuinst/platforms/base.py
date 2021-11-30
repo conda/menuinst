@@ -41,7 +41,7 @@ class Menu:
         if value is None:
             return
         for placeholder, replacement in self.placeholders.items():
-            value = value.replace(placeholder, replacement)
+            value = value.replace("{{ " + placeholder + " }}", replacement)
         if slug:
             value = slugify(value)
         return value
@@ -49,18 +49,17 @@ class Menu:
     @property
     def placeholders(self):
         return {
-            "{{ BASE_PREFIX }}": self.base_prefix,
-            "{{ DISTRIBUTION_NAME }}": os.path.basename(self.base_prefix),
-            "{{ BASE_PYTHON }}": os.path.join(self.base_prefix, "bin", "python"),
-            "{{ PREFIX }}": self.prefix,
-            "{{ ENV_NAME }}": os.path.basename(self.prefix),
-            "{{ PYTHON }}": os.path.join(self.prefix, "bin", "python"),
-            "{{ MENU_DIR }}": os.path.join(self.prefix, "Menu"),
-            "{{ BIN_DIR }}": os.path.join(self.prefix, "bin"),
-            "{{ SP_DIR }}": os.path.join(self.prefix, "lib", f"pythonX.Y", "site-packages"),
-            "{{ PY_VER }}": "",
-            "{{ HOME }}": os.path.expanduser("~"),
-            "{{ ICON_EXT }}": "png",
+            "BASE_PREFIX": self.base_prefix,
+            "DISTRIBUTION_NAME": os.path.basename(self.base_prefix),
+            "BASE_PYTHON": os.path.join(self.base_prefix, "bin", "python"),
+            "PREFIX": self.prefix,
+            "ENV_NAME": os.path.basename(self.prefix),
+            "PYTHON": os.path.join(self.prefix, "bin", "python"),
+            "MENU_DIR": os.path.join(self.prefix, "Menu"),
+            "BIN_DIR": os.path.join(self.prefix, "bin"),
+            "PY_VER": "",
+            "HOME": os.path.expanduser("~"),
+            "ICON_EXT": "png",
         }
 
 
@@ -87,3 +86,16 @@ class MenuItem:
         if isinstance(value, str):
             return self.menu.render(value, slug=slug)
         return [self.menu.render(item, slug=slug) for item in value]
+
+
+def _site_packages_in_unix(prefix):
+    """
+    Locate the python site-packages location on unix systems
+    """
+    for python_lib in (prefix / "lib").glob("python*"):
+        if python_lib.is_directory():
+            break
+    else:
+        python_lib = prefix / "lib" / "pythonN.A"
+
+    return python_lib / "site-packages"

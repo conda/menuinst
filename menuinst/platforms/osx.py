@@ -8,7 +8,7 @@ import shlex
 from typing import Tuple
 from tempfile import mkdtemp
 
-from .base import Menu, MenuItem
+from .base import Menu, MenuItem, _site_packages_in_unix
 
 
 class MacOSMenu(Menu):
@@ -23,8 +23,9 @@ class MacOSMenu(Menu):
         placeholders = super().placeholders
         placeholders.update(
             {
-                "{{ ICON_EXT }}": "icns",
-                "{{ PYTHONAPP }}": str(
+                "SP_DIR": str(_site_packages_in_unix()),
+                "ICON_EXT": "icns",
+                "PYTHONAPP": str(
                     Path(self.prefix) / "python.app" / "Contents" / "MacOS" / "python"
                 ),
             }
@@ -91,14 +92,24 @@ class MacOSMenuItem(MenuItem):
             plistlib.dump(pl, f)
 
     def _write_script(self):
-        script_path = self.location / "Contents" / "MacOS" / self.render("name", slug=True)
-        cmd = " ".join([shlex.quote(s) for s in self.render("command")])
+        lines = ["#!/bin/bash"]
+
         working_dir = self.render("working_dir")
+        if working_dir:
+            Path(working_dir).mkdir(parents=True, exist_ok=True)
+            lines.append(f'cd "{working_dir}"')
+
+        if self.render("activate"):
+            lines.append(
+                f"eval $(\"{self.menu.placeholders['BASE_PREFIX']}/_conda.exe\" "
+                f"shell.bash activate \"{self.menu.placeholders['PREFIX']}\")"
+            )
+
+        lines.append(" ".join([shlex.quote(s) for s in self.render("command")]))
+
+        script_path = self.location / "Contents" / "MacOS" / self.render("name", slug=True)
         with open(script_path, "w") as f:
-            f.write("#!/bin/bash\n")
-            if working_dir:
-                Path(working_dir).mkdir(parents=True, exist_ok=True)
-                f.write(f'cd "{working_dir}"\n')
-            f.write(f"{cmd}\n")
+            f.write("\n".join(lines))
 
         os.chmod(script_path, 0o755)
+        return script_path

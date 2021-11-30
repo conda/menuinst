@@ -7,7 +7,7 @@ import shutil
 import xml.etree.ElementTree as XMLTree
 import time
 
-from .base import Menu, MenuItem
+from .base import Menu, MenuItem, _site_packages_in_unix
 from ..schema import MenuInstSchema
 from ..utils import indent_xml_tree, add_xml_child
 
@@ -62,6 +62,16 @@ class LinuxMenu(Menu):
                 return (self.directory_entry_location,)
         self._remove_this_menu()
         return (self.directory_entry_location,)
+
+    @property
+    def placeholders(self):
+        placeholders = super().placeholders
+        placeholders.update(
+            {
+                "SP_DIR": str(_site_packages_in_unix()),
+            }
+        )
+        return placeholders
 
     def _ensure_directories_exist(self):
         paths = [
@@ -172,7 +182,14 @@ class LinuxMenuItem(MenuItem):
         return (self.location,)
 
     def _write_desktop_file(self):
-        cmd = " ".join([shlex.quote(s) for s in self.render("command")])
+        cmd = ""
+        if self.render("activate"):
+            cmd = (
+                f"eval $(\"{self.menu.placeholders['BASE_PREFIX']}/_conda.exe\" "
+                f"shell.bash activate \"{self.menu.placeholders['PREFIX']}\") "
+                " && "
+            )
+        cmd += " ".join([shlex.quote(s) for s in self.render("command")])
         lines = [
             "[Desktop Entry]",
             "Type=Application",
