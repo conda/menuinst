@@ -180,7 +180,7 @@ class WindowsMenuItem(MenuItem):
                 "SETLOCAL ENABLEDELAYEDEXPANSION",
                 f'set "BASE_PREFIX={self.menu.placeholders["BASE_PREFIX"]}"',
                 f'set "PREFIX={self.menu.placeholders["PREFIX"]}"',
-                'FOR /F "usebackq tokens=*" %%i IN (`%BASE_PREFIX%\_conda.exe shell.cmd.exe activate "%PREFIX%"`) do set "ACTIVATOR=%%i"',
+                r'FOR /F "usebackq tokens=*" %%i IN (`%BASE_PREFIX%\_conda.exe shell.cmd.exe activate "%PREFIX%"`) do set "ACTIVATOR=%%i"',
                 'CALL %ACTIVATOR%',
                 ":: This below is the user command"
             ]
@@ -188,6 +188,7 @@ class WindowsMenuItem(MenuItem):
         lines += self.render("command")
 
         path = self._path_for_script()
+        Path(self.menu.placeholders["MENU_DIR"]).mkdir(parents=True, exist_ok=True)
         with open(path, "w") as f:
             f.write("\r\n".join(lines))
 
