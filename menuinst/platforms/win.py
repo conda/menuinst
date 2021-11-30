@@ -205,6 +205,8 @@ class WindowsMenuItem(MenuItem):
         """
         if script_path is None:
             script_path = self._path_for_script()
+        else:
+            script_path = Path(script_path)
 
         script_path.parent.mkdir(parents=True, exist_ok=True)
         with open(script_path, "w") as f:
