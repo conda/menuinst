@@ -92,7 +92,7 @@ class WindowsMenu(Menu):
 class WindowsMenuItem(MenuItem):
     def create(self) -> Tuple[Path]:
         shell = Dispatch("WScript.Shell")
-        activate = self.render("activate")
+        activate = self.metadata.activate
 
         if activate:
             script = self._write_script()
@@ -105,7 +105,7 @@ class WindowsMenuItem(MenuItem):
             shortcut = shell.CreateShortCut(str(path))
 
             if activate:
-                if self.render("no_console"):
+                if self.metadata.no_console:
                     command = [
                         "powershell.exe",
                         f'"start \"{script}\" -WindowStyle hidden"',
@@ -157,7 +157,7 @@ class WindowsMenuItem(MenuItem):
         # These are the different lnk files
         shortcuts = [directory / self._shortcut_filename() for directory in directories]
 
-        if self.render("activate"):
+        if self.metadata.activate:
             # This is the accessory launcher script for cmd
             shortcuts.append(self._path_for_script())
 
@@ -175,7 +175,7 @@ class WindowsMenuItem(MenuItem):
         This method generates the batch script that will be called by the shortcut
         """
         lines = ["@echo off"]
-        if self.render("activate"):
+        if self.metadata.activate:
             lines += [
                 "SETLOCAL ENABLEDELAYEDEXPANSION",
                 f'set "BASE_PREFIX={self.menu.placeholders["{{ BASE_PREFIX }}"]}"',

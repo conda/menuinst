@@ -99,7 +99,7 @@ class MacOSMenuItem(MenuItem):
             Path(working_dir).mkdir(parents=True, exist_ok=True)
             lines.append(f'cd "{working_dir}"')
 
-        if self.render("activate"):
+        if self.metadata.activate:
             lines.append(
                 f"eval $(\"{self.menu.placeholders['BASE_PREFIX']}/_conda.exe\" "
                 f"shell.bash activate \"{self.menu.placeholders['PREFIX']}\")"

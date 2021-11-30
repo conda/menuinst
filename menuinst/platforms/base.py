@@ -81,8 +81,8 @@ class MenuItem:
 
     def render(self, key: str, slug=False):
         value = getattr(self.metadata, key)
-        if value is None:
-            return
+        if value in (None, True, False):
+            return value
         if isinstance(value, str):
             return self.menu.render(value, slug=slug)
         return [self.menu.render(item, slug=slug) for item in value]
@@ -93,7 +93,7 @@ def _site_packages_in_unix(prefix):
     Locate the python site-packages location on unix systems
     """
     for python_lib in (Path(prefix) / "lib").glob("python*"):
-        if python_lib.is_directory():
+        if python_lib.is_dir():
             break
     else:
         python_lib = prefix / "lib" / "pythonN.A"

@@ -183,7 +183,7 @@ class LinuxMenuItem(MenuItem):
 
     def _write_desktop_file(self):
         cmd = ""
-        if self.render("activate"):
+        if self.metadata.activate:
             cmd = (
                 f"eval $(\"{self.menu.placeholders['BASE_PREFIX']}/_conda.exe\" "
                 f"shell.bash activate \"{self.menu.placeholders['PREFIX']}\") "

@@ -80,6 +80,17 @@
           "minLength": 1,
           "type": "string"
         },
+        "activate": {
+          "title": "Activate",
+          "description": "Whether to activate the target environment before running `command`.",
+          "type": "boolean"
+        },
+        "no_console": {
+          "title": "No Console",
+          "description": "Try not to show a CMD console when running the command. Only relevant if activate=True (default).",
+          "default": true,
+          "type": "boolean"
+        },
         "desktop": {
           "title": "Desktop",
           "description": "Whether to create a desktop icon in addition to the Start Menu item.",
@@ -131,6 +142,11 @@
           "description": "Working directory for the running process. Defaults to user directory on each platform.",
           "minLength": 1,
           "type": "string"
+        },
+        "activate": {
+          "title": "Activate",
+          "description": "Whether to activate the target environment before running `command`.",
+          "type": "boolean"
         },
         "GenericName": {
           "title": "Genericname",
@@ -291,6 +307,11 @@
           "description": "Working directory for the running process. Defaults to user directory on each platform.",
           "minLength": 1,
           "type": "string"
+        },
+        "activate": {
+          "title": "Activate",
+          "description": "Whether to activate the target environment before running `command`.",
+          "type": "boolean"
         }
       },
       "additionalProperties": false
@@ -348,6 +369,12 @@
           "description": "Working directory for the running process. Defaults to user directory on each platform.",
           "minLength": 1,
           "type": "string"
+        },
+        "activate": {
+          "title": "Activate",
+          "description": "Whether to activate the target environment before running `command`.",
+          "default": true,
+          "type": "boolean"
         },
         "platforms": {
           "$ref": "#/definitions/Platforms"

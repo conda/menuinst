@@ -11,7 +11,7 @@ import json
 import pytest
 from conda.models.version import VersionOrder
 
-from conftest import DATA
+from conftest import DATA, PLATFORM
 
 
 @contextmanager
@@ -37,19 +37,19 @@ def test_conda_recent_enough():
     assert VersionOrder(data["conda_version"]) >= VersionOrder("4.11a0")
 
 
-@pytest.mark.skipif(not sys.platform.startswith("linux"), "Linux only")
+@pytest.mark.skipif(PLATFORM != "linux", reason="Linux only")
 def test_install_linux():
     with install_package_1() as prefix:
         # check that .desktop files are created
         ...
 
-@pytest.mark.skipif(sys.platform != "darwin", "MacOS only")
+@pytest.mark.skipif(PLATFORM != "osx", reason="MacOS only")
 def test_install_osx():
     with install_package_1() as prefix:
         # check that .app directory is created
         ...
 
-@pytest.mark.skipif(sys.platform != "win32", "Windows only")
+@pytest.mark.skipif(PLATFORM != "win", reason="Windows only")
 def test_install_windows():
     with install_package_1() as prefix:
         # check that .lnk files are created
