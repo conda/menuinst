@@ -71,7 +71,7 @@ def test_install_windows():
         item = MenuItem(menu, meta.menu_items[0])
         script = item._write_script(script_path=NamedTemporaryFile(suffix=".bat", delete=False).name)
         print(item._command())
-        output = check_output(script, shell=True, universal_newlines=True)
+        output = check_output(str(script), shell=True, universal_newlines=True)
         Path(script).unlink()
         assert output.strip() == str(prefix)
 

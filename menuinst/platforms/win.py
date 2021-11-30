@@ -195,7 +195,7 @@ class WindowsMenuItem(MenuItem):
                 ":: This below is the user command"
             ]
 
-        lines += self.render("command")
+        lines.append(" ".join(WinLex.quote_args(self.render("command"))))
 
         return "\r\n".join(lines)
 
