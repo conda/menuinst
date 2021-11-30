@@ -92,7 +92,7 @@ def _site_packages_in_unix(prefix):
     """
     Locate the python site-packages location on unix systems
     """
-    for python_lib in (prefix / "lib").glob("python*"):
+    for python_lib in (Path(prefix) / "lib").glob("python*"):
         if python_lib.is_directory():
             break
     else:
