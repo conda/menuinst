@@ -15,7 +15,7 @@ from conftest import DATA
 #     assert value
 
 
-@pytest.mark.parametrize("path", DATA.glob("*.json"))
+@pytest.mark.parametrize("path", (DATA / "jsons").glob("*.json"))
 def test_examples(path):
     if "invalid" in path.name:
         with pytest.raises(ValidationError):
