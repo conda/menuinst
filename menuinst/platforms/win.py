@@ -71,13 +71,13 @@ class WindowsMenu(Menu):
     @property
     def conda_exe(self):
         candidates = (
-            self.menu.base_prefix / "_conda.exe",
+            self.base_prefix / "_conda.exe",
             os.environ.get("CONDA_EXE", ""),
-            self.menu.base_prefix / "condabin" / "conda.bat",
-            self.menu.base_prefix / "bin" / "conda.bat",
+            self.base_prefix / "condabin" / "conda.bat",
+            self.base_prefix / "bin" / "conda.bat",
             os.environ.get("MAMBA_EXE", ""),
-            self.menu.base_prefix / "condabin" / "micromamba.exe",
-            self.menu.base_prefix / "bin" / "micromamba.exe",
+            self.base_prefix / "condabin" / "micromamba.exe",
+            self.base_prefix / "bin" / "micromamba.exe",
         )
         return next((path for path in candidates if path.is_file()), "conda.exe")
 
