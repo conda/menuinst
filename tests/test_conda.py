@@ -152,7 +152,7 @@ def test_package_1_windows():
             script = item._write_script(script_path=NamedTemporaryFile(suffix=".bat", delete=False).name)
             print(item._command())
             print("-------------")
-            output = check_output(["cmd.exe", "/C", f"conda deactivate && {script}"], universal_newlines=True, env=ENV_VARS)
+            output = check_output(["cmd.exe", "/C", f"conda deactivate && conda deactivate && {script}"], universal_newlines=True, env=ENV_VARS)
             Path(script).unlink()
             output = output.replace("ECHO is off.", "")
             assert output.strip() == expected_output
