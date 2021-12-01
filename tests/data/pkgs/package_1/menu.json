@@ -21,6 +21,26 @@
                 "linux": {},
                 "osx": {}
             }
+        },
+        {
+            "name": "B",
+            "description": "This one does not preactivate the environment",
+            "icon": null,
+            "command": [
+                "echo",
+                "${CONDA_PREFIX:-N/A}"
+            ],
+            "activate": false,
+            "platforms": {
+                "win": {
+                    "command": [
+                        "echo",
+                        "%CONDA_PREFIX%"
+                    ]
+                },
+                "linux": {},
+                "osx": {}
+            }
         }
     ]
 }
