@@ -2,7 +2,8 @@
 Integration tests with conda
 """
 import os
-from subprocess import check_call, check_output
+import sys
+from subprocess import check_output, run, PIPE
 from tempfile import NamedTemporaryFile, mkdtemp
 from pathlib import Path
 from contextlib import contextmanager
@@ -22,6 +23,7 @@ ENV_VARS = {
     k: v for (k, v) in os.environ.copy().items()
     if not k.startswith(("CONDA", "_CONDA", "MAMBA", "_MAMBA"))
 }
+ENV_VARS["CONDA_VERBOSITY"] = "2"
 
 
 @contextmanager
@@ -29,13 +31,37 @@ def new_environment(*packages):
     prefix = mkdtemp()
     env = ENV_VARS.copy()
     env["CONDA_PKGS_DIRS"] = prefix
-    check_call(
-        ["conda", "create", "-y", "--offline", "-p", prefix] + [str(p) for p in packages],
+    cmd = ["conda", "create", "-y", "--offline", "-p", prefix] + [str(p) for p in packages]
+    process = run(
+        cmd,
         env=env,
+        stdout=PIPE,
+        stderr=PIPE,
+        universal_newlines=True,
     )
+    print(process.stdout)
+    print(process.stderr, file=sys.stderr)
+    process.check_returncode()
+
+    if "menuinst Exception" in process.stdout:
+        raise RuntimeError(
+            f"Command {cmd} exited with 0 but "
+            f"stdout contained exception:\n{process.stdout}"
+        )
+
     # check_call(["conda", "update", "--all", "-p", prefix])
     yield prefix
-    check_call(["conda", "env", "remove", "-y", "-p", prefix], env=ENV_VARS)
+    cmd = ["conda", "env", "remove", "-y", "-p", prefix]
+    process = run (
+        cmd,
+        env=ENV_VARS,
+        stdout=PIPE,
+        stderr=PIPE,
+        universal_newlines=True,
+    )
+    print(process.stdout)
+    print(process.stderr, file=sys.stderr)
+    process.check_returncode()
     shutil.rmtree(prefix, ignore_errors=True)
 
 
@@ -69,16 +95,23 @@ def test_package_1_linux():
     with install_package_1() as (prefix, menu_file):
         meta = validate(menu_file)
         menu = Menu(meta.menu_name, str(prefix), BASE_PREFIX)
+        items = []
 
         # First case, activation is on, output should be the prefix path
         # Second case, activation is off, output should be N/A
         for item, expected_output in zip(meta.menu_items, (str(prefix), "N/A")):
             item = MenuItem(menu, item)
+            items.append(item)
             command = item._command()
             print(command)
             print("-----")
             output = check_output(command, shell=True, universal_newlines=True, env=ENV_VARS)
             assert output.strip() == expected_output
+
+    # assert not Path(prefix).exists()
+    # for item in items:
+    #     for path in item._paths():
+    #         assert not path.exists()
 
 
 @pytest.mark.skipif(PLATFORM != "osx", reason="MacOS only")
@@ -86,11 +119,12 @@ def test_package_1_osx():
     with install_package_1() as (prefix, menu_file):
         meta = validate(menu_file)
         menu = Menu(meta.menu_name, str(prefix), BASE_PREFIX)
-
+        items = []
         # First case, activation is on, output should be the prefix path
         # Second case, activation is off, output should be N/A
         for item, expected_output in zip(meta.menu_items, (str(prefix), "N/A")):
             item = MenuItem(menu, item)
+            items.append(item)
             script = item._write_script(script_path=NamedTemporaryFile(suffix=".sh", delete=False).name)
             print(item._command())
             print("-------------")
@@ -98,20 +132,32 @@ def test_package_1_osx():
             Path(script).unlink()
             assert output.strip() == expected_output
 
+    # assert not Path(prefix).exists()
+    # for item in items:
+    #     for path in item._paths():
+    #         assert not path.exists()
+
 
 @pytest.mark.skipif(PLATFORM != "win", reason="Windows only")
 def test_package_1_windows():
     with install_package_1() as (prefix, menu_file):
         meta = validate(menu_file)
         menu = Menu(meta.menu_name, str(prefix), BASE_PREFIX)
-
+        items = []
         # First case, activation is on, output should be the prefix path
         # Second case, activation is off, output should be empty
         for item, expected_output in zip(meta.menu_items, (str(prefix), "")):
             item = MenuItem(menu, item)
+            items.append(item)
             script = item._write_script(script_path=NamedTemporaryFile(suffix=".bat", delete=False).name)
             print(item._command())
             print("-------------")
-            output = check_output(["cmd.exe", "/C", str(script)], universal_newlines=True, env=ENV_VARS)
+            output = check_output(["cmd.exe", "/Q", "/C", str(script)], universal_newlines=True, env=ENV_VARS)
             Path(script).unlink()
+            output = output.strip("ECHO is off.")
             assert output.strip() == expected_output
+
+    # assert not Path(prefix).exists()
+    # for item in items:
+    #     for path in item._paths():
+    #         assert not path.exists()
