@@ -56,10 +56,13 @@ def remove(
         warnings.warning(f"Metadata for {metadata.name} is not enabled for {sys.platform}")
         return
 
+    paths = []
     for item in metadata.menu_items:
         menu_item = MenuItem(menu, item)
-        menu_item.remove()
-    menu.remove()
+        paths += menu_item.remove()
+    paths += menu.remove()
+
+    return paths
 
 
 def install_all(
