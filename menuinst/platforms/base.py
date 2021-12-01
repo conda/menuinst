@@ -66,10 +66,10 @@ class Menu:
     def conda_exe(self):
         candidates = (
                 self.base_prefix / "_conda.exe",
-                Path(os.environ.get("CONDA_EXE", "")),
+                Path(os.environ.get("CONDA_EXE", "/oops/a_file_that_does_not_exist")),
                 self.base_prefix / "condabin" / "conda",
                 self.base_prefix / "bin" / "conda",
-                Path(os.environ.get("MAMBA_EXE", "")),
+                Path(os.environ.get("MAMBA_EXE", "/oops/a_file_that_does_not_exist")),
                 self.base_prefix / "condabin" / "micromamba",
                 self.base_prefix / "bin" / "micromamba",
         )
@@ -105,11 +105,6 @@ def _site_packages_in_unix(prefix):
     """
     Locate the python site-packages location on unix systems
     """
-    prefix = Path(prefix)
-    for python_lib in (prefix / "lib").glob("python*"):
-        if python_lib.is_dir():
-            break
-    else:
-        python_lib = prefix / "lib" / "pythonN.A"
-
-    return python_lib / "site-packages"
+    lib = Path(prefix) / "lib"
+    lib_python = next((p for p in lib.glob("python*") if p.is_dir()), lib / "pythonN.A")
+    return lib_python / "site-packages"
