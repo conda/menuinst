@@ -193,10 +193,15 @@ class WindowsMenuItem(MenuItem):
     def _command(self):
         lines = ["@ECHO OFF"]
         if self.metadata.activate:
-            activate = f'{self.menu.conda_exe} shell.cmd.exe activate "{self.menu.prefix}"'
+            conda_exe = self.menu.conda_exe
+            if self.menu._is_micromamba(conda_exe):
+                activate = "shell activate"
+            else:
+                activate = "shell.cmd.exe activate"
+            activator = f'{self.menu.conda_exe} {activate} "{self.menu.prefix}"'
             lines += [
                 "@SETLOCAL ENABLEDELAYEDEXPANSION",
-                f'@FOR /F "usebackq tokens=*" %%i IN (`{activate}`) do set "ACTIVATOR=%%i"',
+                f'@FOR /F "usebackq tokens=*" %%i IN (`{activator}`) do set "ACTIVATOR=%%i"',
                 '@CALL %ACTIVATOR%',
                 ":: This below is the user command"
             ]

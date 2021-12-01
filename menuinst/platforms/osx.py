@@ -106,9 +106,13 @@ class MacOSMenuItem(MenuItem):
             lines.append(f'cd "{working_dir}"')
 
         if self.metadata.activate:
+            conda_exe = self.menu.conda_exe
+            if self.menu._is_micromamba(conda_exe):
+                activate = "shell activate"
+            else:
+                activate = "shell.bash activate"
             lines.append(
-                f"eval $(\"{self.menu.conda_exe}\" "
-                f"shell.bash activate \"{self.menu.prefix}\")"
+                f"eval $(\"{conda_exe}\" {activate} \"{self.menu.prefix}\")"
             )
 
         lines.append(" ".join(UnixLex.quote_args(self.render("command"))))

@@ -5,6 +5,7 @@ import sys
 import warnings
 from typing import Union, List
 from pathlib import Path
+from subprocess import check_output
 
 try:
     from typing import Literal
@@ -73,8 +74,15 @@ class Menu:
                 self.base_prefix / "condabin" / "micromamba",
                 self.base_prefix / "bin" / "micromamba",
         )
-        return next((path for path in candidates if path.is_file()), "conda")
+        return next((path for path in candidates if path.is_file()), Path("conda"))
 
+    def _is_micromamba(self, exe):
+        if "micromamba" in exe.name:
+            return True
+        if exe.name == "_conda.exe":
+            out = check_output([str(exe), "info"], universal_newlines=True)
+            return "micromamba version" in out
+        return False
 
 class MenuItem:
     def __init__(self, menu: Menu, metadata: MenuInstSchema.MenuItem):

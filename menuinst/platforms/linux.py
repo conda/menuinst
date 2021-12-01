@@ -195,11 +195,13 @@ class LinuxMenuItem(MenuItem):
     def _command(self):
         cmd = ""
         if self.metadata.activate:
-            cmd = (
-                f"eval $(\"{self.menu.conda_exe}\" "
-                f"shell.bash activate \"{self.menu.prefix}\") "
-                " && "
-            )
+            conda_exe = self.menu.conda_exe
+            if self.menu._is_micromamba(conda_exe):
+                activate = "shell activate"
+            else:
+                activate = "shell.bash activate"
+            cmd = f"eval $(\"{conda_exe}\" {activate} \"{self.menu.prefix}\") && "
+
         cmd += " ".join(UnixLex.quote_args(self.render("command")))
         return cmd
 
