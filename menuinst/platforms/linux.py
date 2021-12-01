@@ -1,17 +1,18 @@
 """
 """
 import os
-import shlex
 from pathlib import Path
 import shutil
 import xml.etree.ElementTree as XMLTree
 import time
-
-from tests.conftest import base_prefix
+from logging import getLogger
 
 from .base import Menu, MenuItem, _site_packages_in_unix
 from ..schema import MenuInstSchema
 from ..utils import indent_xml_tree, add_xml_child, UnixLex
+
+
+log = getLogger(__name__)
 
 
 class LinuxMenu(Menu):
@@ -82,6 +83,7 @@ class LinuxMenu(Menu):
             self.data_directory / "applications",
         ]
         for path in paths:
+            log.debug("Ensuring path %s exists", path)
             path.mkdir(parents=True, exist_ok=True)
 
     #
@@ -95,6 +97,7 @@ class LinuxMenu(Menu):
             "Encoding=UTF-8",
             f"Name={self.render('name')}",
         ]
+        log.debug("Writing directory entry at %s", self.directory_entry_location)
         with open(self.directory_entry_location, "w") as f:
             f.write("\n".join(lines))
 
@@ -105,6 +108,7 @@ class LinuxMenu(Menu):
     #
 
     def _remove_this_menu(self):
+        log.debug("Editing %s to remove %s config", self.menu_config_location, self.name)
         tree = XMLTree.parse(self.menu_config_location)
         root = tree.getroot()
         for elt in root.findall("Menu"):
@@ -117,6 +121,7 @@ class LinuxMenu(Menu):
         return any(e.text == self.name for e in root.findall("Menu/Name"))
 
     def _add_this_menu(self):
+        log.debug("Editing %s to add %s config", self.menu_config_location, self.name)
         tree = XMLTree.parse(self.menu_config_location)
         root = tree.getroot()
         menu_elt = add_xml_child(root, "Menu")
@@ -134,6 +139,7 @@ class LinuxMenu(Menu):
             return False
 
     def _write_menu_file(self, tree):
+        log.debug("Writing %s", self.menu_config_location)
         indent_xml_tree(tree.getroot())  # inplace!
         with open(self.menu_config_location, "wb") as f:
             f.write(b"    <!DOCTYPE Menu PUBLIC '-//freedesktop//DTD Menu 1.0//EN'\n")
@@ -159,6 +165,7 @@ class LinuxMenu(Menu):
             self._new_menu_file()
 
     def _new_menu_file(self):
+        log.debug("Creating %s", self.menu_config_location)
         with open(self.menu_config_location, "w") as f:
             f.write("<Menu><Name>Applications</Name>")
             if self.mode == "user":
@@ -176,10 +183,12 @@ class LinuxMenuItem(MenuItem):
         self.location = self.menu.desktop_entries_location / filename
 
     def create(self):
+        log.debug("Creating %s", self.location)
         self._write_desktop_file()
         return (self.location,)
 
     def remove(self):
+        log.debug("Removing %s", self.location)
         self.location.unlink()
         return (self.location,)
 

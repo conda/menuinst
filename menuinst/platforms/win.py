@@ -4,6 +4,7 @@ import os
 import warnings
 from pathlib import Path
 from typing import Tuple, Union
+from logging import getLogger
 
 from win32com.client import Dispatch
 
@@ -14,14 +15,19 @@ from ..utils import WinLex
 from .._legacy.win32 import folder_path
 
 
+log = getLogger(__name__)
+
+
 class WindowsMenu(Menu):
     def create(self):
         # TODO: Check if elevated permissions are needed
+        log.debug("Creating %s", self.start_menu_location)
         self.start_menu_location.mkdir(parents=True, exist_ok=False)
         return (self.start_menu_location,)
 
     def remove(self):
         # TODO: Check if elevated permissions are needed
+        log.debug("Removing %s", self.start_menu_location)
         self.start_menu_location.rmdir()
         return (self.start_menu_location,)
 
@@ -157,6 +163,7 @@ class WindowsMenuItem(MenuItem):
         paths = self._paths()
         for path in paths:
             # TODO: Check if elevated permissions are needed
+            log.debug("Removing %s", path)
             os.unlink(path)
         return paths
 
@@ -184,15 +191,13 @@ class WindowsMenuItem(MenuItem):
         return Path(self.menu.placeholders["MENU_DIR"]) / self._shortcut_filename("bat")
 
     def _command(self):
-        lines = ["@echo off"]
+        lines = ["@ECHO OFF"]
         if self.metadata.activate:
-            activate = f'{self.menu.conda_exe} shell.cmd.exe activate "%PREFIX%"'
+            activate = f'{self.menu.conda_exe} shell.cmd.exe activate "{self.menu.prefix}"'
             lines += [
-                "SETLOCAL ENABLEDELAYEDEXPANSION",
-                f'set "BASE_PREFIX={self.menu.base_prefix}"',
-                f'set "PREFIX={self.menu.prefix}"',
-                f'FOR /F "usebackq tokens=*" %%i IN (`{activate}`) do set "ACTIVATOR=%%i"',
-                'CALL %ACTIVATOR%',
+                "@SETLOCAL ENABLEDELAYEDEXPANSION",
+                f'@FOR /F "usebackq tokens=*" %%i IN (`{activate}`) do set "ACTIVATOR=%%i"',
+                '@CALL %ACTIVATOR%',
                 ":: This below is the user command"
             ]
 

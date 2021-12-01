@@ -4,12 +4,16 @@ import shutil
 from pathlib import Path
 import plistlib
 import os
-import shlex
 from typing import Tuple
 from tempfile import mkdtemp
+from logging import getLogger
 
 from .base import Menu, MenuItem, _site_packages_in_unix
 from ..utils import UnixLex
+
+
+log = getLogger(__name__)
+
 
 class MacOSMenu(Menu):
     def create(self):
@@ -48,6 +52,7 @@ class MacOSMenuItem(MenuItem):
         self.location = base / "Applications" / name
 
     def create(self) -> Tuple[Path]:
+        log.debug("Creating %s", self.location)
         self._create_application_tree()
         icon = self.render("icon")
         if icon:
@@ -58,6 +63,7 @@ class MacOSMenuItem(MenuItem):
         return (self.location,)
 
     def remove(self) -> Tuple[Path]:
+        log.debug("Removing %s", self.location)
         shutil.rmtree(self.location)
         return (self.location,)
 
