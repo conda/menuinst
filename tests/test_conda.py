@@ -154,7 +154,7 @@ def test_package_1_windows():
             print("-------------")
             output = check_output(["cmd.exe", "/Q", "/C", str(script)], universal_newlines=True, env=ENV_VARS)
             Path(script).unlink()
-            output = output.strip("ECHO is off.")
+            output = output.replace("ECHO is off.", "")
             assert output.strip() == expected_output
 
     # assert not Path(prefix).exists()
