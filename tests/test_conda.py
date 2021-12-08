@@ -23,7 +23,7 @@ ENV_VARS = {
     k: v for (k, v) in os.environ.copy().items()
     if not k.startswith(("CONDA", "_CONDA", "MAMBA", "_MAMBA"))
 }
-ENV_VARS["CONDA_VERBOSITY"] = "2"
+ENV_VARS["CONDA_VERBOSITY"] = "3"
 
 
 @contextmanager
@@ -31,6 +31,7 @@ def new_environment(*packages):
     prefix = mkdtemp()
     env = ENV_VARS.copy()
     env["CONDA_PKGS_DIRS"] = prefix
+    print("--- CREATING", prefix, "---")
     cmd = ["conda", "create", "-y", "--offline", "-p", prefix] + [str(p) for p in packages]
     process = run(
         cmd,
@@ -51,8 +52,9 @@ def new_environment(*packages):
 
     # check_call(["conda", "update", "--all", "-p", prefix])
     yield prefix
-    cmd = ["conda", "env", "remove", "-y", "-p", prefix]
-    process = run (
+    print("--- REMOVING", prefix, "---")
+    cmd = ["conda", "remove", "--all", "-y", "-p", prefix]
+    process = run(
         cmd,
         env=ENV_VARS,
         stdout=PIPE,
@@ -108,10 +110,10 @@ def test_package_1_linux():
             output = check_output(command, shell=True, universal_newlines=True, env=ENV_VARS)
             assert output.strip() == expected_output
 
-    # assert not Path(prefix).exists()
-    # for item in items:
-    #     for path in item._paths():
-    #         assert not path.exists()
+    assert not Path(prefix).exists()
+    for item in items:
+        for path in item._paths():
+            assert not path.exists()
 
 
 @pytest.mark.skipif(PLATFORM != "osx", reason="MacOS only")
@@ -132,10 +134,10 @@ def test_package_1_osx():
             Path(script).unlink()
             assert output.strip() == expected_output
 
-    # assert not Path(prefix).exists()
-    # for item in items:
-    #     for path in item._paths():
-    #         assert not path.exists()
+    assert not Path(prefix).exists()
+    for item in items:
+        for path in item._paths():
+            assert not path.exists()
 
 
 @pytest.mark.skipif(PLATFORM != "win", reason="Windows only")
@@ -157,7 +159,7 @@ def test_package_1_windows():
             output = output.replace("ECHO is off.", "")
             assert output.strip() == expected_output
 
-    # assert not Path(prefix).exists()
-    # for item in items:
-    #     for path in item._paths():
-    #         assert not path.exists()
+    assert not Path(prefix).exists()
+    for item in items:
+        for path in item._paths():
+            assert not path.exists()

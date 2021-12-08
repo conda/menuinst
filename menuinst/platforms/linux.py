@@ -6,6 +6,7 @@ import shutil
 import xml.etree.ElementTree as XMLTree
 import time
 from logging import getLogger
+from typing import Union, Iterable
 
 from .base import Menu, MenuItem
 from ..schema import MenuInstSchema
@@ -188,12 +189,14 @@ class LinuxMenuItem(MenuItem):
     def create(self):
         log.debug("Creating %s", self.location)
         self._write_desktop_file()
-        return (self.location,)
+        return self._paths()
 
     def remove(self):
-        log.debug("Removing %s", self.location)
-        self.location.unlink()
-        return (self.location,)
+        paths = self._paths()
+        for path in paths:
+            log.debug("Removing %s", path)
+            path.unlink()
+        return paths
 
     def _command(self):
         cmd = ""
