@@ -3,7 +3,7 @@
 import os
 import sys
 import warnings
-from typing import Union, List
+from typing import Union, List, Iterable
 from pathlib import Path
 from subprocess import check_output
 
@@ -66,13 +66,13 @@ class Menu:
     @property
     def conda_exe(self):
         candidates = (
-                self.base_prefix / "_conda.exe",
-                Path(os.environ.get("CONDA_EXE", "/oops/a_file_that_does_not_exist")),
-                self.base_prefix / "condabin" / "conda",
-                self.base_prefix / "bin" / "conda",
-                Path(os.environ.get("MAMBA_EXE", "/oops/a_file_that_does_not_exist")),
-                self.base_prefix / "condabin" / "micromamba",
-                self.base_prefix / "bin" / "micromamba",
+            self.base_prefix / "_conda.exe",
+            Path(os.environ.get("CONDA_EXE", "/oops/a_file_that_does_not_exist")),
+            self.base_prefix / "condabin" / "conda",
+            self.base_prefix / "bin" / "conda",
+            Path(os.environ.get("MAMBA_EXE", "/oops/a_file_that_does_not_exist")),
+            self.base_prefix / "condabin" / "micromamba",
+            self.base_prefix / "bin" / "micromamba",
         )
         return next((path for path in candidates if path.is_file()), Path("conda"))
 
@@ -84,6 +84,15 @@ class Menu:
             return "micromamba version" in out
         return False
 
+    def _site_packages(self, prefix=None) -> Path:
+        """
+        Locate the python site-packages location on unix systems
+        """
+        if prefix is None:
+            prefix = self.prefix
+        lib = Path(prefix) / "lib"
+        lib_python = next((p for p in lib.glob("python*") if p.is_dir()), lib / "pythonN.A")
+        return lib_python / "site-packages"
 
     def _paths(self) -> Iterable[Union[str, os.PathLike]]:
         """
@@ -118,8 +127,8 @@ class MenuItem:
         return [self.menu.render(item, slug=slug) for item in value]
 
     def _paths(self) -> Iterable[Union[str, os.PathLike]]:
-    """
+        """
         This method should return the paths created by the item
         so they can be removed upon uninstallation
-    """
+        """
         raise NotImplementedError

@@ -8,7 +8,7 @@ from typing import Tuple
 from tempfile import mkdtemp
 from logging import getLogger
 
-from .base import Menu, MenuItem, _site_packages_in_unix
+from .base import Menu, MenuItem
 from ..utils import UnixLex
 
 
@@ -27,7 +27,7 @@ class MacOSMenu(Menu):
         placeholders = super().placeholders
         placeholders.update(
             {
-                "SP_DIR": str(_site_packages_in_unix(self.prefix)),
+                "SP_DIR": str(self._site_packages()),
                 "ICON_EXT": "icns",
                 "PYTHONAPP": str(
                     self.prefix / "python.app" / "Contents" / "MacOS" / "python"

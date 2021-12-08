@@ -7,7 +7,7 @@ import xml.etree.ElementTree as XMLTree
 import time
 from logging import getLogger
 
-from .base import Menu, MenuItem, _site_packages_in_unix
+from .base import Menu, MenuItem
 from ..schema import MenuInstSchema
 from ..utils import indent_xml_tree, add_xml_child, UnixLex
 
@@ -71,7 +71,7 @@ class LinuxMenu(Menu):
         placeholders = super().placeholders
         placeholders.update(
             {
-                "SP_DIR": str(_site_packages_in_unix(self.prefix)),
+                "SP_DIR": str(self._site_packages()),
             }
         )
         return placeholders

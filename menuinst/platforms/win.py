@@ -68,7 +68,7 @@ class WindowsMenu(Menu):
                 "BASE_PYTHON": str(self.base_prefix / "python.exe"),
                 "BASE_PYTHONW": str(self.base_prefix / "pythonw.exe"),
                 "BIN_DIR": str(self.prefix / "Library" / "bin"),
-                "SP_DIR": str(self.prefix / "Lib" / "site-packages"),
+                "SP_DIR": str(self._site_packages()),
                 "ICON_EXT": "ico",
             }
         )
@@ -106,6 +106,11 @@ class WindowsMenu(Menu):
         if "/" in value and value[0] != "/":
             value = value.replace("/", "\\")
         return value
+
+    def _site_packages(self, prefix=None):
+        if prefix is None:
+            prefix = self.prefix
+        return self.prefix / "Lib" / "site-packages"
 
 
 class WindowsMenuItem(MenuItem):
