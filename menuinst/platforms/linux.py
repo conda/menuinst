@@ -172,6 +172,9 @@ class LinuxMenu(Menu):
                 f.write(f'<MergeFile type="parent">{self.system_menu_config_location}</MergeFile>')
             f.write("</Menu>\n")
 
+    def _paths(self):
+        return (self.directory_entry_location,)
+
 
 class LinuxMenuItem(MenuItem):
     def __init__(self, *args, **kwargs):
@@ -242,3 +245,6 @@ class LinuxMenuItem(MenuItem):
         with open(self.location, "w") as f:
             f.write("\n".join(lines))
             f.write("\n")
+
+    def _paths(self) -> Iterable[Union[str, os.PathLike]]:
+        return (self.location,)

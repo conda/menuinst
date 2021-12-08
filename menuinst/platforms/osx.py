@@ -36,6 +36,8 @@ class MacOSMenu(Menu):
         )
         return placeholders
 
+    def _paths(self):
+        return ()
 
 class MacOSMenuItem(MenuItem):
     def __init__(self, *args, **kwargs):
@@ -126,3 +128,6 @@ class MacOSMenuItem(MenuItem):
             f.write(self._command())
         os.chmod(script_path, 0o755)
         return script_path
+
+    def _paths(self):
+        return (self.location,)

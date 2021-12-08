@@ -84,6 +84,15 @@ class Menu:
             return "micromamba version" in out
         return False
 
+
+    def _paths(self) -> Iterable[Union[str, os.PathLike]]:
+        """
+        This method should return the paths created by the menu
+        so they can be removed upon uninstallation
+        """
+        raise NotImplementedError
+
+
 class MenuItem:
     def __init__(self, menu: Menu, metadata: MenuInstSchema.MenuItem):
         self.menu = menu
@@ -108,11 +117,9 @@ class MenuItem:
             return self.menu.render(value, slug=slug)
         return [self.menu.render(item, slug=slug) for item in value]
 
-
-def _site_packages_in_unix(prefix):
+    def _paths(self) -> Iterable[Union[str, os.PathLike]]:
     """
-    Locate the python site-packages location on unix systems
+        This method should return the paths created by the item
+        so they can be removed upon uninstallation
     """
-    lib = Path(prefix) / "lib"
-    lib_python = next((p for p in lib.glob("python*") if p.is_dir()), lib / "pythonN.A")
-    return lib_python / "site-packages"
+        raise NotImplementedError
