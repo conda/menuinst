@@ -112,6 +112,9 @@ class WindowsMenu(Menu):
             prefix = self.prefix
         return self.prefix / "Lib" / "site-packages"
 
+    def _paths(self):
+        return (self.start_menu_location,)
+
 
 class WindowsMenuItem(MenuItem):
     def create(self) -> Tuple[Path]:
