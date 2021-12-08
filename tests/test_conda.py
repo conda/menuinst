@@ -89,7 +89,7 @@ def install_package_1():
 
 def test_conda_recent_enough():
     data = json.loads(check_output(["conda", "info", "--json"]))
-    assert VersionOrder(data["conda_version"]) >= VersionOrder("4.11a0")
+    assert VersionOrder(data["conda_version"]) >= VersionOrder("4.12a0")
 
 
 @pytest.mark.skipif(PLATFORM != "linux", reason="Linux only")
