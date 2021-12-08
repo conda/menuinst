@@ -135,7 +135,7 @@ class WindowsMenuItem(MenuItem):
                 if self.metadata.no_console:
                     command = [
                         "powershell.exe",
-                        f'"start \"{script}\" -WindowStyle hidden"',
+                        f'"start \'{script}\' -WindowStyle hidden"',
                     ]
                 else:
                     command = [
