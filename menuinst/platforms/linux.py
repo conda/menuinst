@@ -70,11 +70,7 @@ class LinuxMenu(Menu):
     @property
     def placeholders(self):
         placeholders = super().placeholders
-        placeholders.update(
-            {
-                "SP_DIR": str(self._site_packages()),
-            }
-        )
+        placeholders["SP_DIR"] = str(self._site_packages())
         return placeholders
 
     def _ensure_directories_exist(self):
@@ -151,7 +147,8 @@ class LinuxMenu(Menu):
     def _ensure_menu_file(self):
         # ensure any existing version is a file
         if self.menu_config_location.exists() and not self.menu_config_location.is_file():
-            shutil.rmtree(self.menu_config_location)
+            raise RuntimeError(f"Menu config location {self.menu_config_location} is not a file!")
+            # shutil.rmtree(self.menu_config_location)
 
         # ensure any existing file is actually a menu file
         if self.menu_config_location.is_file():

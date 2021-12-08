@@ -97,7 +97,10 @@ def test_package_1_linux():
     with install_package_1() as (prefix, menu_file):
         meta = validate(menu_file)
         menu = Menu(meta.menu_name, str(prefix), BASE_PREFIX)
-        items = []
+        items = [menu]
+
+        with open(menu.menu_config_location) as f:
+            original_xml = f.read()
 
         # First case, activation is on, output should be the prefix path
         # Second case, activation is off, output should be N/A
@@ -115,13 +118,16 @@ def test_package_1_linux():
         for path in item._paths():
             assert not path.exists()
 
+    with open(menu.menu_config_location) as f:
+        assert original_xml == f.read()
+
 
 @pytest.mark.skipif(PLATFORM != "osx", reason="MacOS only")
 def test_package_1_osx():
     with install_package_1() as (prefix, menu_file):
         meta = validate(menu_file)
         menu = Menu(meta.menu_name, str(prefix), BASE_PREFIX)
-        items = []
+        items = [menu]
         # First case, activation is on, output should be the prefix path
         # Second case, activation is off, output should be N/A
         for item, expected_output in zip(meta.menu_items, (str(prefix), "N/A")):
@@ -145,7 +151,7 @@ def test_package_1_windows():
     with install_package_1() as (prefix, menu_file):
         meta = validate(menu_file)
         menu = Menu(meta.menu_name, str(prefix), BASE_PREFIX)
-        items = []
+        items = [menu]
         # First case, activation is on, output should be the prefix path
         # Second case, activation is off, output should be empty
         for item, expected_output in zip(meta.menu_items, (str(prefix), "")):
