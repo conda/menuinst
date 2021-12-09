@@ -85,6 +85,7 @@ class MacOSMenuItem(MenuItem):
     def _write_plistinfo(self):
         name = self.render("name", slug=True)
         pl = {
+            "CFBundleName": name,
             "CFBundleExecutable": name,
             "CFBundleGetInfoString": f"{name}-1.0.0",
             "CFBundleIdentifier": f"com.{name}",
@@ -114,7 +115,7 @@ class MacOSMenuItem(MenuItem):
             else:
                 activate = "shell.bash activate"
             lines.append(
-                f"eval $(\"{conda_exe}\" {activate} \"{self.menu.prefix}\")"
+                f"eval \"$(\"{conda_exe}\" {activate} \"{self.menu.prefix}\")\""
             )
 
         lines.append(" ".join(UnixLex.quote_args(self.render("command"))))
