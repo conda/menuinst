@@ -74,9 +74,8 @@ class WindowsMenu(Menu):
         )
         return placeholders
 
-    @property
-    def conda_exe(self):
-        candidates = (
+    def _conda_exe_path_candidates(self):
+        return (
             self.base_prefix / "_conda.exe",
             Path(os.environ.get("CONDA_EXE", r"C:\oops\a_file_that_does_not_exist")),
             self.base_prefix / "condabin" / "conda.bat",
@@ -85,7 +84,6 @@ class WindowsMenu(Menu):
             self.base_prefix / "condabin" / "micromamba.exe",
             self.base_prefix / "bin" / "micromamba.exe",
         )
-        return next((path for path in candidates if path.is_file()), "conda.exe")
 
     def render(self, value: Union[str, None], slug: bool = False):
         """
