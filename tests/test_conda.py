@@ -163,7 +163,7 @@ def test_package_1_windows():
             output = check_output(["cmd.exe", "/C", f"conda deactivate && conda deactivate && {script}"], universal_newlines=True, env=ENV_VARS)
             Path(script).unlink()
             output = output.replace("ECHO is off.", "")
-            assert output.strip() == expected_output
+            assert output.splitlines()[0].strip() == expected_output
 
     assert not Path(prefix).exists()
     for item in items:
