@@ -9,6 +9,7 @@ from tempfile import mkdtemp
 from logging import getLogger
 
 from .base import Menu, MenuItem
+from ..schema import MenuInstSchema
 from ..utils import UnixLex
 
 
@@ -83,16 +84,28 @@ class MacOSMenuItem(MenuItem):
             f.write(f"APPL{self.render('name', slug=True)[:8]}")
 
     def _write_plistinfo(self):
-        name = self.render("name", slug=True)
+        name = self.render("name")
+        slugname = self.render("name", slug=True)
         pl = {
             "CFBundleName": name,
-            "CFBundleExecutable": name,
-            "CFBundleGetInfoString": f"{name}-1.0.0",
-            "CFBundleIdentifier": f"com.{name}",
+            "CFBundleDisplayName": name,
+            "CFBundleExecutable": slugname,
+            "CFBundleGetInfoString": f"{slugname}-1.0.0",
+            "CFBundleIdentifier": f"com.{slugname}",
             "CFBundlePackageType": "APPL",
             "CFBundleVersion": "1.0.0",
             "CFBundleShortVersionString": "1.0.0",
         }
+
+        # Override defaults with (potentially) user provided values
+        for key in MenuInstSchema.MenuItem.Platforms.MacOS.__fields__:
+            if key in MenuInstSchema.MenuItem.__fields__:
+                continue
+            value = self.render(key)
+            if value is None:
+                continue
+            pl[key] = value
+
         icon = self.render("icon")
         if icon:
             pl["CFBundleIconFile"] = Path(icon).name

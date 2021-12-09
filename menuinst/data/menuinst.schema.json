@@ -273,7 +273,7 @@
     },
     "MacOS": {
       "title": "MacOS",
-      "description": "Mac-specific instructions. You can override global keys here if needed",
+      "description": "Mac-specific instructions. Check this URL for more info:\nhttps://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html#//apple_ref/doc/uid/TP40009249-SW1\nYou can override global keys here if needed",
       "type": "object",
       "properties": {
         "name": {
@@ -312,6 +312,30 @@
           "title": "Activate",
           "description": "Whether to activate the target environment before running `command`.",
           "type": "boolean"
+        },
+        "CFBundleDisplayName": {
+          "title": "Cfbundledisplayname",
+          "type": "string"
+        },
+        "CFBundleIdentifier": {
+          "title": "Cfbundleidentifier",
+          "type": "string"
+        },
+        "CFBundleName": {
+          "title": "Cfbundlename",
+          "type": "string"
+        },
+        "CFBundleShortVersionString": {
+          "title": "Cfbundleshortversionstring",
+          "type": "string"
+        },
+        "CFBundleSpokenName": {
+          "title": "Cfbundlespokenname",
+          "type": "string"
+        },
+        "CFBundleVersion": {
+          "title": "Cfbundleversion",
+          "type": "string"
         }
       },
       "additionalProperties": false

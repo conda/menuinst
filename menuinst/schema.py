@@ -132,7 +132,15 @@ class MenuInstSchema(BaseModel):
                 PrefersNonDefaultGPU: Optional[bool] = None
 
             class MacOS(OptionalMenuItemMetadata):
-                "Mac-specific instructions. You can override global keys here if needed"
+                """Mac-specific instructions. Check this URL for more info:
+                https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html#//apple_ref/doc/uid/TP40009249-SW1
+                You can override global keys here if needed"""
+                CFBundleDisplayName: Optional[str] = None
+                CFBundleIdentifier: Optional[str] = None
+                CFBundleName: Optional[str] = None
+                CFBundleShortVersionString: Optional[str] = None
+                CFBundleSpokenName: Optional[str] = None
+                CFBundleVersion: Optional[str] = None
 
             win: Optional[Windows]
             linux: Optional[Linux]

@@ -15,7 +15,9 @@
             "platforms": {
                 "win": {},
                 "linux": {},
-                "osx": {}
+                "osx": {
+                    "CFBundleName": "My Example"
+                }
             }
         }
     ]
