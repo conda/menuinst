@@ -62,7 +62,6 @@ class WindowsMenu(Menu):
         placeholders.update(
             {
                 "SCRIPTS_DIR": str(self.prefix / "Scripts"),
-                "CWP": str(self.prefix / "cwp.py"),
                 "PYTHON": str(self.prefix / "python.exe"),
                 "PYTHONW": str(self.prefix / "pythonw.exe"),
                 "BASE_PYTHON": str(self.base_prefix / "python.exe"),
@@ -132,14 +131,14 @@ class WindowsMenuItem(MenuItem):
             if activate:
                 if self.metadata.no_console:
                     command = [
-                        "powershell.exe",
+                        "powershell",
                         f'"start \'{script}\' -WindowStyle hidden"',
                     ]
                 else:
                     command = [
-                        "cmd.exe",
+                        "cmd",
                         "/K",
-                        script,
+                        str(script),
                     ]
             else:
                 command = self.render("command")

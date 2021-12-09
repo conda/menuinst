@@ -13,9 +13,13 @@
             ],
             "platforms": {
                 "win": {
+                    "no_console": false,
                     "command": [
+                        "cmd",
+                        "/V:ON",
+                        "/K",
                         "echo",
-                        "%CONDA_PREFIX%"
+                        "!CONDA_PREFIX!"
                     ]
                 },
                 "linux": {},
@@ -34,8 +38,11 @@
             "platforms": {
                 "win": {
                     "command": [
+                        "cmd",
+                        "/V:ON",
+                        "/K",
                         "echo",
-                        "%CONDA_PREFIX%"
+                        "!CONDA_PREFIX!"
                     ]
                 },
                 "linux": {},
