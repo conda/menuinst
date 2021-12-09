@@ -22,7 +22,7 @@ class WindowsMenu(Menu):
     def create(self):
         # TODO: Check if elevated permissions are needed
         log.debug("Creating %s", self.start_menu_location)
-        self.start_menu_location.mkdir(parents=True, exist_ok=False)
+        self.start_menu_location.mkdir(parents=True, exist_ok=True)
         return (self.start_menu_location,)
 
     def remove(self):
