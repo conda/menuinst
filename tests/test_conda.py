@@ -20,7 +20,8 @@ from conftest import DATA, PLATFORM, BASE_PREFIX
 
 
 ENV_VARS = {
-    k: v for (k, v) in os.environ.copy().items()
+    k: v
+    for (k, v) in os.environ.copy().items()
     if not k.startswith(("CONDA", "_CONDA", "MAMBA", "_MAMBA"))
 }
 ENV_VARS["CONDA_VERBOSITY"] = "3"
@@ -46,8 +47,7 @@ def new_environment(*packages):
 
     if "menuinst Exception" in process.stdout:
         raise RuntimeError(
-            f"Command {cmd} exited with 0 but "
-            f"stdout contained exception:\n{process.stdout}"
+            f"Command {cmd} exited with 0 but " f"stdout contained exception:\n{process.stdout}"
         )
 
     # check_call(["conda", "update", "--all", "-p", prefix])
@@ -133,7 +133,9 @@ def test_package_1_osx():
         for item, expected_output in zip(meta.menu_items, (str(prefix), "N/A")):
             item = MenuItem(menu, item)
             items.append(item)
-            script = item._write_script(script_path=NamedTemporaryFile(suffix=".sh", delete=False).name)
+            script = item._write_script(
+                script_path=NamedTemporaryFile(suffix=".sh", delete=False).name
+            )
             print(item._command())
             print("-------------")
             output = check_output(["bash", script], universal_newlines=True, env=ENV_VARS)
@@ -157,10 +159,16 @@ def test_package_1_windows():
         for item, expected_output in zip(meta.menu_items, (str(prefix), "!CONDA_PREFIX!")):
             item = MenuItem(menu, item)
             items.append(item)
-            script = item._write_script(script_path=NamedTemporaryFile(suffix=".bat", delete=False).name)
+            script = item._write_script(
+                script_path=NamedTemporaryFile(suffix=".bat", delete=False).name
+            )
             print(item._command())
             print("-------------")
-            output = check_output(["cmd.exe", "/C", f"conda deactivate && conda deactivate && {script}"], universal_newlines=True, env=ENV_VARS)
+            output = check_output(
+                ["cmd.exe", "/C", f"conda deactivate && conda deactivate && {script}"],
+                universal_newlines=True,
+                env=ENV_VARS,
+            )
             Path(script).unlink()
             output = output.replace("ECHO is off.", "")
             assert output.splitlines()[0].strip() == expected_output

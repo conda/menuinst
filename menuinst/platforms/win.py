@@ -130,17 +130,13 @@ class WindowsMenuItem(MenuItem):
 
             if activate:
                 if self.metadata.no_console:
-                    system32 = Path(os.environ.get('SystemRoot', 'C:\\Windows')) / "system32"
+                    system32 = Path(os.environ.get("SystemRoot", "C:\\Windows")) / "system32"
                     command = [
                         str(system32 / "WindowsPowerShell" / "v1.0" / "powershell.exe"),
-                        f'"start \'{script}\' -WindowStyle hidden"',
+                        f"\"start '{script}' -WindowStyle hidden\"",
                     ]
                 else:
-                    command = [
-                        "cmd",
-                        "/K",
-                        str(script),
-                    ]
+                    command = ["cmd", "/K", str(script)]
             else:
                 command = self.render("command")
 
@@ -208,8 +204,8 @@ class WindowsMenuItem(MenuItem):
             lines += [
                 "@SETLOCAL ENABLEDELAYEDEXPANSION",
                 f'@FOR /F "usebackq tokens=*" %%i IN (`{activator}`) do set "ACTIVATOR=%%i"',
-                '@CALL %ACTIVATOR%',
-                ":: This below is the user command"
+                "@CALL %ACTIVATOR%",
+                ":: This below is the user command",
             ]
 
         lines.append(" ".join(WinLex.quote_args(self.render("command"))))

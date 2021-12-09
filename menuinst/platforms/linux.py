@@ -203,7 +203,7 @@ class LinuxMenuItem(MenuItem):
                 activate = "shell activate"
             else:
                 activate = "shell.bash activate"
-            cmd = f"eval $(\"{conda_exe}\" {activate} \"{self.menu.prefix}\") && "
+            cmd = f'eval $("{conda_exe}" {activate} "{self.menu.prefix}") && '
 
         cmd += " ".join(UnixLex.quote_args(self.render("command")))
         return cmd

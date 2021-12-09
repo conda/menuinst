@@ -30,15 +30,14 @@ class MacOSMenu(Menu):
             {
                 "SP_DIR": str(self._site_packages()),
                 "ICON_EXT": "icns",
-                "PYTHONAPP": str(
-                    self.prefix / "python.app" / "Contents" / "MacOS" / "python"
-                ),
+                "PYTHONAPP": str(self.prefix / "python.app" / "Contents" / "MacOS" / "python"),
             }
         )
         return placeholders
 
     def _paths(self):
         return ()
+
 
 class MacOSMenuItem(MenuItem):
     def __init__(self, *args, **kwargs):
@@ -97,7 +96,7 @@ class MacOSMenuItem(MenuItem):
             "CFBundleShortVersionString": "1.0.0",
         }
 
-        # Override defaults with (potentially) user provided values
+        # Override defaults with (potentially) user provided values
         for key in MenuInstSchema.MenuItem.Platforms.MacOS.__fields__:
             if key in MenuInstSchema.MenuItem.__fields__:
                 continue
@@ -127,9 +126,7 @@ class MacOSMenuItem(MenuItem):
                 activate = "shell activate"
             else:
                 activate = "shell.bash activate"
-            lines.append(
-                f"eval \"$(\"{conda_exe}\" {activate} \"{self.menu.prefix}\")\""
-            )
+            lines.append(f'eval "$("{conda_exe}" {activate} "{self.menu.prefix}")"')
 
         lines.append(" ".join(UnixLex.quote_args(self.render("command"))))
 

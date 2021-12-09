@@ -44,8 +44,7 @@ class MenuItemMetadata(BaseModel):
     )
     activate: bool = Field(
         True,
-        description="Whether to activate the target environment "
-        "before running `command`.",
+        description="Whether to activate the target environment " "before running `command`.",
     )
 
 
@@ -77,8 +76,7 @@ class OptionalMenuItemMetadata(MenuItemMetadata):
     )
     activate: Optional[bool] = Field(
         None,
-        description="Whether to activate the target environment "
-        "before running `command`.",
+        description="Whether to activate the target environment " "before running `command`.",
     )
 
 
@@ -93,7 +91,7 @@ class MenuInstSchema(BaseModel):
 
             class Windows(OptionalMenuItemMetadata):
                 "Windows-specific instructions. You can override global keys here if needed"
-                no_console: Optional[bool] = Field (
+                no_console: Optional[bool] = Field(
                     True,
                     description="Try not to show a CMD console when running the command. "
                     "Only relevant if activate=True (default).",
@@ -135,6 +133,7 @@ class MenuInstSchema(BaseModel):
                 """Mac-specific instructions. Check this URL for more info:
                 https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html#//apple_ref/doc/uid/TP40009249-SW1
                 You can override global keys here if needed"""
+
                 CFBundleDisplayName: Optional[str] = None
                 CFBundleIdentifier: Optional[str] = None
                 CFBundleName: Optional[str] = None

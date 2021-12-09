@@ -11,26 +11,29 @@ from menuinst._legacy.knownfolders import FOLDERID, get_folder_path
 
 # call as: python cwp.py [--no-console] PREFIX ARGs...
 parser = argparse.ArgumentParser()
-parser.add_argument("--no-console", action="store_true",
-               help="Create subprocess with CREATE_NO_WINDOW flag.")
-parser.add_argument("prefix",
-               help="Prefix to be 'activated' before calling `args`.")
-parser.add_argument("args", nargs="*",
-               help="Command (and arguments) to be executed.")
+parser.add_argument(
+    "--no-console", action="store_true", help="Create subprocess with CREATE_NO_WINDOW flag."
+)
+parser.add_argument("prefix", help="Prefix to be 'activated' before calling `args`.")
+parser.add_argument("args", nargs="*", help="Command (and arguments) to be executed.")
 parsed_args = parser.parse_args()
 
 no_console = parsed_args.no_console
 prefix = parsed_args.prefix
 args = parsed_args.args
 
-new_paths = pathsep.join([prefix,
-                         join(prefix, "Library", "mingw-w64", "bin"),
-                         join(prefix, "Library", "usr", "bin"),
-                         join(prefix, "Library", "bin"),
-                         join(prefix, "Scripts")])
+new_paths = pathsep.join(
+    [
+        prefix,
+        join(prefix, "Library", "mingw-w64", "bin"),
+        join(prefix, "Library", "usr", "bin"),
+        join(prefix, "Library", "bin"),
+        join(prefix, "Scripts"),
+    ]
+)
 env = os.environ.copy()
-env['PATH'] = new_paths + pathsep + env['PATH']
-env['CONDA_PREFIX'] = prefix
+env["PATH"] = new_paths + pathsep + env["PATH"]
+env["CONDA_PREFIX"] = prefix
 
 documents_folder, exception = get_folder_path(FOLDERID.Documents)
 if exception:

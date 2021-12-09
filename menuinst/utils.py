@@ -113,6 +113,7 @@ class WinLex:
         else:
             return "%s%s%s" % (pad, name, pad)
 
+
 class UnixLex:
     @classmethod
     def quote_args(cls, args):
@@ -121,6 +122,6 @@ class UnixLex:
     @classmethod
     def quote_string(cls, s):
         quoted = shlex.quote(s)
-        if s.startswith(('$', '"')) and quoted.startswith("'"):
+        if s.startswith(("$", '"')) and quoted.startswith("'"):
             quoted = f'"{quoted[1:-1]}"'
         return quoted

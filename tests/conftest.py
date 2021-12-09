@@ -13,8 +13,6 @@ DATA = Path(__file__).parent / "data"
 PLATFORM = platform_key()
 
 
-
-
 def base_prefix():
     prefix = os.environ.get("CONDA_ROOT", os.environ.get("MAMBA_ROOT_PREFIX"))
     if not prefix:
