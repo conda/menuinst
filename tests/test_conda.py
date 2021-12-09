@@ -154,7 +154,7 @@ def test_package_1_windows():
         items = [menu]
         # First case, activation is on, output should be the prefix path
         # Second case, activation is off, output should be empty
-        for item, expected_output in zip(meta.menu_items, (str(prefix), "")):
+        for item, expected_output in zip(meta.menu_items, (str(prefix), "!CONDA_PREFIX!")):
             item = MenuItem(menu, item)
             items.append(item)
             script = item._write_script(script_path=NamedTemporaryFile(suffix=".bat", delete=False).name)
