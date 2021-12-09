@@ -130,8 +130,9 @@ class WindowsMenuItem(MenuItem):
 
             if activate:
                 if self.metadata.no_console:
+                    system32 = Path(os.environ.get('SystemRoot', 'C:\\Windows')) / "system32"
                     command = [
-                        "powershell",
+                        str(system32 / "WindowsPowerShell" / "v1.0" / "powershell.exe"),
                         f'"start \'{script}\' -WindowStyle hidden"',
                     ]
                 else:
