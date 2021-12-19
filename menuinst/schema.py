@@ -141,9 +141,8 @@ class MenuInstSchema(BaseModel):
                 CFBundleDisplayName: Optional[str] = None
                 CFBundleIdentifier: Optional[str] = None
                 CFBundleName: Optional[str] = None
-                CFBundleShortVersionString: Optional[str] = None
                 CFBundleSpokenName: Optional[str] = None
-                CFBundleVersion: Optional[str] = None
+                CFBundleVersion: Optional[constr(regex="^\S+$")] = None
 
             win: Optional[Windows]
             linux: Optional[Linux]

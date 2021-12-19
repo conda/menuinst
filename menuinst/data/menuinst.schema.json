@@ -336,16 +336,13 @@
           "title": "Cfbundlename",
           "type": "string"
         },
-        "CFBundleShortVersionString": {
-          "title": "Cfbundleshortversionstring",
-          "type": "string"
-        },
         "CFBundleSpokenName": {
           "title": "Cfbundlespokenname",
           "type": "string"
         },
         "CFBundleVersion": {
           "title": "Cfbundleversion",
+          "pattern": "^\\S+$",
           "type": "string"
         }
       },

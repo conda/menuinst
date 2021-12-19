@@ -105,6 +105,10 @@ class MacOSMenuItem(MenuItem):
             value = self.render(key)
             if value is None:
                 continue
+            if key == "CFBundleVersion":
+                # setting the version also changes these two values
+                pl["CFBundleShortVersionString"] = value
+                pl["CFBundleGetInfoString"] = f"{slugname}-{value}"
             pl[key] = value
 
         icon = self.render("icon")
