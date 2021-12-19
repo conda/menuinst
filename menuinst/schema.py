@@ -101,6 +101,7 @@ class MenuInstSchema(BaseModel):
 
             class Windows(OptionalMenuItemMetadata):
                 "Windows-specific instructions. You can override global keys here if needed"
+
                 desktop: Optional[bool] = Field(
                     True,
                     description="Whether to create a desktop icon in "
@@ -117,21 +118,20 @@ class MenuInstSchema(BaseModel):
                 https://specifications.freedesktop.org/desktop-entry-spec/desktop-entry-spec-latest.html#recognized-keys
                 for more information. You can override global keys here if needed"""
 
-                GenericName: Optional[str] = None
-                NoDisplay: Optional[bool] = None
-                Hidden: Optional[bool] = None
-                OnlyShowIn: Optional[Union[List[str], str]] = None
-                NotShowIn: Optional[Union[List[str], str]] = None
+                Categories: Optional[Union[List[str], constr(regex="^.+;$")]] = None
                 DBusActivatable: Optional[bool] = None
-                TryExec: Optional[str] = None
-                Terminal: Optional[bool] = None
-                MimeType: Optional[Union[List[str], str]] = None
-                Categories: Optional[Union[List[str], str]] = None
-                Implements: Optional[Union[List[str], str]] = None
-                Keywords: Optional[Union[List[str], str]] = None
+                GenericName: Optional[str] = None
+                Hidden: Optional[bool] = None
+                Implements: Optional[Union[List[str], constr(regex="^.+;$")]] = None
+                Keywords: Optional[Union[List[str], constr(regex="^.+;$")]] = None
+                MimeType: Optional[Union[List[str], constr(regex="^.+;$")]] = None
+                NoDisplay: Optional[bool] = None
+                NotShowIn: Optional[Union[List[str], constr(regex="^.+;$")]] = None
+                OnlyShowIn: Optional[Union[List[str], constr(regex="^.+;$")]] = None
+                PrefersNonDefaultGPU: Optional[bool] = None
                 StartupNotify: Optional[bool] = None
                 StartupWMClass: Optional[str] = None
-                PrefersNonDefaultGPU: Optional[bool] = None
+                TryExec: Optional[str] = None
 
             class MacOS(OptionalMenuItemMetadata):
                 """Mac-specific instructions. Check this URL for more info:

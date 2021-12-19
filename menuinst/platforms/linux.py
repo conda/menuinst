@@ -240,7 +240,7 @@ class LinuxMenuItem(MenuItem):
             if isinstance(value, bool):
                 value = str(value).lower()
             elif isinstance(value, (list, tuple)):
-                value = ";".join(value)
+                value = ";".join(value) + ";"
             lines.append(f"{key}={value}")
 
         with open(self.location, "w") as f:
