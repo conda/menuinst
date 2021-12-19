@@ -61,7 +61,7 @@ class LinuxMenu(Menu):
     def remove(self):
         self.directory_entry_location.unlink()
         for fn in os.listdir(self.menu_entries_location):
-            if fn.startswith(f"{self.render('name', slug=True)}_"):
+            if fn.startswith(f"{self.render(self.name, slug=True)}_"):
                 # found one shortcut, so don't remove the name from menu
                 return (self.directory_entry_location,)
         self._remove_this_menu()
@@ -92,7 +92,7 @@ class LinuxMenu(Menu):
             "[Desktop Entry]",
             "Type=Directory",
             "Encoding=UTF-8",
-            f"Name={self.render('name')}",
+            f"Name={self.render(self.name)}",
         ]
         log.debug("Writing directory entry at %s", self.directory_entry_location)
         with open(self.directory_entry_location, "w") as f:
@@ -139,8 +139,8 @@ class LinuxMenu(Menu):
         log.debug("Writing %s", self.menu_config_location)
         indent_xml_tree(tree.getroot())  # inplace!
         with open(self.menu_config_location, "wb") as f:
-            f.write(b"    <!DOCTYPE Menu PUBLIC '-//freedesktop//DTD Menu 1.0//EN'\n")
-            f.write(b"   'http://standards.freedesktop.org/menu-spec/menu-1.0.dtd'>\n")
+            f.write(b'<!DOCTYPE Menu PUBLIC "-//freedesktop//DTD Menu 1.0//EN"\n')
+            f.write(b' "http://standards.freedesktop.org/menu-spec/menu-1.0.dtd">\n')
             tree.write(f)
             f.write(b"\n")
 
