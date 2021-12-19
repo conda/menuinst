@@ -213,8 +213,7 @@ def validate(metadata: Union[str, dict]) -> MenuInstSchema:
 
 def dump_to_json():
     here = Path(__file__).parent
-    schema_obj = MenuInstSchema.schema()
-    schema = json.dumps(schema_obj, indent=2)
+    schema = MenuInstSchema.schema_json(indent=2)
     print(schema)
     with open(here / "data" / "menuinst.schema.json", "w") as f:
         f.write(schema)

@@ -85,10 +85,9 @@
           "description": "Whether to activate the target environment before running `command`.",
           "type": "boolean"
         },
-        "no_console": {
-          "title": "No Console",
-          "description": "Try not to show a CMD console when running the command. Only relevant if activate=True (default).",
-          "default": true,
+        "terminal": {
+          "title": "Terminal",
+          "description": "Whether run the program in a terminal/console or not. On Windows, it only has an effect if activate is true. It has no effect on MacOS.",
           "type": "boolean"
         },
         "desktop": {
@@ -148,71 +147,10 @@
           "description": "Whether to activate the target environment before running `command`.",
           "type": "boolean"
         },
-        "GenericName": {
-          "title": "Genericname",
-          "type": "string"
-        },
-        "Terminal": {
+        "terminal": {
           "title": "Terminal",
+          "description": "Whether run the program in a terminal/console or not. On Windows, it only has an effect if activate is true. It has no effect on MacOS.",
           "type": "boolean"
-        },
-        "NoDisplay": {
-          "title": "Nodisplay",
-          "type": "boolean"
-        },
-        "Hidden": {
-          "title": "Hidden",
-          "type": "boolean"
-        },
-        "OnlyShowIn": {
-          "title": "Onlyshowin",
-          "anyOf": [
-            {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            },
-            {
-              "type": "string"
-            }
-          ]
-        },
-        "NotShowIn": {
-          "title": "Notshowin",
-          "anyOf": [
-            {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            },
-            {
-              "type": "string"
-            }
-          ]
-        },
-        "DBusActivatable": {
-          "title": "Dbusactivatable",
-          "type": "boolean"
-        },
-        "TryExec": {
-          "title": "Tryexec",
-          "type": "string"
-        },
-        "MimeType": {
-          "title": "Mimetype",
-          "anyOf": [
-            {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            },
-            {
-              "type": "string"
-            }
-          ]
         },
         "Categories": {
           "title": "Categories",
@@ -224,9 +162,22 @@
               }
             },
             {
-              "type": "string"
+              "type": "string",
+              "pattern": "^.+;$"
             }
           ]
+        },
+        "DBusActivatable": {
+          "title": "Dbusactivatable",
+          "type": "boolean"
+        },
+        "GenericName": {
+          "title": "Genericname",
+          "type": "string"
+        },
+        "Hidden": {
+          "title": "Hidden",
+          "type": "boolean"
         },
         "Implements": {
           "title": "Implements",
@@ -238,7 +189,8 @@
               }
             },
             {
-              "type": "string"
+              "type": "string",
+              "pattern": "^.+;$"
             }
           ]
         },
@@ -252,9 +204,63 @@
               }
             },
             {
-              "type": "string"
+              "type": "string",
+              "pattern": "^.+;$"
             }
           ]
+        },
+        "MimeType": {
+          "title": "Mimetype",
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "type": "string",
+              "pattern": "^.+;$"
+            }
+          ]
+        },
+        "NoDisplay": {
+          "title": "Nodisplay",
+          "type": "boolean"
+        },
+        "NotShowIn": {
+          "title": "Notshowin",
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "type": "string",
+              "pattern": "^.+;$"
+            }
+          ]
+        },
+        "OnlyShowIn": {
+          "title": "Onlyshowin",
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "type": "string",
+              "pattern": "^.+;$"
+            }
+          ]
+        },
+        "PrefersNonDefaultGPU": {
+          "title": "Prefersnondefaultgpu",
+          "type": "boolean"
         },
         "StartupNotify": {
           "title": "Startupnotify",
@@ -264,9 +270,9 @@
           "title": "Startupwmclass",
           "type": "string"
         },
-        "PrefersNonDefaultGPU": {
-          "title": "Prefersnondefaultgpu",
-          "type": "boolean"
+        "TryExec": {
+          "title": "Tryexec",
+          "type": "string"
         }
       },
       "additionalProperties": false
@@ -311,6 +317,11 @@
         "activate": {
           "title": "Activate",
           "description": "Whether to activate the target environment before running `command`.",
+          "type": "boolean"
+        },
+        "terminal": {
+          "title": "Terminal",
+          "description": "Whether run the program in a terminal/console or not. On Windows, it only has an effect if activate is true. It has no effect on MacOS.",
           "type": "boolean"
         },
         "CFBundleDisplayName": {
@@ -398,6 +409,12 @@
           "title": "Activate",
           "description": "Whether to activate the target environment before running `command`.",
           "default": true,
+          "type": "boolean"
+        },
+        "terminal": {
+          "title": "Terminal",
+          "description": "Whether run the program in a terminal/console or not. On Windows, it only has an effect if activate is true. It has no effect on MacOS.",
+          "default": false,
           "type": "boolean"
         },
         "platforms": {
