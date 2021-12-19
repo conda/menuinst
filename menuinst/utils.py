@@ -1,3 +1,4 @@
+import os
 import shlex
 import xml.etree.ElementTree as XMLTree
 
@@ -125,3 +126,11 @@ class UnixLex:
         if quoted.startswith("'"):
             quoted = f'"{quoted[1:-1]}"'
         return quoted
+
+
+def unlink(path, missing_ok=False):
+    try:
+        os.unlink(path)
+    except FileNotFoundError as exc:
+        if not missing_ok:
+            raise exc

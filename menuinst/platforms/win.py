@@ -10,7 +10,7 @@ from logging import getLogger
 from win32com.client import Dispatch
 
 from .base import Menu, MenuItem
-from ..utils import WinLex
+from ..utils import WinLex, unlink
 
 # TODO: Reimplement/port to get rid of _legacy
 from .._legacy.win32 import folder_path
@@ -179,7 +179,7 @@ class WindowsMenuItem(MenuItem):
         for path in paths:
             # TODO: Check if elevated permissions are needed
             log.debug("Removing %s", path)
-            path.unlink(missing_ok=True)
+            unlink(path, missing_ok=True)
         return paths
 
     def _paths(self):

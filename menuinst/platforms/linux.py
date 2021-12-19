@@ -10,7 +10,7 @@ from typing import Union, Iterable
 
 from .base import Menu, MenuItem
 from ..schema import MenuInstSchema
-from ..utils import indent_xml_tree, add_xml_child, UnixLex
+from ..utils import indent_xml_tree, add_xml_child, UnixLex, unlink
 
 
 log = getLogger(__name__)
@@ -62,7 +62,7 @@ class LinuxMenu(Menu):
         return (path,)
 
     def remove(self):
-        self.directory_entry_location.unlink(missing_ok=True)
+        unlink(self.directory_entry_location, missing_ok=True)
         for fn in os.listdir(self.desktop_entries_location):
             if fn.startswith(f"{self.render(self.name, slug=True)}_"):
                 # found one shortcut, so don't remove the name from menu
@@ -195,7 +195,7 @@ class LinuxMenuItem(MenuItem):
         paths = self._paths()
         for path in paths:
             log.debug("Removing %s", path)
-            path.unlink(missing_ok=True)
+            unlink(path, missing_ok=True)
         return paths
 
     def _command(self):
