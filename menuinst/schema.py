@@ -44,7 +44,12 @@ class MenuItemMetadata(BaseModel):
     )
     activate: bool = Field(
         True,
-        description="Whether to activate the target environment " "before running `command`.",
+        description="Whether to activate the target environment before running `command`.",
+    )
+    terminal: bool = Field(
+        False,
+        description="Whether run the program in a terminal/console or not. "
+        "On Windows, it only has an effect if activate is true. It has no effect on MacOS.",
     )
 
 
@@ -76,7 +81,12 @@ class OptionalMenuItemMetadata(MenuItemMetadata):
     )
     activate: Optional[bool] = Field(
         None,
-        description="Whether to activate the target environment " "before running `command`.",
+        description="Whether to activate the target environment before running `command`.",
+    )
+    terminal: Optional[bool] = Field(
+        None,
+        description="Whether run the program in a terminal/console or not. "
+        "On Windows, it only has an effect if activate is true. It has no effect on MacOS.",
     )
 
 
@@ -91,11 +101,6 @@ class MenuInstSchema(BaseModel):
 
             class Windows(OptionalMenuItemMetadata):
                 "Windows-specific instructions. You can override global keys here if needed"
-                no_console: Optional[bool] = Field(
-                    True,
-                    description="Try not to show a CMD console when running the command. "
-                    "Only relevant if activate=True (default).",
-                )
                 desktop: Optional[bool] = Field(
                     True,
                     description="Whether to create a desktop icon in "
@@ -113,7 +118,6 @@ class MenuInstSchema(BaseModel):
                 for more information. You can override global keys here if needed"""
 
                 GenericName: Optional[str] = None
-                Terminal: Optional[bool] = None
                 NoDisplay: Optional[bool] = None
                 Hidden: Optional[bool] = None
                 OnlyShowIn: Optional[Union[List[str], str]] = None

@@ -129,14 +129,14 @@ class WindowsMenuItem(MenuItem):
             shortcut = shell.CreateShortCut(str(path))
 
             if activate:
-                if self.metadata.no_console:
+                if self.metadata.terminal:
+                    command = ["cmd", "/K", str(script)]
+                else:
                     system32 = Path(os.environ.get("SystemRoot", "C:\\Windows")) / "system32"
                     command = [
                         str(system32 / "WindowsPowerShell" / "v1.0" / "powershell.exe"),
                         f"\"start '{script}' -WindowStyle hidden\"",
                     ]
-                else:
-                    command = ["cmd", "/K", str(script)]
             else:
                 command = self.render("command")
 

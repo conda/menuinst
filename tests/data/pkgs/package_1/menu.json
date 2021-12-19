@@ -13,7 +13,7 @@
             ],
             "platforms": {
                 "win": {
-                    "no_console": false,
+                    "terminal": true,
                     "command": [
                         "cmd",
                         "/V:ON",
