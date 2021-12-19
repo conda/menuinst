@@ -18,10 +18,10 @@ log = getLogger(__name__)
 
 class MacOSMenu(Menu):
     def create(self):
-        pass
+        return self._paths()
 
     def remove(self):
-        pass
+        return self._paths()
 
     @property
     def placeholders(self):
@@ -44,8 +44,10 @@ class MacOSMenuItem(MenuItem):
         super().__init__(*args, **kwargs)
 
         name = f"{self.render('name')}.app"
-        if os.environ.get("PYTEST_IN_USE"):
-            base = Path(mkdtemp(prefix="menuinst-pytest-"))
+
+        _test_tmpdir = os.environ.get("MENUINST_TEST_TMPDIR")
+        if _test_tmpdir:
+            base = Path(_test_tmpdir)
         elif self.menu.mode == "user":
             base = Path("~").expanduser()
         else:
@@ -66,7 +68,7 @@ class MacOSMenuItem(MenuItem):
 
     def remove(self) -> Tuple[Path]:
         log.debug("Removing %s", self.location)
-        shutil.rmtree(self.location)
+        shutil.rmtree(self.location, ignore_errors=True)
         return (self.location,)
 
     def _create_application_tree(self):

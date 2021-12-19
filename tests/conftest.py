@@ -3,7 +3,9 @@ import shutil
 import os
 import json
 from subprocess import check_output
+from tempfile import TemporaryDirectory
 
+import py
 import pytest
 
 from menuinst.schema import platform_key
@@ -33,3 +35,10 @@ def delete_files():
             shutil.rmtree(path)
         else:
             path.unlink()
+
+
+@pytest.fixture(scope="function")
+def tmpdir(tmpdir, request):
+    tmpdir = TemporaryDirectory(dir=str(tmpdir))
+    request.addfinalizer(tmpdir.cleanup)
+    return py.path.local(tmpdir.name)

@@ -4,11 +4,10 @@ Integration tests with conda
 import os
 import sys
 from subprocess import check_output, run, PIPE
-from tempfile import NamedTemporaryFile, mkdtemp
+from tempfile import NamedTemporaryFile
 from pathlib import Path
 from contextlib import contextmanager
 import json
-import shutil
 
 import pytest
 from conda.models.version import VersionOrder
@@ -28,10 +27,12 @@ ENV_VARS["CONDA_VERBOSITY"] = "3"
 
 
 @contextmanager
-def new_environment(*packages):
-    prefix = mkdtemp()
+def new_environment(tmpdir, *packages):
+    prefix = str(tmpdir / "prefix")
     env = ENV_VARS.copy()
-    env["CONDA_PKGS_DIRS"] = prefix
+    env["CONDA_PKGS_DIRS"] = str(tmpdir / "pkgs")
+    env["MENUINST_TEST_TMPDIR"] = os.environ["MENUINST_TEST_TMPDIR"] = str(tmpdir / "home")
+    print("MENUINST_TEST_TMPDIR set to", env["MENUINST_TEST_TMPDIR"])
     print("--- CREATING", prefix, "---")
     cmd = ["conda", "create", "-y", "--offline", "-p", prefix] + [str(p) for p in packages]
     process = run(
@@ -51,13 +52,14 @@ def new_environment(*packages):
                 f"Command {cmd} exited with 0 but stdout contained exception:\n{stream}"
             )
 
-    # check_call(["conda", "update", "--all", "-p", prefix])
     yield prefix
+    del os.environ["MENUINST_TEST_TMPDIR"]
+
     print("--- REMOVING", prefix, "---")
     cmd = ["conda", "remove", "--all", "-y", "-p", prefix]
     process = run(
         cmd,
-        env=ENV_VARS,
+        env=env,
         stdout=PIPE,
         stderr=PIPE,
         universal_newlines=True,
@@ -71,11 +73,9 @@ def new_environment(*packages):
                 f"Command {cmd} exited with 0 but stdout contained exception:\n{stream}"
             )
 
-    shutil.rmtree(prefix, ignore_errors=True)
-
 
 @contextmanager
-def install_package_1():
+def install_package_1(tmpdir):
     """
     This package is shipped with the test data and contains two menu items.
 
@@ -84,7 +84,7 @@ def install_package_1():
     means that the first shortcut will successfully echo the prefix path,
     while the second one will be empty (Windows) or "N/A" (Unix).
     """
-    with new_environment(DATA / "pkgs" / "noarch" / "package_1-0.1-0.tar.bz2") as prefix:
+    with new_environment(tmpdir, DATA / "pkgs" / "noarch" / "package_1-0.1-0.tar.bz2") as prefix:
         menu_file = Path(prefix) / "Menu" / "package_1.json"
         with open(menu_file) as f:
             meta = json.load(f)
@@ -100,8 +100,8 @@ def test_conda_recent_enough():
 
 
 @pytest.mark.skipif(PLATFORM != "linux", reason="Linux only")
-def test_package_1_linux():
-    with install_package_1() as (prefix, menu_file):
+def test_package_1_linux(tmpdir):
+    with install_package_1(tmpdir) as (prefix, menu_file):
         meta = validate(menu_file)
         menu = Menu(meta.menu_name, str(prefix), BASE_PREFIX)
         items = [menu]
@@ -130,8 +130,8 @@ def test_package_1_linux():
 
 
 @pytest.mark.skipif(PLATFORM != "osx", reason="MacOS only")
-def test_package_1_osx():
-    with install_package_1() as (prefix, menu_file):
+def test_package_1_osx(tmpdir):
+    with install_package_1(tmpdir) as (prefix, menu_file):
         meta = validate(menu_file)
         menu = Menu(meta.menu_name, str(prefix), BASE_PREFIX)
         items = [menu]
@@ -156,8 +156,8 @@ def test_package_1_osx():
 
 
 @pytest.mark.skipif(PLATFORM != "win", reason="Windows only")
-def test_package_1_windows():
-    with install_package_1() as (prefix, menu_file):
+def test_package_1_windows(tmpdir):
+    with install_package_1(tmpdir) as (prefix, menu_file):
         meta = validate(menu_file)
         menu = Menu(meta.menu_name, str(prefix), BASE_PREFIX)
         items = [menu]

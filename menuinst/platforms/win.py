@@ -2,6 +2,7 @@
 """
 import os
 import warnings
+import shutil
 from pathlib import Path
 from typing import Tuple, Union
 from logging import getLogger
@@ -28,7 +29,7 @@ class WindowsMenu(Menu):
     def remove(self):
         # TODO: Check if elevated permissions are needed
         log.debug("Removing %s", self.start_menu_location)
-        self.start_menu_location.rmdir()
+        shutil.rmtree(self.start_menu_location, ignore_errors=True)
         return (self.start_menu_location,)
 
     @property
@@ -43,6 +44,9 @@ class WindowsMenu(Menu):
         In this property we only report the path to the Start menu.
         For other menus, check their respective properties.
         """
+        _test_tmpdir = os.environ.get("MENUINST_TEST_TMPDIR")
+        if _test_tmpdir:
+            return Path(_test_tmpdir) / "start" / self.name
         return Path(folder_path(self.mode, False, "start")) / self.name
 
     @property
@@ -50,10 +54,16 @@ class WindowsMenu(Menu):
         if self.mode == "system":
             warnings.warn("Quick launch menus are not available for system level installs")
             return
+        _test_tmpdir = os.environ.get("MENUINST_TEST_TMPDIR")
+        if _test_tmpdir:
+            return Path(_test_tmpdir) / "quicklaunch" / self.name
         return Path(folder_path(self.mode, False, "quicklaunch"))
 
     @property
     def desktop_location(self):
+        _test_tmpdir = os.environ.get("MENUINST_TEST_TMPDIR")
+        if _test_tmpdir:
+            return Path(_test_tmpdir) / "desktop" / self.name
         return Path(folder_path(self.mode, False, "desktop"))
 
     @property
@@ -166,7 +176,7 @@ class WindowsMenuItem(MenuItem):
         for path in paths:
             # TODO: Check if elevated permissions are needed
             log.debug("Removing %s", path)
-            os.unlink(path)
+            path.unlink(missing_ok=True)
         return paths
 
     def _paths(self):

@@ -26,8 +26,11 @@ class LinuxMenu(Menu):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        if self.mode == "system":
+        _test_tmpdir = os.environ.get("MENUINST_TEST_TMPDIR")
+        if _test_tmpdir:
+            self.config_directory = Path(_test_tmpdir) / "config"
+            self.data_directory = Path(_test_tmpdir) / "share"
+        elif self.mode == "system":
             self.config_directory = Path("/etc/xdg/")
             self.data_directory = Path("/usr/share")
         else:
@@ -59,7 +62,7 @@ class LinuxMenu(Menu):
         return (path,)
 
     def remove(self):
-        self.directory_entry_location.unlink()
+        self.directory_entry_location.unlink(missing_ok=True)
         for fn in os.listdir(self.menu_entries_location):
             if fn.startswith(f"{self.render(self.name, slug=True)}_"):
                 # found one shortcut, so don't remove the name from menu
@@ -192,7 +195,7 @@ class LinuxMenuItem(MenuItem):
         paths = self._paths()
         for path in paths:
             log.debug("Removing %s", path)
-            path.unlink()
+            path.unlink(missing_ok=True)
         return paths
 
     def _command(self):
