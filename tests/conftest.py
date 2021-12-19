@@ -39,6 +39,7 @@ def delete_files():
 
 @pytest.fixture(scope="function")
 def tmpdir(tmpdir, request):
+    tmpdir.mkdir(parents=True, exist_ok=True)
     tmpdir = TemporaryDirectory(dir=str(tmpdir))
     request.addfinalizer(tmpdir.cleanup)
     return py.path.local(tmpdir.name)

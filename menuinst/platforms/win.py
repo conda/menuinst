@@ -24,6 +24,9 @@ class WindowsMenu(Menu):
         # TODO: Check if elevated permissions are needed
         log.debug("Creating %s", self.start_menu_location)
         self.start_menu_location.mkdir(parents=True, exist_ok=True)
+        if os.environ.get("MENUINST_TEST_TMPDIR"):
+            self.quick_launch_location.mkdir(parents=True, exist_ok=True)
+            self.desktop_location.mkdir(parents=True, exist_ok=True)
         return (self.start_menu_location,)
 
     def remove(self):
