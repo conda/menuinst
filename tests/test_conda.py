@@ -101,13 +101,15 @@ def test_conda_recent_enough():
 
 @pytest.mark.skipif(PLATFORM != "linux", reason="Linux only")
 def test_package_1_linux(tmpdir):
+    applications_menu = Path(tmpdir) / "config" / "menus" / "applications.menu"
+    if applications_menu.is_file():
+        original_xml = applications_menu.read_text()
+    else:
+        original_xml = None
     with install_package_1(tmpdir) as (prefix, menu_file):
         meta = validate(menu_file)
         menu = Menu(meta.menu_name, str(prefix), BASE_PREFIX)
         items = [menu]
-
-        with open(menu.menu_config_location) as f:
-            original_xml = f.read()
 
         # First case, activation is on, output should be the prefix path
         # Second case, activation is off, output should be N/A
@@ -125,8 +127,8 @@ def test_package_1_linux(tmpdir):
         for path in item._paths():
             assert not path.exists()
 
-    with open(menu.menu_config_location) as f:
-        assert original_xml == f.read()
+    if original_xml:
+        assert original_xml == applications_menu.read_text()
 
 
 @pytest.mark.skipif(PLATFORM != "osx", reason="MacOS only")
