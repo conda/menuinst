@@ -63,7 +63,7 @@ class LinuxMenu(Menu):
 
     def remove(self):
         self.directory_entry_location.unlink(missing_ok=True)
-        for fn in os.listdir(self.menu_entries_location):
+        for fn in os.listdir(self.desktop_entries_location):
             if fn.startswith(f"{self.render(self.name, slug=True)}_"):
                 # found one shortcut, so don't remove the name from menu
                 return (self.directory_entry_location,)
