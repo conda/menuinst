@@ -45,10 +45,11 @@ def new_environment(*packages):
     print(process.stderr, file=sys.stderr)
     process.check_returncode()
 
-    if "menuinst Exception" in process.stdout:
-        raise RuntimeError(
-            f"Command {cmd} exited with 0 but " f"stdout contained exception:\n{process.stdout}"
-        )
+    for stream in (process.stdout, process.stderr):
+        if "menuinst Exception" in stream:
+            raise RuntimeError(
+                f"Command {cmd} exited with 0 but stdout contained exception:\n{stream}"
+            )
 
     # check_call(["conda", "update", "--all", "-p", prefix])
     yield prefix
@@ -64,6 +65,12 @@ def new_environment(*packages):
     print(process.stdout)
     print(process.stderr, file=sys.stderr)
     process.check_returncode()
+    for stream in (process.stdout, process.stderr):
+        if "menuinst Exception" in stream:
+            raise RuntimeError(
+                f"Command {cmd} exited with 0 but stdout contained exception:\n{stream}"
+            )
+
     shutil.rmtree(prefix, ignore_errors=True)
 
 
