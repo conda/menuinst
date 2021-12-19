@@ -203,9 +203,9 @@ class LinuxMenuItem(MenuItem):
                 activate = "shell activate"
             else:
                 activate = "shell.bash activate"
-            cmd = f'eval $("{conda_exe}" {activate} "{self.menu.prefix}") && '
-
+            cmd = f'eval "$("{conda_exe}" {activate} "{self.menu.prefix}")" && '
         cmd += " ".join(UnixLex.quote_args(self.render("command")))
+        cmd = f"bash -c '{cmd}'"
         return cmd
 
     def _write_desktop_file(self):
@@ -215,7 +215,7 @@ class LinuxMenuItem(MenuItem):
             "Encoding=UTF-8",
             f'Name={self.render("name")}',
             f"Exec={self._command()}",
-            f'Terminal={self.render("terminal")}'
+            f'Terminal={self.render("terminal")}',
         ]
 
         icon = self.render("icon")
