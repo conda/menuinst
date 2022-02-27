@@ -218,7 +218,7 @@ class LinuxMenuItem(MenuItem):
             "Encoding=UTF-8",
             f'Name={self.render("name")}',
             f"Exec={self._command()}",
-            f'Terminal={self.render("terminal")}',
+            f'Terminal={str(self.render("terminal")).lower()}',
         ]
 
         icon = self.render("icon")
