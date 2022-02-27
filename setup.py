@@ -46,5 +46,5 @@ setup(
     include_package_data=True,
     install_requires=install_requires,
     license="BSD",
-    packages=find_packages(),
+    packages=find_packages(exclude=("tests", "tests.*")),
 )
