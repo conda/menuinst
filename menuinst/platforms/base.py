@@ -2,10 +2,10 @@
 """
 import os
 import sys
-import warnings
 from typing import Union, List, Iterable
 from pathlib import Path
 from subprocess import check_output
+from logging import getLogger
 
 try:
     from typing import Literal
@@ -15,6 +15,7 @@ except ImportError:
 from ..schema import MenuInstSchema
 from ..utils import slugify
 
+log = getLogger(__name__)
 
 class Menu:
     def __init__(
@@ -115,12 +116,8 @@ class Menu:
 class MenuItem:
     def __init__(self, menu: Menu, metadata: MenuInstSchema.MenuItem):
         self.menu = menu
-        self.full_metadata = metadata
-
-        if not metadata.enabled_for_platform():
-            warnings.warning(f"Metadata for {metadata.name} is not enabled for {sys.platform}")
-
-        self.metadata = metadata.merge_for_platform()
+        self._data = metadata
+        self.metadata = self._merge_for_platform(self._data)
 
     def create(self) -> List[Path]:
         raise NotImplementedError
@@ -129,7 +126,7 @@ class MenuItem:
         raise NotImplementedError
 
     def render(self, key: str, slug=False):
-        value = getattr(self.metadata, key)
+        value = self.metadata.get(key)
         if value in (None, True, False):
             return value
         if isinstance(value, str):
@@ -142,3 +139,45 @@ class MenuItem:
         so they can be removed upon uninstallation
         """
         raise NotImplementedError
+
+    @staticmethod
+    def _merge_for_platform(data, platform=sys.platform):
+        """
+        Merge platform keys with global keys, overwriting if needed.
+        """
+        platform = platform_key(platform)
+        data_copy = data.copy()
+        all_platforms = data_copy.pop("platforms", None)
+        if all_platforms:
+            platform_options = all_platforms.pop(platform)
+            if platform_options:
+                for key, value in platform_options.items():
+                    if key not in data_copy:
+                        # bring missing keys, since they are platform specific
+                        data_copy[key] = value
+                    elif value is not None:
+                        # if the key was in global, it was not platform specific
+                        # this is an override and we only do so if is not None
+                        log.debug("Platform value %s=%s overrides global value", key, value)
+                        data_copy[key] = value
+
+        data["platforms"] = [
+            key for key, value in data_copy["platforms"].items()
+            if value is not None
+        ]
+        return data
+
+    def enabled_for_platform(self, platform=sys.platform):
+        platform = platform_key(platform)
+        return self._data["platforms"].get(platform) is not None
+
+
+def platform_key(platform=sys.platform):
+    if platform == "win32":
+        return "win"
+    if platform == "darwin":
+        return "osx"
+    if platform.startswith("linux"):
+        return "linux"
+
+    raise ValueError(f"Platform {platform} is not supported")

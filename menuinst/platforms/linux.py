@@ -200,7 +200,7 @@ class LinuxMenuItem(MenuItem):
 
     def _command(self):
         cmd = ""
-        if self.metadata.activate:
+        if self.metadata["activate"]:
             conda_exe = self.menu.conda_exe
             if self.menu._is_micromamba(conda_exe):
                 activate = "shell activate"

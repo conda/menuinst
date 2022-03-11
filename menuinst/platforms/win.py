@@ -129,7 +129,7 @@ class WindowsMenu(Menu):
 class WindowsMenuItem(MenuItem):
     def create(self) -> Tuple[Path]:
         shell = Dispatch("WScript.Shell")
-        activate = self.metadata.activate
+        activate = self.metadata["activate"]
 
         if activate:
             script = self._write_script()
@@ -142,7 +142,7 @@ class WindowsMenuItem(MenuItem):
             shortcut = shell.CreateShortCut(str(path))
 
             if activate:
-                if self.metadata.terminal:
+                if self.metadata["terminal"]:
                     command = ["cmd", "/K", str(script)]
                 else:
                     system32 = Path(os.environ.get("SystemRoot", "C:\\Windows")) / "system32"
@@ -184,15 +184,15 @@ class WindowsMenuItem(MenuItem):
 
     def _paths(self):
         directories = [self.menu.start_menu_location]
-        if self.metadata.desktop:
+        if self.metadata["desktop"]:
             directories.append(self.menu.desktop_location)
-        if self.metadata.quicklaunch and self.menu.quick_launch_location:
+        if self.metadata["quicklaunch"] and self.menu.quick_launch_location:
             directories.append(self.menu.quick_launch_location)
 
         # These are the different lnk files
         shortcuts = [directory / self._shortcut_filename() for directory in directories]
 
-        if self.metadata.activate:
+        if self.metadata["activate"]:
             # This is the accessory launcher script for cmd
             shortcuts.append(self._path_for_script())
 
@@ -207,7 +207,7 @@ class WindowsMenuItem(MenuItem):
 
     def _command(self):
         lines = ["@ECHO OFF"]
-        if self.metadata.activate:
+        if self.metadata["activate"]:
             conda_exe = self.menu.conda_exe
             if self.menu._is_micromamba(conda_exe):
                 activate = "shell activate"

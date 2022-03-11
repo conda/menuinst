@@ -126,7 +126,7 @@ class MacOSMenuItem(MenuItem):
             Path(working_dir).mkdir(parents=True, exist_ok=True)
             lines.append(f'cd "{working_dir}"')
 
-        if self.metadata.activate:
+        if self.metadata["activate"]:
             conda_exe = self.menu.conda_exe
             if self.menu._is_micromamba(conda_exe):
                 activate = "shell activate"

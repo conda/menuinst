@@ -4,7 +4,6 @@ Generate JSON schemas from pydantic models
 
 import sys
 from typing import Optional, Union, List
-import json
 from pathlib import Path
 from logging import getLogger
 
@@ -150,37 +149,6 @@ class MenuInstSchema(BaseModel):
 
         platforms: Platforms
 
-        def merge_for_platform(self, platform=sys.platform):
-            """
-            Merge platform keys with global keys, overwriting if needed.
-            """
-            platform = platform_key(platform)
-            global_level = self.dict()
-            all_platforms = global_level.pop("platforms", None)
-            if all_platforms:
-                platform_options = all_platforms.pop(platform)
-                if platform_options:
-                    for key, value in platform_options.items():
-                        if key not in global_level:
-                            # bring missing keys, since they are platform specific
-                            global_level[key] = value
-                        elif value is not None:
-                            # if the key was in global, it was not platform specific
-                            # this is an override and we only do so if is not None
-                            log.debug("Platform value %s=%s overrides global value", key, value)
-                            global_level[key] = value
-
-            global_level["platforms"] = [key for key, value in self.platforms if value is not None]
-
-            # this builds an unvalidated model, but we have validated everything already
-            # we skip validation because we only want this as a convenient access to values
-            # through model.key syntax instead of model["key"]
-            return self.construct(**global_level)
-
-        def enabled_for_platform(self, platform=sys.platform):
-            platform = platform_key(platform)
-            return getattr(self.platforms, platform, None) is not None
-
     menu_name: constr(min_length=1) = Field(
         description="Name for the category containing the items specified in `menu_items`."
     )
@@ -198,17 +166,6 @@ class MenuInstSchema(BaseModel):
         alias="$schema",
     )
 
-    def enabled_for_platform(self, platform=sys.platform):
-        return any(item.enabled_for_platform(platform) for item in self.menu_items)
-
-
-def validate(metadata: Union[str, dict]) -> MenuInstSchema:
-    if isinstance(metadata, (str, Path)):
-        with open(metadata) as f:
-            metadata = json.load(f)
-
-    return MenuInstSchema.validate(metadata)
-
 
 def dump_to_json():
     here = Path(__file__).parent
@@ -216,17 +173,6 @@ def dump_to_json():
     print(schema)
     with open(here / "data" / "menuinst.schema.json", "w") as f:
         f.write(schema)
-
-
-def platform_key(platform=sys.platform):
-    if platform == "win32":
-        return "win"
-    if platform == "darwin":
-        return "osx"
-    if platform.startswith("linux"):
-        return "linux"
-
-    raise ValueError(f"Platform {platform} is not supported")
 
 
 if __name__ == "__main__":

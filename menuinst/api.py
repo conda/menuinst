@@ -3,12 +3,15 @@
 
 from os import PathLike
 import sys
-from typing import Union, List
+from typing import Union, List, Tuple
 from pathlib import Path
 import warnings
+import json
+from logging import getLogger
 
 from .platforms import Menu, MenuItem
-from .schema import validate
+
+log = getLogger(__name__)
 
 
 __all__ = [
@@ -19,27 +22,36 @@ __all__ = [
 ]
 
 
+def _load(
+    metadata_or_path: Union[PathLike, dict],
+    target_prefix: PathLike = sys.prefix,
+    base_prefix: PathLike = sys.prefix,
+) -> Tuple[Menu, List[MenuItem]]:
+    if isinstance(metadata_or_path, (str, Path)):
+        with open(metadata_or_path) as f:
+            metadata = json.load(f)
+    else:
+        metadata = metadata_or_path
+
+    menu = Menu(metadata["menu_name"], target_prefix, base_prefix)
+    menu_items = [MenuItem(menu, item) for item in metadata["menu_items"]]
+    return menu, menu_items
+
+
 def install(
     metadata_or_path: Union[PathLike, dict],
     target_prefix: PathLike = sys.prefix,
     base_prefix: PathLike = sys.prefix,
 ) -> List[PathLike]:
-    metadata = validate(metadata_or_path)
-    menu = Menu(metadata.menu_name, target_prefix, base_prefix)
-
-    if not metadata.enabled_for_platform():
-        warnings.warning(f"Metadata for {metadata.name} is not enabled for {sys.platform}")
-        return
+    menu, menu_items = _load(metadata_or_path, target_prefix, base_prefix)
+    if not any(item.enabled_for_platform() for item in menu_items):
+        warnings.warning(f"Metadata for {menu.name} is not enabled for {sys.platform}")
+        return ()
 
     paths = []
-    menu_dirs = menu.create()
-    if menu_dirs:
-        paths.extend(list(menu_dirs))
-
-    for item in metadata.menu_items:
-        menu_item = MenuItem(menu, item)
-        menu_item_paths = menu_item.create()
-        paths.extend(list(menu_item_paths))
+    paths += menu.create()
+    for menu_item in menu_items:
+        paths += menu_item.create()
 
     return paths
 
@@ -49,16 +61,13 @@ def remove(
     target_prefix: PathLike = sys.prefix,
     base_prefix: PathLike = sys.prefix,
 ) -> List[PathLike]:
-    metadata = validate(metadata_or_path)
-    menu = Menu(metadata.menu_name, target_prefix, base_prefix)
-
-    if not metadata.enabled_for_platform():
-        warnings.warning(f"Metadata for {metadata.name} is not enabled for {sys.platform}")
-        return
+    menu, menu_items = _load(metadata_or_path, target_prefix, base_prefix)
+    if not any(item.enabled_for_platform() for item in menu_items):
+        warnings.warning(f"Metadata for {menu.name} is not enabled for {sys.platform}")
+        return ()
 
     paths = []
-    for item in metadata.menu_items:
-        menu_item = MenuItem(menu, item)
+    for menu_item in menu_items:
         paths += menu_item.remove()
     paths += menu.remove()
 
