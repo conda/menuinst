@@ -109,11 +109,12 @@ def test_package_1_linux(tmpdir):
     with install_package_1(tmpdir) as (prefix, menu_file):
         meta = validate(menu_file)
         menu = Menu(meta.menu_name, str(prefix), BASE_PREFIX)
+        menu_items = [item.dict() for item in meta.menu_items]
         items = [menu]
 
         # First case, activation is on, output should be the prefix path
         # Second case, activation is off, output should be N/A
-        for item, expected_output in zip(meta.menu_items, (str(prefix), "N/A")):
+        for item, expected_output in zip(menu_items, (str(prefix), "N/A")):
             item = MenuItem(menu, item)
             items.append(item)
             command = item._command()
@@ -135,11 +136,12 @@ def test_package_1_linux(tmpdir):
 def test_package_1_osx(tmpdir):
     with install_package_1(tmpdir) as (prefix, menu_file):
         meta = validate(menu_file)
+        menu_items = [item.dict() for item in meta.menu_items]
         menu = Menu(meta.menu_name, str(prefix), BASE_PREFIX)
         items = [menu]
         # First case, activation is on, output should be the prefix path
         # Second case, activation is off, output should be N/A
-        for item, expected_output in zip(meta.menu_items, (str(prefix), "N/A")):
+        for item, expected_output in zip(menu_items, (str(prefix), "N/A")):
             item = MenuItem(menu, item)
             items.append(item)
             script = item._write_script(
@@ -162,10 +164,11 @@ def test_package_1_windows(tmpdir):
     with install_package_1(tmpdir) as (prefix, menu_file):
         meta = validate(menu_file)
         menu = Menu(meta.menu_name, str(prefix), BASE_PREFIX)
+        menu_items = [item.dict() for item in meta.menu_items]
         items = [menu]
         # First case, activation is on, output should be the prefix path
         # Second case, activation is off, output should be empty
-        for item, expected_output in zip(meta.menu_items, (str(prefix), "!CONDA_PREFIX!")):
+        for item, expected_output in zip(menu_items, (str(prefix), "!CONDA_PREFIX!")):
             item = MenuItem(menu, item)
             items.append(item)
             script = item._write_script(

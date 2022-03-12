@@ -2,10 +2,11 @@
 Generate JSON schemas from pydantic models
 """
 
-import sys
+from pprint import pprint
 from typing import Optional, Union, List
 from pathlib import Path
 from logging import getLogger
+import json
 
 from pydantic import BaseModel as _BaseModel, Field, constr, conlist
 
@@ -141,7 +142,7 @@ class MenuInstSchema(BaseModel):
                 CFBundleIdentifier: Optional[str] = None
                 CFBundleName: Optional[str] = None
                 CFBundleSpokenName: Optional[str] = None
-                CFBundleVersion: Optional[constr(regex="^\S+$")] = None
+                CFBundleVersion: Optional[constr(regex=r"^\S+$")] = None
 
             win: Optional[Windows]
             linux: Optional[Linux]
@@ -167,7 +168,7 @@ class MenuInstSchema(BaseModel):
     )
 
 
-def dump_to_json():
+def dump_schema_to_json():
     here = Path(__file__).parent
     schema = MenuInstSchema.schema_json(indent=2)
     print(schema)
@@ -175,5 +176,39 @@ def dump_to_json():
         f.write(schema)
 
 
+def dump_default_to_json():
+    here = Path(__file__).parent
+    default = MenuInstSchema.MenuItem(
+        name="Default",
+        description="",
+        command=["replace", "this"],
+        platforms={}
+    ).dict()
+    def platform_default(platform):
+        return {
+            k:v
+            for k,v in getattr(MenuInstSchema.MenuItem.Platforms, platform)().dict().items()
+            if k not in MenuInstSchema.MenuItem.__fields__
+        }
+    default["platforms"] = {
+        "win": platform_default("Windows"),
+        "osx": platform_default("MacOS"),
+        "linux": platform_default("Linux"),
+    }
+    pprint(default)
+    with open(here / "data" / "menuinst.menu_item.default.json", "w") as f:
+        json.dump(default, f, indent=2)
+
+
+def validate(metadata_or_path):
+    if isinstance(metadata_or_path, (str, Path)):
+        with open(metadata_or_path) as f:
+            metadata = json.load(f)
+    else:
+        metadata = metadata_or_path
+    return MenuInstSchema(**metadata)
+
+
 if __name__ == "__main__":
-    dump_to_json()
+    dump_schema_to_json()
+    dump_default_to_json()

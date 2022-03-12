@@ -45,7 +45,7 @@ def install(
 ) -> List[PathLike]:
     menu, menu_items = _load(metadata_or_path, target_prefix, base_prefix)
     if not any(item.enabled_for_platform() for item in menu_items):
-        warnings.warning(f"Metadata for {menu.name} is not enabled for {sys.platform}")
+        warnings.warn(f"Metadata for {menu.name} is not enabled for {sys.platform}")
         return ()
 
     paths = []
@@ -63,7 +63,7 @@ def remove(
 ) -> List[PathLike]:
     menu, menu_items = _load(metadata_or_path, target_prefix, base_prefix)
     if not any(item.enabled_for_platform() for item in menu_items):
-        warnings.warning(f"Metadata for {menu.name} is not enabled for {sys.platform}")
+        warnings.warn(f"Metadata for {menu.name} is not enabled for {sys.platform}")
         return ()
 
     paths = []

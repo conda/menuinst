@@ -1,6 +1,7 @@
 import os
 import shlex
 import xml.etree.ElementTree as XMLTree
+from pathlib import Path
 
 
 def slugify(text):
@@ -134,3 +135,8 @@ def unlink(path, missing_ok=False):
     except FileNotFoundError as exc:
         if not missing_ok:
             raise exc
+
+
+def data_path(path):
+    here = Path(__file__).parent
+    return here / "data" / path

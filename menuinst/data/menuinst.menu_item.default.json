@@ -1,0 +1,41 @@
+{
+  "name": "Default",
+  "description": "",
+  "icon": null,
+  "command": [
+    "replace",
+    "this"
+  ],
+  "working_dir": null,
+  "activate": true,
+  "terminal": false,
+  "platforms": {
+    "win": {
+      "desktop": true,
+      "quicklaunch": true
+    },
+    "osx": {
+      "CFBundleDisplayName": null,
+      "CFBundleIdentifier": null,
+      "CFBundleName": null,
+      "CFBundleSpokenName": null,
+      "CFBundleVersion": null
+    },
+    "linux": {
+      "Categories": null,
+      "DBusActivatable": null,
+      "GenericName": null,
+      "Hidden": null,
+      "Implements": null,
+      "Keywords": null,
+      "MimeType": null,
+      "NoDisplay": null,
+      "NotShowIn": null,
+      "OnlyShowIn": null,
+      "PrefersNonDefaultGPU": null,
+      "StartupNotify": null,
+      "StartupWMClass": null,
+      "TryExec": null
+    }
+  }
+}

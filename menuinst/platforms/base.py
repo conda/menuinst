@@ -6,14 +6,14 @@ from typing import Union, List, Iterable
 from pathlib import Path
 from subprocess import check_output
 from logging import getLogger
-
+from copy import deepcopy
+import json
 try:
     from typing import Literal
 except ImportError:
     from typing_extensions import Literal
 
-from ..schema import MenuInstSchema
-from ..utils import slugify
+from ..utils import slugify, data_path
 
 log = getLogger(__name__)
 
@@ -114,9 +114,9 @@ class Menu:
 
 
 class MenuItem:
-    def __init__(self, menu: Menu, metadata: MenuInstSchema.MenuItem):
+    def __init__(self, menu: Menu, metadata: dict):
         self.menu = menu
-        self._data = metadata
+        self._data = self._from_defaults(metadata)
         self.metadata = self._merge_for_platform(self._data)
 
     def create(self) -> List[Path]:
@@ -141,31 +141,44 @@ class MenuItem:
         raise NotImplementedError
 
     @staticmethod
+    def _from_defaults(data):
+        with open(data_path("menuinst.menu_item.default.json")) as f:
+            defaults = json.load(f)
+
+        platforms_data = data.pop("platforms", None)
+        if platforms_data:
+            defaults["platforms"].update(platforms_data)
+        defaults.update(data)
+        return defaults
+
+    @staticmethod
     def _merge_for_platform(data, platform=sys.platform):
         """
         Merge platform keys with global keys, overwriting if needed.
         """
-        platform = platform_key(platform)
-        data_copy = data.copy()
-        all_platforms = data_copy.pop("platforms", None)
-        if all_platforms:
-            platform_options = all_platforms.pop(platform)
-            if platform_options:
-                for key, value in platform_options.items():
-                    if key not in data_copy:
-                        # bring missing keys, since they are platform specific
-                        data_copy[key] = value
-                    elif value is not None:
-                        # if the key was in global, it was not platform specific
-                        # this is an override and we only do so if is not None
-                        log.debug("Platform value %s=%s overrides global value", key, value)
-                        data_copy[key] = value
+        data_copy = deepcopy(data)
+        all_platforms = data_copy.pop("platforms", {})
+        platform_options = all_platforms.pop(platform_key(platform), None)
+        if platform_options:
+            for key, value in platform_options.items():
+                if key not in data_copy:
+                    # bring missing keys, since they are platform specific
+                    data_copy[key] = value
+                elif value is not None:
+                    # if the key was in global, it was not platform specific
+                    # this is an override and we only do so if is not None
+                    log.debug("Platform value %s=%s overrides global value", key, value)
+                    data_copy[key] = value
+        else:  # restore
+            data_copy["platforms"] = all_platforms
 
-        data["platforms"] = [
-            key for key, value in data_copy["platforms"].items()
+        # in the merged metadata, platforms becomes a list of str stating which
+        # platforms are enabled for this item
+        data_copy["platforms"] = [
+            key for key, value in data["platforms"].items()
             if value is not None
         ]
-        return data
+        return data_copy
 
     def enabled_for_platform(self, platform=sys.platform):
         platform = platform_key(platform)
