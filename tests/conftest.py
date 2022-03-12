@@ -8,7 +8,7 @@ from tempfile import TemporaryDirectory
 import py
 import pytest
 
-from menuinst.schema import platform_key
+from menuinst.platforms.base import platform_key
 
 os.environ["PYTEST_IN_USE"] = "1"
 DATA = Path(__file__).parent / "data"
