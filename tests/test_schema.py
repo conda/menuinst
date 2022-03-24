@@ -1,9 +1,17 @@
 from pprint import pprint
 
 import pytest
-from hypothesis import given, settings, HealthCheck
-from hypothesis_jsonschema import from_schema
-from pydantic import ValidationError
+try:
+    # from hypothesis import given, settings, HealthCheck
+    # from hypothesis_jsonschema import from_schema
+    from pydantic import ValidationError
+except ImportError as exc:
+    import warnings
+    warnings.warn(
+        "This test module requires extra dependencies: "
+        "hypothesis, hypothesis_jsonschema, pydantic. "
+        "Make sure they are installed and try again"
+    )
 
 from menuinst.schema import validate
 from conftest import DATA
