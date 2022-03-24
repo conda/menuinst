@@ -168,15 +168,17 @@ class MenuInstSchema(BaseModel):
     )
 
 
-def dump_schema_to_json():
-    here = Path(__file__).parent
-    schema = MenuInstSchema.schema_json(indent=2)
-    print(schema)
-    with open(here / "data" / "menuinst.schema.json", "w") as f:
-        f.write(schema)
+def dump_schema_to_json(write=True):
+    if write:
+        here = Path(__file__).parent
+        schema = MenuInstSchema.schema_json(indent=2)
+        print(schema)
+        with open(here / "data" / "menuinst.schema.json", "w") as f:
+            f.write(schema)
+    return MenuInstSchema.schema()
 
 
-def dump_default_to_json():
+def dump_default_to_json(write=True):
     here = Path(__file__).parent
     default = MenuInstSchema.MenuItem(
         name="Default",
@@ -195,9 +197,11 @@ def dump_default_to_json():
         "osx": platform_default("MacOS"),
         "linux": platform_default("Linux"),
     }
-    pprint(default)
-    with open(here / "data" / "menuinst.menu_item.default.json", "w") as f:
-        json.dump(default, f, indent=2)
+    if write:
+        pprint(default)
+        with open(here / "data" / "menuinst.menu_item.default.json", "w") as f:
+            json.dump(default, f, indent=2)
+    return default
 
 
 def validate(metadata_or_path):
