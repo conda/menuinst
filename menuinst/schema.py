@@ -188,8 +188,8 @@ def dump_default_to_json(write=True):
     ).dict()
     def platform_default(platform):
         return {
-            k:v
-            for k,v in getattr(MenuInstSchema.MenuItem.Platforms, platform)().dict().items()
+            k: v
+            for k, v in getattr(MenuInstSchema.MenuItem.Platforms, platform)().dict().items()
             if k not in MenuInstSchema.MenuItem.__fields__
         }
     default["platforms"] = {

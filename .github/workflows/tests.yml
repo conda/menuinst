@@ -9,7 +9,7 @@ jobs:
     timeout-minutes: 30
     env:
       dependencies: typing_extensions
-      test-dependencies: pytest pytest-cov conda hypothesis hypothesis-jsonschema pydantic
+      test-dependencies: pytest pytest-cov conda
     strategy:
       fail-fast: false
       matrix:
@@ -51,13 +51,13 @@ jobs:
       - shell: bash -l {0}
         name: Run test suite
         run: |
-          pytest tests --cov-append --cov-report=xml --cov=menuinst
+          pytest tests --cov-append --cov-report=xml --cov=menuinst -m "not pydantic"
 
       - shell: bash -l {0}
-        name: Check schema is up-to-date
+        name: Run test suite (pydantic parts)
         run: |
-          python menuinst/schema.py
-          git diff --exit-code menuinst/data/menuinst.schema.json
+          conda install pydantic hypothesis hypothesis-jsonschema
+          pytest tests --cov-append --cov-report=xml --cov=menuinst -m pydantic
 
       - uses: codecov/codecov-action@v1
         with:
