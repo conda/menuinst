@@ -13,7 +13,7 @@ try:
 except ImportError:
     from typing_extensions import Literal
 
-from ..utils import slugify, data_path
+from ..utils import slugify, data_path, deep_update
 
 log = getLogger(__name__)
 
@@ -116,8 +116,8 @@ class Menu:
 class MenuItem:
     def __init__(self, menu: Menu, metadata: dict):
         self.menu = menu
-        self._data = self._from_defaults(metadata)
-        self.metadata = self._merge_for_platform(self._data)
+        self._data = self._initialize_on_defaults(metadata)
+        self.metadata = self._flatten_for_platform(self._data)
 
     def create(self) -> List[Path]:
         raise NotImplementedError
@@ -141,48 +141,43 @@ class MenuItem:
         raise NotImplementedError
 
     @staticmethod
-    def _from_defaults(data):
+    def _initialize_on_defaults(data):
         with open(data_path("menuinst.menu_item.default.json")) as f:
             defaults = json.load(f)
 
-        platforms_data = data.pop("platforms", None)
-        if platforms_data:
-            defaults["platforms"].update(platforms_data)
-        defaults.update(data)
-        return defaults
+        return deep_update(defaults, data)
 
     @staticmethod
-    def _merge_for_platform(data, platform=sys.platform):
+    def _flatten_for_platform(data, platform=sys.platform):
         """
         Merge platform keys with global keys, overwriting if needed.
         """
-        data_copy = deepcopy(data)
-        all_platforms = data_copy.pop("platforms", {})
-        platform_options = all_platforms.pop(platform_key(platform), None)
-        if platform_options:
-            for key, value in platform_options.items():
-                if key not in data_copy:
+        flattened = deepcopy(data)
+        all_platforms = flattened.pop("platforms", {})
+        this_platform = all_platforms.pop(platform_key(platform), None)
+        if this_platform:
+            for key, value in this_platform.items():
+                if key not in flattened:
                     # bring missing keys, since they are platform specific
-                    data_copy[key] = value
+                    flattened[key] = value
                 elif value is not None:
                     # if the key was in global, it was not platform specific
                     # this is an override and we only do so if is not None
                     log.debug("Platform value %s=%s overrides global value", key, value)
-                    data_copy[key] = value
+                    flattened[key] = value
         else:  # restore
-            data_copy["platforms"] = all_platforms
+            flattened["platforms"] = all_platforms
 
         # in the merged metadata, platforms becomes a list of str stating which
         # platforms are enabled for this item
-        data_copy["platforms"] = [
+        flattened["platforms"] = [
             key for key, value in data["platforms"].items()
             if value is not None
         ]
-        return data_copy
+        return flattened
 
     def enabled_for_platform(self, platform=sys.platform):
-        platform = platform_key(platform)
-        return self._data["platforms"].get(platform) is not None
+        return self._data["platforms"].get(platform_key(platform)) is not None
 
 
 def platform_key(platform=sys.platform):
