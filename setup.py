@@ -16,10 +16,8 @@ if sys.platform == "win32":
                        "comdlg32", "advapi32", "shell32", "ole32", "oleaut32",
                        "uuid", "odbc32", "odbccp32"]
             )]
-    install_requires = ['pywin32']
 else:
     extensions = []
-    install_requires = []
 
 
 setup(
@@ -31,7 +29,7 @@ setup(
     long_description = open('README.rst').read(),
     ext_modules = extensions,
     include_package_data = True,
-    install_requires = install_requires,
+    install_requires = [],
     package_data = {"menuinst" : ["*.icns"]},
     license = "BSD",
     packages = ['menuinst'],

@@ -10,6 +10,7 @@
 
 from __future__ import print_function
 import sys, os, traceback
+from enum import IntEnum
 
 if sys.version_info < (3,):
     text_type = basestring
@@ -35,13 +36,89 @@ def isUserAdmin():
         raise RuntimeError("Unsupported operating system for this module: %s" % (os.name,))
 
 
+# Taken from conda/common/_os/windows.py
+if os.name == 'nt':
+
+    def ensure_binary(value):
+        try:
+            return value.encode('utf-8')
+        except AttributeError:  # pragma: no cover
+            # AttributeError: '<>' object has no attribute 'encode'
+            # In this case assume already binary type and do nothing
+            return value
+
+    from ctypes import (POINTER, Structure, WinError, byref, c_ulong, c_char_p, c_int,
+                        c_void_p, sizeof, windll)
+    from ctypes.wintypes import HANDLE, BOOL, DWORD, HWND, HINSTANCE, HKEY
+    PHANDLE = POINTER(HANDLE)
+    PDWORD = POINTER(DWORD)
+    SEE_MASK_NOCLOSEPROCESS = 0x00000040
+    INFINITE = -1
+
+    WaitForSingleObject = windll.kernel32.WaitForSingleObject
+    WaitForSingleObject.argtypes = (HANDLE, DWORD)
+    WaitForSingleObject.restype = DWORD
+
+    GetExitCodeProcess = windll.kernel32.GetExitCodeProcess
+    GetExitCodeProcess.argtypes = (HANDLE, PDWORD)
+    GetExitCodeProcess.restype = BOOL
+
+    class ShellExecuteInfo(Structure):
+        """
+https://docs.microsoft.com/en-us/windows/desktop/api/shellapi/nf-shellapi-shellexecuteexa
+https://docs.microsoft.com/en-us/windows/desktop/api/shellapi/ns-shellapi-_shellexecuteinfoa
+        """
+
+        _fields_ = [
+            ('cbSize', DWORD),
+            ('fMask', c_ulong),
+            ('hwnd', HWND),
+            ('lpVerb', c_char_p),
+            ('lpFile', c_char_p),
+            ('lpParameters', c_char_p),
+            ('lpDirectory', c_char_p),
+            ('nShow', c_int),
+            ('hInstApp', HINSTANCE),
+            ('lpIDList', c_void_p),
+            ('lpClass', c_char_p),
+            ('hKeyClass', HKEY),
+            ('dwHotKey', DWORD),
+            ('hIcon', HANDLE),
+            ('hProcess', HANDLE)
+        ]
+
+        def __init__(self, **kwargs):
+            Structure.__init__(self)
+            self.cbSize = sizeof(self)
+            for field_name, field_value in kwargs.items():
+                if isinstance(field_value, str):
+                    field_value = ensure_binary(field_value)
+                setattr(self, field_name, field_value)
+
+    PShellExecuteInfo = POINTER(ShellExecuteInfo)
+    ShellExecuteEx = windll.Shell32.ShellExecuteExA
+    ShellExecuteEx.argtypes = (PShellExecuteInfo, )
+    ShellExecuteEx.restype = BOOL
+
+
+class SW(IntEnum):
+    HIDE = 0
+    MAXIMIZE = 3
+    MINIMIZE = 6
+    RESTORE = 9
+    SHOW = 5
+    SHOWDEFAULT = 10
+    SHOWMAXIMIZED = 3
+    SHOWMINIMIZED = 2
+    SHOWMINNOACTIVE = 7
+    SHOWNA = 8
+    SHOWNOACTIVATE = 4
+    SHOWNORMAL = 1
+
+
 def runAsAdmin(cmdLine=None, wait=True):
     if os.name != 'nt':
         raise RuntimeError("This function is only implemented on Windows.")
-
-    import win32api, win32con, win32event, win32process
-    from win32com.shell.shell import ShellExecuteEx
-    from win32com.shell import shellcon
 
     python_exe = sys.executable
 
@@ -49,10 +126,11 @@ def runAsAdmin(cmdLine=None, wait=True):
         cmdLine = [python_exe] + sys.argv
     elif not hasattr(cmdLine, "__iter__") or isinstance(cmdLine, text_type):
         raise ValueError("cmdLine is not a sequence.")
+
     cmd = '"%s"' % (cmdLine[0],)
     # XXX TODO: isn't there a function or something we can call to massage command line params?
     params = " ".join(['"%s"' % (x,) for x in cmdLine[1:]])
-    showCmd = win32con.SW_HIDE
+    showCmd = SW.HIDE
     lpVerb = 'runas'  # causes UAC elevation prompt.
 
     # ShellExecute() doesn't seem to allow us to fetch the PID or handle
@@ -60,17 +138,25 @@ def runAsAdmin(cmdLine=None, wait=True):
     # the more complex ShellExecuteEx() must be used.
 
     # procHandle = win32api.ShellExecute(0, lpVerb, cmd, params, cmdDir, showCmd)
-
-    procInfo = ShellExecuteEx(nShow=showCmd,
-                              fMask=shellcon.SEE_MASK_NOCLOSEPROCESS,
+    execute_info = ShellExecuteInfo(nShow=showCmd,
+                              fMask=SEE_MASK_NOCLOSEPROCESS,
                               lpVerb=lpVerb,
                               lpFile=cmd,
-                              lpParameters=params)
+                              lpParameters=params,
+                              hwnd=None,
+                              lpDirectory=None)
+
+    successful = ShellExecuteEx(byref(execute_info))
+
+    if not successful:
+        raise WinError()
 
     if wait:
-        procHandle = procInfo['hProcess']
-        win32event.WaitForSingleObject(procHandle, win32event.INFINITE)
-        rc = win32process.GetExitCodeProcess(procHandle)
+        procHandle = execute_info.hProcess
+        WaitForSingleObject(procHandle, INFINITE)
+        err = DWORD()
+        GetExitCodeProcess(procHandle, byref(err))
+        rc = err.value
     else:
         rc = None
 
