@@ -1,3 +1,7 @@
+Unreleased:
+------------------
+  * Remove pywin32 dependency (#103)
+
 2021-09-10 1.4.18:
 ------------------
   * Merge in various patches used by conda-standalone (#85)
