@@ -60,14 +60,13 @@ def install(path, remove=False, prefix=sys.prefix, recursing=False, root_prefix=
         if isUserAdmin():
             _install(path, remove, prefix, mode='system', root_prefix=root_prefix)
         else:
-            from pywintypes import error
             retcode = 1
             try:
                 if not recursing:
                     retcode = runAsAdmin([join(root_prefix, 'python'), '-c',
                                           "import menuinst; menuinst.install(%r, %r, %r, %r, %r)" % (
                                               path, bool(remove), prefix, True, root_prefix)])
-            except error:
+            except WindowsError:
                 pass
 
             if retcode != 0:
