@@ -3,14 +3,14 @@
 # All rights reserved.
 import sys
 from setuptools import find_packages, Extension, setup
+from pathlib import Path
 
 import versioneer
 
 
-extensions = []
 install_requires = ["typing_extensions"]
 if sys.platform == "win32":
-    extensions.append(
+    extensions = [
         Extension(
             "menuinst._legacy.winshortcut",
             sources=["menuinst/_legacy/winshortcut.cpp"],
@@ -31,8 +31,9 @@ if sys.platform == "win32":
                 "odbccp32",
             ],
         )
-    )
-    install_requires.append("pywin32")
+    ]
+else:
+    extensions = []
 
 
 setup(
@@ -41,9 +42,10 @@ setup(
     version=versioneer.get_version(),
     cmdclass=versioneer.get_cmdclass(),
     description="cross platform install of menu items",
-    long_description=open("README.rst").read(),
+    long_description=Path("README.rst").read_text(),
     ext_modules=extensions,
     include_package_data=True,
+    package_data = {"menuinst" : ["*.icns"]},
     install_requires=install_requires,
     license="BSD",
     packages=find_packages(exclude=("tests", "tests.*")),

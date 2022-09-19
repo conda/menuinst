@@ -8,7 +8,6 @@ import ctypes
 import logging
 import os
 from os.path import isdir, join, exists, split
-import pywintypes
 import sys
 import locale
 
@@ -202,7 +201,7 @@ class Menu(object):
                     % (name, self.prefix, env_name, mode, used_mode, root_prefix))
         try:
             self.set_dir(name, self.prefix, env_name, used_mode, root_prefix)
-        except (WindowsError, pywintypes.error):
+        except WindowsError:
             # We get here if we aren't elevated.  This is different from
             #   permissions: a user can have permission, but elevation is still
             #   required.  If the process isn't elevated, we get the
