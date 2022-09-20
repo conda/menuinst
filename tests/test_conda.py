@@ -13,7 +13,7 @@ import pytest
 from conda.models.version import VersionOrder
 
 from menuinst.platforms import Menu, MenuItem
-from menuinst.schema import validate
+from menuinst.api import validate
 
 from conftest import DATA, PLATFORM, BASE_PREFIX
 
@@ -99,6 +99,7 @@ def test_conda_recent_enough():
     assert VersionOrder(data["conda_version"]) >= VersionOrder("4.12a0")
 
 
+@pytest.mark.pydantic
 @pytest.mark.skipif(PLATFORM != "linux", reason="Linux only")
 def test_package_1_linux(tmpdir):
     applications_menu = Path(tmpdir) / "config" / "menus" / "applications.menu"
@@ -132,6 +133,7 @@ def test_package_1_linux(tmpdir):
         assert original_xml == applications_menu.read_text()
 
 
+@pytest.mark.pydantic
 @pytest.mark.skipif(PLATFORM != "osx", reason="MacOS only")
 def test_package_1_osx(tmpdir):
     with install_package_1(tmpdir) as (prefix, menu_file):
@@ -159,6 +161,7 @@ def test_package_1_osx(tmpdir):
             assert not path.exists()
 
 
+@pytest.mark.pydantic
 @pytest.mark.skipif(PLATFORM != "win", reason="Windows only")
 def test_package_1_windows(tmpdir):
     with install_package_1(tmpdir) as (prefix, menu_file):
