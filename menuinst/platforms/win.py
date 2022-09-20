@@ -7,13 +7,11 @@ from pathlib import Path
 from typing import Tuple, Union
 from logging import getLogger
 
-from win32com.client import Dispatch
-
 from .base import Menu, MenuItem
 from ..utils import WinLex, unlink
 
-# TODO: Reimplement/port to get rid of _legacy
-from .._legacy.win32 import folder_path
+from .win_utils.knownfolders import folder_path as windows_folder_path
+from .win_utils.winshortcut import create_shortcut
 
 
 log = getLogger(__name__)
@@ -50,7 +48,7 @@ class WindowsMenu(Menu):
         _test_tmpdir = os.environ.get("MENUINST_TEST_TMPDIR")
         if _test_tmpdir:
             return Path(_test_tmpdir) / "start" / self.name
-        return Path(folder_path(self.mode, False, "start")) / self.name
+        return Path(windows_folder_path(self.mode, False, "start")) / self.name
 
     @property
     def quick_launch_location(self):
@@ -60,14 +58,14 @@ class WindowsMenu(Menu):
         _test_tmpdir = os.environ.get("MENUINST_TEST_TMPDIR")
         if _test_tmpdir:
             return Path(_test_tmpdir) / "quicklaunch" / self.name
-        return Path(folder_path(self.mode, False, "quicklaunch"))
+        return Path(windows_folder_path(self.mode, False, "quicklaunch"))
 
     @property
     def desktop_location(self):
         _test_tmpdir = os.environ.get("MENUINST_TEST_TMPDIR")
         if _test_tmpdir:
             return Path(_test_tmpdir) / "desktop" / self.name
-        return Path(folder_path(self.mode, False, "desktop"))
+        return Path(windows_folder_path(self.mode, False, "desktop"))
 
     @property
     def placeholders(self):
@@ -128,7 +126,6 @@ class WindowsMenu(Menu):
 
 class WindowsMenuItem(MenuItem):
     def create(self) -> Tuple[Path]:
-        shell = Dispatch("WScript.Shell")
         activate = self.metadata["activate"]
 
         if activate:
@@ -138,8 +135,6 @@ class WindowsMenuItem(MenuItem):
         for path in paths:
             if not path.suffix == ".lnk":
                 continue
-
-            shortcut = shell.CreateShortCut(str(path))
 
             if activate:
                 if self.metadata["terminal"]:
@@ -155,23 +150,27 @@ class WindowsMenuItem(MenuItem):
 
             target_path, *arguments = WinLex.quote_args(command)
 
-            shortcut.Targetpath = target_path
-            if arguments:
-                shortcut.Arguments = " ".join(arguments)
-
             working_dir = self.render("working_dir")
             if working_dir:
                 Path(working_dir).mkdir(parents=True, exist_ok=True)
             else:
                 working_dir = "%HOMEPATH%"
-            shortcut.WorkingDirectory = working_dir
 
-            icon = self.render("icon")
-            if icon:
-                shortcut.IconLocation = icon
+            icon = self.render("icon") or ""
 
+            # create_shortcut has this API
+            # winshortcut.create_shortcut(path, description, filename,\n"
+            #                arguments=u\"\", workdir=None, iconpath=None,\n"
+            #                iconindex=0)\n"
+            create_shortcut(
+                target_path,
+                self._shortcut_filename(ext=""),
+                str(path),
+                " ".join(arguments),
+                working_dir,
+                icon,
+            )
             # TODO: Check if elevated permissions are needed
-            shortcut.save()
         return paths
 
     def remove(self) -> Tuple[Path]:
@@ -200,7 +199,8 @@ class WindowsMenuItem(MenuItem):
 
     def _shortcut_filename(self, ext="lnk"):
         env_suffix = f" ({self.menu.env_name})" if self.menu.env_name else ""
-        return f"{self.render('name')}{env_suffix}.{ext}"
+        ext = f".{ext}" if ext else ""
+        return f"{self.render('name')}{env_suffix}{ext}"
 
     def _path_for_script(self):
         return Path(self.menu.placeholders["MENU_DIR"]) / self._shortcut_filename("bat")

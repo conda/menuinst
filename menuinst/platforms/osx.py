@@ -5,11 +5,9 @@ from pathlib import Path
 import plistlib
 import os
 from typing import Tuple
-from tempfile import mkdtemp
 from logging import getLogger
 
-from .base import Menu, MenuItem
-from ..schema import MenuInstSchema
+from .base import Menu, MenuItem, menuitem_defaults
 from ..utils import UnixLex
 
 
@@ -99,8 +97,8 @@ class MacOSMenuItem(MenuItem):
         }
 
         # Override defaults with (potentially) user provided values
-        for key in MenuInstSchema.MenuItem.Platforms.MacOS.__fields__:
-            if key in MenuInstSchema.MenuItem.__fields__:
+        for key in menuitem_defaults["platforms"]["osx"]:
+            if key in menuitem_defaults:
                 continue
             value = self.render(key)
             if value is None:

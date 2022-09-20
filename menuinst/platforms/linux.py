@@ -8,8 +8,7 @@ import time
 from logging import getLogger
 from typing import Union, Iterable
 
-from .base import Menu, MenuItem
-from ..schema import MenuInstSchema
+from .base import Menu, MenuItem, menuitem_defaults
 from ..utils import indent_xml_tree, add_xml_child, UnixLex, unlink
 
 
@@ -234,8 +233,8 @@ class LinuxMenuItem(MenuItem):
             Path(working_dir).mkdir(parents=True, exist_ok=True)
             lines.append(f"Path={working_dir}")
 
-        for key in MenuInstSchema.MenuItem.Platforms.Linux.__fields__:
-            if key in MenuInstSchema.MenuItem.__fields__:
+        for key in menuitem_defaults["platforms"]["linux"]:
+            if key in menuitem_defaults:
                 continue
             value = self.render(key)
             if value is None:

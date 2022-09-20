@@ -15,7 +15,7 @@ del get_versions
 
 if sys.platform == 'win32':
     from .win32 import Menu, ShortCut
-    from .win_elevate import isUserAdmin, runAsAdmin
+    from ..platforms.win_utils.win_elevate import isUserAdmin, runAsAdmin
 
 
 def _install(path, remove=False, prefix=sys.prefix, mode=None, root_prefix=sys.prefix):
@@ -58,14 +58,13 @@ def install(path, remove=False, prefix=sys.prefix, recursing=False, root_prefix=
         if isUserAdmin():
             _install(path, remove, prefix, mode='system', root_prefix=root_prefix)
         else:
-            from pywintypes import error
             retcode = 1
             try:
                 if not recursing:
                     retcode = runAsAdmin([join(root_prefix, 'python'), '-c',
                                           "import menuinst; menuinst.install(%r, %r, %r, %r, %r)" % (
                                               path, bool(remove), prefix, True, root_prefix)])
-            except error:
+            except OSError:
                 pass
 
             if retcode != 0:

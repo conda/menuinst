@@ -12,9 +12,9 @@ install_requires = ["typing_extensions"]
 if sys.platform == "win32":
     extensions = [
         Extension(
-            "menuinst._legacy.winshortcut",
-            sources=["menuinst/_legacy/winshortcut.cpp"],
-            include_dirs=["menuinst/_legacy"],
+            "menuinst.platforms.win_utils.winshortcut",
+            sources=["menuinst/platforms/win_utils/winshortcut.cpp"],
+            include_dirs=["menuinst/platforms/win_utils"],
             libraries=[
                 "comctl32",
                 "kernel32",
@@ -45,7 +45,6 @@ setup(
     long_description=Path("README.rst").read_text(),
     ext_modules=extensions,
     include_package_data=True,
-    package_data = {"menuinst" : ["*.icns"]},
     install_requires=install_requires,
     license="BSD",
     packages=find_packages(exclude=("tests", "tests.*")),

@@ -12,3 +12,6 @@ exclude = '''
     | versioneer.py
 )
 '''
+
+[tool.pyright]
+pythonPlatform = "All"

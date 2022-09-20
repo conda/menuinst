@@ -8,6 +8,7 @@ from subprocess import check_output
 from logging import getLogger
 from copy import deepcopy
 import json
+
 try:
     from typing import Literal
 except ImportError:
@@ -17,6 +18,7 @@ from ..utils import slugify, data_path, deep_update
 
 log = getLogger(__name__)
 
+
 class Menu:
     def __init__(
         self,
@@ -25,7 +27,7 @@ class Menu:
         base_prefix: str = sys.prefix,
         mode: Union[Literal["user"], Literal["system"]] = "user",
     ):
-        assert mode in ("user", "system"), f"`mode` must be either `user` or `system`"
+        assert mode in ("user", "system"), f"mode={mode} must be `user` or `system`"
         self.mode = mode
         self.name = name
         self.prefix = Path(prefix)
@@ -171,8 +173,7 @@ class MenuItem:
         # in the merged metadata, platforms becomes a list of str stating which
         # platforms are enabled for this item
         flattened["platforms"] = [
-            key for key, value in data["platforms"].items()
-            if value is not None
+            key for key, value in data["platforms"].items() if value is not None
         ]
         return flattened
 
@@ -189,3 +190,8 @@ def platform_key(platform=sys.platform):
         return "linux"
 
     raise ValueError(f"Platform {platform} is not supported")
+
+
+menuitem_defaults = json.loads(
+    (Path(__file__).parents[1] / "data" / "menuinst.menu_item.default.json").read_text()
+)
