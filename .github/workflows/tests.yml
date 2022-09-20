@@ -9,7 +9,7 @@ jobs:
     timeout-minutes: 30
     env:
       dependencies: typing_extensions
-      test-dependencies: pytest pytest-cov conda
+      test-dependencies: pip pytest pytest-cov conda
       CONDA_NUMBER_CHANNEL_NOTICES: 0
     strategy:
       fail-fast: false
@@ -41,7 +41,7 @@ jobs:
       - shell: bash -el {0}
         name: Install menuinst
         run: |
-          pip install -e .
+          pip install -vv .
 
       - shell: bash -el {0}
         name: Run test suite
