@@ -1,6 +1,5 @@
 from functools import wraps
 from pathlib import Path
-from typing import PathLike, Union
 import logging
 import os
 import sys
@@ -12,7 +11,7 @@ def elevate_as_needed(func):
 
     @wraps(func)
     def wrapper_elevate(
-        base_prefix: PathLike = sys.prefix,
+        base_prefix: os.PathLike = sys.prefix,
         *args,
         **kwargs,
     ):
