@@ -13,7 +13,7 @@ import pytest
 from conda.models.version import VersionOrder
 
 from menuinst.platforms import Menu, MenuItem
-from menuinst.api import validate
+from menuinst.schema import validate
 
 from conftest import DATA, PLATFORM, BASE_PREFIX
 
