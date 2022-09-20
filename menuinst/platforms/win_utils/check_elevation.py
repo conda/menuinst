@@ -15,7 +15,7 @@ def elevate_as_needed(func):
         *args,
         **kwargs,
     ):
-        from platforms.win_utils.win_elevate import isUserAdmin, runAsAdmin
+        from .win_elevate import isUserAdmin, runAsAdmin
 
         kwargs.pop("_mode", None)
         fallback_to_user_mode = True
