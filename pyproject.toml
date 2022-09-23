@@ -44,8 +44,3 @@ exclude = '''
 
 [tool.pyright]
 pythonPlatform = "All"
-
-[tool.pytest.ini_options]
-markers = [
-    "pydantic: test that requires pydantic"
-]

@@ -9,7 +9,7 @@ jobs:
     timeout-minutes: 30
     env:
       dependencies: typing_extensions
-      test-dependencies: pip pytest pytest-cov conda
+      test-dependencies: pip pytest pytest-cov conda pydantic hypothesis hypothesis-jsonschema
       CONDA_NUMBER_CHANNEL_NOTICES: 0
     strategy:
       fail-fast: false
@@ -46,13 +46,7 @@ jobs:
       - shell: bash -el {0}
         name: Run test suite
         run: |
-          pytest tests --cov-append --cov-report=xml --cov=menuinst -m "not pydantic"
-
-      - shell: bash -el {0}
-        name: Run test suite (pydantic parts)
-        run: |
-          conda install pydantic hypothesis hypothesis-jsonschema
-          pytest tests --cov-append --cov-report=xml --cov=menuinst -m pydantic
+          pytest tests --cov-append --cov-report=xml --cov=menuinst
 
       - uses: codecov/codecov-action@v1
         with:
