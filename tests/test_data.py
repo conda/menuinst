@@ -7,6 +7,7 @@ import pytest
 from menuinst.utils import data_path
 from menuinst.schema import dump_default_to_json, dump_schema_to_json
 
+pytestmark = pytest.mark.pydantic
 
 @pytest.mark.pydantic
 def test_schema_is_up_to_date():

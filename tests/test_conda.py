@@ -25,6 +25,8 @@ ENV_VARS = {
 }
 ENV_VARS["CONDA_VERBOSITY"] = "3"
 
+pytestmark = pytest.mark.pydantic
+
 
 @contextmanager
 def new_environment(tmpdir, *packages):
