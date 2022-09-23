@@ -8,9 +8,10 @@ import sys
 import json
 from os.path import abspath, basename, exists, join
 
-from .._version import get_versions
-__version__ = get_versions()['version']
-del get_versions
+try:
+    from .._version import __version__
+except ImportError:
+    __version__ = "dev"
 
 
 if sys.platform == 'win32':
