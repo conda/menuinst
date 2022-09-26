@@ -9,7 +9,7 @@ jobs:
     timeout-minutes: 30
     env:
       dependencies: typing_extensions
-      test-dependencies: pip pytest pytest-cov conda pydantic hypothesis hypothesis-jsonschema
+      test-dependencies: pip pytest pytest-cov pydantic hypothesis hypothesis-jsonschema
       CONDA_NUMBER_CHANNEL_NOTICES: 0
     strategy:
       fail-fast: false
@@ -24,7 +24,7 @@ jobs:
         with:
           auto-update-conda: true
           python-version: ${{ matrix.python-version }}
-          channels: napari/label/bundle_tools,conda-forge
+          channels: conda-canary/label/conda-conda-pr-11882,conda-forge
 
       - shell: bash -el {0}
         name: Conda info
