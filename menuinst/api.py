@@ -47,6 +47,7 @@ def _load(
 @elevate_as_needed
 def install(
     metadata_or_path: Union[PathLike, dict],
+    *,
     target_prefix: PathLike = sys.prefix,
     base_prefix: PathLike = sys.prefix,
     _mode: Union[Literal["user"], Literal["system"]] = "user",
@@ -67,6 +68,7 @@ def install(
 @elevate_as_needed
 def remove(
     metadata_or_path: Union[PathLike, dict],
+    *,
     target_prefix: PathLike = sys.prefix,
     base_prefix: PathLike = sys.prefix,
     _mode: Union[Literal["user"], Literal["system"]] = "user",
@@ -86,6 +88,7 @@ def remove(
 
 @elevate_as_needed
 def install_all(
+    *,
     target_prefix: PathLike = sys.prefix,
     base_prefix: PathLike = sys.prefix,
     filter: Union[callable, None] = None,
@@ -96,6 +99,7 @@ def install_all(
 
 @elevate_as_needed
 def remove_all(
+    *,
     target_prefix: PathLike = sys.prefix,
     base_prefix: PathLike = sys.prefix,
     filter: Union[callable, None] = None,

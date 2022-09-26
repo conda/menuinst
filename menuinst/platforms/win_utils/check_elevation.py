@@ -11,8 +11,8 @@ def elevate_as_needed(func):
 
     @wraps(func)
     def wrapper_elevate(
-        base_prefix: os.PathLike = sys.prefix,
         *args,
+        base_prefix: os.PathLike = sys.prefix,
         **kwargs,
     ):
         from .win_elevate import isUserAdmin, runAsAdmin
@@ -39,8 +39,8 @@ def elevate_as_needed(func):
                             f"os.environ.setdefault('_MENUINST_RECURSING', '1');"
                             f"from {func.__module__} import {func.__name__};"
                             f"{func.__name__}("
-                            f"base_prefix={base_prefix!r},"
                             f"*{args!r},"
+                            f"base_prefix={base_prefix!r},"
                             f"**{kwargs!r}"
                             ")",
                         ]
