@@ -36,7 +36,7 @@ jobs:
         with:
           environment-file: false
           environment-name: test
-          channels: conda-canary/label/conda-conda-pr-11882,conda-forge
+          channels: conda-canary/label/conda-conda-pr-11882,conda-forge,defaults
           extra-specs: |
             python=${{ matrix.python-version }}
             typing_extensions
