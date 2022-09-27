@@ -16,7 +16,7 @@ jobs:
         pytest-cov 
         pydantic 
         hypothesis 
-        hypothesis-jsonschema
+        conda-forge::hypothesis-jsonschema
       CONDA_NUMBER_CHANNEL_NOTICES: 0
     strategy:
       fail-fast: false
