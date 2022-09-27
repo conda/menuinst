@@ -14,7 +14,7 @@ jobs:
         pip 
         pytest 
         pytest-cov 
-        pydantic 
+        conda-forge::pydantic 
         hypothesis 
         conda-forge::hypothesis-jsonschema
       CONDA_NUMBER_CHANNEL_NOTICES: 0
