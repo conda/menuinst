@@ -19,16 +19,16 @@ log = getLogger(__name__)
 
 class WindowsMenu(Menu):
     def create(self):
-        # TODO: Check if elevated permissions are needed
         log.debug("Creating %s", self.start_menu_location)
         self.start_menu_location.mkdir(parents=True, exist_ok=True)
         if os.environ.get("MENUINST_TEST_TMPDIR"):
-            self.quick_launch_location.mkdir(parents=True, exist_ok=True)
-            self.desktop_location.mkdir(parents=True, exist_ok=True)
+            if self.quick_launch_location:
+                self.quick_launch_location.mkdir(parents=True, exist_ok=True)
+            if self.desktop_location:
+                self.desktop_location.mkdir(parents=True, exist_ok=True)
         return (self.start_menu_location,)
 
     def remove(self):
-        # TODO: Check if elevated permissions are needed
         log.debug("Removing %s", self.start_menu_location)
         shutil.rmtree(self.start_menu_location, ignore_errors=True)
         return (self.start_menu_location,)
@@ -52,12 +52,13 @@ class WindowsMenu(Menu):
 
     @property
     def quick_launch_location(self):
-        if self.mode == "system":
-            warnings.warn("Quick launch menus are not available for system level installs")
-            return
         _test_tmpdir = os.environ.get("MENUINST_TEST_TMPDIR")
         if _test_tmpdir:
             return Path(_test_tmpdir) / "quicklaunch" / self.name
+        if self.mode == "system":
+            # TODO: Check if this is true?
+            warnings.warning("Quick launch menus are not available for system level installs")
+            return
         return Path(windows_folder_path(self.mode, False, "quicklaunch"))
 
     @property
@@ -158,25 +159,19 @@ class WindowsMenuItem(MenuItem):
 
             icon = self.render("icon") or ""
 
-            # create_shortcut has this API
-            # winshortcut.create_shortcut(path, description, filename,\n"
-            #                arguments=u\"\", workdir=None, iconpath=None,\n"
-            #                iconindex=0)\n"
             create_shortcut(
-                target_path,
-                self._shortcut_filename(ext=""),
-                str(path),
-                " ".join(arguments),
-                working_dir,
-                icon,
+                path=target_path,
+                description=self._shortcut_filename(ext=""),
+                filename=str(path),
+                arguments=" ".join(arguments),
+                workdir=working_dir,
+                iconpath=icon,
             )
-            # TODO: Check if elevated permissions are needed
         return paths
 
     def remove(self) -> Tuple[Path]:
         paths = self._paths()
         for path in paths:
-            # TODO: Check if elevated permissions are needed
             log.debug("Removing %s", path)
             unlink(path, missing_ok=True)
         return paths

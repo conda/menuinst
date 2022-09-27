@@ -211,6 +211,15 @@ def get_folder_path(folder_id, user=None):
     # New users created on the machine have their folders created by copying those of 'Default'.
     return get_path(folder_id, user)
 
+# [1] http://msdn.microsoft.com/en-us/library/windows/desktop/aa373931.aspx
+# [2] http://msdn.microsoft.com/en-us/library/windows/desktop/dd378457.aspx
+# [3] http://msdn.microsoft.com/en-us/library/windows/desktop/bb762188.aspx
+# [4] http://msdn.microsoft.com/en-us/library/windows/desktop/ms680722.aspx
+# [5] http://www.themacaque.com/?p=954
+
+# jaimergp: The code below was copied from menuinst.win32, 1.4.19
+# module: menuinst/win32.py - https://github.com/conda/menuinst/blob/e17afafd/menuinst/win32.py#L40-L102
+# ----
 # When running as 'nt authority/system' as sometimes people do via SCCM,
 # various folders do not exist, such as QuickLaunch. This doesn't matter
 # as we'll use the "system" key finally and check for the "quicklaunch"
@@ -274,10 +283,3 @@ def folder_path(preferred_mode, check_other_mode, key):
                     "        non-excepting path of '%s'\n in knownfolders.py" % (path))
         return None
     return path
-
-
-# [1] http://msdn.microsoft.com/en-us/library/windows/desktop/aa373931.aspx
-# [2] http://msdn.microsoft.com/en-us/library/windows/desktop/dd378457.aspx
-# [3] http://msdn.microsoft.com/en-us/library/windows/desktop/bb762188.aspx
-# [4] http://msdn.microsoft.com/en-us/library/windows/desktop/ms680722.aspx
-# [5] http://www.themacaque.com/?p=954
