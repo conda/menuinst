@@ -159,13 +159,17 @@ class WindowsMenuItem(MenuItem):
 
             icon = self.render("icon") or ""
 
+            # winshortcut is a C extension! create_shortcut has this API
+            # Notice args must be passed as positional, no keywords allowed!
+            # winshortcut.create_shortcut(path, description, filename, arguments="", 
+            #                             workdir=None, iconpath=None, iconindex=0)
             create_shortcut(
-                path=target_path,
-                description=self._shortcut_filename(ext=""),
-                filename=str(path),
-                arguments=" ".join(arguments),
-                workdir=working_dir,
-                iconpath=icon,
+                target_path,
+                self._shortcut_filename(ext=""),
+                str(path),
+                " ".join(arguments),
+                working_dir,
+                icon,
             )
         return paths
 
