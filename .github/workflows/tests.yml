@@ -21,15 +21,6 @@ jobs:
     runs-on: ${{ matrix.os }}-latest
     timeout-minutes: 30
     env:
-      dependencies: typing_extensions
-      test-dependencies: >- # fold and trim newlines
-        conda-canary/label/conda-conda-pr-11882::conda 
-        pip 
-        pytest 
-        pytest-cov 
-        pydantic 
-        hypothesis 
-        hypothesis-jsonschema
       CONDA_NUMBER_CHANNEL_NOTICES: 0
     strategy:
       fail-fast: false
@@ -40,12 +31,22 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - uses: conda-incubator/setup-miniconda@v2
+      - name: Install dependencies
+        uses: mamba-org/provision-with-micromamba@main
         with:
-          auto-update-conda: true
-          python-version: ${{ matrix.python-version }}
+          environment-file: false
+          environment-name: test
           channels: conda-forge
-          channel-priority: strict
+          extra-specs: |
+            python=${{ matrix.python-version }}
+            typing_extensions
+            conda-canary/label/conda-conda-pr-11882::conda 
+            pip 
+            pytest 
+            pytest-cov 
+            pydantic 
+            hypothesis 
+            hypothesis-jsonschema
 
       - shell: bash -el {0}
         name: Conda info
