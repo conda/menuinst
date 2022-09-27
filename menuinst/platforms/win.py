@@ -57,7 +57,7 @@ class WindowsMenu(Menu):
             return Path(_test_tmpdir) / "quicklaunch" / self.name
         if self.mode == "system":
             # TODO: Check if this is true?
-            warnings.warning("Quick launch menus are not available for system level installs")
+            warnings.warn("Quick launch menus are not available for system level installs")
             return
         return Path(windows_folder_path(self.mode, False, "quicklaunch"))
 
