@@ -14,9 +14,9 @@ jobs:
         pip 
         pytest 
         pytest-cov 
-        conda-forge::pydantic 
+        pydantic 
         hypothesis 
-        conda-forge::hypothesis-jsonschema
+        hypothesis-jsonschema
       CONDA_NUMBER_CHANNEL_NOTICES: 0
     strategy:
       fail-fast: false
@@ -31,6 +31,7 @@ jobs:
         with:
           auto-update-conda: true
           python-version: ${{ matrix.python-version }}
+          channels: conda-forge
 
       - shell: bash -el {0}
         name: Conda info
