@@ -44,7 +44,7 @@ jobs:
         with:
           auto-update-conda: true
           python-version: ${{ matrix.python-version }}
-          channels: conda-canary/label/conda-conda-pr-11882,conda-forge
+          channels: conda-forge
           channel-priority: strict
 
       - shell: bash -el {0}
