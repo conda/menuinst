@@ -8,8 +8,8 @@ if sys.platform == "win32":
     extensions = [
         Extension(
             "menuinst.platforms.win_utils.winshortcut",
-            sources=["src/winshortcut.cpp"],
-            include_dirs=["src"],
+            sources=["menuinst/platforms/win_utils/winshortcut.cpp"],
+            include_dirs=["menuinst/platforms/win_utils"],
             libraries=[
                 "comctl32",
                 "kernel32",

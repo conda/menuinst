@@ -24,10 +24,6 @@ write_to = "menuinst/_version.py"
 [tool.setuptools]
 include-package-data = true
 
-[tool.setuptools.packages.find]
-where = ["."]
-exclude = ["tests", "tests.*"]
-namespaces = false
 
 [tool.black]
 line-length = 99
