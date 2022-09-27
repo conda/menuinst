@@ -26,8 +26,8 @@ include-package-data = true
 
 [tool.setuptools.packages.find]
 where = ["."]
-exclude = ["tests"]
-namespaces = true
+exclude = ["tests", "tests.*"]
+namespaces = false
 
 [tool.black]
 line-length = 99
