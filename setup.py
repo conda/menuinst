@@ -4,12 +4,13 @@
 import sys
 from setuptools import Extension, setup
 
+extensions = []
 if sys.platform == "win32":
-    extensions = [
+    extensions.append(
         Extension(
             "menuinst.platforms.win_utils.winshortcut",
-            sources=["menuinst/platforms/win_utils/winshortcut.cpp"],
-            include_dirs=["menuinst/platforms/win_utils"],
+            sources=["src/winshortcut.cpp"],
+            include_dirs=["src/"],
             libraries=[
                 "comctl32",
                 "kernel32",
@@ -26,8 +27,7 @@ if sys.platform == "win32":
                 "odbccp32",
             ],
         )
-    ]
-else:
-    extensions = []
+    )
+
 
 setup(ext_modules=extensions)
