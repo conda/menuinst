@@ -34,7 +34,7 @@ def new_environment(tmpdir, *packages):
     env["MENUINST_TEST_TMPDIR"] = os.environ["MENUINST_TEST_TMPDIR"] = str(tmpdir / "home")
     print("MENUINST_TEST_TMPDIR set to", env["MENUINST_TEST_TMPDIR"])
     print("--- CREATING", prefix, "---")
-    cmd = ["conda", "create", "-y", "--offline", "-p", prefix] + [str(p) for p in packages]
+    cmd = [sys.executable, "-m", "conda", "create", "-y", "--offline", "-p", prefix] + [str(p) for p in packages]
     process = run(
         cmd,
         env=env,
@@ -56,7 +56,7 @@ def new_environment(tmpdir, *packages):
     del os.environ["MENUINST_TEST_TMPDIR"]
 
     print("--- REMOVING", prefix, "---")
-    cmd = ["conda", "remove", "--all", "-y", "-p", prefix]
+    cmd = [sys.executable, "-m", "conda", "remove", "--all", "-y", "-p", prefix]
     process = run(
         cmd,
         env=env,
@@ -95,7 +95,7 @@ def install_package_1(tmpdir):
 
 
 def test_conda_recent_enough():
-    data = json.loads(check_output(["conda", "info", "--json"]))
+    data = json.loads(check_output([sys.executable, "-m", "conda", "info", "--json"]))
     assert VersionOrder(data["conda_version"]) >= VersionOrder("4.12a0")
 
 
