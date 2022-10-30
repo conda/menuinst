@@ -57,12 +57,12 @@ jobs:
       - shell: bash -el {0}
         name: Install menuinst
         run: |
-          pip install -vv .
+          python -m pip install -vv .
 
       - shell: bash -el {0}
         name: Run test suite
         run: |
-          pytest tests --cov-append --cov-report=xml --cov=menuinst
+          python -m pytest tests/ --cov-append --cov-report=xml --cov=menuinst
 
       - uses: codecov/codecov-action@v1
         with:
