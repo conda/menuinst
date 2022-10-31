@@ -26,7 +26,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [windows, ubuntu, macos]
-        python-version: ["3.7", "3.8", "3.9", "3.10"]
+        python-version: ["3.8", "3.9", "3.10", "3.11"]
 
     steps:
       - uses: actions/checkout@v2
@@ -39,7 +39,6 @@ jobs:
           channels: conda-canary/label/conda-conda-pr-11882,conda-forge
           extra-specs: |
             python=${{ matrix.python-version }}
-            typing_extensions
             conda-canary/label/conda-conda-pr-11882::conda 
             pip 
             pytest 

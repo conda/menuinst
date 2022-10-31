@@ -3,16 +3,11 @@
 
 from os import PathLike
 import sys
-from typing import Union, List, Tuple
+from typing import Union, List, Tuple, Literal
 from pathlib import Path
 import warnings
 import json
 from logging import getLogger
-
-try:
-    from typing import Literal
-except ImportError:
-    from typing_extensions import Literal
 
 from .platforms import Menu, MenuItem
 from .platforms.win_utils.check_elevation import elevate_as_needed

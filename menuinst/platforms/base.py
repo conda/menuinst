@@ -2,17 +2,12 @@
 """
 import os
 import sys
-from typing import Union, List, Iterable
+from typing import Union, List, Iterable, Literal
 from pathlib import Path
 from subprocess import check_output
 from logging import getLogger
 from copy import deepcopy
 import json
-
-try:
-    from typing import Literal
-except ImportError:
-    from typing_extensions import Literal
 
 from ..utils import slugify, data_path, deep_update
 

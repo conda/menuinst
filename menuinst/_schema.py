@@ -3,17 +3,12 @@ Generate JSON schemas from pydantic models
 """
 
 from pprint import pprint
-from typing import Optional, Union, List
+from typing import Optional, Union, List, Literal
 from pathlib import Path
 from logging import getLogger
 import json
 
 from pydantic import BaseModel as _BaseModel, Field, constr, conlist
-
-try:
-    from typing import Literal
-except ImportError:
-    from typing_extensions import Literal
 
 
 log = getLogger(__name__)
