@@ -2,10 +2,10 @@
 """
 from logging import getLogger
 from pathlib import Path
-from platform import platform
 from typing import Tuple
 import importlib.resources
 import os
+import platform
 import plistlib
 import shutil
 
@@ -63,6 +63,7 @@ class MacOSMenuItem(MenuItem):
             shutil.copy(self.render("icon"), self.location / "Contents" / "Resources")
         self._write_pkginfo()
         self._write_plistinfo()
+        self._write_launcher()
         self._write_script()
         return (self.location,)
 
@@ -167,4 +168,5 @@ class MacOSMenuItem(MenuItem):
         raise ValueError(f"Could not find executable launcher for {platform.machine()}")
 
     def _default_launcher_path(self, suffix=""):
-        return self.location / "Contents" / "MacOS" / f'{self.render("name", slug=True)}{suffix}'
+        name = self.render("name", slug=True)
+        return self.location / "Contents" / "MacOS" / f'{name}{suffix}'

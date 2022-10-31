@@ -14,6 +14,7 @@ from menuinst.api import install
 @pytest.mark.skipif(PLATFORM != "win", reason="Windows only")
 def test_install_example_1_win(delete_files):
     paths = install(DATA / "jsons" / "example-1.json")
+    delete_files += list(paths)
     lnk = next(p for p in paths if p.suffix == ".lnk")
     assert lnk.is_file()
     os.startfile(lnk)
@@ -26,6 +27,7 @@ def test_install_example_1_win(delete_files):
 @pytest.mark.skipif(PLATFORM != "linux", reason="Linux only")
 def test_install_example_1_linux(delete_files):
     paths = install(DATA / "jsons" / "example-1.json")
+    delete_files += list(paths)
     desktop = next(p for p in paths if p.suffix == ".desktop")
 
     with open(desktop) as f:
@@ -43,12 +45,10 @@ def test_install_example_1_linux(delete_files):
 @pytest.mark.skipif(PLATFORM != "osx", reason="MacOS only")
 def test_install_example_1_osx(delete_files):
     paths = install(DATA / "jsons" / "example-1.json")
-
+    # delete_files += list(paths)
     app_location = paths[0]
     output = subprocess.check_output(
         [str(app_location / "Contents" / "MacOS" / "Example")],
         universal_newlines=True,
     )
     assert output.strip() == os.path.join(sys.prefix, "bin", "python")
-
-    delete_files.extend(paths)
