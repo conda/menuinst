@@ -3,7 +3,7 @@ Generate JSON schemas from pydantic models
 """
 
 from pprint import pprint
-from typing import Optional, Union, List, Literal
+from typing import Optional, Union, List, Literal, Dict
 from pathlib import Path
 from logging import getLogger
 import json
@@ -85,6 +85,7 @@ class OptionalMenuItemMetadata(MenuItemMetadata):
     )
 
 
+
 class MenuInstSchema(BaseModel):
     "Metadata required to create menu items across operating systems with `menuinst`"
 
@@ -129,15 +130,36 @@ class MenuInstSchema(BaseModel):
                 TryExec: Optional[str] = None
 
             class MacOS(OptionalMenuItemMetadata):
-                """Mac-specific instructions. Check this URL for more info:
-                https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html#//apple_ref/doc/uid/TP40009249-SW1
+                """Mac-specific instructions. Check theseURL for more info:
+                - CF* keys: https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
+                - LS* keys: https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/LaunchServicesKeys.html
                 You can override global keys here if needed"""
+
+                class _CFBundleURLTypes(BaseModel):
+                    CFBundleTypeRole: str
+                    CFBundleURLSchemes: List[str]
+                    CFBundleURLName: Optional[str] = None
+                    CFBundleURLIconFile: Optional[str] = None
+
+                class _CFBundleDocumentTypes(BaseModel):
+                    CFBundleTypeIconFile: constr(regex=r"^.+\.icns$")
+                    CFBundleTypeName: str
+                    CFBundleTypeRole: Union[Literal["Editor"], Literal["Viewer"], Literal["Shell"], Literal["None"]]
+                    LSItemContentTypes: List[str]
+                    LSHandlerRank: Union[Literal["Owner"], Literal["Default"], Literal["Alternate"]]
 
                 CFBundleDisplayName: Optional[str] = None
                 CFBundleIdentifier: Optional[str] = None
                 CFBundleName: Optional[str] = None
                 CFBundleSpokenName: Optional[str] = None
                 CFBundleVersion: Optional[constr(regex=r"^\S+$")] = None
+                CFBundleURLTypes: Optional[_CFBundleURLTypes] = None
+                CFBundleDocumentTypes: Optional[_CFBundleDocumentTypes] = None
+                LSApplicationCategoryType: Optional[constr(regex=r"^public\.app-category\.\S+$")]
+                LSBackgroundOnly: Optional[bool] = None
+                LSEnvironment: Optional[Dict[str, str]] = None
+                LSMinimumSystemVersion: Optional[constr(regex=r"^\d+\.\d+\.\d+$")] = None
+                LSMultipleInstancesProhibited: Optional[bool] = None
 
             win: Optional[Windows]
             linux: Optional[Linux]
