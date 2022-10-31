@@ -45,7 +45,7 @@ def test_install_example_1_linux(delete_files):
 @pytest.mark.skipif(PLATFORM != "osx", reason="MacOS only")
 def test_install_example_1_osx(delete_files):
     paths = install(DATA / "jsons" / "example-1.json")
-    # delete_files += list(paths)
+    delete_files += list(paths)
     app_location = paths[0]
     output = subprocess.check_output(
         [str(app_location / "Contents" / "MacOS" / "Example")],
