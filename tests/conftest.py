@@ -2,6 +2,7 @@ from pathlib import Path
 import shutil
 import os
 import json
+import logging
 from subprocess import check_output
 from tempfile import TemporaryDirectory
 
@@ -31,10 +32,13 @@ def delete_files():
     yield paths
     for path in paths:
         path = Path(path)
-        if path.is_dir():
-            shutil.rmtree(path)
-        else:
-            path.unlink()
+        try:
+            if path.is_dir():
+                shutil.rmtree(path)
+            else:
+                path.unlink()
+        except IOError:
+            logging.warning("Could not delete %s", path)
 
 
 @pytest.fixture(scope="function")
