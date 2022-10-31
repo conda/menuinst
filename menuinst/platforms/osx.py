@@ -3,7 +3,6 @@
 from logging import getLogger
 from pathlib import Path
 from typing import Tuple
-import importlib.resources
 import os
 import platform
 import plistlib
@@ -11,7 +10,7 @@ import shutil
 
 from .base import Menu, MenuItem, menuitem_defaults
 from ..utils import UnixLex
-
+from .. import data as _menuinst_data
 
 log = getLogger(__name__)
 
@@ -170,9 +169,10 @@ class MacOSMenuItem(MenuItem):
 
     def _find_launcher(self):
         launcher_name = f"osx_launcher_{platform.machine()}"
-        launcher_path = importlib.resources.files("menuinst") / "data" / launcher_name
-        if launcher_path.is_file() and os.access(launcher_path, os.X_OK):
-            return launcher_path
+        for datapath in _menuinst_data.__path__:
+            launcher_path = Path(datapath) / launcher_name
+            if launcher_path.is_file() and os.access(launcher_path, os.X_OK):
+                return launcher_path
         raise ValueError(f"Could not find executable launcher for {platform.machine()}")
 
     def _default_launcher_path(self, suffix=""):
