@@ -44,7 +44,8 @@ class MenuItemMetadata(BaseModel):
     terminal: bool = Field(
         False,
         description="Whether run the program in a terminal/console or not. "
-        "On Windows, it only has an effect if activate is true. It has no effect on MacOS.",
+        "On Windows, it only has an effect if activate is true. "
+        "On MacOS, arguments are ignored.",
     )
 
 
@@ -81,7 +82,8 @@ class OptionalMenuItemMetadata(MenuItemMetadata):
     terminal: Optional[bool] = Field(
         None,
         description="Whether run the program in a terminal/console or not. "
-        "On Windows, it only has an effect if activate is true. It has no effect on MacOS.",
+        "On Windows, it only has an effect if activate is true. "
+        "On MacOS, arguments are ignored.",
     )
 
 
