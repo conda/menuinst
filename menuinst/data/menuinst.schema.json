@@ -87,7 +87,7 @@
         },
         "terminal": {
           "title": "Terminal",
-          "description": "Whether run the program in a terminal/console or not. On Windows, it only has an effect if activate is true. It has no effect on MacOS.",
+          "description": "Whether run the program in a terminal/console or not. On Windows, it only has an effect if activate is true. On MacOS, arguments are ignored.",
           "type": "boolean"
         },
         "desktop": {
@@ -149,7 +149,7 @@
         },
         "terminal": {
           "title": "Terminal",
-          "description": "Whether run the program in a terminal/console or not. On Windows, it only has an effect if activate is true. It has no effect on MacOS.",
+          "description": "Whether run the program in a terminal/console or not. On Windows, it only has an effect if activate is true. On MacOS, arguments are ignored.",
           "type": "boolean"
         },
         "Categories": {
@@ -277,9 +277,121 @@
       },
       "additionalProperties": false
     },
+    "_CFBundleURLTypes": {
+      "title": "_CFBundleURLTypes",
+      "type": "object",
+      "properties": {
+        "CFBundleTypeRole": {
+          "title": "Cfbundletyperole",
+          "type": "string"
+        },
+        "CFBundleURLSchemes": {
+          "title": "Cfbundleurlschemes",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "CFBundleURLName": {
+          "title": "Cfbundleurlname",
+          "type": "string"
+        },
+        "CFBundleURLIconFile": {
+          "title": "Cfbundleurliconfile",
+          "type": "string"
+        }
+      },
+      "required": [
+        "CFBundleTypeRole",
+        "CFBundleURLSchemes"
+      ],
+      "additionalProperties": false
+    },
+    "_CFBundleDocumentTypes": {
+      "title": "_CFBundleDocumentTypes",
+      "type": "object",
+      "properties": {
+        "CFBundleTypeIconFile": {
+          "title": "Cfbundletypeiconfile",
+          "pattern": "^.+\\.icns$",
+          "type": "string"
+        },
+        "CFBundleTypeName": {
+          "title": "Cfbundletypename",
+          "type": "string"
+        },
+        "CFBundleTypeRole": {
+          "title": "Cfbundletyperole",
+          "anyOf": [
+            {
+              "enum": [
+                "Editor"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "Viewer"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "Shell"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "None"
+              ],
+              "type": "string"
+            }
+          ]
+        },
+        "LSItemContentTypes": {
+          "title": "Lsitemcontenttypes",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "LSHandlerRank": {
+          "title": "Lshandlerrank",
+          "anyOf": [
+            {
+              "enum": [
+                "Owner"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "Default"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "Alternate"
+              ],
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "required": [
+        "CFBundleTypeIconFile",
+        "CFBundleTypeName",
+        "CFBundleTypeRole",
+        "LSItemContentTypes",
+        "LSHandlerRank"
+      ],
+      "additionalProperties": false
+    },
     "MacOS": {
       "title": "MacOS",
-      "description": "Mac-specific instructions. Check this URL for more info:\nhttps://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html#//apple_ref/doc/uid/TP40009249-SW1\nYou can override global keys here if needed",
+      "description": "Mac-specific instructions. Check theseURL for more info:\n- CF* keys: https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html\n- LS* keys: https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/LaunchServicesKeys.html\nYou can override global keys here if needed",
       "type": "object",
       "properties": {
         "name": {
@@ -321,7 +433,7 @@
         },
         "terminal": {
           "title": "Terminal",
-          "description": "Whether run the program in a terminal/console or not. On Windows, it only has an effect if activate is true. It has no effect on MacOS.",
+          "description": "Whether run the program in a terminal/console or not. On Windows, it only has an effect if activate is true. On MacOS, arguments are ignored.",
           "type": "boolean"
         },
         "CFBundleDisplayName": {
@@ -344,6 +456,37 @@
           "title": "Cfbundleversion",
           "pattern": "^\\S+$",
           "type": "string"
+        },
+        "CFBundleURLTypes": {
+          "$ref": "#/definitions/_CFBundleURLTypes"
+        },
+        "CFBundleDocumentTypes": {
+          "$ref": "#/definitions/_CFBundleDocumentTypes"
+        },
+        "LSApplicationCategoryType": {
+          "title": "Lsapplicationcategorytype",
+          "pattern": "^public\\.app-category\\.\\S+$",
+          "type": "string"
+        },
+        "LSBackgroundOnly": {
+          "title": "Lsbackgroundonly",
+          "type": "boolean"
+        },
+        "LSEnvironment": {
+          "title": "Lsenvironment",
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "LSMinimumSystemVersion": {
+          "title": "Lsminimumsystemversion",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$",
+          "type": "string"
+        },
+        "LSMultipleInstancesProhibited": {
+          "title": "Lsmultipleinstancesprohibited",
+          "type": "boolean"
         }
       },
       "additionalProperties": false
@@ -410,7 +553,7 @@
         },
         "terminal": {
           "title": "Terminal",
-          "description": "Whether run the program in a terminal/console or not. On Windows, it only has an effect if activate is true. It has no effect on MacOS.",
+          "description": "Whether run the program in a terminal/console or not. On Windows, it only has an effect if activate is true. On MacOS, arguments are ignored.",
           "default": false,
           "type": "boolean"
         },
