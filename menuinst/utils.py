@@ -1,7 +1,12 @@
+import logging
 import os
 import re
 import shlex
+import subprocess
+import sys
+import traceback
 import xml.etree.ElementTree as XMLTree
+from functools import wraps
 from pathlib import Path
 from unicodedata import normalize
 
@@ -178,3 +183,99 @@ def deep_update(mapping, *updating_mappings):
             else:
                 updated_mapping[k] = v
     return updated_mapping
+
+
+def user_is_admin():
+    if os.name == 'nt':
+        from .platforms.win_utils.win_elevate import isUserAdmin 
+
+        return isUserAdmin()
+    elif os.name == 'posix':
+        # Check for root on Linux, macOS and other posix systems
+        return os.getuid() == 0
+    else:
+        raise RuntimeError(f"Unsupported operating system: {os.name}")
+
+
+def run_as_admin(argv) -> int:
+    """
+    Rerun this command in a new process with admin permissions.
+    """
+    if os.name == 'nt':
+        from .platforms.win_utils.win_elevate import runAsAdmin
+
+        return runAsAdmin(argv)
+    elif os.name == 'posix':
+        return subprocess.call(["sudo", *argv])
+    else:
+        raise RuntimeError(f"Unsupported operating system: {os.name}")
+
+
+def elevate_as_needed(func):
+    """
+    Multiplatform decorator to run a function as a superuser, if needed.
+
+    This depends on the presence of a `.nonadmin` file in the installation root.
+    This is usually planted by the `constructor` installer if the installation
+    process didn't need superuser permissions.
+
+    In the absence of this file, we assume that we will need superuser
+    permissions, so we try to run the decorated function as a superuser.
+    If that fails (the user rejects the request or doesn't have permissions
+    to accept it), we'll try to run it as a normal user.
+
+    NOTE: Only functions that return None should be decorated. The function
+    will run in a separate process, so we won't be able to capture the return
+    value anyway.
+    """
+    @wraps(func)
+    def wrapper_elevate(
+        *args,
+        base_prefix: os.PathLike = sys.prefix,
+        **kwargs,
+    ):
+        kwargs.pop("_mode", None)
+        if not (Path(base_prefix) / ".nonadmin").exists():
+            if user_is_admin():
+                return func(
+                    base_prefix=base_prefix,
+                    _mode="system",
+                    *args,
+                    **kwargs,
+                )
+            if os.environ.get("_MENUINST_RECURSING") != "1":
+                # call the wrapped func with elevated prompt...
+                # from the command line; not pretty!
+                try:
+                    return_code = run_as_admin(
+                        [
+                            Path(base_prefix) / "python",
+                            "-c",
+                            f"import os;"
+                            f"os.environ.setdefault('_MENUINST_RECURSING', '1');"
+                            f"from {func.__module__} import {func.__name__};"
+                            f"{func.__name__}("
+                            f"*{args!r},"
+                            f"base_prefix={base_prefix!r},"
+                            f"**{kwargs!r}"
+                            ")",
+                        ]
+                    )
+                except Exception:
+                    logging.warn(
+                        "Could not write menu folder! Falling back to user mode.\n%s",
+                        "\n".join(traceback.format_exc())
+                    )
+                else:
+                    os.environ.pop("_MENUINST_RECURSING", None)
+                    if return_code == 0:  # success, no need to fallback
+                        return 
+        # We have not returned yet? Well, let's try as a normal user
+        return func(
+            base_prefix=base_prefix,
+            _mode="user",
+            *args,
+            **kwargs,
+        )
+
+    return wrapper_elevate

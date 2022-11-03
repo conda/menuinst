@@ -19,21 +19,17 @@ else:
 
 
 def isUserAdmin():
+    if os.name != 'nt':
+        raise RuntimeError("This function is only implemented on Windows.")
 
-    if os.name == 'nt':
-        import ctypes
-        # WARNING: requires Windows XP SP2 or higher!
-        try:
-            return ctypes.windll.shell32.IsUserAnAdmin()
-        except:
-            traceback.print_exc()
-            print("Admin check failed, assuming not an admin.")
-            return False
-    elif os.name == 'posix':
-        # Check for root on Posix
-        return os.getuid() == 0
-    else:
-        raise RuntimeError("Unsupported operating system for this module: %s" % (os.name,))
+    import ctypes
+    # Requires Windows XP SP2 or higher!
+    try:
+        return ctypes.windll.shell32.IsUserAnAdmin()
+    except:
+        traceback.print_exc()
+        print("Admin check failed, assuming not an admin.")
+        return False
 
 
 # Taken from conda/common/_os/windows.py
