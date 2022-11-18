@@ -208,7 +208,7 @@ class MacOSMenuItem(MenuItem):
                         "--deep",
                         "--entitlements", 
                         f.name,
-                        sys.argv[1]
+                        self.location
                     ]
                 )
             finally:
