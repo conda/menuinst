@@ -64,6 +64,7 @@ class Menu:
     def _conda_exe_path_candidates(self):
         return (
             self.base_prefix / "_conda.exe",
+            self.base_prefix / "conda.exe",
             Path(os.environ.get("CONDA_EXE", "/oops/a_file_that_does_not_exist")),
             self.base_prefix / "condabin" / "conda",
             self.base_prefix / "bin" / "conda",
@@ -74,7 +75,7 @@ class Menu:
 
     @property
     def conda_exe(self):
-        if sys.executable.endswith("_conda.exe"):
+        if sys.executable.endswith("conda.exe"):
             # This is the case with `constructor` calls
             return Path(sys.executable)
 
@@ -87,7 +88,7 @@ class Menu:
     def _is_micromamba(self, exe: Path):
         if "micromamba" in exe.name:
             return True
-        if exe.name == "_conda.exe":
+        if exe.name in ("conda.exe", "_conda.exe"):
             out = check_output([str(exe), "info"], universal_newlines=True)
             return "micromamba version" in out
         return False
