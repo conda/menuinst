@@ -391,7 +391,7 @@
     },
     "MacOS": {
       "title": "MacOS",
-      "description": "Mac-specific instructions. Check theseURL for more info:\n- CF* keys: https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html\n- LS* keys: https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/LaunchServicesKeys.html\nYou can override global keys here if needed",
+      "description": "Mac-specific instructions. Check theseURL for more info:\n- CF* keys: https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html\n- LS* keys: https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/LaunchServicesKeys.html\n- entitlements: list those which should be true for the shortcut signing\n  See https://developer.apple.com/documentation/bundleresources/entitlements.\n  \nYou can also override global keys here if needed.",
       "type": "object",
       "properties": {
         "name": {
@@ -487,6 +487,14 @@
         "LSMultipleInstancesProhibited": {
           "title": "Lsmultipleinstancesprohibited",
           "type": "boolean"
+        },
+        "entitlements": {
+          "title": "Entitlements",
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "[a-z0-9\\.\\-]+"
+          }
         }
       },
       "additionalProperties": false

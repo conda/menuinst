@@ -2,11 +2,15 @@
 """
 from logging import getLogger
 from pathlib import Path
+from plistlib import dump as plist_dump
+from subprocess import check_call
+from tempfile import NamedTemporaryFile
 from typing import Tuple
 import os
 import platform
 import plistlib
 import shutil
+import sys
 
 from .base import Menu, MenuItem, menuitem_defaults
 from ..utils import UnixLex
@@ -64,6 +68,7 @@ class MacOSMenuItem(MenuItem):
         self._write_plistinfo()
         self._write_launcher()
         self._write_script()
+        self._sign_with_entitlements()
         return (self.location,)
 
     def remove(self) -> Tuple[Path]:
@@ -178,3 +183,33 @@ class MacOSMenuItem(MenuItem):
     def _default_launcher_path(self, suffix=""):
         name = self.render("name", slug=True)
         return self.location / "Contents" / "MacOS" / f'{name}{suffix}'
+
+    def _sign_with_entitlements(self):
+        "Self-sign shortcut to apply required entitlements"
+        entitlement_keys = self.render("entitlements")
+        if entitlement_keys:
+            slugname = self.render("name", slug=True)
+            plist = {key: True for key in entitlement_keys}
+            with NamedTemporaryFile(suffix=".plist", delete=False) as f:
+                plist_dump(plist, f)
+            try:
+                check_call(
+                    [
+                        # hardcode to system location to avoid accidental clobber in PATH
+                        "/usr/bin/codesign",
+                        "--verbose",
+                        "--sign",
+                        "-",
+                        "--prefix", 
+                        f"com.{slugname}",
+                        "--options", 
+                        "runtime",
+                        "--force",
+                        "--deep",
+                        "--entitlements", 
+                        f.name,
+                        sys.argv[1]
+                    ]
+                )
+            finally:
+                os.unlink(f.name)

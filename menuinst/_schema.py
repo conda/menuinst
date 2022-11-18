@@ -135,7 +135,11 @@ class MenuInstSchema(BaseModel):
                 """Mac-specific instructions. Check theseURL for more info:
                 - CF* keys: https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
                 - LS* keys: https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/LaunchServicesKeys.html
-                You can override global keys here if needed"""
+                - entitlements: list those which should be true for the shortcut signing
+                  See https://developer.apple.com/documentation/bundleresources/entitlements.
+                  
+                You can also override global keys here if needed.
+                """
 
                 class _CFBundleURLTypes(BaseModel):
                     CFBundleTypeRole: str
@@ -162,6 +166,7 @@ class MenuInstSchema(BaseModel):
                 LSEnvironment: Optional[Dict[str, str]] = None
                 LSMinimumSystemVersion: Optional[constr(regex=r"^\d+\.\d+\.\d+$")] = None
                 LSMultipleInstancesProhibited: Optional[bool] = None
+                entitlements: Optional[List[constr(regex=r"[a-z0-9\.\-]+")]] = None
 
             win: Optional[Windows]
             linux: Optional[Linux]
