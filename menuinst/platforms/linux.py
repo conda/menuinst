@@ -198,17 +198,19 @@ class LinuxMenuItem(MenuItem):
         return paths
 
     def _command(self):
-        cmd = ""
+        parts = []
+        precommand = self.render("precommand")
+        if precommand:
+            parts.append(precommand)
         if self.metadata["activate"]:
             conda_exe = self.menu.conda_exe
             if self.menu._is_micromamba(conda_exe):
                 activate = "shell activate"
             else:
                 activate = "shell.bash activate"
-            cmd = f'eval "$("{conda_exe}" {activate} "{self.menu.prefix}")" && '
-        cmd += " ".join(UnixLex.quote_args(self.render("command")))
-        cmd = f"bash -c '{cmd}'"
-        return cmd
+            parts.append(f'eval "$("{conda_exe}" {activate} "{self.menu.prefix}")"')
+        parts.append(" ".join(UnixLex.quote_args(self.render("command"))))
+        return f"bash -c '{' && '.join(parts)}'"
 
     def _write_desktop_file(self):
         lines = [

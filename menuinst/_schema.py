@@ -75,6 +75,11 @@ class OptionalMenuItemMetadata(MenuItemMetadata):
         description="Working directory for the running process. "
         "Defaults to user directory on each platform.",
     )
+    precommand: Optional[str] = Field(
+        None,
+        description="(Simple, preferrably single-line) logic to run before the command is run. "
+        "Runs before the env is activated, if that applies."
+    )
     activate: Optional[bool] = Field(
         None,
         description="Whether to activate the target environment before running `command`.",
