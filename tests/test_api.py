@@ -64,6 +64,7 @@ def test_precommands():
     check_output_from_shortcut("precommands.json", expected_output="rhododendron and bees")
 
 
+@pytest.mark.skipif(PLATFORM != "osx", reason="macOS only")
 def test_entitlements():
     paths = check_output_from_shortcut("entitlements.json", expected_output="entitlements")
     # verify signature
@@ -74,6 +75,7 @@ def test_entitlements():
     subprocess.check_call(["/usr/bin/codesign", "--verbose", "--verify", str(launcher)])
 
 
+@pytest.mark.skipif(PLATFORM != "osx", reason="macOS only")
 def test_no_entitlements_no_signature():
     paths = check_output_from_shortcut("sys-executable.json", expected_output=sys.executable)
     app_dir = next(p for p in paths if p.name.endswith('.app'))
@@ -82,4 +84,3 @@ def test_no_entitlements_no_signature():
         subprocess.check_call(["/usr/bin/codesign", "--verbose", "--verify", str(app_dir)])
     with pytest.raises(subprocess.CalledProcessError):
         subprocess.check_call(["/usr/bin/codesign", "--verbose", "--verify", str(launcher)])
-
