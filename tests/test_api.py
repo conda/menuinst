@@ -63,9 +63,8 @@ def check_output_from_shortcut(delete_files, json_path, expected_output=None):
     return paths, output
 
 
-def test_install_executable(delete_files):
-    _, output = check_output_from_shortcut(delete_files, "sys-executable.json")
-    assert os.path.realpath(output.strip()) == os.path.realpath(sys.executable)
+def test_install_prefix(delete_files):
+    check_output_from_shortcut(delete_files, "sys-prefix.json", expected_output=sys.prefix)
 
 
 def test_precommands(delete_files):
@@ -85,7 +84,7 @@ def test_entitlements(delete_files):
 
 @pytest.mark.skipif(PLATFORM != "osx", reason="macOS only")
 def test_no_entitlements_no_signature(delete_files):
-    paths, _ = check_output_from_shortcut(delete_files, "sys-executable.json", expected_output=sys.executable)
+    paths, _ = check_output_from_shortcut(delete_files, "sys-prefix.json", expected_output=sys.prefix)
     app_dir = next(p for p in paths if p.name.endswith('.app'))
     launcher = next(p for p in (app_dir / "Contents" / "MacOS").iterdir() if not p.name.endswith('-script'))
     with pytest.raises(subprocess.CalledProcessError):
