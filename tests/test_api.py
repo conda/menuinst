@@ -18,7 +18,7 @@ def check_output_from_shortcut(delete_files, json_path, expected_output=None):
             contents = f.read()
         with NamedTemporaryFile(suffix=json_path, mode="w",  delete=False) as tmp:
             win_output_file = tmp.name + ".out"
-            contents = contents.replace("__WIN_OUTPUT_FILE__", win_output_file)
+            contents = contents.replace("__WIN_OUTPUT_FILE__", win_output_file.replace("\\", "\\\\"))
             tmp.write(contents)
         abs_json_path = tmp.name
         delete_files.append(abs_json_path)
