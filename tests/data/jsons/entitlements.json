@@ -8,9 +8,8 @@
             "description": "This examples include entitlements on macOS, which require code signing.",
             "icon": null,
             "command": [
-                "{{ PYTHON }}",
-                "-c",
-                "print('entitlements')"
+                "echo",
+                "entitlements"
             ],
             "platforms": {
                 "osx": {

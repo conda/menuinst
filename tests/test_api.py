@@ -48,7 +48,7 @@ def check_output_from_shortcut(json_path, expected_output=None):
                 with open(tmp.name) as f:
                     output = f.read()
         finally:
-            del os.environ['WINDOWS_OUTPUT']
+            del os.environ['WIN_OUTPUT_FILE']
 
     if expected_output is not None:
         assert output.strip() == expected_output

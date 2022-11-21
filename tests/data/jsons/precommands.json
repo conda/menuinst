@@ -9,13 +9,16 @@
             "icon": null,
             "precommand": "export TEST_VAR=\"rhododendron and bees\"",
             "command": [
-                "{{ PYTHON }}",
-                "-c",
-                "import os; print(os.environ['TEST_VAR'])"
+                "echo",
+                "$TEST_VAR"
             ],
             "platforms": {
                 "win": {
-                    "precommand": "set \"TEST_VAR=rhododendron and bees\""
+                    "precommand": "set \"TEST_VAR=rhododendron and bees\"",
+                    "command": [
+                        "echo",
+                        "%TEST_VAR%"
+                    ]
                 },
                 "linux": {},
                 "osx": {}
