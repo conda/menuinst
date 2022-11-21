@@ -33,12 +33,13 @@ def check_output_from_shortcut(delete_files, json_path, expected_output=None):
         lnk = next(p for p in paths if p.suffix == ".lnk")
         assert lnk.is_file()
         try:
-            with NamedTemporaryFile() as tmp:
+            with NamedTemporaryFile(delete=False) as tmp:
                 os.environ['WIN_OUTPUT_FILE'] = tmp.name
                 os.startfile(lnk)
                 sleep(1)
-                with open(tmp.name) as f:
-                    output = f.read()
+            with open(tmp.name) as f:
+                output = f.read()
+            delete_files.append(tmp.name)
         finally:
             del os.environ['WIN_OUTPUT_FILE']
 
