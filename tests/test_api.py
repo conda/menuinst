@@ -16,7 +16,7 @@ def check_output_from_shortcut(delete_files, json_path, expected_output=None):
     if PLATFORM == "win":
         with open(abs_json_path) as f:
             contents = f.read()
-        with NamedTemporaryFile(suffix=".json", delete=False) as tmp:
+        with NamedTemporaryFile(suffix=json_path, mode="w",  delete=False) as tmp:
             win_output_file = tmp.name + ".out"
             contents = contents.replace("__WIN_OUTPUT_FILE__", win_output_file)
             tmp.write(contents)
