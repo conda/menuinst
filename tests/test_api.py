@@ -2,6 +2,7 @@
 import os
 import sys
 import subprocess
+from tempfile import NamedTemporaryFile
 from time import sleep
 
 import pytest
@@ -11,7 +12,18 @@ from conftest import DATA, PLATFORM
 
 
 def check_output_from_shortcut(delete_files, json_path, expected_output=None):
-    paths = install(DATA / "jsons" / json_path)
+    abs_json_path = DATA / "jsons" / json_path
+    if PLATFORM == "win":
+        with open(abs_json_path) as f:
+            contents = f.read()
+        with NamedTemporaryFile(suffix=".json", delete=False) as tmp:
+            win_output_file = tmp.name + ".out"
+            contents = contents.replace("__WIN_OUTPUT_FILE__", win_output_file)
+            tmp.write(contents)
+        abs_json_path = tmp.name
+        delete_files.append(abs_json_path)
+
+    paths = install(abs_json_path)
     delete_files += list(paths)
 
     if PLATFORM == 'linux':
@@ -31,14 +43,12 @@ def check_output_from_shortcut(delete_files, json_path, expected_output=None):
     elif PLATFORM == 'win':
         lnk = next(p for p in paths if p.suffix == ".lnk")
         assert lnk.is_file()
-        # os.startfile does not propagate custom env vars, so we need to use system-defined ones
-        outputfile = os.path.join(os.environ['TEMP'], '.menuinst_test_output.txt')
-        delete_files.append(outputfile)
+        # os.startfile does not propagate custom env vars, 
+        # so we need to hardcode it with templating (see block at the beginning of the function)
         os.startfile(lnk)
         sleep(1)
-        with open(outputfile) as f:
+        with open(win_output_file) as f:
             output = f.read()
-
 
     if expected_output is not None:
         assert output.strip() == expected_output
