@@ -24,6 +24,12 @@ def check_output_from_shortcut(delete_files, json_path, expected_output=None):
         delete_files.append(abs_json_path)
 
     paths = install(abs_json_path)
+    for p in paths:
+        if p.suffix(".bat"):
+            print("Contents of", p.name)
+            print("--------")
+            print(f.read_text())
+
     delete_files += list(paths)
 
     if PLATFORM == 'linux':
