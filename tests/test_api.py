@@ -3,7 +3,6 @@ import os
 import sys
 import subprocess
 from time import sleep
-from tempfile import NamedTemporaryFile
 
 import pytest
 
@@ -32,16 +31,14 @@ def check_output_from_shortcut(delete_files, json_path, expected_output=None):
     elif PLATFORM == 'win':
         lnk = next(p for p in paths if p.suffix == ".lnk")
         assert lnk.is_file()
-        try:
-            with NamedTemporaryFile(delete=False) as tmp:
-                os.environ['WIN_OUTPUT_FILE'] = tmp.name
-                os.startfile(lnk)
-                sleep(1)
-            with open(tmp.name) as f:
-                output = f.read()
-            delete_files.append(tmp.name)
-        finally:
-            del os.environ['WIN_OUTPUT_FILE']
+        # os.startfile does not propagate custom env vars, so we need to use system-defined ones
+        outputfile = os.path.join(os.environ['TEMP'], '.menuinst_test_output.txt')
+        delete_files.append(outputfile)
+        os.startfile(lnk)
+        sleep(1)
+        with open(outputfile) as f:
+            output = f.read()
+
 
     if expected_output is not None:
         assert output.strip() == expected_output

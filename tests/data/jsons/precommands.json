@@ -19,7 +19,7 @@
                         "echo",
                         "%TEST_VAR%",
                         ">",
-                        "%WIN_OUTPUT_FILE%"
+                        "%TEMP%\\.menuinst_test_output.txt"
                     ]
                 },
                 "linux": {},

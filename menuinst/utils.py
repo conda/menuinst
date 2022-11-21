@@ -109,8 +109,7 @@ class WinLex:
             return s
         if " " in s or "/" in s:
             return '"%s"' % s
-        else:
-            return s
+        return s
 
     @classmethod
     def ensure_pad(cls, name, pad="_"):
