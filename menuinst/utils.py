@@ -41,8 +41,8 @@ def slugify(text):
     Convert to lowercase. Also strip leading and trailing whitespace.
     """
     text = normalize('NFKD', text).encode('ascii', 'ignore').decode('ascii')
-    text = re.sub('[^\w\s-]', '', text).strip().lower()
-    return re.sub('[-\s]+', '-', text)
+    text = re.sub(r'[^\w\s-]', '', text).strip().lower()
+    return re.sub(r'[-\s]+', '-', text)
 
 
 def indent_xml_tree(elem, level=0):
