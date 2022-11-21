@@ -1,7 +1,5 @@
 """"""
-import atexit
 import os
-import shutil
 import sys
 import subprocess
 from time import sleep
@@ -13,15 +11,9 @@ from menuinst.api import install
 from conftest import DATA, PLATFORM
 
 
-def check_output_from_shortcut(json_path, expected_output=None):
-    try:
-        paths = install(DATA / "jsons" / json_path)
-    finally:
-        for path in paths:
-            if path.is_dir():
-                atexit.register(shutil.rmtree, path)
-            else:
-                atexit.register(path.unlink)
+def check_output_from_shortcut(delete_files, json_path, expected_output=None):
+    paths = install(DATA / "jsons" / json_path)
+    delete_files += list(paths)
 
     if PLATFORM == 'linux':
         desktop = next(p for p in paths if p.suffix == ".desktop")
@@ -56,17 +48,17 @@ def check_output_from_shortcut(json_path, expected_output=None):
     return paths
 
 
-def test_install_example_1():
-    check_output_from_shortcut("sys-executable.json", expected_output=sys.executable)
+def test_install_example_1(delete_files):
+    check_output_from_shortcut(delete_files, "sys-executable.json", expected_output=sys.executable)
 
 
-def test_precommands():
-    check_output_from_shortcut("precommands.json", expected_output="rhododendron and bees")
+def test_precommands(delete_files):
+    check_output_from_shortcut(delete_files, "precommands.json", expected_output="rhododendron and bees")
 
 
 @pytest.mark.skipif(PLATFORM != "osx", reason="macOS only")
-def test_entitlements():
-    paths = check_output_from_shortcut("entitlements.json", expected_output="entitlements")
+def test_entitlements(delete_files):
+    paths = check_output_from_shortcut(delete_files, "entitlements.json", expected_output="entitlements")
     # verify signature
     app_dir = next(p for p in paths if p.name.endswith('.app'))
     subprocess.check_call(["/usr/bin/codesign", "--verbose", "--verify", str(app_dir)])
@@ -76,8 +68,8 @@ def test_entitlements():
 
 
 @pytest.mark.skipif(PLATFORM != "osx", reason="macOS only")
-def test_no_entitlements_no_signature():
-    paths = check_output_from_shortcut("sys-executable.json", expected_output=sys.executable)
+def test_no_entitlements_no_signature(delete_files):
+    paths = check_output_from_shortcut(delete_files, "sys-executable.json", expected_output=sys.executable)
     app_dir = next(p for p in paths if p.name.endswith('.app'))
     launcher = next(p for p in (app_dir / "Contents" / "MacOS").iterdir() if not p.name.endswith('-script'))
     with pytest.raises(subprocess.CalledProcessError):
