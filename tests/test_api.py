@@ -63,8 +63,9 @@ def check_output_from_shortcut(delete_files, json_path, expected_output=None):
     return paths, output
 
 
-def test_install_example_1(delete_files):
-    check_output_from_shortcut(delete_files, "sys-executable.json", expected_output=sys.executable)
+def test_install_executable(delete_files):
+    _, output = check_output_from_shortcut(delete_files, "sys-executable.json")
+    assert os.path.realpath(output.strip()) == os.path.realpath(sys.executable)
 
 
 def test_precommands(delete_files):
