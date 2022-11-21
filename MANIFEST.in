@@ -1,3 +1,4 @@
 include menuinst/_version.py
 include menuinst/data/*.json
+include menuinst/data/osx_launcher_*
 exclude *.h *.cpp
