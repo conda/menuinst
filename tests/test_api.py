@@ -3,7 +3,7 @@ import os
 import sys
 import subprocess
 from tempfile import NamedTemporaryFile
-from time import sleep
+from time import sleep, time
 
 import pytest
 
@@ -24,12 +24,6 @@ def check_output_from_shortcut(delete_files, json_path, expected_output=None):
         delete_files.append(abs_json_path)
 
     paths = install(abs_json_path)
-    for p in paths:
-        if p.suffix(".bat"):
-            print("Contents of", p.name)
-            print("--------")
-            print(f.read_text())
-
     delete_files += list(paths)
 
     if PLATFORM == 'linux':
@@ -50,9 +44,16 @@ def check_output_from_shortcut(delete_files, json_path, expected_output=None):
         lnk = next(p for p in paths if p.suffix == ".lnk")
         assert lnk.is_file()
         # os.startfile does not propagate custom env vars, 
-        # so we need to hardcode it with templating (see block at the beginning of the function)
+        # so we need to hardcode it with templating 
+        # (see block at the beginning of the function)
         os.startfile(lnk)
-        sleep(1)
+        # startfile returns immediately; poll for the output file
+        # powershell + cmd take a couple seconds to start + activate env
+        start = time()
+        while not os.path.isfile(win_output_file):
+            sleep(1)
+            if time() >= start + 10:
+                raise RuntimeError(f"Timeout. File '{win_output_file}' was not created!")
         with open(win_output_file) as f:
             output = f.read()
 

@@ -17,8 +17,9 @@
                     "command": [
                         "{{ PYTHON }}",
                         "-c",
-                        "import os, sys; f = open(os.environ['WIN_OUTPUT_FILE'], 'w'); print(sys.executable, file=f); f.close()"
-                    ]
+                        "import os, sys; f = open(r'__WIN_OUTPUT_FILE__', 'w'); f.write(sys.executable); f.close()"
+                    ],
+                    "description": "Note how __WIN_OUTPUT_FILE__ is using raw-strings. Otherwise the backslashes are not properly escaped."
                 },
                 "linux": {},
                 "osx": {
