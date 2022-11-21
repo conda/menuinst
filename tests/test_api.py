@@ -1,54 +1,71 @@
 """"""
+import atexit
 import os
+import shutil
 import sys
 import subprocess
 from time import sleep
+from tempfile import NamedTemporaryFile
 
-import pytest
 from conftest import DATA, PLATFORM
 
 
 from menuinst.api import install
 
 
-@pytest.mark.skipif(PLATFORM != "win", reason="Windows only")
-def test_install_example_1_win(delete_files):
-    paths = install(DATA / "jsons" / "example-1.json")
-    delete_files += list(paths)
-    lnk = next(p for p in paths if p.suffix == ".lnk")
-    assert lnk.is_file()
-    os.startfile(lnk)
-    sleep(0.5)
+def check_output_from_shortcut(json_path, expected_output=None):
+    try:
+        paths = install(DATA / "jsons" / json_path)
+    finally:
+        for path in paths:
+            if path.is_dir():
+                atexit.register(shutil.rmtree, path)
+            else:
+                atexit.register(path.unlink)
 
-    # TODO: Check output somehow... We will probably need to get
-    # the target path of the lnk and launch that via subprocess
+    if PLATFORM == 'linux':
+        desktop = next(p for p in paths if p.suffix == ".desktop")
+        with open(desktop) as f:
+            for line in f:
+                if line.startswith("Exec="):
+                    cmd = line.split("=", 1)[1].strip()
+                    break
+            else:
+                raise ValueError("Didn't find Exec line")
+        output = subprocess.check_output(cmd, shell=True, universal_newlines=True)
+    elif PLATFORM == 'osx':
+        app_location = paths[0]
+        executable = next(p for p in (app_location / "Contents" / "MacOS").iterdir() if not p.name.endswith('-script'))
+        output = subprocess.check_output([str(executable)], universal_newlines=True)
+    elif PLATFORM == 'win':
+        lnk = next(p for p in paths if p.suffix == ".lnk")
+        assert lnk.is_file()
+        try:
+            with NamedTemporaryFile() as tmp:
+                os.environ['WIN_OUTPUT_FILE'] = tmp.name
+                os.startfile(lnk)
+                sleep(1)
+                with open(tmp.name) as f:
+                    output = f.read()
+        finally:
+            del os.environ['WINDOWS_OUTPUT']
+
+    if expected_output is not None:
+        assert output.strip() == expected_output
+    
+    return paths
 
 
-@pytest.mark.skipif(PLATFORM != "linux", reason="Linux only")
-def test_install_example_1_linux(delete_files):
-    paths = install(DATA / "jsons" / "example-1.json")
-    delete_files += list(paths)
-    desktop = next(p for p in paths if p.suffix == ".desktop")
-
-    with open(desktop) as f:
-        for line in f:
-            if line.startswith("Exec="):
-                target = line.split("=", 1)[1].strip()
-                break
-        else:
-            raise ValueError("Didn't find Exec line")
-
-    output = subprocess.check_output(target, shell=True, universal_newlines=True)
-    assert output.strip() == os.path.join(sys.prefix, "bin", "python")
+def test_install_example_1():
+    check_output_from_shortcut("sys-executable.json", expected_output=sys.executable)
 
 
-@pytest.mark.skipif(PLATFORM != "osx", reason="MacOS only")
-def test_install_example_1_osx(delete_files):
-    paths = install(DATA / "jsons" / "example-1.json")
-    delete_files += list(paths)
-    app_location = paths[0]
-    output = subprocess.check_output(
-        [str(app_location / "Contents" / "MacOS" / "Example")],
-        universal_newlines=True,
-    )
-    assert output.strip() == os.path.join(sys.prefix, "bin", "python")
+def test_precommands():
+    check_output_from_shortcut("precommands.json", expected_output="rhododendron and bees")
+
+
+def test_entitlements():
+    paths = check_output_from_shortcut("entitlements.json", expected_output="entitlements")
+    # verify signature
+    app_dir = next(p for p in paths if p.name.endswith('.app'))
+    subprocess.check_call(["/usr/bin/codesign", "--verbose", "--verify", str(app_dir)])

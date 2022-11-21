@@ -27,6 +27,11 @@ class MenuItemMetadata(BaseModel):
     icon: constr(min_length=1) = Field(
         None, description="Path to the file representing or containing the icon."
     )
+    precommand: constr(min_length=1) = Field(
+        None,
+        description="(Simple, preferrably single-line) logic to run before the command is run. "
+        "Runs before the env is activated, if that applies."
+    )
     command: conlist(str, min_items=1) = Field(
         ...,
         description="Command to run with the menu item, expressed as a "

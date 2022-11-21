@@ -65,6 +65,11 @@
           "minLength": 1,
           "type": "string"
         },
+        "precommand": {
+          "title": "Precommand",
+          "description": "(Simple, preferrably single-line) logic to run before the command is run. Runs before the env is activated, if that applies.",
+          "type": "string"
+        },
         "command": {
           "title": "Command",
           "description": "Command to run with the menu item, expressed as a list of strings where each string is an argument",
@@ -89,11 +94,6 @@
           "title": "Terminal",
           "description": "Whether run the program in a terminal/console or not. On Windows, it only has an effect if activate is true. On MacOS, arguments are ignored.",
           "type": "boolean"
-        },
-        "precommand": {
-          "title": "Precommand",
-          "description": "(Simple, preferrably single-line) logic to run before the command is run. Runs before the env is activated, if that applies.",
-          "type": "string"
         },
         "desktop": {
           "title": "Desktop",
@@ -132,6 +132,11 @@
           "minLength": 1,
           "type": "string"
         },
+        "precommand": {
+          "title": "Precommand",
+          "description": "(Simple, preferrably single-line) logic to run before the command is run. Runs before the env is activated, if that applies.",
+          "type": "string"
+        },
         "command": {
           "title": "Command",
           "description": "Command to run with the menu item, expressed as a list of strings where each string is an argument",
@@ -156,11 +161,6 @@
           "title": "Terminal",
           "description": "Whether run the program in a terminal/console or not. On Windows, it only has an effect if activate is true. On MacOS, arguments are ignored.",
           "type": "boolean"
-        },
-        "precommand": {
-          "title": "Precommand",
-          "description": "(Simple, preferrably single-line) logic to run before the command is run. Runs before the env is activated, if that applies.",
-          "type": "string"
         },
         "Categories": {
           "title": "Categories",
@@ -421,6 +421,11 @@
           "minLength": 1,
           "type": "string"
         },
+        "precommand": {
+          "title": "Precommand",
+          "description": "(Simple, preferrably single-line) logic to run before the command is run. Runs before the env is activated, if that applies.",
+          "type": "string"
+        },
         "command": {
           "title": "Command",
           "description": "Command to run with the menu item, expressed as a list of strings where each string is an argument",
@@ -445,11 +450,6 @@
           "title": "Terminal",
           "description": "Whether run the program in a terminal/console or not. On Windows, it only has an effect if activate is true. On MacOS, arguments are ignored.",
           "type": "boolean"
-        },
-        "precommand": {
-          "title": "Precommand",
-          "description": "(Simple, preferrably single-line) logic to run before the command is run. Runs before the env is activated, if that applies.",
-          "type": "string"
         },
         "CFBundleDisplayName": {
           "title": "Cfbundledisplayname",
@@ -550,6 +550,12 @@
         "icon": {
           "title": "Icon",
           "description": "Path to the file representing or containing the icon.",
+          "minLength": 1,
+          "type": "string"
+        },
+        "precommand": {
+          "title": "Precommand",
+          "description": "(Simple, preferrably single-line) logic to run before the command is run. Runs before the env is activated, if that applies.",
           "minLength": 1,
           "type": "string"
         },

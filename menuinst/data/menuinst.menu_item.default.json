@@ -2,6 +2,7 @@
   "name": "Default",
   "description": "",
   "icon": null,
+  "precommand": null,
   "command": [
     "replace",
     "this"
@@ -11,12 +12,10 @@
   "terminal": false,
   "platforms": {
     "win": {
-      "precommand": null,
       "desktop": true,
       "quicklaunch": true
     },
     "osx": {
-      "precommand": null,
       "CFBundleDisplayName": null,
       "CFBundleIdentifier": null,
       "CFBundleName": null,
@@ -32,7 +31,6 @@
       "entitlements": null
     },
     "linux": {
-      "precommand": null,
       "Categories": null,
       "DBusActivatable": null,
       "GenericName": null,
