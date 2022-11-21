@@ -46,7 +46,7 @@ def check_output_from_shortcut(delete_files, json_path, expected_output=None):
     if expected_output is not None:
         assert output.strip() == expected_output
     
-    return paths
+    return paths, output
 
 
 def test_install_example_1(delete_files):
@@ -59,7 +59,7 @@ def test_precommands(delete_files):
 
 @pytest.mark.skipif(PLATFORM != "osx", reason="macOS only")
 def test_entitlements(delete_files):
-    paths = check_output_from_shortcut(delete_files, "entitlements.json", expected_output="entitlements")
+    paths, _ = check_output_from_shortcut(delete_files, "entitlements.json", expected_output="entitlements")
     # verify signature
     app_dir = next(p for p in paths if p.name.endswith('.app'))
     subprocess.check_call(["/usr/bin/codesign", "--verbose", "--verify", str(app_dir)])
@@ -70,7 +70,7 @@ def test_entitlements(delete_files):
 
 @pytest.mark.skipif(PLATFORM != "osx", reason="macOS only")
 def test_no_entitlements_no_signature(delete_files):
-    paths = check_output_from_shortcut(delete_files, "sys-executable.json", expected_output=sys.executable)
+    paths, _ = check_output_from_shortcut(delete_files, "sys-executable.json", expected_output=sys.executable)
     app_dir = next(p for p in paths if p.name.endswith('.app'))
     launcher = next(p for p in (app_dir / "Contents" / "MacOS").iterdir() if not p.name.endswith('-script'))
     with pytest.raises(subprocess.CalledProcessError):

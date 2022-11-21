@@ -17,7 +17,9 @@
                     "precommand": "set \"TEST_VAR=rhododendron and bees\"",
                     "command": [
                         "echo",
-                        "%TEST_VAR%"
+                        "%TEST_VAR%",
+                        ">",
+                        "%WIN_OUTPUT_FILE%"
                     ]
                 },
                 "linux": {},
