@@ -7,10 +7,10 @@ import subprocess
 from time import sleep
 from tempfile import NamedTemporaryFile
 
-from conftest import DATA, PLATFORM
-
+import pytest
 
 from menuinst.api import install
+from conftest import DATA, PLATFORM
 
 
 def check_output_from_shortcut(json_path, expected_output=None):
@@ -69,3 +69,17 @@ def test_entitlements():
     # verify signature
     app_dir = next(p for p in paths if p.name.endswith('.app'))
     subprocess.check_call(["/usr/bin/codesign", "--verbose", "--verify", str(app_dir)])
+
+    launcher = next(p for p in (app_dir / "Contents" / "MacOS").iterdir() if not p.name.endswith('-script'))
+    subprocess.check_call(["/usr/bin/codesign", "--verbose", "--verify", str(launcher)])
+
+
+def test_no_entitlements_no_signature():
+    paths = check_output_from_shortcut("sys-executable.json", expected_output=sys.executable)
+    app_dir = next(p for p in paths if p.name.endswith('.app'))
+    launcher = next(p for p in (app_dir / "Contents" / "MacOS").iterdir() if not p.name.endswith('-script'))
+    with pytest.raises(subprocess.CalledProcessError):
+        subprocess.check_call(["/usr/bin/codesign", "--verbose", "--verify", str(app_dir)])
+    with pytest.raises(subprocess.CalledProcessError):
+        subprocess.check_call(["/usr/bin/codesign", "--verbose", "--verify", str(launcher)])
+
