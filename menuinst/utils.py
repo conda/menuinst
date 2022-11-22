@@ -248,7 +248,7 @@ def elevate_as_needed(func):
                 try:
                     return_code = run_as_admin(
                         [
-                            Path(base_prefix) / "python",
+                            sys.executable,
                             "-c",
                             f"import os;"
                             f"os.environ.setdefault('_MENUINST_RECURSING', '1');"
