@@ -6,9 +6,63 @@ import subprocess
 import sys
 import traceback
 import xml.etree.ElementTree as XMLTree
+from contextlib import suppress
 from functools import wraps
 from pathlib import Path
 from unicodedata import normalize
+from typing import Union, Literal
+
+
+def _default_prefix(which: Union[Literal["target"], Literal["base"]] = "target"):
+    """
+    The prefixes in menuinst need to be handled with care.
+
+    Conda installations that require superuser permissions need elevation for
+    the creation of shortcuts. Constructor will leave a sentinel file to signal
+    this. If a file `.nonadmin` is present in the 'base' environment (or root of
+    the installation directory if conda is not present), superuser access is not
+    needed.
+
+    In order to check for this file, menuinst needs to track 'base_prefix'. For
+    a regular 'conda' process, this should be `conda.base.context.context.root_prefix'.
+    However, constructor also relies on a pyinstaller-frozen conda installation,
+    'conda-standalone'. In these cases, 'sys.prefix' is set to temporary location
+    of the extracted contents of the executable -- that's NOT the base installation!
+
+    For those reasons, we handle the default prefix with 'sys.prefix' (or 'sys.base_prefix')
+    as a last resort. The logic is:
+
+    - If 'MENUINST_PREFIX' (or 'MENUINST_BASE_PREFIX') is an env var with a set value, use that.
+    - If are already using conda, we get the context object and use those values.
+    - If CONDA_PREFIX (or 'CONDA_ROOT_PREFIX') are available, use those
+    - Last resort: use sys.prefix and sys.base_prefix
+
+    This helps us pass a lot of CLI arguments back and forth.
+    """
+    base = which == "base"
+    context = None
+    if "conda" in sys.modules:
+        with suppress(ImportError):
+            from conda.base.context import context
+
+    if base:
+        prefix = os.environ.get("MENUINST_BASE_PREFIX")
+        if prefix:
+            return prefix 
+        if context:
+            return context.root_prefix
+        return os.environ.get("CONDA_ROOT_PREFIX", sys.base_prefix)
+    # else
+    prefix = os.environ.get("MENUINST_PREFIX")
+    if prefix:
+        return prefix 
+    if context:
+        return context.target_prefix
+    return os.environ.get("CONDA_PREFIX", sys.prefix)
+
+
+DEFAULT_PREFIX = _default_prefix("target")
+DEFAULT_BASE_PREFIX = _default_prefix("base")
 
 
 def slugify(text):
@@ -230,7 +284,7 @@ def elevate_as_needed(func):
     @wraps(func)
     def wrapper_elevate(
         *args,
-        base_prefix: os.PathLike = sys.prefix,
+        base_prefix: os.PathLike = DEFAULT_BASE_PREFIX,
         **kwargs,
     ):
         kwargs.pop("_mode", None)

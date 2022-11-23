@@ -13,13 +13,14 @@ try:
 except ImportError:
     __version__ = "dev"
 
+from ..utils import DEFAULT_PREFIX, DEFAULT_BASE_PREFIX
 
 if sys.platform == 'win32':
     from .win32 import Menu, ShortCut
     from ..platforms.win_utils.win_elevate import isUserAdmin, runAsAdmin
 
 
-def _install(path, remove=False, prefix=sys.prefix, mode=None, root_prefix=sys.prefix):
+def _install(path, remove=False, prefix=DEFAULT_PREFIX, mode=None, root_prefix=DEFAULT_BASE_PREFIX):
     if abspath(prefix) == abspath(root_prefix):
         env_name = None
     else:
@@ -43,7 +44,7 @@ def _install(path, remove=False, prefix=sys.prefix, mode=None, root_prefix=sys.p
             ShortCut(m, sc).create()
 
 
-def install(path, remove=False, prefix=sys.prefix, recursing=False, root_prefix=sys.prefix):
+def install(path, remove=False, prefix=DEFAULT_PREFIX, recursing=False, root_prefix=DEFAULT_BASE_PREFIX):
     """
     Install Menu and shortcuts
 

@@ -9,7 +9,7 @@ from logging import getLogger
 from copy import deepcopy
 import json
 
-from ..utils import slugify, data_path, deep_update
+from ..utils import slugify, data_path, deep_update, DEFAULT_PREFIX, DEFAULT_BASE_PREFIX
 
 log = getLogger(__name__)
 
@@ -18,8 +18,8 @@ class Menu:
     def __init__(
         self,
         name: str,
-        prefix: str = sys.prefix,
-        base_prefix: str = sys.prefix,
+        prefix: str = DEFAULT_PREFIX,
+        base_prefix: str = DEFAULT_BASE_PREFIX,
         mode: Union[Literal["user"], Literal["system"]] = "user",
     ):
         assert mode in ("user", "system"), f"mode={mode} must be `user` or `system`"

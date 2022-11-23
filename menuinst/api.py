@@ -10,7 +10,7 @@ import json
 from logging import getLogger
 
 from .platforms import Menu, MenuItem
-from .platforms.win_utils.check_elevation import elevate_as_needed
+from .utils import elevate_as_needed, DEFAULT_PREFIX, DEFAULT_BASE_PREFIX
 
 log = getLogger(__name__)
 
@@ -25,8 +25,8 @@ __all__ = [
 
 def _load(
     metadata_or_path: Union[PathLike, dict],
-    target_prefix: PathLike = sys.prefix,
-    base_prefix: PathLike = sys.prefix,
+    target_prefix: PathLike = DEFAULT_PREFIX,
+    base_prefix: PathLike = DEFAULT_BASE_PREFIX,
     _mode: Union[Literal["user"], Literal["system"]] = "user",
 ) -> Tuple[Menu, List[MenuItem]]:
     if isinstance(metadata_or_path, (str, Path)):
@@ -43,8 +43,8 @@ def _load(
 def install(
     metadata_or_path: Union[PathLike, dict],
     *,
-    target_prefix: PathLike = sys.prefix,
-    base_prefix: PathLike = sys.prefix,
+    target_prefix: PathLike = DEFAULT_PREFIX,
+    base_prefix: PathLike = DEFAULT_BASE_PREFIX,
     _mode: Union[Literal["user"], Literal["system"]] = "user",
 ) -> List[PathLike]:
     menu, menu_items = _load(metadata_or_path, target_prefix, base_prefix, _mode)
@@ -64,8 +64,8 @@ def install(
 def remove(
     metadata_or_path: Union[PathLike, dict],
     *,
-    target_prefix: PathLike = sys.prefix,
-    base_prefix: PathLike = sys.prefix,
+    target_prefix: PathLike = DEFAULT_PREFIX,
+    base_prefix: PathLike = DEFAULT_BASE_PREFIX,
     _mode: Union[Literal["user"], Literal["system"]] = "user",
 ) -> List[PathLike]:
     menu, menu_items = _load(metadata_or_path, target_prefix, base_prefix, _mode)
@@ -84,8 +84,8 @@ def remove(
 @elevate_as_needed
 def install_all(
     *,
-    target_prefix: PathLike = sys.prefix,
-    base_prefix: PathLike = sys.prefix,
+    target_prefix: PathLike = DEFAULT_PREFIX,
+    base_prefix: PathLike = DEFAULT_BASE_PREFIX,
     filter: Union[callable, None] = None,
     _mode: Union[Literal["user"], Literal["system"]] = "user",
 ) -> List[List[PathLike]]:
@@ -95,8 +95,8 @@ def install_all(
 @elevate_as_needed
 def remove_all(
     *,
-    target_prefix: PathLike = sys.prefix,
-    base_prefix: PathLike = sys.prefix,
+    target_prefix: PathLike = DEFAULT_PREFIX,
+    base_prefix: PathLike = DEFAULT_BASE_PREFIX,
     filter: Union[callable, None] = None,
     _mode: Union[Literal["user"], Literal["system"]] = "user",
 ) -> List[List[Union[str, PathLike]]]:
@@ -105,8 +105,8 @@ def remove_all(
 
 def _process_all(
     function: callable,
-    target_prefix: PathLike = sys.prefix,
-    base_prefix: PathLike = sys.prefix,
+    target_prefix: PathLike = DEFAULT_PREFIX,
+    base_prefix: PathLike = DEFAULT_BASE_PREFIX,
     filter: Union[callable, None] = None,
     _mode: Union[Literal["user"], Literal["system"]] = "user",
 ):

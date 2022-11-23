@@ -14,11 +14,12 @@ except ImportError:
 
 from ._legacy import install as _legacy_install
 from .api import install as _api_install, remove as _api_remove
+from .utils import DEFAULT_PREFIX, DEFAULT_BASE_PREFIX
 
 _log = _getLogger(__name__)
 
 
-def install(path, remove=False, prefix=sys.prefix, **kwargs):
+def install(path, remove=False, prefix=DEFAULT_PREFIX, **kwargs):
     """
     This function is only here as a legacy adapter.
     Please use menuinst.api functions instead.
@@ -30,7 +31,7 @@ def install(path, remove=False, prefix=sys.prefix, **kwargs):
         metadata = json.load(f)
     if "$id" not in metadata:  # old style JSON
         if sys.platform == "win32":
-            kwargs.setdefault("root_prefix", kwargs.pop("base_prefix", sys.prefix))
+            kwargs.setdefault("root_prefix", kwargs.pop("base_prefix", DEFAULT_BASE_PREFIX))
             _legacy_install(json_path, remove=remove, prefix=prefix, **kwargs)
         else:
             _log.warn(
@@ -40,7 +41,7 @@ def install(path, remove=False, prefix=sys.prefix, **kwargs):
             )
     else:
         # patch kwargs to reroute root_prefix to base_prefix
-        kwargs.setdefault("base_prefix", kwargs.pop("root_prefix", sys.prefix))
+        kwargs.setdefault("base_prefix", kwargs.pop("root_prefix", DEFAULT_BASE_PREFIX))
         if remove:
             _api_remove(metadata, target_prefix=prefix, **kwargs)
         else:

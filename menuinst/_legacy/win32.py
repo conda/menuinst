@@ -15,7 +15,7 @@ import locale
 from .utils import rm_empty_dir, rm_rf
 from ..platforms.win_utils.knownfolders import dirs_src, folder_path
 from ..platforms.win_utils.winshortcut import create_shortcut
-
+from ..utils import DEFAULT_BASE_PREFIX
 
 # This allows debugging installer issues using DebugView from Microsoft.
 OutputDebugString = ctypes.windll.kernel32.OutputDebugStringW
@@ -86,7 +86,7 @@ def to_bytes(var, codec=locale.getpreferredencoding()):
     return var
 
 
-unicode_root_prefix = to_unicode(sys.prefix)
+unicode_root_prefix = to_unicode(DEFAULT_BASE_PREFIX)
 if u'\\envs\\' in unicode_root_prefix:
     logger.warning('menuinst called from non-root env %s', unicode_root_prefix)
 
