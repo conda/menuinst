@@ -10,6 +10,7 @@ import json
 from logging import getLogger
 
 from .platforms import Menu, MenuItem
+from .platforms.win_utils.check_elevation import elevate_as_needed
 from .utils import elevate_as_needed, DEFAULT_PREFIX, DEFAULT_BASE_PREFIX
 
 log = getLogger(__name__)
@@ -39,7 +40,7 @@ def _load(
     return menu, menu_items
 
 
-# @elevate_as_needed
+@elevate_as_needed
 def install(
     metadata_or_path: Union[PathLike, dict],
     *,
@@ -60,7 +61,7 @@ def install(
     return paths
 
 
-# @elevate_as_needed
+@elevate_as_needed
 def remove(
     metadata_or_path: Union[PathLike, dict],
     *,
@@ -81,7 +82,7 @@ def remove(
     return paths
 
 
-# @elevate_as_needed
+@elevate_as_needed
 def install_all(
     *,
     target_prefix: PathLike = DEFAULT_PREFIX,
@@ -92,7 +93,7 @@ def install_all(
     return _process_all(install, target_prefix, base_prefix, filter, _mode)
 
 
-# @elevate_as_needed
+@elevate_as_needed
 def remove_all(
     *,
     target_prefix: PathLike = DEFAULT_PREFIX,
