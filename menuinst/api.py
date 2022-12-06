@@ -10,7 +10,6 @@ import json
 from logging import getLogger
 
 from .platforms import Menu, MenuItem
-from .platforms.win_utils.check_elevation import elevate_as_needed
 from .utils import elevate_as_needed, DEFAULT_PREFIX, DEFAULT_BASE_PREFIX
 
 log = getLogger(__name__)
