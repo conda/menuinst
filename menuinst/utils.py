@@ -303,9 +303,12 @@ def elevate_as_needed(func):
                 # call the wrapped func with elevated prompt...
                 # from the command line; not pretty!
                 try:
+                    executable = [sys.executable]
+                    if getattr(sys, 'frozen', False):
+                        executable.append("python")
                     return_code = run_as_admin(
                         [
-                            sys.executable,
+                            *executable,
                             "-c",
                             f"import os;"
                             f"os.environ.setdefault('_MENUINST_RECURSING', '1');"
