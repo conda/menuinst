@@ -25,10 +25,12 @@ __all__ = [
 
 def _load(
     metadata_or_path: Union[PathLike, dict],
-    target_prefix: PathLike = DEFAULT_PREFIX,
-    base_prefix: PathLike = DEFAULT_BASE_PREFIX,
+    target_prefix: PathLike = None,
+    base_prefix: PathLike = None,
     _mode: Union[Literal["user"], Literal["system"]] = "user",
 ) -> Tuple[Menu, List[MenuItem]]:
+    target_prefix = target_prefix or DEFAULT_PREFIX
+    base_prefix = base_prefix or DEFAULT_BASE_PREFIX
     if isinstance(metadata_or_path, (str, Path)):
         with open(metadata_or_path) as f:
             metadata = json.load(f)
@@ -43,10 +45,12 @@ def _load(
 def install(
     metadata_or_path: Union[PathLike, dict],
     *,
-    target_prefix: PathLike = DEFAULT_PREFIX,
-    base_prefix: PathLike = DEFAULT_BASE_PREFIX,
+    target_prefix: PathLike = None,
+    base_prefix: PathLike = None,
     _mode: Union[Literal["user"], Literal["system"]] = "user",
 ) -> List[PathLike]:
+    target_prefix = target_prefix or DEFAULT_PREFIX
+    base_prefix = base_prefix or DEFAULT_BASE_PREFIX
     menu, menu_items = _load(metadata_or_path, target_prefix, base_prefix, _mode)
     if not any(item.enabled_for_platform() for item in menu_items):
         warnings.warn(f"Metadata for {menu.name} is not enabled for {sys.platform}")
@@ -64,10 +68,12 @@ def install(
 def remove(
     metadata_or_path: Union[PathLike, dict],
     *,
-    target_prefix: PathLike = DEFAULT_PREFIX,
-    base_prefix: PathLike = DEFAULT_BASE_PREFIX,
+    target_prefix: PathLike = None,
+    base_prefix: PathLike = None,
     _mode: Union[Literal["user"], Literal["system"]] = "user",
 ) -> List[PathLike]:
+    target_prefix = target_prefix or DEFAULT_PREFIX
+    base_prefix = base_prefix or DEFAULT_BASE_PREFIX
     menu, menu_items = _load(metadata_or_path, target_prefix, base_prefix, _mode)
     if not any(item.enabled_for_platform() for item in menu_items):
         warnings.warn(f"Metadata for {menu.name} is not enabled for {sys.platform}")
@@ -84,32 +90,38 @@ def remove(
 @elevate_as_needed
 def install_all(
     *,
-    target_prefix: PathLike = DEFAULT_PREFIX,
-    base_prefix: PathLike = DEFAULT_BASE_PREFIX,
+    target_prefix: PathLike = None,
+    base_prefix: PathLike = None,
     filter: Union[callable, None] = None,
     _mode: Union[Literal["user"], Literal["system"]] = "user",
 ) -> List[List[PathLike]]:
+    target_prefix = target_prefix or DEFAULT_PREFIX
+    base_prefix = base_prefix or DEFAULT_BASE_PREFIX
     return _process_all(install, target_prefix, base_prefix, filter, _mode)
 
 
 @elevate_as_needed
 def remove_all(
     *,
-    target_prefix: PathLike = DEFAULT_PREFIX,
-    base_prefix: PathLike = DEFAULT_BASE_PREFIX,
+    target_prefix: PathLike = None,
+    base_prefix: PathLike = None,
     filter: Union[callable, None] = None,
     _mode: Union[Literal["user"], Literal["system"]] = "user",
 ) -> List[List[Union[str, PathLike]]]:
+    target_prefix = target_prefix or DEFAULT_PREFIX
+    base_prefix = base_prefix or DEFAULT_BASE_PREFIX
     return _process_all(remove, target_prefix, base_prefix, filter, _mode)
 
 
 def _process_all(
     function: callable,
-    target_prefix: PathLike = DEFAULT_PREFIX,
-    base_prefix: PathLike = DEFAULT_BASE_PREFIX,
+    target_prefix: PathLike = None,
+    base_prefix: PathLike = None,
     filter: Union[callable, None] = None,
     _mode: Union[Literal["user"], Literal["system"]] = "user",
 ):
+    target_prefix = target_prefix or DEFAULT_PREFIX
+    base_prefix = base_prefix or DEFAULT_BASE_PREFIX
     jsons = (Path(target_prefix) / "Menu").glob("*.json")
     results = []
     for path in jsons:

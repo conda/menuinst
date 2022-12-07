@@ -287,10 +287,11 @@ def elevate_as_needed(func):
     @wraps(func)
     def wrapper_elevate(
         *args,
-        base_prefix: os.PathLike = DEFAULT_BASE_PREFIX,
+        base_prefix: os.PathLike = None,
         **kwargs,
     ):
         kwargs.pop("_mode", None)
+        base_prefix = base_prefix or DEFAULT_BASE_PREFIX
         if not (Path(base_prefix) / ".nonadmin").exists():
             if user_is_admin():
                 return func(

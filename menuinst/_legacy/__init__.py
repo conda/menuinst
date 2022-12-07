@@ -20,7 +20,9 @@ if sys.platform == 'win32':
     from ..platforms.win_utils.win_elevate import isUserAdmin, runAsAdmin
 
 
-def _install(path, remove=False, prefix=DEFAULT_PREFIX, mode=None, root_prefix=DEFAULT_BASE_PREFIX):
+def _install(path, remove=False, prefix=None, mode=None, root_prefix=None):
+    prefix = prefix or DEFAULT_PREFIX
+    root_prefix = root_prefix or DEFAULT_BASE_PREFIX
     if abspath(prefix) == abspath(root_prefix):
         env_name = None
     else:
@@ -44,13 +46,15 @@ def _install(path, remove=False, prefix=DEFAULT_PREFIX, mode=None, root_prefix=D
             ShortCut(m, sc).create()
 
 
-def install(path, remove=False, prefix=DEFAULT_PREFIX, recursing=False, root_prefix=DEFAULT_BASE_PREFIX):
+def install(path, remove=False, prefix=None, recursing=False, root_prefix=None):
     """
     Install Menu and shortcuts
 
     # Specifying `root_prefix` is used with conda-standalone, because we can't use
     # `sys.prefix`, therefore we need to specify it
     """
+    prefix = prefix or DEFAULT_PREFIX
+    root_prefix = root_prefix or DEFAULT_BASE_PREFIX
     if not sys.platform == 'win32':
         raise RuntimeError("menuinst._legacy is only supported on Windows.")
 

@@ -32,6 +32,8 @@ def install(path, remove=False, prefix=DEFAULT_PREFIX, **kwargs):
     if "$id" not in metadata:  # old style JSON
         if sys.platform == "win32":
             kwargs.setdefault("root_prefix", kwargs.pop("base_prefix", DEFAULT_BASE_PREFIX))
+            if kwargs["root_prefix"] is None:
+                kwargs["root_prefix"] = DEFAULT_BASE_PREFIX
             _legacy_install(json_path, remove=remove, prefix=prefix, **kwargs)
         else:
             _log.warn(
@@ -42,6 +44,8 @@ def install(path, remove=False, prefix=DEFAULT_PREFIX, **kwargs):
     else:
         # patch kwargs to reroute root_prefix to base_prefix
         kwargs.setdefault("base_prefix", kwargs.pop("root_prefix", DEFAULT_BASE_PREFIX))
+        if kwargs["base_prefix"] is None:
+            kwargs["base_prefix"] = DEFAULT_BASE_PREFIX
         if remove:
             _api_remove(metadata, target_prefix=prefix, **kwargs)
         else:
