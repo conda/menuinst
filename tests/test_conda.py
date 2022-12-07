@@ -3,7 +3,7 @@ Integration tests with conda
 """
 import os
 import sys
-from subprocess import check_output, run, PIPE
+from subprocess import check_output
 from tempfile import NamedTemporaryFile
 from pathlib import Path
 from contextlib import contextmanager
@@ -11,6 +11,7 @@ import json
 
 import pytest
 from conda.models.version import VersionOrder
+from conda.testing.integration import run_command  
 
 from menuinst.platforms import Menu, MenuItem
 from menuinst._schema import validate
@@ -28,50 +29,27 @@ ENV_VARS["CONDA_VERBOSITY"] = "3"
 
 @contextmanager
 def new_environment(tmpdir, *packages):
-    prefix = str(tmpdir / "prefix")
-    env = ENV_VARS.copy()
-    env["CONDA_PKGS_DIRS"] = str(tmpdir / "pkgs")
-    env["MENUINST_TEST_TMPDIR"] = os.environ["MENUINST_TEST_TMPDIR"] = str(tmpdir / "home")
-    print("MENUINST_TEST_TMPDIR set to", env["MENUINST_TEST_TMPDIR"])
-    print("--- CREATING", prefix, "---")
-    cmd = [sys.executable, "-I", "-m", "conda", "create", "-y", "--offline", "-p", prefix] + [str(p) for p in packages]
-    process = run(
-        cmd,
-        env=env,
-        stdout=PIPE,
-        stderr=PIPE,
-        universal_newlines=True,
-    )
-    print(process.stdout)
-    print(process.stderr, file=sys.stderr)
-    process.check_returncode()
+    try:
+        prefix = str(tmpdir / "prefix")
+        print("--- CREATING", prefix, "---")
+        stdout, stderr, retcode = run_command("create", prefix, "-y", "--offline", *[str(p) for p in packages])
+        assert not retcode
+        for stream in (stdout, stderr):
+            if "menuinst Exception" in stream:
+                raise RuntimeError(
+                    f"Creation command exited with 0 but stdout contained exception:\n{stream}"
+                )
 
-    for stream in (process.stdout, process.stderr):
-        if "menuinst Exception" in stream:
-            raise RuntimeError(
-                f"Command {cmd} exited with 0 but stdout contained exception:\n{stream}"
-            )
-
-    yield prefix
-    del os.environ["MENUINST_TEST_TMPDIR"]
-
-    print("--- REMOVING", prefix, "---")
-    cmd = [sys.executable, "-I", "-m", "conda", "remove", "--all", "-y", "-p", prefix]
-    process = run(
-        cmd,
-        env=env,
-        stdout=PIPE,
-        stderr=PIPE,
-        universal_newlines=True,
-    )
-    print(process.stdout)
-    print(process.stderr, file=sys.stderr)
-    process.check_returncode()
-    for stream in (process.stdout, process.stderr):
-        if "menuinst Exception" in stream:
-            raise RuntimeError(
-                f"Command {cmd} exited with 0 but stdout contained exception:\n{stream}"
-            )
+        yield prefix
+    finally:
+        print("--- REMOVING", prefix, "---")
+        stdout, stderr, retcode = run_command("remove", prefix, "--offline", "--all")
+        assert not retcode
+        for stream in (stdout, stderr):
+            if "menuinst Exception" in stream:
+                raise RuntimeError(
+                    f"Deletion Command exited with 0 but stdout contained exception:\n{stream}"
+                )
 
 
 @contextmanager

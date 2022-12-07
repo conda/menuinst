@@ -11,8 +11,6 @@ from .base import Menu, MenuItem
 from ..utils import WinLex, unlink
 
 from .win_utils.knownfolders import folder_path as windows_folder_path
-from .win_utils.winshortcut import create_shortcut
-
 
 log = getLogger(__name__)
 
@@ -117,6 +115,8 @@ class WindowsMenu(Menu):
 
 class WindowsMenuItem(MenuItem):
     def create(self) -> Tuple[Path]:
+        from .win_utils.winshortcut import create_shortcut
+
         activate = self.metadata["activate"]
 
         if activate:
@@ -149,7 +149,7 @@ class WindowsMenuItem(MenuItem):
 
             icon = self.render("icon") or ""
 
-            # winshortcut is a C extension! create_shortcut has this API
+            # winshortcut is a windows-only C extension! create_shortcut has this API
             # Notice args must be passed as positional, no keywords allowed!
             # winshortcut.create_shortcut(path, description, filename, arguments="", 
             #                             workdir=None, iconpath=None, iconindex=0)
