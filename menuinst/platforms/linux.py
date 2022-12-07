@@ -22,16 +22,13 @@ class LinuxMenu(Menu):
 
     menuinst will populate the relevant XML config and create a .directory entry
     """
-
+    _system_config_directory = Path("/etc/xdg/")
+    _system_data_directory =  Path("/usr/share")
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        _test_tmpdir = os.environ.get("MENUINST_TEST_TMPDIR")
-        if _test_tmpdir:
-            self.config_directory = Path(_test_tmpdir) / "config"
-            self.data_directory = Path(_test_tmpdir) / "share"
-        elif self.mode == "system":
-            self.config_directory = Path("/etc/xdg/")
-            self.data_directory = Path("/usr/share")
+        if self.mode == "system":
+            self.config_directory = self._system_config_directory
+            self.data_directory =self._system_data_directory
         else:
             self.config_directory = Path(
                 os.environ.get("XDG_CONFIG_HOME", "~/.config")
@@ -41,7 +38,7 @@ class LinuxMenu(Menu):
             ).expanduser()
 
         # XML Config paths
-        self.system_menu_config_location = Path("/etc/xdg/") / "menus" / "applications.menu"
+        self.system_menu_config_location = self._system_config_directory / "menus" / "applications.menu"
         self.menu_config_location = self.config_directory / "menus" / "applications.menu"
         # .desktop / .directory paths
         self.directory_entry_location = (

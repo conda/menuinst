@@ -281,6 +281,9 @@ def elevate_as_needed(func):
     will run in a separate process, so we won't be able to capture the return
     value anyway.
     """
+    if os.name != "nt":
+        return func
+
     @wraps(func)
     def wrapper_elevate(
         *args,

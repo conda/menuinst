@@ -21,11 +21,10 @@ class WindowsMenu(Menu):
     def create(self):
         log.debug("Creating %s", self.start_menu_location)
         self.start_menu_location.mkdir(parents=True, exist_ok=True)
-        if os.environ.get("MENUINST_TEST_TMPDIR"):
-            if self.quick_launch_location:
-                self.quick_launch_location.mkdir(parents=True, exist_ok=True)
-            if self.desktop_location:
-                self.desktop_location.mkdir(parents=True, exist_ok=True)
+        if self.quick_launch_location:
+            self.quick_launch_location.mkdir(parents=True, exist_ok=True)
+        if self.desktop_location:
+            self.desktop_location.mkdir(parents=True, exist_ok=True)
         return (self.start_menu_location,)
 
     def remove(self):
@@ -45,16 +44,10 @@ class WindowsMenu(Menu):
         In this property we only report the path to the Start menu.
         For other menus, check their respective properties.
         """
-        _test_tmpdir = os.environ.get("MENUINST_TEST_TMPDIR")
-        if _test_tmpdir:
-            return Path(_test_tmpdir) / "start" / self.name
         return Path(windows_folder_path(self.mode, False, "start")) / self.name
 
     @property
     def quick_launch_location(self):
-        _test_tmpdir = os.environ.get("MENUINST_TEST_TMPDIR")
-        if _test_tmpdir:
-            return Path(_test_tmpdir) / "quicklaunch" / self.name
         if self.mode == "system":
             # TODO: Check if this is true?
             warnings.warn("Quick launch menus are not available for system level installs")
@@ -63,9 +56,6 @@ class WindowsMenu(Menu):
 
     @property
     def desktop_location(self):
-        _test_tmpdir = os.environ.get("MENUINST_TEST_TMPDIR")
-        if _test_tmpdir:
-            return Path(_test_tmpdir) / "desktop" / self.name
         return Path(windows_folder_path(self.mode, False, "desktop"))
 
     @property

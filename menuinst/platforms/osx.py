@@ -45,18 +45,13 @@ class MacOSMenu(Menu):
 class MacOSMenuItem(MenuItem):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
         name = f"{self.render('name')}.app"
+        self.location = self._base_location() / "Applications" / name
 
-        _test_tmpdir = os.environ.get("MENUINST_TEST_TMPDIR")
-        if _test_tmpdir:
-            base = Path(_test_tmpdir)
-        elif self.menu.mode == "user":
-            base = Path("~").expanduser()
-        else:
-            base = Path("/")
-
-        self.location = base / "Applications" / name
+    def _base_location(self):
+        if self.menu.mode == "user":
+            return Path("~").expanduser()
+        return Path("/")
 
     def create(self) -> Tuple[Path]:
         log.debug("Creating %s", self.location)
@@ -204,13 +199,13 @@ class MacOSMenuItem(MenuItem):
                         "--verbose",
                         "--sign",
                         "-",
-                        "--prefix", 
+                        "--prefix",
                         f"com.{slugname}",
-                        "--options", 
+                        "--options",
                         "runtime",
                         "--force",
                         "--deep",
-                        "--entitlements", 
+                        "--entitlements",
                         f.name,
                         self.location
                     ]
