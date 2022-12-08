@@ -331,8 +331,7 @@ def elevate_as_needed(func):
                 # call the wrapped func with elevated prompt...
                 # from the command line; not pretty!
                 try:
-                    module = func.__module__
-                    if module == "__main__":
+                    if func.__module__ == "__main__":
                         import_func = (
                             f"import runpy;"
                             f"{func.__name__} = runpy.run_path('{__file__}')"
