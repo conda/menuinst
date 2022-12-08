@@ -8,9 +8,13 @@ import traceback
 import xml.etree.ElementTree as XMLTree
 from contextlib import suppress
 from functools import wraps
+from logging import getLogger
 from pathlib import Path
 from unicodedata import normalize
 from typing import Union, Literal
+
+
+logger = getLogger(__name__)
 
 
 def _default_prefix(which: Union[Literal["target"], Literal["base"]] = "target"):
@@ -264,6 +268,29 @@ def run_as_admin(argv) -> int:
         raise RuntimeError(f"Unsupported operating system: {os.name}")
 
 
+def python_executable(base_prefix=None):
+    base_prefix = Path(base_prefix or DEFAULT_BASE_PREFIX)
+    # menuinst might be called by a conda-standalone bundle
+    # these are pyinstaller-generated, and have sys.frozen=True
+    # in these cases, we prefer using the base env python to
+    # avoid a 2nd decompression + hacky console, so we try that
+    # first; otherwise, we use 'conda-standalone.exe python'
+    if getattr(sys, 'frozen', False):
+        if os.name == "nt":
+            base_prefix_python = base_prefix / "python.exe"
+        else:
+            base_prefix_python = base_prefix / "bin" / "python"
+        # If the base env (installation root) 
+        # ships a usable Python, use that one
+        if base_prefix_python.is_file():
+            return (str(base_prefix_python), )
+        # the base env does not have python, 
+        # use the conda-standalone wrapper
+        return (sys.executable, "python")
+    # in non-frozen executables:
+    return (sys.executable, )
+
+
 def elevate_as_needed(func):
     """
     Multiplatform decorator to run a function as a superuser, if needed.
@@ -304,27 +331,33 @@ def elevate_as_needed(func):
                 # call the wrapped func with elevated prompt...
                 # from the command line; not pretty!
                 try:
-                    executable = [sys.executable]
-                    if getattr(sys, 'frozen', False):
-                        executable.append("python")
-                    return_code = run_as_admin(
-                        [
-                            *executable,
-                            "-c",
-                            f"import os;"
-                            f"os.environ.setdefault('_MENUINST_RECURSING', '1');"
-                            f"from {func.__module__} import {func.__name__};"
-                            f"{func.__name__}("
-                            f"*{args!r},"
-                            f"base_prefix={base_prefix!r},"
-                            f"**{kwargs!r}"
-                            ")",
-                        ]
-                    )
+                    module = func.__module__
+                    if module == "__main__":
+                        import_func = (
+                            f"import runpy;"
+                            f"{func.__name__} = runpy.run_path('{__file__}')"
+                            f"['{func.__name__}'];"
+                        )
+                    else:
+                        import_func = f"from {func.__module__} import {func.__name__};"
+                    cmd = [
+                        *python_executable(),
+                        "-c",
+                        f"import os;"
+                        f"os.environ.setdefault('_MENUINST_RECURSING', '1');"
+                        f"{import_func}"
+                        f"{func.__name__}("
+                        f"*{args!r},"
+                        f"base_prefix={base_prefix!r},"
+                        f"**{kwargs!r}"
+                        ")",
+                    ]
+                    logger.debug("Elevating command: %s", cmd)
+                    return_code = run_as_admin(cmd)
                 except Exception:
-                    logging.warn(
-                        "Could not write menu folder! Falling back to user mode.\n%s",
-                        "\n".join(traceback.format_exc())
+                    logger.warn(
+                        "Error occurred! Falling back to user mode. Exception:\n%s",
+                        traceback.format_exc()
                     )
                 else:
                     os.environ.pop("_MENUINST_RECURSING", None)
@@ -339,3 +372,17 @@ def elevate_as_needed(func):
         )
 
     return wrapper_elevate
+
+
+def _test(base_prefix=None, _mode="user"):
+    if os.name == "nt":
+        out = open("output.txt", "a")
+    else:
+        out = sys.stdout
+    print(user_is_admin(), file=out)
+
+
+if __name__ == "__main__":
+    _test()
+    _test = elevate_as_needed(_test)
+    _test()
