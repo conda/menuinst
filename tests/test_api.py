@@ -1,5 +1,6 @@
 """"""
 import os
+import plistlib
 import sys
 import subprocess
 from tempfile import NamedTemporaryFile
@@ -43,8 +44,8 @@ def check_output_from_shortcut(delete_files, json_path, expected_output=None):
     elif PLATFORM == 'win':
         lnk = next(p for p in paths if p.suffix == ".lnk")
         assert lnk.is_file()
-        # os.startfile does not propagate custom env vars, 
-        # so we need to hardcode it with templating 
+        # os.startfile does not propagate custom env vars,
+        # so we need to hardcode it with templating
         # (see block at the beginning of the function)
         os.startfile(lnk)
         # startfile returns immediately; poll for the output file
@@ -59,7 +60,7 @@ def check_output_from_shortcut(delete_files, json_path, expected_output=None):
 
     if expected_output is not None:
         assert output.strip() == expected_output
-    
+
     return paths, output
 
 
@@ -81,6 +82,21 @@ def test_entitlements(delete_files):
     launcher = next(p for p in (app_dir / "Contents" / "MacOS").iterdir() if not p.name.endswith('-script'))
     subprocess.check_call(["/usr/bin/codesign", "--verbose", "--verify", str(launcher)])
 
+    for path in app_dir.rglob("Info.plist"):
+        plist = plistlib.loads(path.read_bytes())
+        assert plist
+        assert "entitlements" not in plist
+        break
+    else:
+        raise AssertionError("Didn't find Info.plist")
+
+    for path in app_dir.rglob("Entitlements.plist"):
+        plist = plistlib.loads(path.read_bytes())
+        assert plist
+        break
+    else:
+        raise AssertionError("Didn't find Entitlements.plist")
+
 
 @pytest.mark.skipif(PLATFORM != "osx", reason="macOS only")
 def test_no_entitlements_no_signature(delete_files):
@@ -91,3 +107,22 @@ def test_no_entitlements_no_signature(delete_files):
         subprocess.check_call(["/usr/bin/codesign", "--verbose", "--verify", str(app_dir)])
     with pytest.raises(subprocess.CalledProcessError):
         subprocess.check_call(["/usr/bin/codesign", "--verbose", "--verify", str(launcher)])
+
+
+@pytest.mark.skipif(PLATFORM != "osx", reason="macOS only")
+def test_info_plist(delete_files):
+    paths, _ = check_output_from_shortcut(
+        delete_files, 
+        "entitlements.json", 
+        expected_output="entitlements"
+    )
+    app_dir = next(p for p in paths if p.name.endswith('.app'))
+
+    for path in app_dir.rglob("Info.plist"):
+        plist = plistlib.loads(path.read_bytes())
+        assert plist
+        break
+    else:
+        raise AssertionError("Didn't find file")
+
+    assert plist["LSEnvironment"]["example_var"] == "example_value"

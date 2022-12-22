@@ -37,8 +37,8 @@ class Menu:
         raise NotImplementedError
 
     def render(self, value: Union[str, None], slug: bool = False):
-        if value is None:
-            return
+        if not hasattr(value, "replace"):
+            return value
         for placeholder, replacement in self.placeholders.items():
             value = value.replace("{{ " + placeholder + " }}", replacement)
         if slug:
@@ -129,6 +129,11 @@ class MenuItem:
             return value
         if isinstance(value, str):
             return self.menu.render(value, slug=slug)
+        if hasattr(value, "items"):
+            return {
+                key: self.menu.render(val, slug=slug)
+                for key, val in value.items()
+            }
         return [self.menu.render(item, slug=slug) for item in value]
 
     def _paths(self) -> Iterable[Union[str, os.PathLike]]:

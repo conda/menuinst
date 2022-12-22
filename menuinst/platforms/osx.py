@@ -2,9 +2,7 @@
 """
 from logging import getLogger
 from pathlib import Path
-from plistlib import dump as plist_dump
 from subprocess import check_call
-from tempfile import NamedTemporaryFile
 from typing import Tuple
 import os
 import platform
@@ -99,8 +97,9 @@ class MacOSMenuItem(MenuItem):
         }
 
         # Override defaults with (potentially) user provided values
+        ignore_keys = (*menuitem_defaults, "entitlements")
         for key in menuitem_defaults["platforms"]["osx"]:
-            if key in menuitem_defaults:
+            if key in ignore_keys:
                 continue
             value = self.render(key)
             if value is None:
@@ -186,29 +185,28 @@ class MacOSMenuItem(MenuItem):
     def _sign_with_entitlements(self):
         "Self-sign shortcut to apply required entitlements"
         entitlement_keys = self.render("entitlements")
-        if entitlement_keys:
-            slugname = self.render("name", slug=True)
-            plist = {key: True for key in entitlement_keys}
-            with NamedTemporaryFile(suffix=".plist", delete=False) as f:
-                plist_dump(plist, f)
-            try:
-                check_call(
-                    [
-                        # hardcode to system location to avoid accidental clobber in PATH
-                        "/usr/bin/codesign",
-                        "--verbose",
-                        "--sign",
-                        "-",
-                        "--prefix",
-                        f"com.{slugname}",
-                        "--options",
-                        "runtime",
-                        "--force",
-                        "--deep",
-                        "--entitlements",
-                        f.name,
-                        self.location
-                    ]
-                )
-            finally:
-                os.unlink(f.name)
+        if not entitlement_keys:
+            return
+        slugname = self.render("name", slug=True)
+        plist = {key: True for key in entitlement_keys}
+        entitlements_path = self.location / "Contents" / "Entitlements.plist"
+        with open(entitlements_path, "wb") as f:
+            plistlib.dump(plist, f)
+        check_call(
+            [
+                # hardcode to system location to avoid accidental clobber in PATH
+                "/usr/bin/codesign",
+                "--verbose",
+                "--sign",
+                "-",
+                "--prefix",
+                f"com.{slugname}",
+                "--options",
+                "runtime",
+                "--force",
+                "--deep",
+                "--entitlements",
+                entitlements_path,
+                self.location
+            ]
+        )

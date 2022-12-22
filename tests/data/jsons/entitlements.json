@@ -16,7 +16,10 @@
                     "CFBundleName": "My Example with entitlements on macOS",
                     "entitlements": [
                         "com.apple.security.files.user-selected.read-write"
-                    ]
+                    ],
+                    "LSEnvironment": {
+                        "example_var": "example_value"
+                    }
                 }
             }
         }
