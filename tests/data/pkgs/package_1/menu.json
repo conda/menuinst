@@ -17,7 +17,7 @@
                     "command": [
                         "cmd",
                         "/V:ON",
-                        "/K",
+                        "/C",
                         "echo",
                         "!CONDA_PREFIX!"
                     ]
@@ -40,7 +40,7 @@
                     "command": [
                         "cmd",
                         "/V:ON",
-                        "/K",
+                        "/C",
                         "echo",
                         "!CONDA_PREFIX!"
                     ]
