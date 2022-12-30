@@ -176,14 +176,15 @@ class LinuxMenu(Menu):
 class LinuxMenuItem(MenuItem):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        menu_prefix = self.menu.render(self.menu.name, slug=True)
+        menu_prefix = self.render(self.menu.name, slug=True)
         # TODO: filename should conform to D-Bus well known name conventions
         # https://specifications.freedesktop.org/desktop-entry-spec/latest/ar01s02.html
-        filename = f"{menu_prefix}_{self.render('name', slug=True)}.desktop"
+        filename = f"{menu_prefix}_{self.render_key('name', slug=True)}.desktop"
         self.location = self.menu.desktop_entries_location / filename
 
     def create(self):
         log.debug("Creating %s", self.location)
+        self._pre_install()
         self._write_desktop_file()
         return self._paths()
 
@@ -196,7 +197,7 @@ class LinuxMenuItem(MenuItem):
 
     def _command(self):
         parts = []
-        precommand = self.render("precommand")
+        precommand = self.render_key("precommand")
         if precommand:
             parts.append(precommand)
         if self.metadata["activate"]:
@@ -206,7 +207,7 @@ class LinuxMenuItem(MenuItem):
             else:
                 activate = "shell.bash activate"
             parts.append(f'eval "$("{conda_exe}" {activate} "{self.menu.prefix}")"')
-        parts.append(" ".join(UnixLex.quote_args(self.render("command"))))
+        parts.append(" ".join(UnixLex.quote_args(self.render_key("command"))))
         return f"bash -c '{' && '.join(parts)}'"
 
     def _write_desktop_file(self):
@@ -214,20 +215,20 @@ class LinuxMenuItem(MenuItem):
             "[Desktop Entry]",
             "Type=Application",
             "Encoding=UTF-8",
-            f'Name={self.render("name")}',
+            f'Name={self.render_key("name")}',
             f"Exec={self._command()}",
-            f'Terminal={str(self.render("terminal")).lower()}',
+            f'Terminal={str(self.render_key("terminal")).lower()}',
         ]
 
-        icon = self.render("icon")
+        icon = self.render_key("icon")
         if icon:
-            lines.append(f'Icon={self.render("icon")}')
+            lines.append(f'Icon={self.render_key("icon")}')
 
-        description = self.render("description")
+        description = self.render_key("description")
         if description:
-            lines.append(f'Comment={self.render("description")}')
+            lines.append(f'Comment={self.render_key("description")}')
 
-        working_dir = self.render("working_dir")
+        working_dir = self.render_key("working_dir")
         if working_dir:
             Path(working_dir).mkdir(parents=True, exist_ok=True)
             lines.append(f"Path={working_dir}")
@@ -235,7 +236,7 @@ class LinuxMenuItem(MenuItem):
         for key in menuitem_defaults["platforms"]["linux"]:
             if key in menuitem_defaults:
                 continue
-            value = self.render(key)
+            value = self.render_key(key)
             if value is None:
                 continue
             if isinstance(value, bool):

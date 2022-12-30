@@ -32,6 +32,10 @@ class MenuItemMetadata(BaseModel):
         description="(Simple, preferrably single-line) logic to run before the command is run. "
         "Runs before the env is activated, if that applies."
     )
+    precreate: constr(min_length=1) = Field(
+        None,
+        description="(Simple, preferrably single-line) logic to run before the shortcut is created."
+    )
     command: conlist(str, min_items=1) = Field(
         ...,
         description="Command to run with the menu item, expressed as a "
@@ -80,10 +84,14 @@ class OptionalMenuItemMetadata(MenuItemMetadata):
         description="Working directory for the running process. "
         "Defaults to user directory on each platform.",
     )
-    precommand: Optional[str] = Field(
+    precommand: Optional[constr(min_length=1)] = Field(
         None,
         description="(Simple, preferrably single-line) logic to run before the command is run. "
         "Runs before the env is activated, if that applies."
+    )
+    precreate: Optional[constr(min_length=1)] = Field(
+        None,
+        description="(Simple, preferrably single-line) logic to run before the shortcut is created."
     )
     activate: Optional[bool] = Field(
         None,
@@ -92,8 +100,7 @@ class OptionalMenuItemMetadata(MenuItemMetadata):
     terminal: Optional[bool] = Field(
         None,
         description="Whether run the program in a terminal/console or not. "
-        "On Windows, it only has an effect if activate is true. "
-        "On MacOS, arguments are ignored.",
+        "On Windows, it only has an effect if activate is true. ",
     )
 
 
@@ -142,12 +149,12 @@ class MenuInstSchema(BaseModel):
                 TryExec: Optional[str] = None
 
             class MacOS(OptionalMenuItemMetadata):
-                """Mac-specific instructions. Check theseURL for more info:
+                """Mac-specific instructions. Check these URLs for more info:
                 - CF* keys: https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
                 - LS* keys: https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/LaunchServicesKeys.html
                 - entitlements: list those which should be true for the shortcut signing
                   See https://developer.apple.com/documentation/bundleresources/entitlements.
-                  
+
                 You can also override global keys here if needed.
                 """
 
@@ -177,6 +184,8 @@ class MenuInstSchema(BaseModel):
                 LSMinimumSystemVersion: Optional[constr(regex=r"^\d+\.\d+\.\d+$")] = None
                 LSMultipleInstancesProhibited: Optional[bool] = None
                 entitlements: Optional[List[constr(regex=r"[a-z0-9\.\-]+")]] = None
+                # Do not allow abs paths or `../` paths
+                link_in_bundle: Optional[Dict[constr(min_length=1), constr(regex=r"^(?!\/)(?!\.\./).*")]] = None
 
             win: Optional[Windows]
             linux: Optional[Linux]

@@ -43,7 +43,9 @@ class MacOSMenu(Menu):
 class MacOSMenuItem(MenuItem):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        name = f"{self.render('name')}.app"
+        # The weird extra arg is to avoid circular dependencies
+        # with self.location replacement
+        name = f"{self.render_key('name', extra={'':''})}.app"
         self.location = self._base_location() / "Applications" / name
 
     def _base_location(self):
@@ -51,12 +53,23 @@ class MacOSMenuItem(MenuItem):
             return Path("~").expanduser()
         return Path("/")
 
+    def _precreate(self):
+        super()._precreate()
+        for src, dest in (self.metadata["link_in_bundle"] or {}).items():
+            rendered_dest = os.path.abspath(os.path.join(self.location, self.render(dest)))
+            if not rendered_dest.startswith(self.location):
+                raise ValueError(
+                    "'link_in_bundle' destinations MUST be created "
+                    f"inside the .app bundle ({self.location})."
+                )
+            os.symlink(self.render(src), rendered_dest)
+
     def create(self) -> Tuple[Path]:
         log.debug("Creating %s", self.location)
         self._create_application_tree()
-        icon = self.render("icon")
+        icon = self.render_key("icon")
         if icon:
-            shutil.copy(self.render("icon"), self.location / "Contents" / "Resources")
+            shutil.copy(self.render_key("icon"), self.location / "Contents" / "Resources")
         self._write_pkginfo()
         self._write_plistinfo()
         self._write_launcher()
@@ -80,11 +93,11 @@ class MacOSMenuItem(MenuItem):
 
     def _write_pkginfo(self):
         with open(self.location / "Contents" / "PkgInfo", "w") as f:
-            f.write(f"APPL{self.render('name', slug=True)[:8]}")
+            f.write(f"APPL{self.render_key('name', slug=True)[:8]}")
 
     def _write_plistinfo(self):
-        name = self.render("name")
-        slugname = self.render("name", slug=True)
+        name = self.render_key("name")
+        slugname = self.render_key("name", slug=True)
         pl = {
             "CFBundleName": name,
             "CFBundleDisplayName": name,
@@ -101,7 +114,7 @@ class MacOSMenuItem(MenuItem):
         for key in menuitem_defaults["platforms"]["osx"]:
             if key in ignore_keys:
                 continue
-            value = self.render(key)
+            value = self.render_key(key)
             if value is None:
                 continue
             if key == "CFBundleVersion":
@@ -110,7 +123,7 @@ class MacOSMenuItem(MenuItem):
                 pl["CFBundleGetInfoString"] = f"{slugname}-{value}"
             pl[key] = value
 
-        icon = self.render("icon")
+        icon = self.render_key("icon")
         if icon:
             pl["CFBundleIconFile"] = Path(icon).name
 
@@ -119,7 +132,7 @@ class MacOSMenuItem(MenuItem):
 
     def _command(self):
         lines = ["#!/bin/sh"]
-        if self.render("terminal"):
+        if self.render_key("terminal"):
             # FIXME: Terminal launching will miss the arguments;
             # there's no easy way to pass them!
             lines.extend(
@@ -131,12 +144,12 @@ class MacOSMenuItem(MenuItem):
                 ]
             )
 
-        working_dir = self.render("working_dir")
+        working_dir = self.render_key("working_dir")
         if working_dir:
             Path(working_dir).mkdir(parents=True, exist_ok=True)
             lines.append(f'cd "{working_dir}"')
 
-        precommand = self.render("precommand")
+        precommand = self.render_key("precommand")
         if precommand:
             lines.append(precommand)
 
@@ -148,7 +161,7 @@ class MacOSMenuItem(MenuItem):
                 activate = "shell.bash activate"
             lines.append(f'eval "$("{conda_exe}" {activate} "{self.menu.prefix}")"')
 
-        lines.append(" ".join(UnixLex.quote_args(self.render("command"))))
+        lines.append(" ".join(UnixLex.quote_args(self.render_key("command"))))
 
         return "\n".join(lines)
 
@@ -179,15 +192,15 @@ class MacOSMenuItem(MenuItem):
         raise ValueError(f"Could not find executable launcher for {platform.machine()}")
 
     def _default_launcher_path(self, suffix=""):
-        name = self.render("name", slug=True)
+        name = self.render_key("name", slug=True)
         return self.location / "Contents" / "MacOS" / f'{name}{suffix}'
 
     def _sign_with_entitlements(self):
         "Self-sign shortcut to apply required entitlements"
-        entitlement_keys = self.render("entitlements")
+        entitlement_keys = self.render_key("entitlements")
         if not entitlement_keys:
             return
-        slugname = self.render("name", slug=True)
+        slugname = self.render_key("name", slug=True)
         plist = {key: True for key in entitlement_keys}
         entitlements_path = self.location / "Contents" / "Entitlements.plist"
         with open(entitlements_path, "wb") as f:

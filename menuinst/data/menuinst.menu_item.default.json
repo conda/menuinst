@@ -3,6 +3,7 @@
   "description": "",
   "icon": null,
   "precommand": null,
+  "precreate": null,
   "command": [
     "replace",
     "this"
@@ -28,7 +29,8 @@
       "LSEnvironment": null,
       "LSMinimumSystemVersion": null,
       "LSMultipleInstancesProhibited": null,
-      "entitlements": null
+      "entitlements": null,
+      "link_in_bundle": null
     },
     "linux": {
       "Categories": null,

@@ -2,11 +2,12 @@
 """
 import os
 import sys
-from typing import Union, List, Iterable, Literal
+from typing import Union, List, Iterable, Literal, Dict
 from pathlib import Path
-from subprocess import check_output
+from subprocess import check_output, run
 from logging import getLogger
 from copy import deepcopy
+from tempfile import NamedTemporaryFile
 import json
 
 from ..utils import slugify, data_path, deep_update, DEFAULT_PREFIX, DEFAULT_BASE_PREFIX
@@ -36,10 +37,14 @@ class Menu:
     def remove(self) -> List[Path]:
         raise NotImplementedError
 
-    def render(self, value: Union[str, None], slug: bool = False):
+    def render(self, value: Union[str, None], slug: bool = False, extra: Dict = None):
         if not hasattr(value, "replace"):
             return value
-        for placeholder, replacement in self.placeholders.items():
+        if extra:
+            placeholders = {**self.placeholders, **extra}
+        else:
+            placeholders = self.placeholders
+        for placeholder, replacement in placeholders.items():
             value = value.replace("{{ " + placeholder + " }}", replacement)
         if slug:
             value = slugify(value)
@@ -47,6 +52,12 @@ class Menu:
 
     @property
     def placeholders(self):
+        """
+        Additional placeholders added at runtime:
+        - MENU_ITEM_LOCATION -> *MenuItem().location
+
+        Subclasses may extend this dictionary!
+        """
         return {
             "BASE_PREFIX": str(self.base_prefix),
             "DISTRIBUTION_NAME": self.base_prefix.name,
@@ -123,18 +134,45 @@ class MenuItem:
     def remove(self) -> List[Path]:
         raise NotImplementedError
 
-    def render(self, key: str, slug=False):
+    def render_key(self, key: str, slug=False, extra=None):
         value = self.metadata.get(key)
+        return self.render(value, slug=slug, extra=extra)
+
+    def render(self, value, slug=False, extra=None):
         if value in (None, True, False):
             return value
+        kwargs = {
+            "slug": slug,
+            "extra": (extra or {"MENU_ITEM_LOCATION": str(self.location)}),
+        }
         if isinstance(value, str):
-            return self.menu.render(value, slug=slug)
+            return self.menu.render(value, **kwargs)
         if hasattr(value, "items"):
             return {
-                key: self.menu.render(val, slug=slug)
-                for key, val in value.items()
+                key: self.menu.render(value, **kwargs)
+                for key, value in value.items()
             }
-        return [self.menu.render(item, slug=slug) for item in value]
+        return [self.menu.render(item, **kwargs) for item in value]
+
+    def _precreate(self):
+        """
+        Logic to run before the shortcut files are created.
+        """
+        if os.name == "nt":
+            raise NotImplementedError
+
+        precreate_code = self.render_key("precreate")
+        if not precreate_code:
+            return
+        with NamedTemporaryFile(delete=False, mode="w") as tmp:
+            tmp.write(precreate_code)
+        if precreate_code.startswith("#!"):
+            os.chmod(tmp.name, 0o755)
+            cmd = [tmp.name]
+        else:
+            cmd = ["bash", tmp.name]
+        run(cmd, check=True)
+        os.unlink(tmp.name)
 
     def _paths(self) -> Iterable[Union[str, os.PathLike]]:
         """

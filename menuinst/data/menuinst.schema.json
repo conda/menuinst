@@ -68,6 +68,13 @@
         "precommand": {
           "title": "Precommand",
           "description": "(Simple, preferrably single-line) logic to run before the command is run. Runs before the env is activated, if that applies.",
+          "minLength": 1,
+          "type": "string"
+        },
+        "precreate": {
+          "title": "Precreate",
+          "description": "(Simple, preferrably single-line) logic to run before the shortcut is created.",
+          "minLength": 1,
           "type": "string"
         },
         "command": {
@@ -92,7 +99,7 @@
         },
         "terminal": {
           "title": "Terminal",
-          "description": "Whether run the program in a terminal/console or not. On Windows, it only has an effect if activate is true. On MacOS, arguments are ignored.",
+          "description": "Whether run the program in a terminal/console or not. On Windows, it only has an effect if activate is true. ",
           "type": "boolean"
         },
         "desktop": {
@@ -135,6 +142,13 @@
         "precommand": {
           "title": "Precommand",
           "description": "(Simple, preferrably single-line) logic to run before the command is run. Runs before the env is activated, if that applies.",
+          "minLength": 1,
+          "type": "string"
+        },
+        "precreate": {
+          "title": "Precreate",
+          "description": "(Simple, preferrably single-line) logic to run before the shortcut is created.",
+          "minLength": 1,
           "type": "string"
         },
         "command": {
@@ -159,7 +173,7 @@
         },
         "terminal": {
           "title": "Terminal",
-          "description": "Whether run the program in a terminal/console or not. On Windows, it only has an effect if activate is true. On MacOS, arguments are ignored.",
+          "description": "Whether run the program in a terminal/console or not. On Windows, it only has an effect if activate is true. ",
           "type": "boolean"
         },
         "Categories": {
@@ -401,7 +415,7 @@
     },
     "MacOS": {
       "title": "MacOS",
-      "description": "Mac-specific instructions. Check theseURL for more info:\n- CF* keys: https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html\n- LS* keys: https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/LaunchServicesKeys.html\n- entitlements: list those which should be true for the shortcut signing\n  See https://developer.apple.com/documentation/bundleresources/entitlements.\n  \nYou can also override global keys here if needed.",
+      "description": "Mac-specific instructions. Check these URLs for more info:\n- CF* keys: https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html\n- LS* keys: https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/LaunchServicesKeys.html\n- entitlements: list those which should be true for the shortcut signing\n  See https://developer.apple.com/documentation/bundleresources/entitlements.\n  \nYou can also override global keys here if needed.",
       "type": "object",
       "properties": {
         "name": {
@@ -424,6 +438,13 @@
         "precommand": {
           "title": "Precommand",
           "description": "(Simple, preferrably single-line) logic to run before the command is run. Runs before the env is activated, if that applies.",
+          "minLength": 1,
+          "type": "string"
+        },
+        "precreate": {
+          "title": "Precreate",
+          "description": "(Simple, preferrably single-line) logic to run before the shortcut is created.",
+          "minLength": 1,
           "type": "string"
         },
         "command": {
@@ -448,7 +469,7 @@
         },
         "terminal": {
           "title": "Terminal",
-          "description": "Whether run the program in a terminal/console or not. On Windows, it only has an effect if activate is true. On MacOS, arguments are ignored.",
+          "description": "Whether run the program in a terminal/console or not. On Windows, it only has an effect if activate is true. ",
           "type": "boolean"
         },
         "CFBundleDisplayName": {
@@ -510,6 +531,14 @@
             "type": "string",
             "pattern": "[a-z0-9\\.\\-]+"
           }
+        },
+        "link_in_bundle": {
+          "title": "Link In Bundle",
+          "type": "object",
+          "additionalProperties": {
+            "type": "string",
+            "pattern": "^(?!\\/)(?!\\.\\./).*"
+          }
         }
       },
       "additionalProperties": false
@@ -556,6 +585,12 @@
         "precommand": {
           "title": "Precommand",
           "description": "(Simple, preferrably single-line) logic to run before the command is run. Runs before the env is activated, if that applies.",
+          "minLength": 1,
+          "type": "string"
+        },
+        "precreate": {
+          "title": "Precreate",
+          "description": "(Simple, preferrably single-line) logic to run before the shortcut is created.",
           "minLength": 1,
           "type": "string"
         },
