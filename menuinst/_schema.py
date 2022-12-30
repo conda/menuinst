@@ -63,7 +63,7 @@ class OptionalMenuItemMetadata(MenuItemMetadata):
     Same as MenuItemMetadata, but all is optional.
 
     Note:
-    * This needs to be kept up-to-date!
+    * This needs to be kept up-to-date with MenuItemMetadata!
     * Default value is always None.
     """
 
@@ -133,20 +133,62 @@ class MenuInstSchema(BaseModel):
                 https://specifications.freedesktop.org/desktop-entry-spec/desktop-entry-spec-latest.html#recognized-keys
                 for more information. You can override global keys here if needed"""
 
-                Categories: Optional[Union[List[str], constr(regex="^.+;$")]] = None
-                DBusActivatable: Optional[bool] = None
-                GenericName: Optional[str] = None
-                Hidden: Optional[bool] = None
-                Implements: Optional[Union[List[str], constr(regex="^.+;$")]] = None
-                Keywords: Optional[Union[List[str], constr(regex="^.+;$")]] = None
-                MimeType: Optional[Union[List[str], constr(regex="^.+;$")]] = None
-                NoDisplay: Optional[bool] = None
-                NotShowIn: Optional[Union[List[str], constr(regex="^.+;$")]] = None
-                OnlyShowIn: Optional[Union[List[str], constr(regex="^.+;$")]] = None
-                PrefersNonDefaultGPU: Optional[bool] = None
-                StartupNotify: Optional[bool] = None
-                StartupWMClass: Optional[str] = None
-                TryExec: Optional[str] = None
+                Categories: Optional[Union[List[str], constr(regex="^.+;$")]] = Field(
+                    None,
+                    description="",
+                )
+                DBusActivatable: Optional[bool] = Field(
+                    None,
+                    description="",
+                )
+                GenericName: Optional[str] = Field(
+                    None,
+                    description="",
+                )
+                Hidden: Optional[bool] = Field(
+                    None,
+                    description="",
+                )
+                Implements: Optional[Union[List[str], constr(regex="^.+;$")]] = Field(
+                    None,
+                    description="",
+                )
+                Keywords: Optional[Union[List[str], constr(regex="^.+;$")]] = Field(
+                    None,
+                    description="",
+                )
+                MimeType: Optional[Union[List[str], constr(regex="^.+;$")]] = Field(
+                    None,
+                    description="",
+                )
+                NoDisplay: Optional[bool] = Field(
+                    None,
+                    description="",
+                )
+                NotShowIn: Optional[Union[List[str], constr(regex="^.+;$")]] = Field(
+                    None,
+                    description="",
+                )
+                OnlyShowIn: Optional[Union[List[str], constr(regex="^.+;$")]] = Field(
+                    None,
+                    description="",
+                )
+                PrefersNonDefaultGPU: Optional[bool] = Field(
+                    None,
+                    description="",
+                )
+                StartupNotify: Optional[bool] = Field(
+                    None,
+                    description="",
+                )
+                StartupWMClass: Optional[str] = Field(
+                    None,
+                    description="",
+                )
+                TryExec: Optional[str] = Field(
+                    None,
+                    description="",
+                )
 
             class MacOS(OptionalMenuItemMetadata):
                 """Mac-specific instructions. Check these URLs for more info:
@@ -159,10 +201,22 @@ class MenuInstSchema(BaseModel):
                 """
 
                 class _CFBundleURLTypes(BaseModel):
-                    CFBundleTypeRole: str
-                    CFBundleURLSchemes: List[str]
-                    CFBundleURLName: Optional[str] = None
-                    CFBundleURLIconFile: Optional[str] = None
+                    CFBundleTypeRole: str = Field(
+                        ...,
+                        description="",
+                    )
+                    CFBundleURLSchemes: List[str] = Field(
+                        ...,
+                        description="",
+                    )
+                    CFBundleURLName: Optional[str] = Field(
+                        None,
+                        description="",
+                    )
+                    CFBundleURLIconFile: Optional[str] = Field(
+                        None,
+                        description="",
+                    )
 
                 class _CFBundleDocumentTypes(BaseModel):
                     CFBundleTypeIconFile: constr(regex=r"^.+\.icns$")
@@ -171,21 +225,62 @@ class MenuInstSchema(BaseModel):
                     LSItemContentTypes: List[str]
                     LSHandlerRank: Union[Literal["Owner"], Literal["Default"], Literal["Alternate"]]
 
-                CFBundleDisplayName: Optional[str] = None
-                CFBundleIdentifier: Optional[str] = None
-                CFBundleName: Optional[str] = None
-                CFBundleSpokenName: Optional[str] = None
-                CFBundleVersion: Optional[constr(regex=r"^\S+$")] = None
-                CFBundleURLTypes: Optional[_CFBundleURLTypes] = None
-                CFBundleDocumentTypes: Optional[_CFBundleDocumentTypes] = None
+                CFBundleDisplayName: Optional[str] = Field(
+                    None,
+                    description="",
+                )
+                CFBundleIdentifier: Optional[str] = Field(
+                    None,
+                    description="",
+                )
+                CFBundleName: Optional[str] = Field(
+                    None,
+                    description="",
+                )
+                CFBundleSpokenName: Optional[str] = Field(
+                    None,
+                    description="",
+                )
+                CFBundleVersion: Optional[constr(regex=r"^\S+$")] = Field(
+                    None,
+                    description="",
+                )
+                CFBundleURLTypes: Optional[_CFBundleURLTypes] = Field(
+                    None,
+                    description="",
+                )
+                CFBundleDocumentTypes: Optional[_CFBundleDocumentTypes] = Field(
+                    None,
+                    description="",
+                )
                 LSApplicationCategoryType: Optional[constr(regex=r"^public\.app-category\.\S+$")]
-                LSBackgroundOnly: Optional[bool] = None
-                LSEnvironment: Optional[Dict[str, str]] = None
-                LSMinimumSystemVersion: Optional[constr(regex=r"^\d+\.\d+\.\d+$")] = None
-                LSMultipleInstancesProhibited: Optional[bool] = None
-                entitlements: Optional[List[constr(regex=r"[a-z0-9\.\-]+")]] = None
-                # Do not allow abs paths or `../` paths
-                link_in_bundle: Optional[Dict[constr(min_length=1), constr(regex=r"^(?!\/)(?!\.\./).*")]] = None
+                LSBackgroundOnly: Optional[bool] = Field(
+                    None,
+                    description="",
+                )
+                LSEnvironment: Optional[Dict[str, str]] = Field(
+                    None,
+                    description="",
+                )
+                LSMinimumSystemVersion: Optional[constr(regex=r"^\d+\.\d+\.\d+$")] = Field(
+                    None,
+                    description="",
+                )
+                LSMultipleInstancesProhibited: Optional[bool] = Field(
+                    None,
+                    description="",
+                )
+                entitlements: Optional[List[constr(regex=r"[a-z0-9\.\-]+")]] = Field(
+                    None,
+                    description="List of entitlements to request during code signing. "
+                    "See XXX for a full list of possible values.",
+                )
+                link_in_bundle: Optional[Dict[constr(min_length=1), constr(regex=r"^(?!\/)(?!\.\./).*")]] = Field(
+                    None,
+                    description="Paths that should be symlinked into the shortcut app bundle. "
+                    "It takes a mapping of source to destination paths. Destination paths must be "
+                    "relative. Placeholder `{{ MENU_ITEM_LOCATION }}` can be useful.",
+                )
 
             win: Optional[Windows]
             linux: Optional[Linux]

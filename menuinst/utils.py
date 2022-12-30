@@ -1,4 +1,3 @@
-import logging
 import os
 import re
 import shlex
@@ -11,13 +10,14 @@ from functools import wraps
 from logging import getLogger
 from pathlib import Path
 from unicodedata import normalize
-from typing import Union, Literal
+from typing import Union, Literal, Optional, Sequence, Iterable, Mapping, Callable
 
 
 logger = getLogger(__name__)
+_TargetOrBase = Union[Literal["target"], Literal["base"]]
 
 
-def _default_prefix(which: Union[Literal["target"], Literal["base"]] = "target"):
+def _default_prefix(which: _TargetOrBase = "target"):
     """
     The prefixes in menuinst need to be handled with care.
 
@@ -69,7 +69,7 @@ DEFAULT_PREFIX = _default_prefix("target")
 DEFAULT_BASE_PREFIX = _default_prefix("base")
 
 
-def slugify(text):
+def slugify(text: str):
     # Adapted from from django.utils.text.slugify
     # Copyright (c) Django Software Foundation and individual contributors.
     # All rights reserved.
@@ -123,7 +123,7 @@ def indent_xml_tree(elem, level=0):
             elem.tail = base_indentation
 
 
-def add_xml_child(parent, tag, text=None):
+def add_xml_child(parent: XMLTree.Element, tag: str, text: Optional[str] = None):
     """
     Add a child element of specified tag type to parent.
     The new child element is returned.
@@ -136,7 +136,7 @@ def add_xml_child(parent, tag, text=None):
 
 class WinLex:
     @classmethod
-    def quote_args(cls, args):
+    def quote_args(cls, args: Sequence[str]):
         # cmd.exe /K or /C expects a single string argument and requires
         # doubled-up quotes when any sub-arguments have spaces:
         # https://stackoverflow.com/a/6378038/3257826
@@ -156,7 +156,7 @@ class WinLex:
         return args
 
     @classmethod
-    def quote_string(cls, s):
+    def quote_string(cls, s: Sequence[str]):
         """
         quotes a string if necessary.
         """
@@ -170,7 +170,7 @@ class WinLex:
         return s
 
     @classmethod
-    def ensure_pad(cls, name, pad="_"):
+    def ensure_pad(cls, name: str, pad: str ="_"):
         """
 
         Examples:
@@ -186,18 +186,18 @@ class WinLex:
 
 class UnixLex:
     @classmethod
-    def quote_args(cls, args):
+    def quote_args(cls, args: Sequence[str]) -> Sequence[str]:
         return [cls.quote_string(a) for a in args]
 
     @classmethod
-    def quote_string(cls, s):
+    def quote_string(cls, s: str) -> str:
         quoted = shlex.quote(s)
         if quoted.startswith("'") and not '"' in quoted:
             quoted = f'"{quoted[1:-1]}"'
         return quoted
 
 
-def unlink(path, missing_ok=False):
+def unlink(path: os.PathLike, missing_ok: bool = False):
     try:
         os.unlink(path)
     except FileNotFoundError as exc:
@@ -205,12 +205,12 @@ def unlink(path, missing_ok=False):
             raise exc
 
 
-def data_path(path):
+def data_path(path: os.PathLike) -> Path:
     here = Path(__file__).parent
     return here / "data" / path
 
 
-def deep_update(mapping, *updating_mappings):
+def deep_update(mapping: Mapping, *updating_mappings: Iterable[Mapping]) -> Mapping:
     # Brought from pydantic.utils
     # https://github.com/samuelcolvin/pydantic/blob/9d631a3429a66f30742c1a52c94ac18ec6ba848d/pydantic/utils.py#L198
 
@@ -242,7 +242,7 @@ def deep_update(mapping, *updating_mappings):
     return updated_mapping
 
 
-def user_is_admin():
+def user_is_admin() -> bool:
     if os.name == 'nt':
         from .platforms.win_utils.win_elevate import isUserAdmin 
 
@@ -254,7 +254,7 @@ def user_is_admin():
         raise RuntimeError(f"Unsupported operating system: {os.name}")
 
 
-def run_as_admin(argv) -> int:
+def run_as_admin(argv: Sequence[str]) -> int:
     """
     Rerun this command in a new process with admin permissions.
     """
@@ -268,7 +268,7 @@ def run_as_admin(argv) -> int:
         raise RuntimeError(f"Unsupported operating system: {os.name}")
 
 
-def python_executable(base_prefix=None):
+def python_executable(base_prefix: Optional[os.PathLike] = None) -> Sequence[str]:
     base_prefix = Path(base_prefix or DEFAULT_BASE_PREFIX)
     # menuinst might be called by a conda-standalone bundle
     # these are pyinstaller-generated, and have sys.frozen=True
@@ -291,7 +291,7 @@ def python_executable(base_prefix=None):
     return (sys.executable, )
 
 
-def elevate_as_needed(func):
+def elevate_as_needed(func: Callable) -> Callable:
     """
     Multiplatform decorator to run a function as a superuser, if needed.
 
@@ -373,7 +373,7 @@ def elevate_as_needed(func):
     return wrapper_elevate
 
 
-def _test(base_prefix=None, _mode="user"):
+def _test(base_prefix: Optional[os.PathLike] = None, _mode: str = "user"):
     if os.name == "nt":
         out = open("output.txt", "a")
     else:

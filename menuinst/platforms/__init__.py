@@ -1,7 +1,10 @@
 import sys
+from typing import Tuple
+
+from .base import Menu as BaseMenu, MenuItem as BaseMenuItem
 
 
-def menu_api_for_platform(platform=sys.platform):
+def menu_api_for_platform(platform: str = sys.platform) -> Tuple[BaseMenu, BaseMenuItem]:
     if platform == "win32":
         from .win import WindowsMenu as Menu, WindowsMenuItem as MenuItem
 

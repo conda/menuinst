@@ -2,7 +2,7 @@
 """
 import os
 import sys
-from typing import Union, List, Iterable, Literal, Dict
+from typing import Union, List, Iterable, Literal, Dict, Any, Optional, Mapping
 from pathlib import Path
 from subprocess import check_output, run
 from logging import getLogger
@@ -37,7 +37,7 @@ class Menu:
     def remove(self) -> List[Path]:
         raise NotImplementedError
 
-    def render(self, value: Union[str, None], slug: bool = False, extra: Dict = None):
+    def render(self, value: Any, slug: bool = False, extra: Dict = None) -> Any:
         if not hasattr(value, "replace"):
             return value
         if extra:
@@ -51,7 +51,7 @@ class Menu:
         return value
 
     @property
-    def placeholders(self):
+    def placeholders(self) -> Dict[str, str]:
         """
         Additional placeholders added at runtime:
         - MENU_ITEM_LOCATION -> *MenuItem().location
@@ -72,7 +72,7 @@ class Menu:
             "ICON_EXT": "png",
         }
 
-    def _conda_exe_path_candidates(self):
+    def _conda_exe_path_candidates(self) -> Dict[str, str]:
         return (
             self.base_prefix / "_conda.exe",
             self.base_prefix / "conda.exe",
@@ -85,7 +85,7 @@ class Menu:
         )
 
     @property
-    def conda_exe(self):
+    def conda_exe(self) -> Path:
         if sys.executable.endswith("conda.exe"):
             # This is the case with `constructor` calls
             return Path(sys.executable)
@@ -96,7 +96,7 @@ class Menu:
 
         return Path("conda")
 
-    def _is_micromamba(self, exe: Path):
+    def _is_micromamba(self, exe: Path) -> bool:
         if "micromamba" in exe.name:
             return True
         if exe.name in ("conda.exe", "_conda.exe"):
@@ -134,11 +134,11 @@ class MenuItem:
     def remove(self) -> List[Path]:
         raise NotImplementedError
 
-    def render_key(self, key: str, slug=False, extra=None):
+    def render_key(self, key: str, slug: bool = False, extra: Optional[Dict[str, str]] = None) -> Any:
         value = self.metadata.get(key)
         return self.render(value, slug=slug, extra=extra)
 
-    def render(self, value, slug=False, extra=None):
+    def render(self, value: Any, slug: bool = False, extra: Optional[Dict[str, str]] = None) -> Any:
         if value in (None, True, False):
             return value
         kwargs = {
@@ -174,7 +174,7 @@ class MenuItem:
         run(cmd, check=True)
         os.unlink(tmp.name)
 
-    def _paths(self) -> Iterable[Union[str, os.PathLike]]:
+    def _paths(self) -> Iterable[os.PathLike]:
         """
         This method should return the paths created by the item
         so they can be removed upon uninstallation
@@ -182,14 +182,14 @@ class MenuItem:
         raise NotImplementedError
 
     @staticmethod
-    def _initialize_on_defaults(data):
+    def _initialize_on_defaults(data) -> Dict:
         with open(data_path("menuinst.menu_item.default.json")) as f:
             defaults = json.load(f)
 
         return deep_update(defaults, data)
 
     @staticmethod
-    def _flatten_for_platform(data, platform=sys.platform):
+    def _flatten_for_platform(data: Mapping, platform: str = sys.platform) -> Mapping:
         """
         Merge platform keys with global keys, overwriting if needed.
         """
@@ -216,11 +216,11 @@ class MenuItem:
         ]
         return flattened
 
-    def enabled_for_platform(self, platform=sys.platform):
+    def enabled_for_platform(self, platform: str = sys.platform) -> bool:
         return self._data["platforms"].get(platform_key(platform)) is not None
 
 
-def platform_key(platform=sys.platform):
+def platform_key(platform: str = sys.platform) -> str:
     if platform == "win32":
         return "win"
     if platform == "darwin":

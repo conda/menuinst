@@ -4,6 +4,7 @@
 import os
 import sys
 import json
+from os import PathLike
 from logging import getLogger as _getLogger
 
 try:
@@ -19,10 +20,10 @@ from .utils import DEFAULT_PREFIX, DEFAULT_BASE_PREFIX
 _log = _getLogger(__name__)
 
 
-def install(path, remove=False, prefix=DEFAULT_PREFIX, **kwargs):
+def install(path: PathLike, remove: bool = False, prefix: PathLike = DEFAULT_PREFIX, **kwargs):
     """
-    This function is only here as a legacy adapter.
-    Please use menuinst.api functions instead.
+    This function is only here as a legacy adapter for menuinst v1.x.
+    Please use `menuinst.api` functions instead.
     """
     if sys.platform == "win32":
         path = path.replace("/", "\\")

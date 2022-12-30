@@ -415,7 +415,7 @@
     },
     "MacOS": {
       "title": "MacOS",
-      "description": "Mac-specific instructions. Check these URLs for more info:\n- CF* keys: https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html\n- LS* keys: https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/LaunchServicesKeys.html\n- entitlements: list those which should be true for the shortcut signing\n  See https://developer.apple.com/documentation/bundleresources/entitlements.\n  \nYou can also override global keys here if needed.",
+      "description": "Mac-specific instructions. Check these URLs for more info:\n- CF* keys: https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html\n- LS* keys: https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/LaunchServicesKeys.html\n- entitlements: list those which should be true for the shortcut signing\n  See https://developer.apple.com/documentation/bundleresources/entitlements.\n\nYou can also override global keys here if needed.",
       "type": "object",
       "properties": {
         "name": {
@@ -526,6 +526,7 @@
         },
         "entitlements": {
           "title": "Entitlements",
+          "description": "List of entitlements to request during code signing. See XXX for a full list of possible values.",
           "type": "array",
           "items": {
             "type": "string",
@@ -534,6 +535,7 @@
         },
         "link_in_bundle": {
           "title": "Link In Bundle",
+          "description": "Paths that should be symlinked into the shortcut app bundle. It takes a mapping of source to destination paths. Destination paths must be relative. Placeholder `{{ MENU_ITEM_LOCATION }}` can be useful.",
           "type": "object",
           "additionalProperties": {
             "type": "string",

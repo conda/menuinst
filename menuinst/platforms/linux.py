@@ -6,7 +6,7 @@ import shutil
 import xml.etree.ElementTree as XMLTree
 import time
 from logging import getLogger
-from typing import Union, Iterable
+from typing import Tuple, Iterable, Dict
 
 from .base import Menu, MenuItem, menuitem_defaults
 from ..utils import indent_xml_tree, add_xml_child, UnixLex, unlink
@@ -48,7 +48,7 @@ class LinuxMenu(Menu):
         )
         self.desktop_entries_location = self.data_directory / "applications"
 
-    def create(self):
+    def create(self) -> Tuple[os.PathLike]:
         self._ensure_directories_exist()
         path = self._write_directory_entry()
         if self._is_valid_menu_file() and self._has_this_menu():
@@ -57,7 +57,7 @@ class LinuxMenu(Menu):
         self._add_this_menu()
         return (path,)
 
-    def remove(self):
+    def remove(self) -> Tuple[os.PathLike]:
         unlink(self.directory_entry_location, missing_ok=True)
         for fn in os.listdir(self.desktop_entries_location):
             if fn.startswith(f"{self.render(self.name, slug=True)}_"):
@@ -67,7 +67,7 @@ class LinuxMenu(Menu):
         return (self.directory_entry_location,)
 
     @property
-    def placeholders(self):
+    def placeholders(self) -> Dict[str, str]:
         placeholders = super().placeholders
         placeholders["SP_DIR"] = str(self._site_packages())
         return placeholders
@@ -86,7 +86,7 @@ class LinuxMenu(Menu):
     # .directory stuff methods
     #
 
-    def _write_directory_entry(self):
+    def _write_directory_entry(self) -> str:
         lines = [
             "[Desktop Entry]",
             "Type=Directory",
@@ -112,7 +112,7 @@ class LinuxMenu(Menu):
                 root.remove(elt)
         self._write_menu_file(tree)
 
-    def _has_this_menu(self):
+    def _has_this_menu(self) -> bool:
         root = XMLTree.parse(self.menu_config_location).getroot()
         return any(e.text == self.name for e in root.findall("Menu/Name"))
 
@@ -127,14 +127,14 @@ class LinuxMenu(Menu):
         add_xml_child(inc_elt, "Category", self.name)
         self._write_menu_file(tree)
 
-    def _is_valid_menu_file(self):
+    def _is_valid_menu_file(self) -> bool:
         try:
             root = XMLTree.parse(self.menu_config_location).getroot()
             return root is not None and root.tag == "Menu"
         except Exception:
             return False
 
-    def _write_menu_file(self, tree):
+    def _write_menu_file(self, tree: XMLTree):
         log.debug("Writing %s", self.menu_config_location)
         indent_xml_tree(tree.getroot())  # inplace!
         with open(self.menu_config_location, "wb") as f:
@@ -169,7 +169,7 @@ class LinuxMenu(Menu):
                 f.write(f'<MergeFile type="parent">{self.system_menu_config_location}</MergeFile>')
             f.write("</Menu>\n")
 
-    def _paths(self):
+    def _paths(self) -> Tuple[str]:
         return (self.directory_entry_location,)
 
 
@@ -182,20 +182,20 @@ class LinuxMenuItem(MenuItem):
         filename = f"{menu_prefix}_{self.render_key('name', slug=True)}.desktop"
         self.location = self.menu.desktop_entries_location / filename
 
-    def create(self):
+    def create(self) -> Iterable[os.PathLike]:
         log.debug("Creating %s", self.location)
         self._pre_install()
         self._write_desktop_file()
         return self._paths()
 
-    def remove(self):
+    def remove(self) -> Iterable[os.PathLike]:
         paths = self._paths()
         for path in paths:
             log.debug("Removing %s", path)
             unlink(path, missing_ok=True)
         return paths
 
-    def _command(self):
+    def _command(self) -> str:
         parts = []
         precommand = self.render_key("precommand")
         if precommand:
@@ -249,5 +249,5 @@ class LinuxMenuItem(MenuItem):
             f.write("\n".join(lines))
             f.write("\n")
 
-    def _paths(self) -> Iterable[Union[str, os.PathLike]]:
+    def _paths(self) -> Iterable[os.PathLike]:
         return (self.location,)

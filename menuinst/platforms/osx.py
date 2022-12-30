@@ -3,12 +3,11 @@
 from logging import getLogger
 from pathlib import Path
 from subprocess import check_call
-from typing import Tuple
+from typing import Tuple, Optional, Dict
 import os
 import platform
 import plistlib
 import shutil
-import sys
 
 from .base import Menu, MenuItem, menuitem_defaults
 from ..utils import UnixLex
@@ -18,14 +17,14 @@ log = getLogger(__name__)
 
 
 class MacOSMenu(Menu):
-    def create(self):
+    def create(self) -> Tuple:
         return self._paths()
 
-    def remove(self):
+    def remove(self) -> Tuple:
         return self._paths()
 
     @property
-    def placeholders(self):
+    def placeholders(self) -> Dict[str, str]:
         placeholders = super().placeholders
         placeholders.update(
             {
@@ -36,7 +35,7 @@ class MacOSMenu(Menu):
         )
         return placeholders
 
-    def _paths(self):
+    def _paths(self) -> Tuple:
         return ()
 
 
@@ -48,7 +47,7 @@ class MacOSMenuItem(MenuItem):
         name = f"{self.render_key('name', extra={'':''})}.app"
         self.location = self._base_location() / "Applications" / name
 
-    def _base_location(self):
+    def _base_location(self) -> Path:
         if self.menu.mode == "user":
             return Path("~").expanduser()
         return Path("/")
@@ -82,14 +81,14 @@ class MacOSMenuItem(MenuItem):
         shutil.rmtree(self.location, ignore_errors=True)
         return (self.location,)
 
-    def _create_application_tree(self):
+    def _create_application_tree(self) -> Tuple[Path]:
         paths = [
             self.location / "Contents" / "Resources",
             self.location / "Contents" / "MacOS",
         ]
         for path in paths:
             path.mkdir(parents=True, exist_ok=False)
-        return paths
+        return tuple(paths)
 
     def _write_pkginfo(self):
         with open(self.location / "Contents" / "PkgInfo", "w") as f:
@@ -130,7 +129,7 @@ class MacOSMenuItem(MenuItem):
         with open(self.location / "Contents" / "Info.plist", "wb") as f:
             plistlib.dump(pl, f)
 
-    def _command(self):
+    def _command(self) -> str:
         lines = ["#!/bin/sh"]
         if self.render_key("terminal"):
             # FIXME: Terminal launching will miss the arguments;
@@ -165,14 +164,14 @@ class MacOSMenuItem(MenuItem):
 
         return "\n".join(lines)
 
-    def _write_launcher(self, launcher_path=None):
+    def _write_launcher(self, launcher_path: Optional[os.PathLike] = None) -> os.PathLike:
         if launcher_path is None:
             launcher_path = self._default_launcher_path()
         shutil.copy(self._find_launcher(), launcher_path)
         os.chmod(launcher_path, 0o755)
         return launcher_path
 
-    def _write_script(self, script_path=None):
+    def _write_script(self, script_path: Optional[os.PathLike] = None) -> os.PathLike:
         if script_path is None:
             script_path = self._default_launcher_path(suffix="-script")
         with open(script_path, "w") as f:
@@ -180,10 +179,10 @@ class MacOSMenuItem(MenuItem):
         os.chmod(script_path, 0o755)
         return script_path
 
-    def _paths(self):
+    def _paths(self) -> Tuple[os.PathLike]:
         return (self.location,)
 
-    def _find_launcher(self):
+    def _find_launcher(self) -> Path:
         launcher_name = f"osx_launcher_{platform.machine()}"
         for datapath in _menuinst_data.__path__:
             launcher_path = Path(datapath) / launcher_name
@@ -191,7 +190,7 @@ class MacOSMenuItem(MenuItem):
                 return launcher_path
         raise ValueError(f"Could not find executable launcher for {platform.machine()}")
 
-    def _default_launcher_path(self, suffix=""):
+    def _default_launcher_path(self, suffix: str = "") -> Path:
         name = self.render_key("name", slug=True)
         return self.location / "Contents" / "MacOS" / f'{name}{suffix}'
 

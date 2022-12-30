@@ -3,7 +3,7 @@
 
 from os import PathLike
 import sys
-from typing import Union, List, Tuple, Literal
+from typing import Union, List, Tuple, Literal, Optional, Callable, Any
 from pathlib import Path
 import warnings
 import json
@@ -25,8 +25,8 @@ __all__ = [
 
 def _load(
     metadata_or_path: Union[PathLike, dict],
-    target_prefix: PathLike = None,
-    base_prefix: PathLike = None,
+    target_prefix: Optional[PathLike] = None,
+    base_prefix: Optional[PathLike] = None,
     _mode: Union[Literal["user"], Literal["system"]] = "user",
 ) -> Tuple[Menu, List[MenuItem]]:
     target_prefix = target_prefix or DEFAULT_PREFIX
@@ -45,8 +45,8 @@ def _load(
 def install(
     metadata_or_path: Union[PathLike, dict],
     *,
-    target_prefix: PathLike = None,
-    base_prefix: PathLike = None,
+    target_prefix: Optional[PathLike] = None,
+    base_prefix: Optional[PathLike] = None,
     _mode: Union[Literal["user"], Literal["system"]] = "user",
 ) -> List[PathLike]:
     target_prefix = target_prefix or DEFAULT_PREFIX
@@ -68,8 +68,8 @@ def install(
 def remove(
     metadata_or_path: Union[PathLike, dict],
     *,
-    target_prefix: PathLike = None,
-    base_prefix: PathLike = None,
+    target_prefix: Optional[PathLike] = None,
+    base_prefix: Optional[PathLike] = None,
     _mode: Union[Literal["user"], Literal["system"]] = "user",
 ) -> List[PathLike]:
     target_prefix = target_prefix or DEFAULT_PREFIX
@@ -90,9 +90,9 @@ def remove(
 @elevate_as_needed
 def install_all(
     *,
-    target_prefix: PathLike = None,
-    base_prefix: PathLike = None,
-    filter: Union[callable, None] = None,
+    target_prefix: Optional[PathLike] = None,
+    base_prefix: Optional[PathLike] = None,
+    filter: Union[Callable, None] = None,
     _mode: Union[Literal["user"], Literal["system"]] = "user",
 ) -> List[List[PathLike]]:
     target_prefix = target_prefix or DEFAULT_PREFIX
@@ -103,9 +103,9 @@ def install_all(
 @elevate_as_needed
 def remove_all(
     *,
-    target_prefix: PathLike = None,
-    base_prefix: PathLike = None,
-    filter: Union[callable, None] = None,
+    target_prefix: Optional[PathLike] = None,
+    base_prefix: Optional[PathLike] = None,
+    filter: Union[Callable, None] = None,
     _mode: Union[Literal["user"], Literal["system"]] = "user",
 ) -> List[List[Union[str, PathLike]]]:
     target_prefix = target_prefix or DEFAULT_PREFIX
@@ -114,12 +114,12 @@ def remove_all(
 
 
 def _process_all(
-    function: callable,
-    target_prefix: PathLike = None,
-    base_prefix: PathLike = None,
-    filter: Union[callable, None] = None,
+    function: Callable,
+    target_prefix: Optional[PathLike] = None,
+    base_prefix: Optional[PathLike] = None,
+    filter: Union[Callable, None] = None,
     _mode: Union[Literal["user"], Literal["system"]] = "user",
-):
+) -> List[Any]:
     target_prefix = target_prefix or DEFAULT_PREFIX
     base_prefix = base_prefix or DEFAULT_BASE_PREFIX
     jsons = (Path(target_prefix) / "Menu").glob("*.json")
