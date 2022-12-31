@@ -50,7 +50,6 @@ class LinuxMenu(Menu):
 
     def create(self) -> Tuple[os.PathLike]:
         self._ensure_directories_exist()
-        self._precreate()
         path = self._write_directory_entry()
         if self._is_valid_menu_file() and self._has_this_menu():
             return (path,)
@@ -185,7 +184,7 @@ class LinuxMenuItem(MenuItem):
 
     def create(self) -> Iterable[os.PathLike]:
         log.debug("Creating %s", self.location)
-        self._pre_install()
+        self._precreate()
         self._write_desktop_file()
         return self._paths()
 
