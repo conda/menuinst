@@ -100,7 +100,8 @@ class OptionalMenuItemMetadata(MenuItemMetadata):
     terminal: Optional[bool] = Field(
         None,
         description="Whether run the program in a terminal/console or not. "
-        "On Windows, it only has an effect if activate is true. ",
+        "On Windows, it only has an effect if activate is true. "
+        "On MacOS, arguments are ignored.",
     )
 
 
