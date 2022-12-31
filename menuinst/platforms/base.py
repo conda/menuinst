@@ -140,7 +140,13 @@ class MenuItem:
 
     def remove(self) -> List[Path]:
         raise NotImplementedError
-
+    
+    @property
+    def placeholders(self) -> Dict[str, str]:
+        return {
+            "MENU_ITEM_LOCATION": str(self.location),
+        }
+    
     def render_key(self, key: str, slug: bool = False, extra: Optional[Dict[str, str]] = None) -> Any:
         value = self.metadata.get(key)
         return self.render(value, slug=slug, extra=extra)
@@ -150,7 +156,7 @@ class MenuItem:
             return value
         kwargs = {
             "slug": slug,
-            "extra": (extra or {"MENU_ITEM_LOCATION": str(self.location)}),
+            "extra": extra if extra is not None else self.placeholders,
         }
         if isinstance(value, str):
             return self.menu.render(value, **kwargs)

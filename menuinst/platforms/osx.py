@@ -44,7 +44,7 @@ class MacOSMenuItem(MenuItem):
     @property
     def location(self) -> Path:
         "Path to the .app directory defining the menu item"
-        name = f"{self.render_key('name', extra={'':''})}.app"
+        name = f"{self.render_key('name', extra={})}.app"
         return self._base_location() / "Applications" / name
 
     def _base_location(self) -> Path:
