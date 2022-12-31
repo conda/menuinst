@@ -50,6 +50,7 @@ class LinuxMenu(Menu):
 
     def create(self) -> Tuple[os.PathLike]:
         self._ensure_directories_exist()
+        self._precreate()
         path = self._write_directory_entry()
         if self._is_valid_menu_file() and self._has_this_menu():
             return (path,)

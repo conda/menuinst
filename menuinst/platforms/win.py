@@ -117,8 +117,9 @@ class WindowsMenuItem(MenuItem):
     def create(self) -> Tuple[Path, ...]:
         from .win_utils.winshortcut import create_shortcut
 
-        activate = self.metadata["activate"]
+        self._precreate()
 
+        activate = self.metadata["activate"]
         if activate:
             script = self._write_script()
         paths = self._paths()

@@ -56,17 +56,19 @@ class MacOSMenuItem(MenuItem):
     def _precreate(self):
         super()._precreate()
         for src, dest in (self.metadata["link_in_bundle"] or {}).items():
-            rendered_dest = os.path.abspath(os.path.join(self.location, self.render(dest)))
-            if not rendered_dest.startswith(self.location):
+            rendered_dest: Path = (self.location / self.render(dest)).resolve()
+            if not rendered_dest.is_relative_to(self.location):
                 raise ValueError(
                     "'link_in_bundle' destinations MUST be created "
-                    f"inside the .app bundle ({self.location})."
+                    f"inside the .app bundle ({self.location}), but it points to '{rendered_dest}."
                 )
+            rendered_dest.parent.mkdir(parents=True, exist_ok=True)
             os.symlink(self.render(src), rendered_dest)
 
     def create(self) -> Tuple[Path]:
         log.debug("Creating %s", self.location)
         self._create_application_tree()
+        self._precreate()
         icon = self.render_key("icon")
         if icon:
             shutil.copy(self.render_key("icon"), self.location / "Contents" / "Resources")
@@ -114,7 +116,7 @@ class MacOSMenuItem(MenuItem):
         }
 
         # Override defaults with (potentially) user provided values
-        ignore_keys = (*menuitem_defaults, "entitlements")
+        ignore_keys = (*menuitem_defaults, "entitlements", "link_in_bundle")
         for key in menuitem_defaults["platforms"]["osx"]:
             if key in ignore_keys:
                 continue

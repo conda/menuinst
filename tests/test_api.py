@@ -3,12 +3,15 @@ import os
 import plistlib
 import sys
 import subprocess
+from pathlib import Path
 from tempfile import NamedTemporaryFile
 from time import sleep, time
 
 import pytest
 
 from menuinst.api import install
+from menuinst.utils import DEFAULT_PREFIX
+
 from conftest import DATA, PLATFORM
 
 
@@ -25,7 +28,7 @@ def check_output_from_shortcut(delete_files, json_path, expected_output=None):
         delete_files.append(abs_json_path)
 
     paths = install(abs_json_path)
-    delete_files += list(paths)
+    # delete_files += list(paths)
 
     if PLATFORM == 'linux':
         desktop = next(p for p in paths if p.suffix == ".desktop")
@@ -40,7 +43,12 @@ def check_output_from_shortcut(delete_files, json_path, expected_output=None):
     elif PLATFORM == 'osx':
         app_location = paths[0]
         executable = next(p for p in (app_location / "Contents" / "MacOS").iterdir() if not p.name.endswith('-script'))
-        output = subprocess.check_output([str(executable)], universal_newlines=True)
+        process = subprocess.run([str(executable)], text=True, capture_output=True)
+        if process.returncode:
+            print(process.stdout, file=sys.stdout)
+            print(process.stderr, file=sys.stderr)
+            process.check_returncode()
+        output = process.stdout
     elif PLATFORM == 'win':
         lnk = next(p for p in paths if p.suffix == ".lnk")
         assert lnk.is_file()
@@ -126,3 +134,15 @@ def test_info_plist(delete_files):
         raise AssertionError("Didn't find file")
 
     assert plist["LSEnvironment"]["example_var"] == "example_value"
+
+
+@pytest.mark.skipif(PLATFORM != "osx", reason="macOS only")
+def test_osx_symlinks(delete_files):
+    paths, output = check_output_from_shortcut(
+        delete_files, 
+        "osx_symlinks.json",
+    )
+    app_dir = next(p for p in paths if p.name.endswith('.app'))
+    symlinked_python = app_dir / "Contents" / "Resources" / "python"
+    assert output.strip() == str(symlinked_python)
+    assert symlinked_python.resolve() == (Path(DEFAULT_PREFIX) / "bin" / "python").resolve()
