@@ -86,7 +86,7 @@ class WindowsMenu(Menu):
             self.base_prefix / "bin" / "micromamba.exe",
         )
 
-    def render(self, value: Any, slug: bool = False) -> Any:
+    def render(self, value: Any, slug: bool = False, extra: Optional[Dict[str, str]] = None) -> Any:
         """
         We extend the render method here to replace forward slashes with backslashes.
         We ONLY do it if the string does not start with /, because it might
@@ -99,7 +99,7 @@ class WindowsMenu(Menu):
         This is just a convenience for things like icon paths or Unix-like paths
         in the command key.
         """
-        value = super().render(value, slug=slug)
+        value = super().render(value, slug=slug, extra=extra)
         if hasattr(value, "replace") and "/" in value and value[0] != "/":
             value = value.replace("/", "\\")
         return value
