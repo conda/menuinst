@@ -10,7 +10,6 @@ import json
 
 from pydantic import BaseModel as _BaseModel, Field, constr, conlist
 
-
 log = getLogger(__name__)
 
 
@@ -136,59 +135,73 @@ class MenuInstSchema(BaseModel):
 
                 Categories: Optional[Union[List[str], constr(regex="^.+;$")]] = Field(
                     None,
-                    description="",
+                    description="Categories in which the entry should be shown in a menu. "
+                    "See 'Registered categories' in "
+                    "http://www.freedesktop.org/Standards/menu-spec.",
                 )
                 DBusActivatable: Optional[bool] = Field(
                     None,
-                    description="",
+                    description="A boolean value specifying if D-Bus activation "
+                    "is supported for this application.",
                 )
                 GenericName: Optional[str] = Field(
                     None,
-                    description="",
+                    description="Generic name of the application; e.g. if the name is 'conda', "
+                    "this would be 'Package Manager'.",
                 )
                 Hidden: Optional[bool] = Field(
                     None,
-                    description="",
+                    description="Disable shortcut, signaling a missing resource.",
                 )
                 Implements: Optional[Union[List[str], constr(regex="^.+;$")]] = Field(
                     None,
-                    description="",
+                    description="List of supported interfaces. See "
+                    "https://specifications.freedesktop.org/desktop-entry-spec/desktop-entry-spec-latest.html#interfaces",
                 )
                 Keywords: Optional[Union[List[str], constr(regex="^.+;$")]] = Field(
                     None,
-                    description="",
+                    description="Additional terms to describe this shortcut to aid in searching.",
                 )
                 MimeType: Optional[Union[List[str], constr(regex="^.+;$")]] = Field(
                     None,
-                    description="",
+                    description="The MIME type(s) supported by this application.",
                 )
                 NoDisplay: Optional[bool] = Field(
                     None,
-                    description="",
+                    description="Do not show this item in the menu. Useful to associate MIME types "
+                    "and other registrations, without having an actual clickable item. Not to be "
+                    "confused with 'Hidden'.",
                 )
                 NotShowIn: Optional[Union[List[str], constr(regex="^.+;$")]] = Field(
                     None,
-                    description="",
+                    description="Desktop environments that should NOT display this item. "
+                    "It'll check against $XDG_CURRENT_DESKTOP.",
                 )
                 OnlyShowIn: Optional[Union[List[str], constr(regex="^.+;$")]] = Field(
                     None,
-                    description="",
+                    description="Desktop environments that should display this item. "
+                    "It'll check against $XDG_CURRENT_DESKTOP.",
                 )
                 PrefersNonDefaultGPU: Optional[bool] = Field(
                     None,
-                    description="",
+                    description="Hint that the app prefers to be run on a more powerful discrete "
+                    "GPU if available",
                 )
                 StartupNotify: Optional[bool] = Field(
                     None,
-                    description="",
+                    description="Advanced. See "
+                    "https://www.freedesktop.org/wiki/Specifications/startup-notification-spec/",
                 )
                 StartupWMClass: Optional[str] = Field(
                     None,
-                    description="",
+                    description="Advanced. See "
+                    "https://www.freedesktop.org/wiki/Specifications/startup-notification-spec/",
                 )
                 TryExec: Optional[str] = Field(
                     None,
-                    description="",
+                    description="Filename or absolute path to an executable file on disk used to "
+                    "determine if the program is actually installed and can be run. If the test "
+                    "fails, the shortcut might be ignored / hidden.",
                 )
 
             class MacOS(OptionalMenuItemMetadata):
@@ -202,79 +215,116 @@ class MenuInstSchema(BaseModel):
                 """
 
                 class _CFBundleURLTypes(BaseModel):
-                    CFBundleTypeRole: str = Field(
+                    "Describes a URL scheme associated with the app."
+                    CFBundleTypeRole: Literal["Editor", "Viewer", "Shell", "None"] = Field(
                         ...,
-                        description="",
+                        description="This key specifies the app's role with respect to the URL."
                     )
                     CFBundleURLSchemes: List[str] = Field(
                         ...,
-                        description="",
+                        description="URL schemes / protocols handled by this type (e.g. 'mailto').",
                     )
                     CFBundleURLName: Optional[str] = Field(
                         None,
-                        description="",
+                        description="Abstract name for this URL type. Uniqueness recommended.",
                     )
                     CFBundleURLIconFile: Optional[str] = Field(
                         None,
-                        description="",
+                        description="Name of the icon image file (minus the .icns extension).",
                     )
 
                 class _CFBundleDocumentTypes(BaseModel):
-                    CFBundleTypeIconFile: constr(regex=r"^.+\.icns$")
-                    CFBundleTypeName: str
-                    CFBundleTypeRole: Union[Literal["Editor"], Literal["Viewer"], Literal["Shell"], Literal["None"]]
-                    LSItemContentTypes: List[str]
-                    LSHandlerRank: Union[Literal["Owner"], Literal["Default"], Literal["Alternate"]]
+                    "Describes a document type associated with the app."
+                    CFBundleTypeIconFile: Optional[str] = Field(
+                        None,
+                        description="Name of the icon image file (minus the .icns extension).",
+                    )
+                    CFBundleTypeName: str = Field(
+                        ...,
+                        description="Abstract name for this document type. Uniqueness recommended.",
+                    )
+                    CFBundleTypeRole: Literal["Editor", "Viewer", "Shell", "None"] = Field(
+                        ...,
+                        description="This key specifies the app's role with respect to the type."
+                    )
+                    LSItemContentTypes: List[str] = Field(
+                        ...,
+                        description="List of UTI strings defining a supported file type; e.g. for "
+                        "PNG files, use 'public.png'. Sync with 'NSExportableTypes' key with the "
+                        "appropriate entries"
+                    )
+                    LSHandlerRank: Literal["Owner", "Default", "Alternate"] = Field(
+                        ...,
+                        description="Determines how Launch Services ranks this app among the apps "
+                        "that declare themselves editors or viewers of files of this type."
+                    )
 
                 CFBundleDisplayName: Optional[str] = Field(
                     None,
-                    description="",
+                    description="Display name of the bundle, visible to users and used by Siri. If "
+                    "not provided, 'menuinst' will use the 'name' field.",
                 )
                 CFBundleIdentifier: Optional[str] = Field(
                     None,
                     description="",
                 )
-                CFBundleName: Optional[str] = Field(
+                CFBundleName: Optional[constr(max_length=16)] = Field(
                     None,
-                    description="",
+                    description="Short name of the bundle. Maybe used if 'CFBundleDisplayName' is "
+                    "absent. If not provided, 'menuinst' will generate one from the 'name' field.",
                 )
                 CFBundleSpokenName: Optional[str] = Field(
                     None,
-                    description="",
+                    description="Suitable replacement for text-to-speech operations on the app "
+                    "For example, 'my app one two three' instead of 'MyApp123'.",
                 )
                 CFBundleVersion: Optional[constr(regex=r"^\S+$")] = Field(
                     None,
-                    description="",
+                    description="Build version number for the bundle. In the context of 'menuinst' "
+                    "this can be used to signal a new version of the menu item for the same "
+                    "application version.",
                 )
-                CFBundleURLTypes: Optional[_CFBundleURLTypes] = Field(
+                CFBundleURLTypes: Optional[List[_CFBundleURLTypes]] = Field(
                     None,
-                    description="",
+                    description="URL types supported by this app.",
                 )
-                CFBundleDocumentTypes: Optional[_CFBundleDocumentTypes] = Field(
+                CFBundleDocumentTypes: Optional[List[_CFBundleDocumentTypes]] = Field(
                     None,
-                    description="",
+                    description="Document types supported by this app.",
                 )
-                LSApplicationCategoryType: Optional[constr(regex=r"^public\.app-category\.\S+$")]
+                LSApplicationCategoryType: Optional[constr(regex=r"^public\.app-category\.\S+$")] = Field(
+                    None,
+                    description="The App Store uses this string to determine the appropriate "
+                    "categorization for the app",
+                )
                 LSBackgroundOnly: Optional[bool] = Field(
                     None,
-                    description="",
+                    description="Specifies whether this app runs only in the background.",
                 )
                 LSEnvironment: Optional[Dict[str, str]] = Field(
                     None,
-                    description="",
+                    description="List of key-value pairs used to define environment variables.",
                 )
                 LSMinimumSystemVersion: Optional[constr(regex=r"^\d+\.\d+\.\d+$")] = Field(
                     None,
-                    description="",
+                    description="Minimum version of macOS required for this app to run, as x.y.z. "
+                    "For example, for macOS v10.4 and later, use '10.4.0'.",
                 )
                 LSMultipleInstancesProhibited: Optional[bool] = Field(
                     None,
-                    description="",
+                    description="Whether an app is prohibited from running simultaneously in "
+                    "multiple user sessions",
+                )
+                LSRequiresNativeExecution: Optional[bool] = Field(
+                    None,
+                    description="If true, prevent a universal binary from being run under Rosetta "
+                    "emulation on an Intel-based Mac",
                 )
                 entitlements: Optional[List[constr(regex=r"[a-z0-9\.\-]+")]] = Field(
                     None,
-                    description="List of entitlements to request during code signing. "
-                    "See XXX for a full list of possible values.",
+                    description="List of permissions to request for the launched application. "
+                    "See https://developer.apple.com/documentation/bundleresources/entitlements "
+                    "for a full list of possible values.",
                 )
                 link_in_bundle: Optional[Dict[constr(min_length=1), constr(regex=r"^(?!\/)(?!\.\./).*")]] = Field(
                     None,

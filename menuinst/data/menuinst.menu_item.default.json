@@ -29,6 +29,7 @@
       "LSEnvironment": null,
       "LSMinimumSystemVersion": null,
       "LSMultipleInstancesProhibited": null,
+      "LSRequiresNativeExecution": null,
       "entitlements": null,
       "link_in_bundle": null
     },

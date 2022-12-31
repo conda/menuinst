@@ -178,6 +178,7 @@
         },
         "Categories": {
           "title": "Categories",
+          "description": "Categories in which the entry should be shown in a menu. See 'Registered categories' in http://www.freedesktop.org/Standards/menu-spec.",
           "anyOf": [
             {
               "type": "array",
@@ -193,18 +194,22 @@
         },
         "DBusActivatable": {
           "title": "Dbusactivatable",
+          "description": "A boolean value specifying if D-Bus activation is supported for this application.",
           "type": "boolean"
         },
         "GenericName": {
           "title": "Genericname",
+          "description": "Generic name of the application; e.g. if the name is 'conda', this would be 'Package Manager'.",
           "type": "string"
         },
         "Hidden": {
           "title": "Hidden",
+          "description": "Disable shortcut, signaling a missing resource.",
           "type": "boolean"
         },
         "Implements": {
           "title": "Implements",
+          "description": "List of supported interfaces. See https://specifications.freedesktop.org/desktop-entry-spec/desktop-entry-spec-latest.html#interfaces",
           "anyOf": [
             {
               "type": "array",
@@ -220,6 +225,7 @@
         },
         "Keywords": {
           "title": "Keywords",
+          "description": "Additional terms to describe this shortcut to aid in searching.",
           "anyOf": [
             {
               "type": "array",
@@ -235,6 +241,7 @@
         },
         "MimeType": {
           "title": "Mimetype",
+          "description": "The MIME type(s) supported by this application.",
           "anyOf": [
             {
               "type": "array",
@@ -250,10 +257,12 @@
         },
         "NoDisplay": {
           "title": "Nodisplay",
+          "description": "Do not show this item in the menu. Useful to associate MIME types and other registrations, without having an actual clickable item. Not to be confused with 'Hidden'.",
           "type": "boolean"
         },
         "NotShowIn": {
           "title": "Notshowin",
+          "description": "Desktop environments that should NOT display this item. It'll check against $XDG_CURRENT_DESKTOP.",
           "anyOf": [
             {
               "type": "array",
@@ -269,6 +278,7 @@
         },
         "OnlyShowIn": {
           "title": "Onlyshowin",
+          "description": "Desktop environments that should display this item. It'll check against $XDG_CURRENT_DESKTOP.",
           "anyOf": [
             {
               "type": "array",
@@ -284,18 +294,22 @@
         },
         "PrefersNonDefaultGPU": {
           "title": "Prefersnondefaultgpu",
+          "description": "Hint that the app prefers to be run on a more powerful discrete GPU if available",
           "type": "boolean"
         },
         "StartupNotify": {
           "title": "Startupnotify",
+          "description": "Advanced. See https://www.freedesktop.org/wiki/Specifications/startup-notification-spec/",
           "type": "boolean"
         },
         "StartupWMClass": {
           "title": "Startupwmclass",
+          "description": "Advanced. See https://www.freedesktop.org/wiki/Specifications/startup-notification-spec/",
           "type": "string"
         },
         "TryExec": {
           "title": "Tryexec",
+          "description": "Filename or absolute path to an executable file on disk used to determine if the program is actually installed and can be run. If the test fails, the shortcut might be ignored / hidden.",
           "type": "string"
         }
       },
@@ -303,14 +317,23 @@
     },
     "_CFBundleURLTypes": {
       "title": "_CFBundleURLTypes",
+      "description": "Describes a URL scheme associated with the app.",
       "type": "object",
       "properties": {
         "CFBundleTypeRole": {
           "title": "Cfbundletyperole",
+          "description": "This key specifies the app's role with respect to the URL.",
+          "enum": [
+            "Editor",
+            "Viewer",
+            "Shell",
+            "None"
+          ],
           "type": "string"
         },
         "CFBundleURLSchemes": {
           "title": "Cfbundleurlschemes",
+          "description": "URL schemes / protocols handled by this type (e.g. 'mailto').",
           "type": "array",
           "items": {
             "type": "string"
@@ -318,10 +341,12 @@
         },
         "CFBundleURLName": {
           "title": "Cfbundleurlname",
+          "description": "Abstract name for this URL type. Uniqueness recommended.",
           "type": "string"
         },
         "CFBundleURLIconFile": {
           "title": "Cfbundleurliconfile",
+          "description": "Name of the icon image file (minus the .icns extension).",
           "type": "string"
         }
       },
@@ -333,48 +358,33 @@
     },
     "_CFBundleDocumentTypes": {
       "title": "_CFBundleDocumentTypes",
+      "description": "Describes a document type associated with the app.",
       "type": "object",
       "properties": {
         "CFBundleTypeIconFile": {
           "title": "Cfbundletypeiconfile",
-          "pattern": "^.+\\.icns$",
+          "description": "Name of the icon image file (minus the .icns extension).",
           "type": "string"
         },
         "CFBundleTypeName": {
           "title": "Cfbundletypename",
+          "description": "Abstract name for this document type. Uniqueness recommended.",
           "type": "string"
         },
         "CFBundleTypeRole": {
           "title": "Cfbundletyperole",
-          "anyOf": [
-            {
-              "enum": [
-                "Editor"
-              ],
-              "type": "string"
-            },
-            {
-              "enum": [
-                "Viewer"
-              ],
-              "type": "string"
-            },
-            {
-              "enum": [
-                "Shell"
-              ],
-              "type": "string"
-            },
-            {
-              "enum": [
-                "None"
-              ],
-              "type": "string"
-            }
-          ]
+          "description": "This key specifies the app's role with respect to the type.",
+          "enum": [
+            "Editor",
+            "Viewer",
+            "Shell",
+            "None"
+          ],
+          "type": "string"
         },
         "LSItemContentTypes": {
           "title": "Lsitemcontenttypes",
+          "description": "List of UTI strings defining a supported file type; e.g. for PNG files, use 'public.png'. Sync with 'NSExportableTypes' key with the appropriate entries",
           "type": "array",
           "items": {
             "type": "string"
@@ -382,30 +392,16 @@
         },
         "LSHandlerRank": {
           "title": "Lshandlerrank",
-          "anyOf": [
-            {
-              "enum": [
-                "Owner"
-              ],
-              "type": "string"
-            },
-            {
-              "enum": [
-                "Default"
-              ],
-              "type": "string"
-            },
-            {
-              "enum": [
-                "Alternate"
-              ],
-              "type": "string"
-            }
-          ]
+          "description": "Determines how Launch Services ranks this app among the apps that declare themselves editors or viewers of files of this type.",
+          "enum": [
+            "Owner",
+            "Default",
+            "Alternate"
+          ],
+          "type": "string"
         }
       },
       "required": [
-        "CFBundleTypeIconFile",
         "CFBundleTypeName",
         "CFBundleTypeRole",
         "LSItemContentTypes",
@@ -474,6 +470,7 @@
         },
         "CFBundleDisplayName": {
           "title": "Cfbundledisplayname",
+          "description": "Display name of the bundle, visible to users and used by Siri. If not provided, 'menuinst' will use the 'name' field.",
           "type": "string"
         },
         "CFBundleIdentifier": {
@@ -482,34 +479,51 @@
         },
         "CFBundleName": {
           "title": "Cfbundlename",
+          "description": "Short name of the bundle. Maybe used if 'CFBundleDisplayName' is absent. If not provided, 'menuinst' will generate one from the 'name' field.",
+          "maxLength": 16,
           "type": "string"
         },
         "CFBundleSpokenName": {
           "title": "Cfbundlespokenname",
+          "description": "Suitable replacement for text-to-speech operations on the app For example, 'my app one two three' instead of 'MyApp123'.",
           "type": "string"
         },
         "CFBundleVersion": {
           "title": "Cfbundleversion",
+          "description": "Build version number for the bundle. In the context of 'menuinst' this can be used to signal a new version of the menu item for the same application version.",
           "pattern": "^\\S+$",
           "type": "string"
         },
         "CFBundleURLTypes": {
-          "$ref": "#/definitions/_CFBundleURLTypes"
+          "title": "Cfbundleurltypes",
+          "description": "URL types supported by this app.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/_CFBundleURLTypes"
+          }
         },
         "CFBundleDocumentTypes": {
-          "$ref": "#/definitions/_CFBundleDocumentTypes"
+          "title": "Cfbundledocumenttypes",
+          "description": "Document types supported by this app.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/_CFBundleDocumentTypes"
+          }
         },
         "LSApplicationCategoryType": {
           "title": "Lsapplicationcategorytype",
+          "description": "The App Store uses this string to determine the appropriate categorization for the app",
           "pattern": "^public\\.app-category\\.\\S+$",
           "type": "string"
         },
         "LSBackgroundOnly": {
           "title": "Lsbackgroundonly",
+          "description": "Specifies whether this app runs only in the background.",
           "type": "boolean"
         },
         "LSEnvironment": {
           "title": "Lsenvironment",
+          "description": "List of key-value pairs used to define environment variables.",
           "type": "object",
           "additionalProperties": {
             "type": "string"
@@ -517,16 +531,23 @@
         },
         "LSMinimumSystemVersion": {
           "title": "Lsminimumsystemversion",
+          "description": "Minimum version of macOS required for this app to run, as x.y.z. For example, for macOS v10.4 and later, use '10.4.0'.",
           "pattern": "^\\d+\\.\\d+\\.\\d+$",
           "type": "string"
         },
         "LSMultipleInstancesProhibited": {
           "title": "Lsmultipleinstancesprohibited",
+          "description": "Whether an app is prohibited from running simultaneously in multiple user sessions",
+          "type": "boolean"
+        },
+        "LSRequiresNativeExecution": {
+          "title": "Lsrequiresnativeexecution",
+          "description": "If true, prevent a universal binary from being run under Rosetta emulation on an Intel-based Mac",
           "type": "boolean"
         },
         "entitlements": {
           "title": "Entitlements",
-          "description": "List of entitlements to request during code signing. See XXX for a full list of possible values.",
+          "description": "List of permissions to request for the launched application. See https://developer.apple.com/documentation/bundleresources/entitlements for a full list of possible values.",
           "type": "array",
           "items": {
             "type": "string",

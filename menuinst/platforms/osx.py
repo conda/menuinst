@@ -1,5 +1,6 @@
 """
 """
+from hashlib import sha1
 from logging import getLogger
 from pathlib import Path
 from subprocess import check_call
@@ -97,8 +98,12 @@ class MacOSMenuItem(MenuItem):
     def _write_plistinfo(self):
         name = self.render_key("name")
         slugname = self.render_key("name", slug=True)
+        if len(slugname) > 16:
+            shortname = slugname[:10] + sha1(slugname.encode()).hexdigest()[:6]
+        else:
+            shortname = slugname
         pl = {
-            "CFBundleName": name,
+            "CFBundleName": shortname,
             "CFBundleDisplayName": name,
             "CFBundleExecutable": slugname,
             "CFBundleGetInfoString": f"{slugname}-1.0.0",

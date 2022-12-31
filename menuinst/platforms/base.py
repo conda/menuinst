@@ -108,13 +108,15 @@ class Menu:
         """
         Locate the python site-packages location on unix systems
         """
+        if os.name == "nt":
+            raise NotImplementedError
         if prefix is None:
             prefix = self.prefix
         lib = Path(prefix) / "lib"
         lib_python = next((p for p in lib.glob("python*") if p.is_dir()), lib / "pythonN.A")
         return lib_python / "site-packages"
 
-    def _paths(self) -> Iterable[Union[str, os.PathLike]]:
+    def _paths(self) -> Iterable[os.PathLike]:
         """
         This method should return the paths created by the menu
         so they can be removed upon uninstallation
