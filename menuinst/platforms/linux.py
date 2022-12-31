@@ -175,13 +175,15 @@ class LinuxMenu(Menu):
 
 
 class LinuxMenuItem(MenuItem):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    @property
+    def location(self) -> Path:
         menu_prefix = self.render(self.menu.name, slug=True)
         # TODO: filename should conform to D-Bus well known name conventions
         # https://specifications.freedesktop.org/desktop-entry-spec/latest/ar01s02.html
-        filename = f"{menu_prefix}_{self.render_key('name', slug=True)}.desktop"
-        self.location = self.menu.desktop_entries_location / filename
+        filename = f"{menu_prefix}_{self.render_key('name', slug=True, extra={'':''})}.desktop"
+        # The weird extra arg ABOVE is to avoid circular dependencies
+        # with self.location replacement
+        return self.menu.desktop_entries_location / filename
 
     def create(self) -> Iterable[os.PathLike]:
         log.debug("Creating %s", self.location)

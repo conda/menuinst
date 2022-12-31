@@ -41,12 +41,11 @@ class MacOSMenu(Menu):
 
 
 class MacOSMenuItem(MenuItem):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        # The weird extra arg is to avoid circular dependencies
-        # with self.location replacement
+    @property
+    def location(self) -> Path:
+        "Path to the .app directory defining the menu item"
         name = f"{self.render_key('name', extra={'':''})}.app"
-        self.location = self._base_location() / "Applications" / name
+        return self._base_location() / "Applications" / name
 
     def _base_location(self) -> Path:
         if self.menu.mode == "user":

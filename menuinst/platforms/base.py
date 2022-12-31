@@ -130,6 +130,11 @@ class MenuItem:
         self._data = self._initialize_on_defaults(metadata)
         self.metadata = self._flatten_for_platform(self._data)
 
+    @property
+    def location(self) -> Path:
+        "Path to the main menu item artifact (file or directory, depends on the platform)"
+        raise NotImplementedError
+
     def create(self) -> List[Path]:
         raise NotImplementedError
 

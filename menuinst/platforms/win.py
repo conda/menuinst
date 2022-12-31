@@ -114,6 +114,15 @@ class WindowsMenu(Menu):
 
 
 class WindowsMenuItem(MenuItem):
+    @property
+    def location(self) -> Path:
+        """
+        Path to the .lnk file placed in the Start Menu
+        On Windows, menuinst can create up to three shortcuts (start menu, desktop, quick launch)
+        This property only lists the one for start menu
+        """
+        return self.menu.start_menu_location / self._shortcut_filename()
+
     def create(self) -> Tuple[Path, ...]:
         from .win_utils.winshortcut import create_shortcut
 
@@ -172,20 +181,21 @@ class WindowsMenuItem(MenuItem):
         return paths
 
     def _paths(self) -> Tuple[Path, ...]:
-        directories = [self.menu.start_menu_location]
+        paths = [self.location]
+        extra_dirs = []
         if self.metadata["desktop"]:
-            directories.append(self.menu.desktop_location)
+            extra_dirs.append(self.menu.desktop_location)
         if self.metadata["quicklaunch"] and self.menu.quick_launch_location:
-            directories.append(self.menu.quick_launch_location)
+            extra_dirs.append(self.menu.quick_launch_location)
 
-        # These are the different lnk files
-        shortcuts = [directory / self._shortcut_filename() for directory in directories]
+        if extra_dirs:
+            paths += [directory / self._shortcut_filename() for directory in extra_dirs]
 
         if self.metadata["activate"]:
             # This is the accessory launcher script for cmd
-            shortcuts.append(self._path_for_script())
+            paths.append(self._path_for_script())
 
-        return tuple(shortcuts)
+        return tuple(paths)
 
     def _shortcut_filename(self, ext: str = "lnk"):
         env_suffix = f" ({self.menu.env_name})" if self.menu.env_name else ""
