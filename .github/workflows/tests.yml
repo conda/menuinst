@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - cep-devel
   pull_request:
 
 concurrency:
