@@ -7,16 +7,15 @@ from __future__ import absolute_import, unicode_literals
 import ctypes
 import logging
 import os
-from os.path import isdir, join, exists, split
+from os.path import isdir, join, exists
 import sys
 import locale
 
 
 from .utils import rm_empty_dir, rm_rf
-from .knownfolders import get_folder_path, FOLDERID
-# KNOWNFOLDERID does provide a direct path to Quick Launch.  No additional path necessary.
-from .winshortcut import create_shortcut
-
+from ..platforms.win_utils.knownfolders import dirs_src, folder_path
+from ..platforms.win_utils.winshortcut import create_shortcut
+from ..utils import DEFAULT_BASE_PREFIX
 
 # This allows debugging installer issues using DebugView from Microsoft.
 OutputDebugString = ctypes.windll.kernel32.OutputDebugStringW
@@ -36,70 +35,6 @@ dbgview = DbgViewHandler()
 dbgview.setLevel(logging.DEBUG)
 logger.addHandler(dbgview)
 logger.addHandler(stream_handler)
-
-# When running as 'nt authority/system' as sometimes people do via SCCM,
-# various folders do not exist, such as QuickLaunch. This doesn't matter
-# as we'll use the "system" key finally and check for the "quicklaunch"
-# subkey before adding any Quick Launch menu items.
-
-# It can happen that some of the dirs[] entires refer to folders that do not
-# exist, in which case, the 2nd entry of the value tuple is a sub-class of
-# Exception.
-
-dirs_src = {"system": {  "desktop": get_folder_path(FOLDERID.PublicDesktop),
-                           "start": get_folder_path(FOLDERID.CommonPrograms),
-                       "documents": get_folder_path(FOLDERID.PublicDocuments),
-                         "profile": get_folder_path(FOLDERID.Profile)},
-
-            "user": {    "desktop": get_folder_path(FOLDERID.Desktop),
-                           "start": get_folder_path(FOLDERID.Programs),
-                     "quicklaunch": get_folder_path(FOLDERID.QuickLaunch),
-                       "documents": get_folder_path(FOLDERID.Documents),
-                         "profile": get_folder_path(FOLDERID.Profile)}}
-
-
-def folder_path(preferred_mode, check_other_mode, key):
-    ''' This function implements all heuristics and workarounds for messed up
-        KNOWNFOLDERID registry values. It's also verbose (OutputDebugStringW)
-        about whether fallbacks worked or whether they would have worked if
-        check_other_mode had been allowed.
-    '''
-    other_mode = 'system' if preferred_mode == 'user' else 'user'
-    path, exception = dirs_src[preferred_mode][key]
-    if not exception:
-        return path
-    logger.info("WARNING: menuinst key: '%s'\n"
-                "                 path: '%s'\n"
-                "     .. excepted with: '%s' in knownfolders.py, implementing workarounds .."
-                % (key, path, type(exception).__name__))
-    # Since I have seen 'user', 'documents' set as '\\vmware-host\Shared Folders\Documents'
-    # when there's no such server, we check 'user', 'profile' + '\Documents' before maybe
-    # trying the other_mode (though I have chickened out on that idea).
-    if preferred_mode == 'user' and key == 'documents':
-        user_profile, exception = dirs_src['user']['profile']
-        if not exception:
-            path = join(user_profile, 'Documents')
-            if os.access(path, os.W_OK):
-                logger.info("  .. worked-around to: '%s'" % (path))
-                return path
-    path, exception = dirs_src[other_mode][key]
-    # Do not fall back to something we cannot write to.
-    if exception:
-        if check_other_mode:
-            logger.info("     .. despite 'check_other_mode'\n"
-                        "        and 'other_mode' 'path' of '%s'\n"
-                        "        it excepted with: '%s' in knownfolders.py" % (path,
-                                                                    type(exception).__name__))
-        else:
-            logger.info("     .. 'check_other_mode' is False,\n"
-                        "        and 'other_mode' 'path' is '%s'\n"
-                        "        but it excepted anyway with: '%s' in knownfolders.py" % (path, type(exception).__name__))
-        return None
-    if not check_other_mode:
-        logger.info("     .. due to lack of 'check_other_mode' not picking\n"
-                    "        non-excepting path of '%s'\n in knownfolders.py" % (path))
-        return None
-    return path
 
 
 def quoted(s):
@@ -151,9 +86,9 @@ def to_bytes(var, codec=locale.getpreferredencoding()):
     return var
 
 
-unicode_root_prefix = to_unicode(sys.prefix)
+unicode_root_prefix = to_unicode(DEFAULT_BASE_PREFIX)
 if u'\\envs\\' in unicode_root_prefix:
-    logger.warn('menuinst called from non-root env %s', unicode_root_prefix)
+    logger.warning('menuinst called from non-root env %s', unicode_root_prefix)
 
 
 def substitute_env_variables(text, dir):

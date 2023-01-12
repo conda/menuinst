@@ -118,7 +118,7 @@ static PyObject *CreateShortcut(PyObject *self, PyObject *args)
 
     hres = pPersistFile->Save(filename, TRUE);
     if (FAILED(hres)) {
-        PyObject *fn = PyUnicode_FromUnicode(filename, wcslen(filename));
+        PyObject *fn = PyUnicode_FromWideChar(filename, wcslen(filename));
         if (fn) {
             PyObject *msg = PyUnicode_FromFormat(
                         "Failed to create shortcut '%U' - error 0x%x",

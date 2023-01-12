@@ -25,11 +25,14 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 """
 
-from __future__ import print_function
-
-import ctypes, sys
+import ctypes
+import os
 from ctypes import windll, wintypes
 from uuid import UUID
+from logging import getLogger
+
+logger = getLogger(__name__)
+
 
 class GUID(ctypes.Structure):   # [1]
     _fields_ = [
@@ -156,7 +159,7 @@ _SHGetKnownFolderPath.argtypes = [
 
 '''
 # Please keep this code around in-case we need to debug tricky installations
-# http://stackoverflow.com/a/15016751/3257826
+# http://stackoverflow.com/a/15016751/3257826 - needs pywin32
 import pythoncom
 from win32com.shell import shell, shellcon
 from win32com import storagecon
@@ -208,28 +211,75 @@ def get_folder_path(folder_id, user=None):
     # New users created on the machine have their folders created by copying those of 'Default'.
     return get_path(folder_id, user)
 
-if __name__ == '__main__':
-    if len(sys.argv) < 2 or sys.argv[1] in ['-?', '/?']:
-        print('python knownfolders.py FOLDERID {current|common}')
-        sys.exit(0)
-
-    try:
-        folderid = getattr(FOLDERID, sys.argv[1])
-    except AttributeError:
-        print('Unknown folder id "%s"' % sys.argv[1], file=sys.stderr)
-        sys.exit(1)
-
-    try:
-        if len(sys.argv) == 2:
-            print(get_path(folderid))
-        else:
-            print(get_path(folderid, getattr(UserHandle, sys.argv[2])))
-    except PathNotFoundException:
-        print('Folder not found "%s"' % ' '.join(sys.argv[1:]), file=sys.stderr)
-        sys.exit(1)
-
 # [1] http://msdn.microsoft.com/en-us/library/windows/desktop/aa373931.aspx
 # [2] http://msdn.microsoft.com/en-us/library/windows/desktop/dd378457.aspx
 # [3] http://msdn.microsoft.com/en-us/library/windows/desktop/bb762188.aspx
 # [4] http://msdn.microsoft.com/en-us/library/windows/desktop/ms680722.aspx
 # [5] http://www.themacaque.com/?p=954
+
+# jaimergp: The code below was copied from menuinst.win32, 1.4.19
+# module: menuinst/win32.py - https://github.com/conda/menuinst/blob/e17afafd/menuinst/win32.py#L40-L102
+# ----
+# When running as 'nt authority/system' as sometimes people do via SCCM,
+# various folders do not exist, such as QuickLaunch. This doesn't matter
+# as we'll use the "system" key finally and check for the "quicklaunch"
+# subkey before adding any Quick Launch menu items.
+
+# It can happen that some of the dirs[] entires refer to folders that do not
+# exist, in which case, the 2nd entry of the value tuple is a sub-class of
+# Exception.
+
+dirs_src = {"system": {  "desktop": get_folder_path(FOLDERID.PublicDesktop),
+                           "start": get_folder_path(FOLDERID.CommonPrograms),
+                       "documents": get_folder_path(FOLDERID.PublicDocuments),
+                         "profile": get_folder_path(FOLDERID.Profile)},
+
+            "user": {    "desktop": get_folder_path(FOLDERID.Desktop),
+                           "start": get_folder_path(FOLDERID.Programs),
+                     "quicklaunch": get_folder_path(FOLDERID.QuickLaunch),
+                       "documents": get_folder_path(FOLDERID.Documents),
+                         "profile": get_folder_path(FOLDERID.Profile)}}
+
+
+def folder_path(preferred_mode, check_other_mode, key):
+    ''' This function implements all heuristics and workarounds for messed up
+        KNOWNFOLDERID registry values. It's also verbose (OutputDebugStringW)
+        about whether fallbacks worked or whether they would have worked if
+        check_other_mode had been allowed.
+    '''
+    other_mode = 'system' if preferred_mode == 'user' else 'user'
+    path, exception = dirs_src[preferred_mode][key]
+    if not exception:
+        return path
+    logger.info("WARNING: menuinst key: '%s'\n"
+                "                 path: '%s'\n"
+                "     .. excepted with: '%s' in knownfolders.py, implementing workarounds .."
+                % (key, path, type(exception).__name__))
+    # Since I have seen 'user', 'documents' set as '\\vmware-host\Shared Folders\Documents'
+    # when there's no such server, we check 'user', 'profile' + '\Documents' before maybe
+    # trying the other_mode (though I have chickened out on that idea).
+    if preferred_mode == 'user' and key == 'documents':
+        user_profile, exception = dirs_src['user']['profile']
+        if not exception:
+            path = os.path.join(user_profile, 'Documents')
+            if os.access(path, os.W_OK):
+                logger.info("  .. worked-around to: '%s'" % (path))
+                return path
+    path, exception = dirs_src[other_mode][key]
+    # Do not fall back to something we cannot write to.
+    if exception:
+        if check_other_mode:
+            logger.info("     .. despite 'check_other_mode'\n"
+                        "        and 'other_mode' 'path' of '%s'\n"
+                        "        it excepted with: '%s' in knownfolders.py" % (path,
+                                                                    type(exception).__name__))
+        else:
+            logger.info("     .. 'check_other_mode' is False,\n"
+                        "        and 'other_mode' 'path' is '%s'\n"
+                        "        but it excepted anyway with: '%s' in knownfolders.py" % (path, type(exception).__name__))
+        return None
+    if not check_other_mode:
+        logger.info("     .. due to lack of 'check_other_mode' not picking\n"
+                    "        non-excepting path of '%s'\n in knownfolders.py" % (path))
+        return None
+    return path

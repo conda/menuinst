@@ -11,6 +11,7 @@
 from __future__ import print_function
 import sys, os, traceback
 from enum import IntEnum
+from subprocess import list2cmdline
 
 if sys.version_info < (3,):
     text_type = basestring
@@ -19,21 +20,17 @@ else:
 
 
 def isUserAdmin():
+    if os.name != 'nt':
+        raise RuntimeError("This function is only implemented on Windows.")
 
-    if os.name == 'nt':
-        import ctypes
-        # WARNING: requires Windows XP SP2 or higher!
-        try:
-            return ctypes.windll.shell32.IsUserAnAdmin()
-        except:
-            traceback.print_exc()
-            print("Admin check failed, assuming not an admin.")
-            return False
-    elif os.name == 'posix':
-        # Check for root on Posix
-        return os.getuid() == 0
-    else:
-        raise RuntimeError("Unsupported operating system for this module: %s" % (os.name,))
+    import ctypes
+    # Requires Windows XP SP2 or higher!
+    try:
+        return ctypes.windll.shell32.IsUserAnAdmin()
+    except:
+        traceback.print_exc()
+        print("Admin check failed, assuming not an admin.")
+        return False
 
 
 # Taken from conda/common/_os/windows.py
@@ -128,8 +125,7 @@ def runAsAdmin(cmdLine=None, wait=True):
         raise ValueError("cmdLine is not a sequence.")
 
     cmd = '"%s"' % (cmdLine[0],)
-    # XXX TODO: isn't there a function or something we can call to massage command line params?
-    params = " ".join(['"%s"' % (x,) for x in cmdLine[1:]])
+    params = list2cmdline(cmdLine[1:])
     showCmd = SW.HIDE
     lpVerb = 'runas'  # causes UAC elevation prompt.
 
@@ -165,6 +161,7 @@ def runAsAdmin(cmdLine=None, wait=True):
 
 if __name__ == '__main__':
     userIsAdmin = isUserAdmin()
-    print('userIsAdmin = %d' % (userIsAdmin))
+    with open("output.txt", "a") as f:
+        print('userIsAdmin = %d' % (userIsAdmin), file=f)
     if not userIsAdmin:
         runAsAdmin([sys.executable] + sys.argv, wait=True)

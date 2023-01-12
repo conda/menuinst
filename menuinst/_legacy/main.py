@@ -1,8 +1,8 @@
 import sys
 from os.path import join
 
-import menuinst
-
+import menuinst._legacy as menuinst
+from ..utils import DEFAULT_PREFIX
 
 def main():
     from optparse import OptionParser
@@ -13,7 +13,7 @@ def main():
 
     p.add_option('-p', '--prefix',
                  action="store",
-                 default=sys.prefix)
+                 default=DEFAULT_PREFIX)
 
     p.add_option('--remove',
                  action="store_true")

@@ -1,12 +1,17 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, division, print_function, unicode_literals
 from logging import getLogger
+import sys
 
-from menuinst.win32 import quote_args
+import pytest
+
+if sys.platform == "win32":
+    from menuinst._legacy.win32 import quote_args
 
 log = getLogger(__name__)
 
-
+@pytest.mark.skipif(sys.platform != "win32",
+                    reason="Windows-only tests")
 def test_quote_args_1():
     args = [
         "%windir%\\System32\\cmd.exe",
