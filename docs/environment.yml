@@ -1,7 +1,6 @@
 name: menuinst-docs
 channels:
   - conda-forge
-  - defaults
 dependencies:
   - alabaster=0.7.12
   - babel=2.11.0
@@ -14,7 +13,6 @@ dependencies:
   - charset-normalizer=2.1.1
   - colorama=0.4.6
   - cryptography=38.0.3
-  - docutils=0.19
   - idna=3.4
   - imagesize=1.4.1
   - importlib-metadata=5.1.0
@@ -23,6 +21,7 @@ dependencies:
   - libsqlite=3.40.0
   - libzlib=1.2.13
   - linkify-it-py=2.0.0
+  - livereload=2.6.3
   - markdown-it-py=2.1.0
   - markupsafe=2.1.1
   - mdit-py-plugins=0.3.1
@@ -49,6 +48,7 @@ dependencies:
   - snowballstemmer=2.2.0
   - soupsieve=2.3.2.post1
   - sphinx=5.3.0
+  - sphinx-autobuild=2021.3.14
   - sphinx-copybutton=0.5.0
   - sphinx-design=0.3.0
   - sphinx-sitemap=2.2.1
@@ -60,6 +60,7 @@ dependencies:
   - sphinxcontrib-qthelp=1.0.3
   - sphinxcontrib-serializinghtml=1.1.5
   - tk=8.6.12
+  - tornado=6.2
   - typing-extensions=4.4.0
   - typing_extensions=4.4.0
   - tzdata=2022f
@@ -69,3 +70,7 @@ dependencies:
   - xz=5.2.6
   - yaml=0.2.5
   - zipp=3.10.0
+  - pip:
+      # TODO: https://github.com/conda-forge/sphinx-tabs-feedstock/pull/13
+      - docutils==0.18.1
+      - sphinx-tabs==3.4.1

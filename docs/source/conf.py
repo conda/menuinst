@@ -27,6 +27,7 @@ extensions = [
     "sphinx_sitemap",
     "sphinx_design",
     "sphinx_copybutton",
+    "sphinx_tabs.tabs",
 ]
 
 myst_heading_anchors = 3
@@ -40,10 +41,9 @@ myst_enable_extensions = [
     "linkify",
     "replacements",
     "smartquotes",
-    "substitution",
     "tasklist",
 ]
-
+myst_linkify_fuzzy_links = False
 
 templates_path = ["_templates"]
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]

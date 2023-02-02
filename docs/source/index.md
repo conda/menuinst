@@ -9,6 +9,6 @@
 
 getting-started
 defining-shortcuts
-schema
-placeholders
+conda
+reference
 ```

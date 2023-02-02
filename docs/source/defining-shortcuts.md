@@ -48,23 +48,3 @@ Note how the `menu_name` is using a placeholder `{{ PY_VER }}`.
 `menuinst` supports Jinja-like variables. 
 The full list of available placeholders is available at {ref}`placeholders`.
 ```
-
-## Integrate with `conda` packages
-
-To enable the native `conda` integrations, instruct the `conda-build` scripts to place the `menuinst` JSON configuration files in `$PREFIX/Menu`.
-
-On Linux and macOS this usually looks like:
-
-```bash
-# On your build.sh
-mkdir -p "${PREFIX}/Menu"
-cp "${RECIPE_DIR}/menu.json" "${PREFIX}/Menu/${PKG_NAME}_menu.json"
-```
-
-For Windows:
-
-```batch
-:: On bld.bat
-mkdir "%PREFIX%\Menu"
-copy /Y "%RECIPE_DIR%\menu.json" "%PREFIX%\Menu\%PKG_NAME%_menu.json"
-```
