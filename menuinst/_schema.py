@@ -205,7 +205,9 @@ class MenuInstSchema(BaseModel):
                 )
 
             class MacOS(OptionalMenuItemMetadata):
-                """Mac-specific instructions. Check these URLs for more info:
+                """
+                Mac-specific instructions. Check these URLs for more info:
+
                 - CF* keys: https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
                 - LS* keys: https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/LaunchServicesKeys.html
                 - entitlements: list those which should be true for the shortcut signing

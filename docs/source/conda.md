@@ -6,7 +6,7 @@ While it can be used as a Python library on its own,
 ## Installing shortcuts from `conda` packages
 
 ```{tip}
-If you want to learn how to create shortcuts for `conda` packages you are building and maintaining, check {ref}`defining-shortcuts`.
+If you want to learn how to create shortcuts for `conda` packages you are building and maintaining, check {doc}`defining-shortcuts`.
 ```
 
 `menuinst` integrates natively with `conda`, so as an end user you don't need to do anything to enable it. 

@@ -17,5 +17,5 @@ $ conda install "menuinst>=2"
 WIP.
 
 ```{seealso}
-Check {ref}`conda` for more information about using `menuinst` from `conda` packages.
+Check {doc}`conda` for more information about using `menuinst` from `conda` packages.
 ```

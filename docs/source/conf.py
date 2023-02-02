@@ -28,6 +28,7 @@ extensions = [
     "sphinx_design",
     "sphinx_copybutton",
     "sphinx_tabs.tabs",
+    "sphinxcontrib.autodoc_pydantic",
 ]
 
 myst_heading_anchors = 3
@@ -41,6 +42,7 @@ myst_enable_extensions = [
     "linkify",
     "replacements",
     "smartquotes",
+    "substitution",
     "tasklist",
 ]
 myst_linkify_fuzzy_links = False
