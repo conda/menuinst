@@ -5,7 +5,14 @@ on:
     branches:
       - main
       - cep-devel
+    paths-ignore:
+      - 'docs/**'
   pull_request:
+    branches:
+      - main
+      - cep-devel
+    paths-ignore:
+      - 'docs/**'
 
 concurrency:
   # Concurrency group that uses the workflow name and PR number if available

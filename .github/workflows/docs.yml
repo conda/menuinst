@@ -16,7 +16,7 @@ on:
 
 # Allow one concurrent deployment
 concurrency:
-  group: "pages"
+  group: pages-${{ github.workflow }}-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 
 jobs:
@@ -47,7 +47,6 @@ jobs:
           path: 'docs/_build/dirhtml'
 
   pages:
-
     runs-on: ubuntu-latest
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
     needs: [docs]
