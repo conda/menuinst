@@ -1,0 +1,19 @@
+### Enhancements
+
+* <news item>
+
+### Bug fixes
+
+* <news item>
+
+### Deprecations
+
+* <news item>
+
+### Docs
+
+* Create Sphinx-based documentation following community practices (constructor, conda-libmamba-solver). Absorbs and updates the existing info in wiki and non-deployed docs. (#112)
+
+### Other
+
+* <news item>
