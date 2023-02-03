@@ -37,6 +37,7 @@ jobs:
 
       - name: Build Documentation
         run: |
+          pip install . --no-deps
           cd docs
           make dirhtml
 
