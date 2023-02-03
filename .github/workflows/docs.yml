@@ -39,7 +39,7 @@ jobs:
         run: |
           pip install . --no-deps
           cd docs
-          make dirhtml
+          make dirhtml SPHINXOPTS="-W --keep-going -n"
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
