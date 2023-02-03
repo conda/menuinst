@@ -3,24 +3,9 @@
   "description": "Metadata required to create menu items across operating systems with `menuinst`",
   "type": "object",
   "properties": {
-    "menu_name": {
-      "title": "Menu Name",
-      "description": "Name for the category containing the items specified in `menu_items`.",
-      "minLength": 1,
-      "type": "string"
-    },
-    "menu_items": {
-      "title": "Menu Items",
-      "description": "List of menu entries to create across main desktop systems",
-      "minItems": 1,
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/MenuItem"
-      }
-    },
     "$id": {
       "title": "$Id",
-      "description": "Version of the menuinst schema",
+      "description": "Version of the menuinst schema.",
       "enum": [
         "https://schemas.conda.io/menuinst-1.schema.json"
       ],
@@ -28,18 +13,33 @@
     },
     "$schema": {
       "title": "$Schema",
-      "description": "Standard of the JSON schema we adhere to",
+      "description": "Standard of the JSON schema we adhere to.",
       "enum": [
         "https://json-schema.org/draft-07/schema"
       ],
       "type": "string"
+    },
+    "menu_name": {
+      "title": "Menu Name",
+      "description": "Name for the category containing the items specified in ``menu_items``.",
+      "minLength": 1,
+      "type": "string"
+    },
+    "menu_items": {
+      "title": "Menu Items",
+      "description": "List of menu entries to create across main desktop systems.",
+      "minItems": 1,
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/MenuItem"
+      }
     }
   },
   "required": [
-    "menu_name",
-    "menu_items",
     "$id",
-    "$schema"
+    "$schema",
+    "menu_name",
+    "menu_items"
   ],
   "additionalProperties": false,
   "definitions": {
@@ -315,8 +315,8 @@
       },
       "additionalProperties": false
     },
-    "_CFBundleURLTypes": {
-      "title": "_CFBundleURLTypes",
+    "CFBundleURLTypesModel": {
+      "title": "CFBundleURLTypesModel",
       "description": "Describes a URL scheme associated with the app.",
       "type": "object",
       "properties": {
@@ -356,8 +356,8 @@
       ],
       "additionalProperties": false
     },
-    "_CFBundleDocumentTypes": {
-      "title": "_CFBundleDocumentTypes",
+    "CFBundleDocumentTypesModel": {
+      "title": "CFBundleDocumentTypesModel",
       "description": "Describes a document type associated with the app.",
       "type": "object",
       "properties": {
@@ -411,7 +411,7 @@
     },
     "MacOS": {
       "title": "MacOS",
-      "description": "Mac-specific instructions. Check these URLs for more info:\n\n- CF* keys: https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html\n- LS* keys: https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/LaunchServicesKeys.html\n- entitlements: list those which should be true for the shortcut signing\n  See https://developer.apple.com/documentation/bundleresources/entitlements.\n\nYou can also override global keys here if needed.",
+      "description": "Mac-specific instructions. Check these URLs for more info:\n\n- ``CF*`` keys: see `Core Foundation Keys <cf-keys>`_\n- ``LS*`` keys: see `Launch Services Keys <ls-keys>`_\n- ``entitlements``: list those which should be true for the shortcut signing;\n  see `entitlements docs <entitlements>`_\n\nYou can also override global keys here if needed\n\n.. _cf-keys: https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html\n.. _ls-keys: https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/LaunchServicesKeys.html\n.. _entitlements: https://developer.apple.com/documentation/bundleresources/entitlements.",
       "type": "object",
       "properties": {
         "name": {
@@ -499,7 +499,7 @@
           "description": "URL types supported by this app.",
           "type": "array",
           "items": {
-            "$ref": "#/definitions/_CFBundleURLTypes"
+            "$ref": "#/definitions/CFBundleURLTypesModel"
           }
         },
         "CFBundleDocumentTypes": {
@@ -507,7 +507,7 @@
           "description": "Document types supported by this app.",
           "type": "array",
           "items": {
-            "$ref": "#/definitions/_CFBundleDocumentTypes"
+            "$ref": "#/definitions/CFBundleDocumentTypesModel"
           }
         },
         "LSApplicationCategoryType": {
@@ -556,7 +556,7 @@
         },
         "link_in_bundle": {
           "title": "Link In Bundle",
-          "description": "Paths that should be symlinked into the shortcut app bundle. It takes a mapping of source to destination paths. Destination paths must be relative. Placeholder `{{ MENU_ITEM_LOCATION }}` can be useful.",
+          "description": "Paths that should be symlinked into the shortcut app bundle. It takes a mapping of source to destination paths. Destination paths must be relative. Placeholder ``{{ MENU_ITEM_LOCATION }}`` can be useful.",
           "type": "object",
           "additionalProperties": {
             "type": "string",

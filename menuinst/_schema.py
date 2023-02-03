@@ -133,7 +133,7 @@ class MenuInstSchema(BaseModel):
                 https://specifications.freedesktop.org/desktop-entry-spec/desktop-entry-spec-latest.html#recognized-keys
                 for more information. You can override global keys here if needed"""
 
-                Categories: Optional[Union[List[str], constr(regex="^.+;$")]] = Field(
+                Categories: Optional[Union[List[str], constr(regex=r"^.+;$")]] = Field(
                     None,
                     description="Categories in which the entry should be shown in a menu. "
                     "See 'Registered categories' in "
@@ -153,16 +153,16 @@ class MenuInstSchema(BaseModel):
                     None,
                     description="Disable shortcut, signaling a missing resource.",
                 )
-                Implements: Optional[Union[List[str], constr(regex="^.+;$")]] = Field(
+                Implements: Optional[Union[List[str], constr(regex=r"^.+;$")]] = Field(
                     None,
                     description="List of supported interfaces. See "
                     "https://specifications.freedesktop.org/desktop-entry-spec/desktop-entry-spec-latest.html#interfaces",
                 )
-                Keywords: Optional[Union[List[str], constr(regex="^.+;$")]] = Field(
+                Keywords: Optional[Union[List[str], constr(regex=r"^.+;$")]] = Field(
                     None,
                     description="Additional terms to describe this shortcut to aid in searching.",
                 )
-                MimeType: Optional[Union[List[str], constr(regex="^.+;$")]] = Field(
+                MimeType: Optional[Union[List[str], constr(regex=r"^.+;$")]] = Field(
                     None,
                     description="The MIME type(s) supported by this application.",
                 )
@@ -172,12 +172,12 @@ class MenuInstSchema(BaseModel):
                     "and other registrations, without having an actual clickable item. Not to be "
                     "confused with 'Hidden'.",
                 )
-                NotShowIn: Optional[Union[List[str], constr(regex="^.+;$")]] = Field(
+                NotShowIn: Optional[Union[List[str], constr(regex=r"^.+;$")]] = Field(
                     None,
                     description="Desktop environments that should NOT display this item. "
                     "It'll check against $XDG_CURRENT_DESKTOP.",
                 )
-                OnlyShowIn: Optional[Union[List[str], constr(regex="^.+;$")]] = Field(
+                OnlyShowIn: Optional[Union[List[str], constr(regex=r"^.+;$")]] = Field(
                     None,
                     description="Desktop environments that should display this item. "
                     "It'll check against $XDG_CURRENT_DESKTOP.",
@@ -208,15 +208,19 @@ class MenuInstSchema(BaseModel):
                 """
                 Mac-specific instructions. Check these URLs for more info:
 
-                - CF* keys: https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-                - LS* keys: https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/LaunchServicesKeys.html
-                - entitlements: list those which should be true for the shortcut signing
-                  See https://developer.apple.com/documentation/bundleresources/entitlements.
+                - ``CF*`` keys: see `Core Foundation Keys <cf-keys>`_
+                - ``LS*`` keys: see `Launch Services Keys <ls-keys>`_
+                - ``entitlements``: list those which should be true for the shortcut signing;
+                  see `entitlements docs <entitlements>`_
+                
+                You can also override global keys here if needed
 
-                You can also override global keys here if needed.
+                .. _cf-keys: https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
+                .. _ls-keys: https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/LaunchServicesKeys.html
+                .. _entitlements: https://developer.apple.com/documentation/bundleresources/entitlements.
                 """
 
-                class _CFBundleURLTypes(BaseModel):
+                class CFBundleURLTypesModel(BaseModel):
                     "Describes a URL scheme associated with the app."
                     CFBundleTypeRole: Literal["Editor", "Viewer", "Shell", "None"] = Field(
                         ...,
@@ -235,7 +239,7 @@ class MenuInstSchema(BaseModel):
                         description="Name of the icon image file (minus the .icns extension).",
                     )
 
-                class _CFBundleDocumentTypes(BaseModel):
+                class CFBundleDocumentTypesModel(BaseModel):
                     "Describes a document type associated with the app."
                     CFBundleTypeIconFile: Optional[str] = Field(
                         None,
@@ -286,11 +290,11 @@ class MenuInstSchema(BaseModel):
                     "this can be used to signal a new version of the menu item for the same "
                     "application version.",
                 )
-                CFBundleURLTypes: Optional[List[_CFBundleURLTypes]] = Field(
+                CFBundleURLTypes: Optional[List[CFBundleURLTypesModel]] = Field(
                     None,
                     description="URL types supported by this app.",
                 )
-                CFBundleDocumentTypes: Optional[List[_CFBundleDocumentTypes]] = Field(
+                CFBundleDocumentTypes: Optional[List[CFBundleDocumentTypesModel]] = Field(
                     None,
                     description="Document types supported by this app.",
                 )
@@ -332,30 +336,32 @@ class MenuInstSchema(BaseModel):
                     None,
                     description="Paths that should be symlinked into the shortcut app bundle. "
                     "It takes a mapping of source to destination paths. Destination paths must be "
-                    "relative. Placeholder `{{ MENU_ITEM_LOCATION }}` can be useful.",
+                    "relative. Placeholder ``{{ MENU_ITEM_LOCATION }}`` can be useful.",
                 )
 
             win: Optional[Windows]
+            "Options for Windows. See :class:`Windows` model for details."
             linux: Optional[Linux]
+            "Options for Linux. See :class:`Linux` model for details."
             osx: Optional[MacOS]
+            "Options for macOS. See :class:`MacOS` model for details."
 
         platforms: Platforms
-
-    menu_name: constr(min_length=1) = Field(
-        description="Name for the category containing the items specified in `menu_items`."
-    )
-    menu_items: conlist(MenuItem, min_items=1) = Field(
-        description="List of menu entries to create across main desktop systems"
-    )
+        "Platform-specific options"
 
     id_: Literal["https://schemas.conda.io/menuinst-1.schema.json"] = Field(
-        description="Version of the menuinst schema",
+        description="Version of the menuinst schema.",
         alias="$id",
     )
-
     schema_: Literal["https://json-schema.org/draft-07/schema"] = Field(
-        description="Standard of the JSON schema we adhere to",
+        description="Standard of the JSON schema we adhere to.",
         alias="$schema",
+    )
+    menu_name: constr(min_length=1) = Field(
+        description="Name for the category containing the items specified in ``menu_items``."
+    )
+    menu_items: conlist(MenuItem, min_items=1) = Field(
+        description="List of menu entries to create across main desktop systems."
     )
 
 
