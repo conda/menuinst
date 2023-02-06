@@ -100,7 +100,7 @@ def slugify(text: str):
     """
     text = normalize('NFKD', text).encode('ascii', 'ignore').decode('ascii')
     text = re.sub(r'[^\w\s-]', '', text).strip().lower()
-    return re.sub(r'[_-\s]+', '-', text)
+    return re.sub(r'[_\-\s]+', '-', text)
 
 
 def indent_xml_tree(elem, level=0):
