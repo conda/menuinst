@@ -70,6 +70,7 @@ autodoc_pydantic_model_member_order = "bysource"
 
 nitpicky = True
 nitpick_ignore = [
+    ("py:class", "types.ConstrainedListValue"),
     ("py:class", "menuinst._schema.ConstrainedStrValue"),
 ]
 
