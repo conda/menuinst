@@ -68,6 +68,11 @@ autodoc_pydantic_model_show_validator_summary = False
 autodoc_pydantic_model_show_field_summary = False
 autodoc_pydantic_model_member_order = "bysource"
 
+nitpicky = True
+nitpick_ignore = [
+    ("py:class", "menuinst._schema.ConstrainedStrValue"),
+]
+
 templates_path = ["_templates"]
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
