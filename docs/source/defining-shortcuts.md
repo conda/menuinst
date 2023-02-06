@@ -6,13 +6,18 @@ The minimal structure is a dictionary with four keys
 - `$schema`: The JSON-schema standard version
 - `$id`: The version of the menuinst configuration, as a JSON schema URL
 - `menu_name`: The name for this group of menu items
-- `menu_items`: A list of dictionaries, each defining the settings for one shortcut / menu item. Each menu item must define, at least, the following keys:
+- `menu_items`: A list of dictionaries, each defining the settings for one shortcut / menu item. Each menu item must define, at least, the following keys (see {class}`MenuItem schema <menuinst._schema.MenuItem>` for more details):
     - `name`: The name for this specific shortcut.
     - `command`: A list of strings detailing how to launch the application.
     - `platforms`: A dictionary with up to three keys. All of them are optional but you must at least define one. The presence of a key with a non-`null` value enables the shortcut for that platform. If you don't include any, shortcuts will not be created. Available keys are:
-        - `linux`
-        - `osx`
-        - `win`
+        - `linux` - see {class}`Linux schema <menuinst._schema.Linux>`
+        - `osx`- see {class}`MacOS schema <menuinst._schema.MacOS>`
+        - `win`- see {class}`Windows schema <menuinst._schema.Windows>`
+
+```{seealso}
+If you want to learn more, check the {doc}`reference` for full details on the available fields and settings for each platform.
+The JSON configurations follow a well-defined schema documented at {ref}`schema`.
+```
 
 ## Minimal example 
 
@@ -37,14 +42,12 @@ A minimal example to launch Python's `turtle` module would be:
 }
 ```
 
-This is not using any customization options or advanced features.
-It's the bare minimum to make it work: a name, the command, and the target platforms.
-
-If you want to learn more, check this reference for full details on the available fields and settings for each platform.
-The JSON configurations follow a well-defined schema documented at {ref}`schema`.
-
 ```{tip}
 Note how the `menu_name` is using a placeholder `{{ PY_VER }}`.
 `menuinst` supports Jinja-like variables. 
 The full list of available placeholders is available at {ref}`placeholders`.
 ```
+
+This is not using any customization options or advanced features.
+It's the bare minimum to make it work: a name, the command, and the target platforms.
+

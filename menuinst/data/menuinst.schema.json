@@ -1,6 +1,6 @@
 {
   "title": "MenuInstSchema",
-  "description": "Metadata required to create menu items across operating systems with `menuinst`",
+  "description": "Metadata required to create menu items across operating systems with ``menuinst``.",
   "type": "object",
   "properties": {
     "$id": {
@@ -529,6 +529,14 @@
           "title": "Description",
           "type": "string"
         },
+        "command": {
+          "title": "Command",
+          "minItems": 1,
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
         "icon": {
           "title": "Icon",
           "minLength": 1,
@@ -543,14 +551,6 @@
           "title": "Precreate",
           "minLength": 1,
           "type": "string"
-        },
-        "command": {
-          "title": "Command",
-          "minItems": 1,
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
         },
         "working_dir": {
           "title": "Working Dir",

@@ -6,12 +6,12 @@
     {
       "name": "REQUIRED",
       "description": "REQUIRED",
-      "icon": null,
-      "precommand": null,
-      "precreate": null,
       "command": [
         "REQUIRED"
       ],
+      "icon": null,
+      "precommand": null,
+      "precreate": null,
       "working_dir": null,
       "activate": true,
       "terminal": false,

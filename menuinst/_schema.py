@@ -20,11 +20,11 @@ class BaseModel(_BaseModel):
 
 class BasePlatformSpecific(BaseModel):
     """
-    Same as MenuItem, but without ``platforms``, and all is optional.
+    Same as :class:`MenuItem`, but without ``platforms``, and all is optional.
 
     Note:
-    * This needs to be kept up-to-date with ``MenuItemMetadata``!
-    * Default value is always None.
+    * This needs to be kept up-to-date with :class:`MenuItem`!
+    * Default value is always ``None``.
     """
 
     name: Optional[constr(min_length=1)] = None
@@ -51,12 +51,12 @@ class BasePlatformSpecific(BaseModel):
     precreate: Optional[constr(min_length=1)] = None
     "(Simple, preferrably single-line) logic to run before the shortcut is created."
     activate: Optional[bool] = None
-    "Whether to activate the target environment before running `command`."
+    "Whether to activate the target environment before running ``command``."
     terminal: Optional[bool] = None
     """
     Whether run the program in a terminal/console or not.
-    On Windows, it only has an effect if activate is true.
-    On MacOS, arguments are ignored.
+    On Windows, it only has an effect if ``activate`` is true.
+    On MacOS, the application will ignore command-line arguments.
     """
 
 
@@ -269,7 +269,7 @@ class MenuItem(BaseModel):
     "Instructions to create a menu item across operating systems."
 
     name: constr(min_length=1) = ...
-    "The name of the menu item"
+    "The name of the menu item."
     description: str = ...
     "A longer description of the menu item. Shown on popup messages."
     command: conlist(str, min_items=1) = ...
@@ -282,7 +282,7 @@ class MenuItem(BaseModel):
     precommand: Optional[constr(min_length=1)] = None
     """
     (Simple, preferrably single-line) logic to run before the command is run.
-    Runs before the env is activated, if that applies.
+    Runs before the environment is activated, if that applies.
     """
     precreate: Optional[constr(min_length=1)] = None
     "(Simple, preferrably single-line) logic to run before the shortcut is created."
@@ -292,19 +292,19 @@ class MenuItem(BaseModel):
     Defaults to user directory on each platform.
     """
     activate: Optional[bool] = True
-    "Whether to activate the target environment before running `command`."
+    "Whether to activate the target environment before running ``command``."
     terminal: Optional[bool] = False
     """
     Whether run the program in a terminal/console or not.
-    On Windows, it only has an effect if activate is true.
-    On MacOS, arguments are ignored.
+    On Windows, it only has an effect if ``activate`` is true.
+    On MacOS, the application will ignore command-line arguments.
     """
     platforms: Platforms
     "Platform-specific options. Presence of a platform field enables menu items in that platform."
 
 
 class MenuInstSchema(BaseModel):
-    "Metadata required to create menu items across operating systems with `menuinst`"
+    "Metadata required to create menu items across operating systems with ``menuinst``."
 
     id_: Literal["https://schemas.conda.io/menuinst-1.schema.json"] = Field(
         ...,
@@ -326,7 +326,7 @@ def dump_schema_to_json(write=True):
     if write:
         here = Path(__file__).parent
         schema = MenuInstSchema.schema_json(indent=2)
-        # print(schema)
+        print(schema)
         with open(here / "data" / "menuinst.schema.json", "w") as f:
             f.write(schema)
     return MenuInstSchema.schema()
