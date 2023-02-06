@@ -94,13 +94,13 @@ def slugify(text: str):
     # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
     # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     """
-    Convert to ASCII, and spaces to hyphens.
-    Remove characters that aren't alphanumerics, underscores, or hyphens.
+    Convert to ASCII, and spaces and underscores to hyphens.
+    Remove characters that aren't alphanumerics, or hyphens.
     Convert to lowercase. Also strip leading and trailing whitespace.
     """
     text = normalize('NFKD', text).encode('ascii', 'ignore').decode('ascii')
     text = re.sub(r'[^\w\s-]', '', text).strip().lower()
-    return re.sub(r'[-\s]+', '-', text)
+    return re.sub(r'[_-\s]+', '-', text)
 
 
 def indent_xml_tree(elem, level=0):
