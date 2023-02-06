@@ -5,6 +5,9 @@
 # For the full list of built-in configuration values, see the documentation:
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 
+from pathlib import Path
+import json
+
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
@@ -46,6 +49,24 @@ myst_enable_extensions = [
     "tasklist",
 ]
 myst_linkify_fuzzy_links = False
+default_config_payload = json.dumps(
+    json.loads(
+        (Path(__file__).parents[2] / "menuinst" / "data" / "menuinst.default.json").read_text()
+    ),
+    indent=2,
+)
+myst_substitutions = {
+    "default_schema_json": f"```json\n{default_config_payload}\n```",
+}
+
+autodoc_pydantic_field_swap_name_and_alias = True
+autodoc_pydantic_model_signature_prefix = "model"
+autodoc_pydantic_model_show_json = False
+autodoc_pydantic_model_show_config_member = False
+autodoc_pydantic_model_show_config_summary = False
+autodoc_pydantic_model_show_validator_summary = False
+autodoc_pydantic_model_show_field_summary = False
+autodoc_pydantic_model_member_order = "bysource"
 
 templates_path = ["_templates"]
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
