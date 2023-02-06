@@ -191,16 +191,19 @@ class MacOS(BasePlatformSpecific):
     Display name of the bundle, visible to users and used by Siri. If
     not provided, 'menuinst' will use the 'name' field.
     """
-    CFBundleIdentifier: Optional[str] = None
-    "TODO"
+    CFBundleIdentifier: Optional[constr(regex=r"^[A-z0-9\-\.]+$")] = None
+    """
+    Unique identifier for the shortcut. Typically uses a reverse-DNS format.
+    If not provided, 'menuinst' will generate one from the 'name' field.
+    """
     CFBundleName: Optional[constr(max_length=16)] = None
     """
-    Short name of the bundle. Maybe used if 'CFBundleDisplayName' is
+    Short name of the bundle. May be used if ``CFBundleDisplayName`` is
     absent. If not provided, 'menuinst' will generate one from the 'name' field.
     """
     CFBundleSpokenName: Optional[str] = None
     """
-    Suitable replacement for text-to-speech operations on the app
+    Suitable replacement for text-to-speech operations on the app.
     For example, 'my app one two three' instead of 'MyApp123'.
     """
     CFBundleVersion: Optional[constr(regex=r"^\S+$")] = None
@@ -214,10 +217,7 @@ class MacOS(BasePlatformSpecific):
     CFBundleDocumentTypes: Optional[List[CFBundleDocumentTypesModel]] = None
     "Document types supported by this app."
     LSApplicationCategoryType: Optional[constr(regex=r"^public\.app-category\.\S+$")] = None
-    """
-    The App Store uses this string to determine the appropriate
-    categorization for the app
-    """
+    "The App Store uses this string to determine the appropriate categorization."
     LSBackgroundOnly: Optional[bool] = None
     "Specifies whether this app runs only in the background."
     LSEnvironment: Optional[Dict[str, str]] = None

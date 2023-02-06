@@ -357,6 +357,7 @@
         },
         "CFBundleIdentifier": {
           "title": "Cfbundleidentifier",
+          "pattern": "^[A-z0-9\\-\\.]+$",
           "type": "string"
         },
         "CFBundleName": {
