@@ -37,7 +37,7 @@ jobs:
 
       - name: Build Documentation
         run: |
-          pip install .
+          pip install -e .
           cd docs
           make dirhtml SPHINXOPTS="-W --keep-going -n"
 
