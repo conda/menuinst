@@ -28,12 +28,14 @@ See Schema below for more details.
 ## Placeholders
 
 The JSON configuration files support several placeholders if surrounded with spaced double curly braces: `{{ variable }}`.
-Note these are _not_ Jinja templates. It just follows the same syntax, but accepts no transformations. Only variable names are accepted!
+
+Note these are _not_ [Jinja templates](https://jinja.palletsprojects.com/en/3.1.x/templates/)!
+No logic, filters, methods or anything. Just the placeholder name!
 
 ### General placeholders
 
-Variable | Value
----------|-------
+Name | Value
+-----|-------
 `BASE_PREFIX` | Path to the base Python location. In `conda` terms, this is the `base` environment
 `DISTRIBUTION_NAME` | Name of the base prefix directory; e.g. if `BASE_PREFIX` is `/opt/my-project`, this is `my-project`.
 `PREFIX` | Path to the target Python location. In `conda` terms, this is the path to the environment that contains the JSON file for this menu item. In some cases, it might be the same as `BASE_PREFIX`.
@@ -50,14 +52,14 @@ Variable | Value
 
 ### macOS placeholders
 
-Variable | Value
----------|-------
+Name | Value
+-----|-------
 `PYTHONAPP` | Path to the `python` executable installed in `PREFIX`, assuming the `python.app` conda package is installed. Equivalent to `{{ PREFIX }}/python.app/Contents/MacOS/python`.
 
 ### Windows placeholders
 
-Variable | Value
----------|-------
+Name | Value
+-----|-------
 `SCRIPTS_DIR` | Path to the `Scripts` directory in `PREFIX`.
 `BASE_PYTHONW` | Path to the `pythonw.exe` executable in `BASE_PREFIX`.
 `PYTHONW` | Path to the `pythonw.exe` executable in `PREFIX`.
