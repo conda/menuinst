@@ -24,6 +24,13 @@ shortcuts: true   # default
 shortcuts: false  # equivalent to always using --no-shortcuts
 ```
 
+```{note}
+`mamba` has limited support for menuinst. For more information, follow these issues:
+
+- https://github.com/mamba-org/mamba/issues/1316
+- https://github.com/mamba-org/mamba/issues/923
+```
+
 ### Removing shortcuts
 
 The shortcuts created by `menuinst` will be removed automatically by `conda` when you uninstall the associated package from an environment.
