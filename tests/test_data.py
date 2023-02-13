@@ -14,7 +14,7 @@ def test_schema_is_up_to_date():
 
 
 def test_defaults_are_up_to_date():
-    with open(data_path("menuinst.menu_item.default.json")) as f:
+    with open(data_path("menuinst.default.json")) as f:
         in_file = json.load(f)
     in_code = dump_default_to_json(write=False)
     assert in_file == in_code

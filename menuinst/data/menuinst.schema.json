@@ -1,26 +1,11 @@
 {
   "title": "MenuInstSchema",
-  "description": "Metadata required to create menu items across operating systems with `menuinst`",
+  "description": "Metadata required to create menu items across operating systems with ``menuinst``.",
   "type": "object",
   "properties": {
-    "menu_name": {
-      "title": "Menu Name",
-      "description": "Name for the category containing the items specified in `menu_items`.",
-      "minLength": 1,
-      "type": "string"
-    },
-    "menu_items": {
-      "title": "Menu Items",
-      "description": "List of menu entries to create across main desktop systems",
-      "minItems": 1,
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/MenuItem"
-      }
-    },
     "$id": {
       "title": "$Id",
-      "description": "Version of the menuinst schema",
+      "description": "Version of the menuinst schema.",
       "enum": [
         "https://schemas.conda.io/menuinst-1.schema.json"
       ],
@@ -28,132 +13,55 @@
     },
     "$schema": {
       "title": "$Schema",
-      "description": "Standard of the JSON schema we adhere to",
+      "description": "Standard of the JSON schema we adhere to.",
       "enum": [
         "https://json-schema.org/draft-07/schema"
       ],
       "type": "string"
+    },
+    "menu_name": {
+      "title": "Menu Name",
+      "minLength": 1,
+      "type": "string"
+    },
+    "menu_items": {
+      "title": "Menu Items",
+      "minItems": 1,
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/MenuItem"
+      }
     }
   },
   "required": [
-    "menu_name",
-    "menu_items",
     "$id",
-    "$schema"
+    "$schema",
+    "menu_name",
+    "menu_items"
   ],
   "additionalProperties": false,
   "definitions": {
-    "Windows": {
-      "title": "Windows",
-      "description": "Windows-specific instructions. You can override global keys here if needed",
-      "type": "object",
-      "properties": {
-        "name": {
-          "title": "Name",
-          "description": "The name of the menu item",
-          "minLength": 1,
-          "type": "string"
-        },
-        "description": {
-          "title": "Description",
-          "description": "A longer description of the menu item. Shown on popup messages.",
-          "type": "string"
-        },
-        "icon": {
-          "title": "Icon",
-          "description": "Path to the file representing or containing the icon.",
-          "minLength": 1,
-          "type": "string"
-        },
-        "precommand": {
-          "title": "Precommand",
-          "description": "(Simple, preferrably single-line) logic to run before the command is run. Runs before the env is activated, if that applies.",
-          "minLength": 1,
-          "type": "string"
-        },
-        "precreate": {
-          "title": "Precreate",
-          "description": "(Simple, preferrably single-line) logic to run before the shortcut is created.",
-          "minLength": 1,
-          "type": "string"
-        },
-        "command": {
-          "title": "Command",
-          "description": "Command to run with the menu item, expressed as a list of strings where each string is an argument",
-          "minItems": 1,
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "working_dir": {
-          "title": "Working Dir",
-          "description": "Working directory for the running process. Defaults to user directory on each platform.",
-          "minLength": 1,
-          "type": "string"
-        },
-        "activate": {
-          "title": "Activate",
-          "description": "Whether to activate the target environment before running `command`.",
-          "type": "boolean"
-        },
-        "terminal": {
-          "title": "Terminal",
-          "description": "Whether run the program in a terminal/console or not. On Windows, it only has an effect if activate is true. On MacOS, arguments are ignored.",
-          "type": "boolean"
-        },
-        "desktop": {
-          "title": "Desktop",
-          "description": "Whether to create a desktop icon in addition to the Start Menu item.",
-          "default": true,
-          "type": "boolean"
-        },
-        "quicklaunch": {
-          "title": "Quicklaunch",
-          "description": "Whether to create a quick launch icon in addition to the Start Menu item.",
-          "default": true,
-          "type": "boolean"
-        }
-      },
-      "additionalProperties": false
-    },
     "Linux": {
       "title": "Linux",
-      "description": "Linux-specific instructions. Check\nhttps://specifications.freedesktop.org/desktop-entry-spec/desktop-entry-spec-latest.html#recognized-keys\nfor more information. You can override global keys here if needed",
+      "description": "Linux-specific instructions. \n\nCheck the `Desktop entry specification <desktop-entry-spec>`__ for more details.\n\n.. desktop-entry-spec: https://specifications.freedesktop.org/desktop-entry-spec/desktop-entry-spec-latest.html#recognized-keys",
       "type": "object",
       "properties": {
         "name": {
           "title": "Name",
-          "description": "The name of the menu item",
           "minLength": 1,
           "type": "string"
         },
         "description": {
           "title": "Description",
-          "description": "A longer description of the menu item. Shown on popup messages.",
           "type": "string"
         },
         "icon": {
           "title": "Icon",
-          "description": "Path to the file representing or containing the icon.",
-          "minLength": 1,
-          "type": "string"
-        },
-        "precommand": {
-          "title": "Precommand",
-          "description": "(Simple, preferrably single-line) logic to run before the command is run. Runs before the env is activated, if that applies.",
-          "minLength": 1,
-          "type": "string"
-        },
-        "precreate": {
-          "title": "Precreate",
-          "description": "(Simple, preferrably single-line) logic to run before the shortcut is created.",
           "minLength": 1,
           "type": "string"
         },
         "command": {
           "title": "Command",
-          "description": "Command to run with the menu item, expressed as a list of strings where each string is an argument",
           "minItems": 1,
           "type": "array",
           "items": {
@@ -162,23 +70,29 @@
         },
         "working_dir": {
           "title": "Working Dir",
-          "description": "Working directory for the running process. Defaults to user directory on each platform.",
+          "minLength": 1,
+          "type": "string"
+        },
+        "precommand": {
+          "title": "Precommand",
+          "minLength": 1,
+          "type": "string"
+        },
+        "precreate": {
+          "title": "Precreate",
           "minLength": 1,
           "type": "string"
         },
         "activate": {
           "title": "Activate",
-          "description": "Whether to activate the target environment before running `command`.",
           "type": "boolean"
         },
         "terminal": {
           "title": "Terminal",
-          "description": "Whether run the program in a terminal/console or not. On Windows, it only has an effect if activate is true. On MacOS, arguments are ignored.",
           "type": "boolean"
         },
         "Categories": {
           "title": "Categories",
-          "description": "Categories in which the entry should be shown in a menu. See 'Registered categories' in http://www.freedesktop.org/Standards/menu-spec.",
           "anyOf": [
             {
               "type": "array",
@@ -194,22 +108,18 @@
         },
         "DBusActivatable": {
           "title": "Dbusactivatable",
-          "description": "A boolean value specifying if D-Bus activation is supported for this application.",
           "type": "boolean"
         },
         "GenericName": {
           "title": "Genericname",
-          "description": "Generic name of the application; e.g. if the name is 'conda', this would be 'Package Manager'.",
           "type": "string"
         },
         "Hidden": {
           "title": "Hidden",
-          "description": "Disable shortcut, signaling a missing resource.",
           "type": "boolean"
         },
         "Implements": {
           "title": "Implements",
-          "description": "List of supported interfaces. See https://specifications.freedesktop.org/desktop-entry-spec/desktop-entry-spec-latest.html#interfaces",
           "anyOf": [
             {
               "type": "array",
@@ -225,7 +135,6 @@
         },
         "Keywords": {
           "title": "Keywords",
-          "description": "Additional terms to describe this shortcut to aid in searching.",
           "anyOf": [
             {
               "type": "array",
@@ -241,7 +150,6 @@
         },
         "MimeType": {
           "title": "Mimetype",
-          "description": "The MIME type(s) supported by this application.",
           "anyOf": [
             {
               "type": "array",
@@ -257,12 +165,10 @@
         },
         "NoDisplay": {
           "title": "Nodisplay",
-          "description": "Do not show this item in the menu. Useful to associate MIME types and other registrations, without having an actual clickable item. Not to be confused with 'Hidden'.",
           "type": "boolean"
         },
         "NotShowIn": {
           "title": "Notshowin",
-          "description": "Desktop environments that should NOT display this item. It'll check against $XDG_CURRENT_DESKTOP.",
           "anyOf": [
             {
               "type": "array",
@@ -278,7 +184,6 @@
         },
         "OnlyShowIn": {
           "title": "Onlyshowin",
-          "description": "Desktop environments that should display this item. It'll check against $XDG_CURRENT_DESKTOP.",
           "anyOf": [
             {
               "type": "array",
@@ -294,35 +199,30 @@
         },
         "PrefersNonDefaultGPU": {
           "title": "Prefersnondefaultgpu",
-          "description": "Hint that the app prefers to be run on a more powerful discrete GPU if available",
           "type": "boolean"
         },
         "StartupNotify": {
           "title": "Startupnotify",
-          "description": "Advanced. See https://www.freedesktop.org/wiki/Specifications/startup-notification-spec/",
           "type": "boolean"
         },
         "StartupWMClass": {
           "title": "Startupwmclass",
-          "description": "Advanced. See https://www.freedesktop.org/wiki/Specifications/startup-notification-spec/",
           "type": "string"
         },
         "TryExec": {
           "title": "Tryexec",
-          "description": "Filename or absolute path to an executable file on disk used to determine if the program is actually installed and can be run. If the test fails, the shortcut might be ignored / hidden.",
           "type": "string"
         }
       },
       "additionalProperties": false
     },
-    "_CFBundleURLTypes": {
-      "title": "_CFBundleURLTypes",
+    "CFBundleURLTypesModel": {
+      "title": "CFBundleURLTypesModel",
       "description": "Describes a URL scheme associated with the app.",
       "type": "object",
       "properties": {
         "CFBundleTypeRole": {
           "title": "Cfbundletyperole",
-          "description": "This key specifies the app's role with respect to the URL.",
           "enum": [
             "Editor",
             "Viewer",
@@ -333,7 +233,6 @@
         },
         "CFBundleURLSchemes": {
           "title": "Cfbundleurlschemes",
-          "description": "URL schemes / protocols handled by this type (e.g. 'mailto').",
           "type": "array",
           "items": {
             "type": "string"
@@ -341,12 +240,10 @@
         },
         "CFBundleURLName": {
           "title": "Cfbundleurlname",
-          "description": "Abstract name for this URL type. Uniqueness recommended.",
           "type": "string"
         },
         "CFBundleURLIconFile": {
           "title": "Cfbundleurliconfile",
-          "description": "Name of the icon image file (minus the .icns extension).",
           "type": "string"
         }
       },
@@ -356,24 +253,21 @@
       ],
       "additionalProperties": false
     },
-    "_CFBundleDocumentTypes": {
-      "title": "_CFBundleDocumentTypes",
+    "CFBundleDocumentTypesModel": {
+      "title": "CFBundleDocumentTypesModel",
       "description": "Describes a document type associated with the app.",
       "type": "object",
       "properties": {
         "CFBundleTypeIconFile": {
           "title": "Cfbundletypeiconfile",
-          "description": "Name of the icon image file (minus the .icns extension).",
           "type": "string"
         },
         "CFBundleTypeName": {
           "title": "Cfbundletypename",
-          "description": "Abstract name for this document type. Uniqueness recommended.",
           "type": "string"
         },
         "CFBundleTypeRole": {
           "title": "Cfbundletyperole",
-          "description": "This key specifies the app's role with respect to the type.",
           "enum": [
             "Editor",
             "Viewer",
@@ -384,7 +278,6 @@
         },
         "LSItemContentTypes": {
           "title": "Lsitemcontenttypes",
-          "description": "List of UTI strings defining a supported file type; e.g. for PNG files, use 'public.png'. Sync with 'NSExportableTypes' key with the appropriate entries",
           "type": "array",
           "items": {
             "type": "string"
@@ -392,7 +285,6 @@
         },
         "LSHandlerRank": {
           "title": "Lshandlerrank",
-          "description": "Determines how Launch Services ranks this app among the apps that declare themselves editors or viewers of files of this type.",
           "enum": [
             "Owner",
             "Default",
@@ -411,41 +303,25 @@
     },
     "MacOS": {
       "title": "MacOS",
-      "description": "Mac-specific instructions. Check these URLs for more info:\n- CF* keys: https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html\n- LS* keys: https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/LaunchServicesKeys.html\n- entitlements: list those which should be true for the shortcut signing\n  See https://developer.apple.com/documentation/bundleresources/entitlements.\n\nYou can also override global keys here if needed.",
+      "description": "Mac-specific instructions. Check these URLs for more info:\n\n- ``CF*`` keys: see `Core Foundation Keys <cf-keys>`_\n- ``LS*`` keys: see `Launch Services Keys <ls-keys>`_\n- ``entitlements``: see `entitlements docs <entitlements-docs>`_\n\n.. _cf-keys: https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html\n.. _ls-keys: https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/LaunchServicesKeys.html\n.. _entitlements-docs: https://developer.apple.com/documentation/bundleresources/entitlements.",
       "type": "object",
       "properties": {
         "name": {
           "title": "Name",
-          "description": "The name of the menu item",
           "minLength": 1,
           "type": "string"
         },
         "description": {
           "title": "Description",
-          "description": "A longer description of the menu item. Shown on popup messages.",
           "type": "string"
         },
         "icon": {
           "title": "Icon",
-          "description": "Path to the file representing or containing the icon.",
-          "minLength": 1,
-          "type": "string"
-        },
-        "precommand": {
-          "title": "Precommand",
-          "description": "(Simple, preferrably single-line) logic to run before the command is run. Runs before the env is activated, if that applies.",
-          "minLength": 1,
-          "type": "string"
-        },
-        "precreate": {
-          "title": "Precreate",
-          "description": "(Simple, preferrably single-line) logic to run before the shortcut is created.",
           "minLength": 1,
           "type": "string"
         },
         "command": {
           "title": "Command",
-          "description": "Command to run with the menu item, expressed as a list of strings where each string is an argument",
           "minItems": 1,
           "type": "array",
           "items": {
@@ -454,76 +330,75 @@
         },
         "working_dir": {
           "title": "Working Dir",
-          "description": "Working directory for the running process. Defaults to user directory on each platform.",
+          "minLength": 1,
+          "type": "string"
+        },
+        "precommand": {
+          "title": "Precommand",
+          "minLength": 1,
+          "type": "string"
+        },
+        "precreate": {
+          "title": "Precreate",
           "minLength": 1,
           "type": "string"
         },
         "activate": {
           "title": "Activate",
-          "description": "Whether to activate the target environment before running `command`.",
           "type": "boolean"
         },
         "terminal": {
           "title": "Terminal",
-          "description": "Whether run the program in a terminal/console or not. On Windows, it only has an effect if activate is true. On MacOS, arguments are ignored.",
           "type": "boolean"
         },
         "CFBundleDisplayName": {
           "title": "Cfbundledisplayname",
-          "description": "Display name of the bundle, visible to users and used by Siri. If not provided, 'menuinst' will use the 'name' field.",
           "type": "string"
         },
         "CFBundleIdentifier": {
           "title": "Cfbundleidentifier",
+          "pattern": "^[A-z0-9\\-\\.]+$",
           "type": "string"
         },
         "CFBundleName": {
           "title": "Cfbundlename",
-          "description": "Short name of the bundle. Maybe used if 'CFBundleDisplayName' is absent. If not provided, 'menuinst' will generate one from the 'name' field.",
           "maxLength": 16,
           "type": "string"
         },
         "CFBundleSpokenName": {
           "title": "Cfbundlespokenname",
-          "description": "Suitable replacement for text-to-speech operations on the app For example, 'my app one two three' instead of 'MyApp123'.",
           "type": "string"
         },
         "CFBundleVersion": {
           "title": "Cfbundleversion",
-          "description": "Build version number for the bundle. In the context of 'menuinst' this can be used to signal a new version of the menu item for the same application version.",
           "pattern": "^\\S+$",
           "type": "string"
         },
         "CFBundleURLTypes": {
           "title": "Cfbundleurltypes",
-          "description": "URL types supported by this app.",
           "type": "array",
           "items": {
-            "$ref": "#/definitions/_CFBundleURLTypes"
+            "$ref": "#/definitions/CFBundleURLTypesModel"
           }
         },
         "CFBundleDocumentTypes": {
           "title": "Cfbundledocumenttypes",
-          "description": "Document types supported by this app.",
           "type": "array",
           "items": {
-            "$ref": "#/definitions/_CFBundleDocumentTypes"
+            "$ref": "#/definitions/CFBundleDocumentTypesModel"
           }
         },
         "LSApplicationCategoryType": {
           "title": "Lsapplicationcategorytype",
-          "description": "The App Store uses this string to determine the appropriate categorization for the app",
           "pattern": "^public\\.app-category\\.\\S+$",
           "type": "string"
         },
         "LSBackgroundOnly": {
           "title": "Lsbackgroundonly",
-          "description": "Specifies whether this app runs only in the background.",
           "type": "boolean"
         },
         "LSEnvironment": {
           "title": "Lsenvironment",
-          "description": "List of key-value pairs used to define environment variables.",
           "type": "object",
           "additionalProperties": {
             "type": "string"
@@ -531,23 +406,19 @@
         },
         "LSMinimumSystemVersion": {
           "title": "Lsminimumsystemversion",
-          "description": "Minimum version of macOS required for this app to run, as x.y.z. For example, for macOS v10.4 and later, use '10.4.0'.",
           "pattern": "^\\d+\\.\\d+\\.\\d+$",
           "type": "string"
         },
         "LSMultipleInstancesProhibited": {
           "title": "Lsmultipleinstancesprohibited",
-          "description": "Whether an app is prohibited from running simultaneously in multiple user sessions",
           "type": "boolean"
         },
         "LSRequiresNativeExecution": {
           "title": "Lsrequiresnativeexecution",
-          "description": "If true, prevent a universal binary from being run under Rosetta emulation on an Intel-based Mac",
           "type": "boolean"
         },
         "entitlements": {
           "title": "Entitlements",
-          "description": "List of permissions to request for the launched application. See https://developer.apple.com/documentation/bundleresources/entitlements for a full list of possible values.",
           "type": "array",
           "items": {
             "type": "string",
@@ -556,7 +427,6 @@
         },
         "link_in_bundle": {
           "title": "Link In Bundle",
-          "description": "Paths that should be symlinked into the shortcut app bundle. It takes a mapping of source to destination paths. Destination paths must be relative. Placeholder `{{ MENU_ITEM_LOCATION }}` can be useful.",
           "type": "object",
           "additionalProperties": {
             "type": "string",
@@ -566,19 +436,82 @@
       },
       "additionalProperties": false
     },
-    "Platforms": {
-      "title": "Platforms",
-      "description": "Platform specific options. Presence of a platform enables menu items in that platform",
+    "Windows": {
+      "title": "Windows",
+      "description": "Windows-specific instructions. You can override global keys here if needed",
       "type": "object",
       "properties": {
-        "win": {
-          "$ref": "#/definitions/Windows"
+        "name": {
+          "title": "Name",
+          "minLength": 1,
+          "type": "string"
         },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "icon": {
+          "title": "Icon",
+          "minLength": 1,
+          "type": "string"
+        },
+        "command": {
+          "title": "Command",
+          "minItems": 1,
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "working_dir": {
+          "title": "Working Dir",
+          "minLength": 1,
+          "type": "string"
+        },
+        "precommand": {
+          "title": "Precommand",
+          "minLength": 1,
+          "type": "string"
+        },
+        "precreate": {
+          "title": "Precreate",
+          "minLength": 1,
+          "type": "string"
+        },
+        "activate": {
+          "title": "Activate",
+          "type": "boolean"
+        },
+        "terminal": {
+          "title": "Terminal",
+          "type": "boolean"
+        },
+        "desktop": {
+          "title": "Desktop",
+          "default": true,
+          "type": "boolean"
+        },
+        "quicklaunch": {
+          "title": "Quicklaunch",
+          "default": true,
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "Platforms": {
+      "title": "Platforms",
+      "description": "Platform specific options. \n\nNote each of these fields supports the same keys as the top-level :class:`MenuItem`\n(sans ``platforms`` itself), in case overrides are needed.",
+      "type": "object",
+      "properties": {
         "linux": {
           "$ref": "#/definitions/Linux"
         },
         "osx": {
           "$ref": "#/definitions/MacOS"
+        },
+        "win": {
+          "$ref": "#/definitions/Windows"
         }
       },
       "additionalProperties": false
@@ -590,57 +523,48 @@
       "properties": {
         "name": {
           "title": "Name",
-          "description": "The name of the menu item",
           "minLength": 1,
           "type": "string"
         },
         "description": {
           "title": "Description",
-          "description": "A longer description of the menu item. Shown on popup messages.",
-          "type": "string"
-        },
-        "icon": {
-          "title": "Icon",
-          "description": "Path to the file representing or containing the icon.",
-          "minLength": 1,
-          "type": "string"
-        },
-        "precommand": {
-          "title": "Precommand",
-          "description": "(Simple, preferrably single-line) logic to run before the command is run. Runs before the env is activated, if that applies.",
-          "minLength": 1,
-          "type": "string"
-        },
-        "precreate": {
-          "title": "Precreate",
-          "description": "(Simple, preferrably single-line) logic to run before the shortcut is created.",
-          "minLength": 1,
           "type": "string"
         },
         "command": {
           "title": "Command",
-          "description": "Command to run with the menu item, expressed as a list of strings where each string is an argument",
           "minItems": 1,
           "type": "array",
           "items": {
             "type": "string"
           }
         },
+        "icon": {
+          "title": "Icon",
+          "minLength": 1,
+          "type": "string"
+        },
+        "precommand": {
+          "title": "Precommand",
+          "minLength": 1,
+          "type": "string"
+        },
+        "precreate": {
+          "title": "Precreate",
+          "minLength": 1,
+          "type": "string"
+        },
         "working_dir": {
           "title": "Working Dir",
-          "description": "Working directory for the running process. Defaults to user directory on each platform.",
           "minLength": 1,
           "type": "string"
         },
         "activate": {
           "title": "Activate",
-          "description": "Whether to activate the target environment before running `command`.",
           "default": true,
           "type": "boolean"
         },
         "terminal": {
           "title": "Terminal",
-          "description": "Whether run the program in a terminal/console or not. On Windows, it only has an effect if activate is true. On MacOS, arguments are ignored.",
           "default": false,
           "type": "boolean"
         },
