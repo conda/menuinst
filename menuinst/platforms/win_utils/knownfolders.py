@@ -28,8 +28,8 @@ THE SOFTWARE.
 import ctypes
 import os
 from ctypes import windll, wintypes
-from uuid import UUID
 from logging import getLogger
+from uuid import UUID
 
 logger = getLogger(__name__)
 

@@ -1,16 +1,15 @@
 """
 """
 import os
-from pathlib import Path
 import shutil
-import xml.etree.ElementTree as XMLTree
 import time
+import xml.etree.ElementTree as XMLTree
 from logging import getLogger
-from typing import Tuple, Iterable, Dict
+from pathlib import Path
+from typing import Dict, Iterable, Tuple
 
+from ..utils import UnixLex, add_xml_child, indent_xml_tree, unlink
 from .base import Menu, MenuItem, menuitem_defaults
-from ..utils import indent_xml_tree, add_xml_child, UnixLex, unlink
-
 
 log = getLogger(__name__)
 

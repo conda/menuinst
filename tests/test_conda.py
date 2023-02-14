@@ -1,23 +1,21 @@
 """
 Integration tests with conda
 """
+import json
 import os
 import sys
+from contextlib import contextmanager
+from pathlib import Path
 from subprocess import check_output
 from tempfile import NamedTemporaryFile
-from pathlib import Path
-from contextlib import contextmanager
-import json
 
 import pytest
 from conda.models.version import VersionOrder
-from conda.testing.integration import run_command  
+from conda.testing.integration import run_command
+from conftest import BASE_PREFIX, DATA, PLATFORM
 
-from menuinst.platforms import Menu, MenuItem
 from menuinst._schema import validate
-
-from conftest import DATA, PLATFORM, BASE_PREFIX
-
+from menuinst.platforms import Menu, MenuItem
 
 ENV_VARS = {
     k: v

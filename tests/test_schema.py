@@ -1,11 +1,11 @@
 import pytest
+from conftest import DATA
 
 # from hypothesis import given, settings, HealthCheck
 # from hypothesis_jsonschema import from_schema
 from pydantic import ValidationError
 
-from menuinst._schema import validate, MenuItem, BasePlatformSpecific
-from conftest import DATA
+from menuinst._schema import BasePlatformSpecific, MenuItem, validate
 
 # # suppress_health_check=3 --> too_slow
 # @settings(max_examples=100, suppress_health_check=[HealthCheck.too_slow])
@@ -29,7 +29,7 @@ def test_MenuItemMetadata_synced_with_OptionalMenuItemMetadata():
     fields_as_optional = BasePlatformSpecific.__fields__
     assert fields_as_required.keys() == fields_as_optional.keys()
     for (_, required), (_, optional) in zip(
-        sorted(fields_as_required.items()), 
+        sorted(fields_as_required.items()),
         sorted(fields_as_optional.items())
     ):
         assert required.field_info.description == optional.field_info.description

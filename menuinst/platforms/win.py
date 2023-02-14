@@ -1,17 +1,16 @@
 """
 """
 import os
-import warnings
 import shutil
+import warnings
 from logging import getLogger
 from pathlib import Path
 from subprocess import run
 from tempfile import NamedTemporaryFile
-from typing import Tuple, Optional, Dict, Any
+from typing import Any, Dict, Optional, Tuple
 
-from .base import Menu, MenuItem
 from ..utils import WinLex, unlink
-
+from .base import Menu, MenuItem
 from .win_utils.knownfolders import folder_path as windows_folder_path
 
 log = getLogger(__name__)

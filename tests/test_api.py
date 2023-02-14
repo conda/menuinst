@@ -1,18 +1,17 @@
 """"""
 import os
 import plistlib
-import sys
 import subprocess
+import sys
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 from time import sleep, time
 
 import pytest
+from conftest import DATA, PLATFORM
 
 from menuinst.api import install
 from menuinst.utils import DEFAULT_PREFIX
-
-from conftest import DATA, PLATFORM
 
 
 def check_output_from_shortcut(delete_files, json_path, expected_output=None):
@@ -120,8 +119,8 @@ def test_no_entitlements_no_signature(delete_files):
 @pytest.mark.skipif(PLATFORM != "osx", reason="macOS only")
 def test_info_plist(delete_files):
     paths, _ = check_output_from_shortcut(
-        delete_files, 
-        "entitlements.json", 
+        delete_files,
+        "entitlements.json",
         expected_output="entitlements"
     )
     app_dir = next(p for p in paths if p.name.endswith('.app'))
@@ -139,7 +138,7 @@ def test_info_plist(delete_files):
 @pytest.mark.skipif(PLATFORM != "osx", reason="macOS only")
 def test_osx_symlinks(delete_files):
     paths, output = check_output_from_shortcut(
-        delete_files, 
+        delete_files,
         "osx_symlinks.json",
     )
     app_dir = next(p for p in paths if p.name.endswith('.app'))

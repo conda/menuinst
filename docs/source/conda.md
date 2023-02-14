@@ -9,7 +9,7 @@ While it can be used as a Python library on its own,
 If you want to learn how to create shortcuts for `conda` packages you are building and maintaining, check {doc}`defining-shortcuts`.
 ```
 
-`menuinst` integrates natively with `conda`, so as an end user you don't need to do anything to enable it. 
+`menuinst` integrates natively with `conda`, so as an end user you don't need to do anything to enable it.
 If a package is shipping a `menuinst`-compatible shortcut, it will be detected at installation time, and `conda` will invoke `menuinst` on its own.
 
 If you want to change the default behavior, there are some command-line flags you can use:

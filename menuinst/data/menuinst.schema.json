@@ -43,7 +43,7 @@
   "definitions": {
     "Linux": {
       "title": "Linux",
-      "description": "Linux-specific instructions. \n\nCheck the `Desktop entry specification <desktop-entry-spec>`__ for more details.\n\n.. desktop-entry-spec: https://specifications.freedesktop.org/desktop-entry-spec/desktop-entry-spec-latest.html#recognized-keys",
+      "description": "Linux-specific instructions.\n\nCheck the `Desktop entry specification <desktop-entry-spec>`__ for more details.\n\n.. desktop-entry-spec: https://specifications.freedesktop.org/desktop-entry-spec/desktop-entry-spec-latest.html#recognized-keys",
       "type": "object",
       "properties": {
         "name": {
@@ -501,7 +501,7 @@
     },
     "Platforms": {
       "title": "Platforms",
-      "description": "Platform specific options. \n\nNote each of these fields supports the same keys as the top-level :class:`MenuItem`\n(sans ``platforms`` itself), in case overrides are needed.",
+      "description": "Platform specific options.\n\nNote each of these fields supports the same keys as the top-level :class:`MenuItem`\n(sans ``platforms`` itself), in case overrides are needed.",
       "type": "object",
       "properties": {
         "linux": {

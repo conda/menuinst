@@ -2,13 +2,14 @@
 Generate JSON schemas from pydantic models
 """
 
-from pprint import pprint
-from typing import Optional, Union, List, Literal, Dict
-from pathlib import Path
-from logging import getLogger
 import json
+from logging import getLogger
+from pathlib import Path
+from pprint import pprint
+from typing import Dict, List, Literal, Optional, Union
 
-from pydantic import BaseModel as _BaseModel, Field, constr, conlist
+from pydantic import BaseModel as _BaseModel
+from pydantic import Field, conlist, constr
 
 log = getLogger(__name__)
 
@@ -71,8 +72,8 @@ class Windows(BasePlatformSpecific):
 
 class Linux(BasePlatformSpecific):
     """
-    Linux-specific instructions. 
-    
+    Linux-specific instructions.
+
     Check the `Desktop entry specification <desktop-entry-spec>`__ for more details.
 
     .. desktop-entry-spec: https://specifications.freedesktop.org/desktop-entry-spec/desktop-entry-spec-latest.html#recognized-keys
@@ -82,7 +83,7 @@ class Linux(BasePlatformSpecific):
     """
     Categories in which the entry should be shown in a menu.
     "See 'Registered categories' in the `Menu Spec <menu-spec>`__.
-    
+
     .. menu-spec: http://www.freedesktop.org/Standards/menu-spec
     """
     DBusActivatable: Optional[bool] = None
@@ -107,7 +108,7 @@ class Linux(BasePlatformSpecific):
     NoDisplay: Optional[bool] = None
     """
     Do not show this item in the menu. Useful to associate MIME types
-    and other registrations, without having an actual clickable item. 
+    and other registrations, without having an actual clickable item.
     Not to be confused with 'Hidden'.
     """
     NotShowIn: Optional[Union[List[str], constr(regex=r"^.+;$")]] = None
@@ -231,7 +232,7 @@ class MacOS(BasePlatformSpecific):
     "Whether an app is prohibited from running simultaneously in multiple user sessions."
     LSRequiresNativeExecution: Optional[bool] = None
     """
-    If true, prevent a universal binary from being run under 
+    If true, prevent a universal binary from being run under
     Rosetta emulation on an Intel-based Mac.
     """
     entitlements: Optional[List[constr(regex=r"[a-z0-9\.\-]+")]] = None
@@ -251,8 +252,8 @@ class MacOS(BasePlatformSpecific):
 
 class Platforms(BaseModel):
     """
-    Platform specific options. 
-    
+    Platform specific options.
+
     Note each of these fields supports the same keys as the top-level :class:`MenuItem`
     (sans ``platforms`` itself), in case overrides are needed.
     """

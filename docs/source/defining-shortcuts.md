@@ -19,7 +19,7 @@ If you want to learn more, check the {doc}`reference` for full details on the av
 The JSON configurations follow a well-defined schema documented at {ref}`schema`.
 ```
 
-## Minimal example 
+## Minimal example
 
 A minimal example to launch Python's `turtle` module would be:
 
@@ -44,10 +44,9 @@ A minimal example to launch Python's `turtle` module would be:
 
 ```{tip}
 Note how the `menu_name` is using a placeholder `{{ PY_VER }}`.
-`menuinst` supports Jinja-like variables. 
+`menuinst` supports Jinja-like variables.
 The full list of available placeholders is available at {ref}`placeholders`.
 ```
 
 This is not using any customization options or advanced features.
 It's the bare minimum to make it work: a name, the command, and the target platforms.
-
