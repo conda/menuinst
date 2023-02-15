@@ -1,8 +1,9 @@
 """
 """
 import os
-import warnings
 import shutil
+import warnings
+import winreg
 from logging import getLogger
 from pathlib import Path
 from subprocess import run, CompletedProcess
@@ -163,7 +164,7 @@ class WindowsMenuItem(MenuItem):
     def remove(self) -> Tuple[Path, ...]:
         self._unregister_file_extensions()
         self._unregister_url_protocols()
-        
+
         paths = self._paths()
         for path in paths:
             log.debug("Removing %s", path)
@@ -264,14 +265,14 @@ class WindowsMenuItem(MenuItem):
                 ]
         else:
             command = self.render_key("command")
-        
+
         return WinLex.quote_args(command)
 
     def _ftype_identifier(self, extension):
         identifier = self.render_key("name", slug=True)
         return f"{identifier}.AssocFile{extension}"
 
-    def _register_file_extensions(self):
+    def _register_file_extensions_cmd(self):
         """
         This function uses CMD's `assoc` and `ftype` commands.
         """
@@ -279,13 +280,13 @@ class WindowsMenuItem(MenuItem):
         if not extensions:
             return
         command = " ".join(self._process_command())
-        exts= list(dict.fromkeys([ext.lower() for ext in extensions]))
+        exts = list(dict.fromkeys([ext.lower() for ext in extensions]))
         for ext in exts:
             identifier = self._ftype_identifier(ext)
             self._cmd_ftype(identifier, command)
             self._cmd_assoc(ext, associate_to=identifier)
 
-    def _unregister_file_extensions(self):
+    def _unregister_file_extensions_cmd(self):
         """
         This function uses CMD's `assoc` and `ftype` commands.
         """
@@ -298,11 +299,6 @@ class WindowsMenuItem(MenuItem):
             self._cmd_ftype(identifier)  # remove
             # TODO: Do we need to clean up the `assoc` mappings too?
 
-    def _register_url_protocols(self):
-        """WIP"""
-    def _unregister_url_protocols(self):
-        """WIP"""
-    
     @staticmethod
     def _cmd_assoc(extension, associate_to=None, query=False, remove=False) -> CompletedProcess:
         "https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/assoc"
@@ -317,8 +313,8 @@ class WindowsMenuItem(MenuItem):
         elif remove:
             arg = f"{extension}="
         p = run(
-            ["cmd", "/C", f"assoc {arg}"], 
-            capture_output=True, 
+            ["cmd", "/C", f"assoc {arg}"],
+            capture_output=True,
             text=True,
         )
         p.check_returncode()
@@ -336,9 +332,87 @@ class WindowsMenuItem(MenuItem):
         elif remove:
             arg = f"{identifier}="
         p = run(
-            ["cmd", "/C", f"assoc {arg}"], 
-            capture_output=True, 
+            ["cmd", "/C", f"assoc {arg}"],
+            capture_output=True,
             text=True,
         )
         p.check_returncode()
         return p
+
+    def _register_file_extensions(self):
+        """WIP"""
+        extensions = self.metadata["file_extensions"]
+        if not extensions:
+            return
+
+        with winreg.OpenKeyEx(
+            winreg.HKEY_LOCAL_MACHINE
+            if self.parent.mode == "system"
+            else winreg.HKEY_CURRENT_USER,
+            r"Software\Classes"
+        ) as key:
+            command = " ".join(self._process_command())
+            icon = self.render_key("icon")
+            exts = list(dict.fromkeys([ext.lower() for ext in extensions]))
+            for ext in exts:
+                # First we associate an extension with a handler
+                handler_id = self._ftype_identifier(ext)
+                ext_key = winreg.CreateKey(key, ext)
+                winreg.SetValueEx(ext_key, "", 0, winreg.REG_SZ, handler_id)
+                log.debug("Created registry entry for extension '%s'", ext)
+
+                # Now we register the handler
+                handler_key = winreg.CreateKey(key, handler_id)
+                handler_desc = f"{ext} {self.metadata['name']} handler"
+                winreg.SetValueEx(handler_key, "", 0, winreg.REG_SZ, handler_desc)
+                log.debug("Created registry entry for handler '%s'", handler_id)
+
+                # and set the 'open' command
+                command_key = winreg.CreateKey(handler_key, r"shell\open\command")
+                winreg.SetValueEx(command_key, "", 0, winreg.REG_SZ, command)
+                log.debug("Created registry entry for command '%s'", command)
+
+                if icon:
+                    icon_key = winreg.CreateKey(handler_key, "DefaultIcon")
+                    winreg.SetValueEx(icon_key, "", 0, winreg.REG_SZ, icon)
+                    log.debug("Created registry entry for icon '%s'", icon)
+
+                # TODO: We can add contextual menu items too
+                # via f"{handler_key}\shell\<Command Title>\command"
+
+    def _unregister_file_extensions(self):
+        extensions = self.metadata["file_extensions"]
+        if not extensions:
+            return
+
+        with winreg.OpenKeyEx(
+            winreg.HKEY_LOCAL_MACHINE
+            if self.parent.mode == "system"
+            else winreg.HKEY_CURRENT_USER,
+            r"Software\Classes"
+        ) as key:
+            exts = list(dict.fromkeys([ext.lower() for ext in extensions]))
+            for ext in exts:
+                handler_id = self._ftype_identifier(ext)
+                log.debug("Deleting registry key for %s", handler_id)
+                winreg.DeleteKey(key, handler_id)
+
+                value, _  = winreg.QueryValueEx(key, "")
+                if value == handler_id:
+                    log.debug("Deleting registry key for %s", ext)
+                    winreg.DeleteKey(key, ext)
+                else:
+                    log.debug(
+                        "Extension %s registered with a different handler (%s) than expected (%s). "
+                        "Not deleting",
+                        ext,
+                        value,
+                        handler_id,
+                    )
+
+    def _register_url_protocols(self):
+        """WIP"""
+    def _unregister_url_protocols(self):
+        """WIP"""
+
+
