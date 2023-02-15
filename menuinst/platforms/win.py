@@ -5,7 +5,7 @@ import warnings
 import shutil
 from logging import getLogger
 from pathlib import Path
-from subprocess import run
+from subprocess import run, CompletedProcess
 from tempfile import NamedTemporaryFile
 from typing import Tuple, Optional, Dict, Any
 
@@ -127,30 +127,13 @@ class WindowsMenuItem(MenuItem):
         from .win_utils.winshortcut import create_shortcut
 
         self._precreate()
-
-        activate = self.metadata["activate"]
-        if activate:
-            script = self._write_script()
         paths = self._paths()
 
         for path in paths:
             if not path.suffix == ".lnk":
                 continue
 
-            if activate:
-                if self.metadata["terminal"]:
-                    command = ["cmd", "/K", str(script)]
-                else:
-                    system32 = Path(os.environ.get("SystemRoot", "C:\\Windows")) / "system32"
-                    command = [
-                        str(system32 / "WindowsPowerShell" / "v1.0" / "powershell.exe"),
-                        f"\"start '{script}' -WindowStyle hidden\"",
-                    ]
-            else:
-                command = self.render_key("command")
-
-            target_path, *arguments = WinLex.quote_args(command)
-
+            target_path, *arguments = self._process_command()
             working_dir = self.render_key("working_dir")
             if working_dir:
                 Path(working_dir).mkdir(parents=True, exist_ok=True)
@@ -171,13 +154,21 @@ class WindowsMenuItem(MenuItem):
                 working_dir,
                 icon,
             )
+
+        self._register_file_extensions()
+        self._register_url_protocols()
+
         return paths
 
     def remove(self) -> Tuple[Path, ...]:
+        self._unregister_file_extensions()
+        self._unregister_url_protocols()
+        
         paths = self._paths()
         for path in paths:
             log.debug("Removing %s", path)
             unlink(path, missing_ok=True)
+
         return paths
 
     def _paths(self) -> Tuple[Path, ...]:
@@ -259,3 +250,90 @@ class WindowsMenuItem(MenuItem):
             f.write(self._command())
 
         return script_path
+
+    def _process_command(self) -> Tuple[str]:
+        if self.metadata["activate"]:
+            script = self._write_script()
+            if self.metadata["terminal"]:
+                command = ["cmd", "/K", str(script)]
+            else:
+                system32 = Path(os.environ.get("SystemRoot", "C:\\Windows")) / "system32"
+                command = [
+                    str(system32 / "WindowsPowerShell" / "v1.0" / "powershell.exe"),
+                    f"\"start '{script}' -WindowStyle hidden\"",
+                ]
+        else:
+            command = self.render_key("command")
+        
+        return WinLex.quote_args(command)
+
+    def _ftype_identifier(self, extension):
+        identifier = self.render_key("name", slug=True)
+        return f"{identifier}.AssocFile{extension}"
+
+    def _register_file_extensions(self):
+        """
+        This function uses CMD's `assoc` and `ftype` commands.
+        """
+        command = " ".join(self._process_command())
+        exts= list(dict.fromkeys([ext.lower() for ext in self.metadata["file_extensions"]]))
+        for ext in exts:
+            identifier = self._ftype_identifier(ext)
+            self._cmd_ftype(identifier, command)
+            self._cmd_assoc(ext, associate_to=identifier)
+
+    def _unregister_file_extensions(self):
+        """
+        This function uses CMD's `assoc` and `ftype` commands.
+        """
+        # Then, associate file extension
+        exts = list(dict.fromkeys([ext.lower() for ext in self.metadata["file_extensions"]]))
+        for ext in exts:
+            identifier = self._ftype_identifier(ext)
+            self._cmd_ftype(identifier)  # remove
+            # TODO: Do we need to clean up the `assoc` mappings too?
+
+    def _register_url_protocols(self):
+        """WIP"""
+    def _unregister_url_protocols(self):
+        """WIP"""
+    
+    @staticmethod
+    def _cmd_assoc(extension, associate_to=None, query=False, remove=False) -> CompletedProcess:
+        "https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/assoc"
+        if sum([associate_to, query, remove]) != 1:
+            raise ValueError("Only one of {associate_to, query, remove} must be set.")
+        if not extension.startswith("."):
+            raise ValueError("extension must startwith '.'")
+        if associate_to:
+            arg = f"{extension}={associate_to}"
+        elif query:
+            arg = extension
+        elif remove:
+            arg = f"{extension}="
+        p = run(
+            ["cmd", "/C", f"assoc {arg}"], 
+            capture_output=True, 
+            text=True,
+        )
+        p.check_returncode()
+        return p
+
+    @staticmethod
+    def _cmd_ftype(identifier, command=None, query=False, remove=False) -> CompletedProcess:
+        "https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/ftype"
+        if sum([command, query, remove]) != 1:
+            raise ValueError("Only one of {command, query, remove} must be set.")
+        if command:
+            arg = f"{identifier}={command}"
+        elif query:
+            arg = identifier
+        elif remove:
+            arg = f"{identifier}="
+        p = run(
+            ["cmd", "/C", f"assoc {arg}"], 
+            capture_output=True, 
+            text=True,
+        )
+        p.check_returncode()
+        return p
