@@ -357,24 +357,21 @@ class WindowsMenuItem(MenuItem):
             for ext in exts:
                 # First we associate an extension with a handler
                 handler_id = self._ftype_identifier(ext)
-                ext_key = winreg.CreateKey(key, ext)
-                winreg.SetValueEx(ext_key, "", 0, winreg.REG_SZ, handler_id)
+                winreg.SetValue(key, ext, winreg.REG_SZ, handler_id)
                 log.debug("Created registry entry for extension '%s'", ext)
 
                 # Now we register the handler
-                handler_key = winreg.CreateKey(key, handler_id)
                 handler_desc = f"{ext} {self.metadata['name']} handler"
-                winreg.SetValueEx(handler_key, "", 0, winreg.REG_SZ, handler_desc)
+                winreg.SetValue(key, handler_id, winreg.REG_SZ, handler_desc)
                 log.debug("Created registry entry for handler '%s'", handler_id)
 
                 # and set the 'open' command
-                command_key = winreg.CreateKey(handler_key, r"shell\open\command")
-                winreg.SetValueEx(command_key, "", 0, winreg.REG_SZ, command)
+                subkey = rf"{handler_id}\shell\open\command"
+                winreg.SetValue(key, subkey, winreg.REG_SZ, command)
                 log.debug("Created registry entry for command '%s'", command)
 
                 if icon:
-                    icon_key = winreg.CreateKey(handler_key, "DefaultIcon")
-                    winreg.SetValueEx(icon_key, "", 0, winreg.REG_SZ, icon)
+                    winreg.SetValue(key, fr"{handler_id}\DefaultIcon", winreg.REG_SZ, icon)
                     log.debug("Created registry entry for icon '%s'", icon)
 
                 # TODO: We can add contextual menu items too
@@ -395,7 +392,14 @@ class WindowsMenuItem(MenuItem):
             for ext in exts:
                 handler_id = self._ftype_identifier(ext)
                 log.debug("Deleting registry key for %s", handler_id)
-                winreg.DeleteKey(key, handler_id)
+                for subkey in (
+                    rf"{handler_id}\shell\open\command",
+                    rf"{handler_id}\shell\open",
+                    rf"{handler_id}\shell",
+                    fr"{handler_id}\DefaultIcon",
+                    handler_id,
+                ):
+                    winreg.DeleteKey(key, subkey)
 
                 value, _  = winreg.QueryValueEx(key, "")
                 if value == handler_id:
@@ -411,8 +415,45 @@ class WindowsMenuItem(MenuItem):
                     )
 
     def _register_url_protocols(self):
-        """WIP"""
+        "See https://learn.microsoft.com/en-us/previous-versions/windows/internet-explorer/ie-developer/platform-apis/aa767914(v=vs.85)"
+        protocols = self.metadata["url_protocols"]
+        if not protocols:
+            return
+
+        command = " ".join(self._process_command())
+        icon = self.render_key("icon")
+        for protocol in protocols:
+            if self.parent.mode == "system":
+                key = winreg.CreateKey(winreg.HKEY_CLASSES_ROOT, protocol)
+            else:
+                key = winreg.CreateKey(winreg.HKEY_CURRENT_USER, fr"Software\Classes\{protocol}")
+            with key:
+                winreg.SetValue(key, "", winreg.REG_SZ, f"URL:{protocol.title()} Protocol")
+                winreg.SetValue(key, "URL Protocol", winreg.REG_SZ, "")
+                winreg.SetValue(key, r"shell\open\command", winreg.REG_SZ, command)
+                # We add this one value for traceability; not required
+                winreg.SetValue(key, "_menuinst", winreg.REG_SZ, self._ftype_identifier(protocol))
+                if icon:
+                    winreg.SetValue(key, "DefaultIcon", winreg.REG_SZ, icon)
+
     def _unregister_url_protocols(self):
-        """WIP"""
+        protocols = self.metadata["url_protocols"]
+        if not protocols:
+            return
 
-
+        for protocol in protocols:
+            if self.parent.mode == "system":
+                key = winreg.OpenKey(winreg.HKEY_CLASSES_ROOT, protocol)
+            else:
+                key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, fr"Software\Classes\{protocol}")
+            with key:
+                value, _  = winreg.QueryValueEx(key, "_menuinst")
+                if value == self._ftype_identifier(protocol):
+                    for subkey in (
+                        r"shell\open\command",
+                        r"shell\open",
+                        "shell",
+                        "_menuinst",
+                        "DefaultIcon",
+                    ):
+                        winreg.DeleteKey(key, subkey)
