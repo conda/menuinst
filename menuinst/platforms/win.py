@@ -275,8 +275,11 @@ class WindowsMenuItem(MenuItem):
         """
         This function uses CMD's `assoc` and `ftype` commands.
         """
+        extensions = self.metadata["file_extensions"]
+        if not extensions:
+            return
         command = " ".join(self._process_command())
-        exts= list(dict.fromkeys([ext.lower() for ext in self.metadata["file_extensions"]]))
+        exts= list(dict.fromkeys([ext.lower() for ext in extensions]))
         for ext in exts:
             identifier = self._ftype_identifier(ext)
             self._cmd_ftype(identifier, command)
@@ -286,8 +289,10 @@ class WindowsMenuItem(MenuItem):
         """
         This function uses CMD's `assoc` and `ftype` commands.
         """
-        # Then, associate file extension
-        exts = list(dict.fromkeys([ext.lower() for ext in self.metadata["file_extensions"]]))
+        extensions = self.metadata["file_extensions"]
+        if not extensions:
+            return
+        exts = list(dict.fromkeys([ext.lower() for ext in extensions]))
         for ext in exts:
             identifier = self._ftype_identifier(ext)
             self._cmd_ftype(identifier)  # remove
