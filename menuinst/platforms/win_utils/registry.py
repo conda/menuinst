@@ -9,7 +9,7 @@ log = getLogger(__name__)
 
 
 def _reg_exe(*args, check=True):
-    p = run(["reg.exe", "/f", *args], capture_output=True, text=True)
+    p = run(["reg.exe", *args, "/f"], capture_output=True, text=True)
     log.debug("Ran reg.exe with args %s", args)
     log.debug("Return: %s", p.returncode)
     log.debug("Stdout:\n%s", p.stdout)
