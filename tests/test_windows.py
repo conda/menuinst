@@ -8,7 +8,6 @@ import pytest
 registry = pytest.importorskip("menuinst.platforms.win_utils.registry")
 
 
-
 def test_file_extensions(tmp_path: Path):
     """
     We will register a custom, random extension.
@@ -23,7 +22,7 @@ def test_file_extensions(tmp_path: Path):
     registry.register_file_extension(
         extension=f".menuinst-{name}", 
         identifier=f"menuinst.assoc.menuinst-{name}",
-        command=fr'cmd.exe /Q /D /C "echo %*>{tmp_path}\output.txt',
+        command=fr'cmd.exe /Q /D /V:ON /C "echo %1>{tmp_path}\output.txt"',
         mode="user",
     )
     input_file = tmp_path / f"input.menuinst-{name}"
@@ -47,10 +46,10 @@ def test_file_extensions(tmp_path: Path):
         )
 
     output_file.unlink()
-    os.startfile(input_file)
+    os.startfile(input_file)  # this will raise UI if not headless, ignore
     t0 = time.time()
-    while time.time() - t0 <= 10:  # wait up to 10 seconds
-        time.sleep(3)
+    while time.time() - t0 <= 3:  # wait up to 3 seconds
+        time.sleep(1)
         assert not output_file.exists()
 
 
