@@ -1,5 +1,17 @@
-"""
+r"""
 Utilities for Windows Registry manipulation
+
+Notes:
+
+winreg.SetValue -> sets _keys_ with default ("") values
+winreg.SetValueEx -> sets values with named contents
+
+This is important when the argument has backslashes.
+SetValue will process the backslashes into a path of keys
+SetValueEx will create a value with name "path\with\keys"
+
+
+Mnemonic: SetValueEx for "excalars" (scalars, named values)
 """
 from logging import getLogger
 from subprocess import run
@@ -20,14 +32,37 @@ def _reg_exe(*args, check=True):
 
 
 def register_file_extension(extension, identifier, command, icon=None, mode="user"):
+    """
+    We want to achieve this. Entries ending in / denote keys; no trailing / means named value.
+    If the item has a value attached to it, it's written after the : symbol.
+
+    HKEY_*/ # current user or local machine
+      Software/
+        Classes/
+          .<extension>/
+            OpenWithProgids/
+              <extension-handler>
+          ...
+          <extension-handler>/: "a description of the file being handled"
+            DefaultIcon: "path to the app icon"
+            shell/
+              open/
+                command/: "the command to be executed when opening a file with this extension" 
+    """
     with winreg.OpenKeyEx(
-        winreg.HKEY_LOCAL_MACHINE
+        winreg.HKEY_LOCAL_MACHINE  # HKLM
         if mode == "system"
-        else winreg.HKEY_CURRENT_USER,
+        else winreg.HKEY_CURRENT_USER,  # HKCU
         r"Software\Classes"
     ) as key:
         # First we associate an extension with a handler
-        winreg.SetValue(key, extension, winreg.REG_SZ, identifier)
+        winreg.SetValueEx(
+            winreg.CreateKey(key, fr"{extension}\OpenWithProgids"),
+            identifier,  
+            0,
+            winreg.REG_SZ, 
+            "", # presence of the key is enough
+        )
         log.debug("Created registry entry for extension '%s'", extension)
 
         # Now we register the handler
@@ -37,11 +72,13 @@ def register_file_extension(extension, identifier, command, icon=None, mode="use
 
         # and set the 'open' command
         subkey = rf"{identifier}\shell\open\command"
+        # Use SetValue to create subkeys as necessary
         winreg.SetValue(key, subkey, winreg.REG_SZ, command)
         log.debug("Created registry entry for command '%s'", command)
 
         if icon:
-            winreg.SetValue(key, fr"{identifier}\DefaultIcon", winreg.REG_SZ, icon)
+            subkey = winreg.OpenKey(key, identifier)
+            winreg.SetValueEx(subkey, "DefaultIcon", 0, winreg.REG_SZ, icon)
             log.debug("Created registry entry for icon '%s'", icon)
 
         # TODO: We can add contextual menu items too
@@ -53,15 +90,16 @@ def unregister_file_extension(extension, identifier, mode="user"):
     _reg_exe("delete", fr"{root_str}\Software\Classes\{identifier}")
 
     try:
-        with winreg.OpenKeyEx(root, r"Software\Classes") as key:
-            value, _  = winreg.QueryValueEx(key, "")
-            delete_extension = value == identifier
-    except OSError as exc:
-        log.exception("Could not check key %s for deletion", extension, exc_info=exc)
-        return
-
-    if delete_extension:
-        _reg_exe("delete", fr"{root_str}\Software\Classes\{extension}")
+        with winreg.OpenKey(root, fr"Software\Classes\{extension}\OpenWithProgids", 0, winreg.KEY_ALL_ACCESS) as key:
+            try:
+                winreg.QueryValueEx(key, identifier)
+            except FileNotFoundError:
+                log.debug("Handler '%s' is not associated with extension '%s'", identifier, extension)
+            else:
+                winreg.DeleteValue(key, identifier)
+    except Exception as exc:
+        log.exception("Could not check key '%s' for deletion", extension, exc_info=exc)
+        raise
 
 
 def register_url_protocol(protocol, command, identifier=None, icon=None, mode="user"):
@@ -70,14 +108,16 @@ def register_url_protocol(protocol, command, identifier=None, icon=None, mode="u
     else:
         key = winreg.CreateKey(winreg.HKEY_CURRENT_USER, fr"Software\Classes\{protocol}")
     with key:
-        winreg.SetValue(key, "", winreg.REG_SZ, f"URL:{protocol.title()} Protocol")
-        winreg.SetValue(key, "URL Protocol", winreg.REG_SZ, "")
+        winreg.SetValueEx(key, "", 0, winreg.REG_SZ, f"URL:{protocol.title()}")
+        winreg.SetValueEx(key, "URL Protocol", 0, winreg.REG_SZ, "")
+        # SetValue creates sub keys when slashes are present; 
+        # SetValueEx creates a value with backslashes - we don't want that here
         winreg.SetValue(key, r"shell\open\command", winreg.REG_SZ, command)
         if icon:
-            winreg.SetValue(key, "DefaultIcon", winreg.REG_SZ, icon)
+            winreg.SetValueEx(key, "DefaultIcon", 0, winreg.REG_SZ, icon)
         if identifier:
             # We add this one value for traceability; not required
-            winreg.SetValue(key, "_menuinst", winreg.REG_SZ, identifier)
+            winreg.SetValueEx(key, "_menuinst", 0, winreg.REG_SZ, identifier)
 
 
 def unregister_url_protocol(protocol, identifier=None, mode="user"):
