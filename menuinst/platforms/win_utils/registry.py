@@ -57,7 +57,7 @@ def unregister_file_extension(extension, identifier, mode="user"):
             value, _  = winreg.QueryValueEx(key, "")
             delete_extension = value == identifier
     except OSError as exc:
-        log.exception("Could not check key %s for deletion: %s", extension, exc_info=exc)
+        log.exception("Could not check key %s for deletion", extension, exc_info=exc)
         return
 
     if delete_extension:
@@ -92,7 +92,7 @@ def unregister_url_protocol(protocol, identifier=None, mode="user"):
             value, _  = winreg.QueryValueEx(key, "_menuinst")
             delete = identifier is None or value == identifier
     except OSError as exc:
-        log.exception("Could not check key %s for deletion: %s", protocol, exc_info=exc)
+        log.exception("Could not check key %s for deletion", protocol, exc_info=exc)
         return
 
     if delete:
