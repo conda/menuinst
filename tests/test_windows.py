@@ -5,14 +5,8 @@ from pathlib import Path
 
 import pytest
 
-from menuinst.platforms.win_utils.registry import (
-    register_file_extension,
-    register_url_protocol,
-    unregister_file_extension,
-    unregister_url_protocol,
-)
+registry = pytest.importorskip("menuinst.platforms.win_utils.registry")
 
-pytestmark = pytest.mark.skipif(not sys.platform == "win32", reason="Only Windows")
 
 
 def test_file_extensions(tmp_path: Path):
@@ -26,7 +20,7 @@ def test_file_extensions(tmp_path: Path):
     create the output file.
     """
     name = tmp_path.name
-    register_file_extension(
+    registry.register_file_extension(
         extension=f".menuinst-{name}", 
         identifier=f"menuinst.assoc.menuinst-{name}",
         command=fr'cmd.exe /C "echo %*>{tmp_path}\output.txt',
@@ -46,7 +40,7 @@ def test_file_extensions(tmp_path: Path):
         if not output_file.exists():
             raise AssertionError("Output file was never created")
     finally:
-        unregister_file_extension(
+        registry.unregister_file_extension(
             extension=f".menuinst-{name}", 
             identifier=f"menuinst.assoc.menuinst-{name}",
             mode="user"
