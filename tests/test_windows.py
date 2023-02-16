@@ -23,7 +23,7 @@ def test_file_extensions(tmp_path: Path):
     registry.register_file_extension(
         extension=f".menuinst-{name}", 
         identifier=f"menuinst.assoc.menuinst-{name}",
-        command=fr'cmd.exe /C "echo %*>{tmp_path}\output.txt',
+        command=fr'cmd.exe /Q /D /C "echo %*>{tmp_path}\output.txt',
         mode="user",
     )
     input_file = tmp_path / f"input.menuinst-{name}"
