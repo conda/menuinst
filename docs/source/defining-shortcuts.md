@@ -51,3 +51,62 @@ The full list of available placeholders is available at {ref}`placeholders`.
 This is not using any customization options or advanced features.
 It's the bare minimum to make it work: a name, the command, and the target platforms.
 
+## Associate your shortcut with file types and URL protocols
+
+### File types
+
+Each operating system has a slightly different way of associating a file type to a given shortcut.
+Unix systems have the notion of MIME types, while Windows relies more on file name extensions.
+
+* On Linux, use the `MimeType` option.
+  Remember to add the `%f` (single file) or `%F` (several files) placeholders to your command
+  so the URLs are passed adequately.
+* On macOS, use `CFBundleDocumentTypes`. Requires no placeholder.
+* On Windows, use `file_extensions`. Remember to add the `%1` or `%*` placeholders to your command
+  so the path of the opened file(s) is passed adequately.
+
+
+`````{tabs}
+
+````{code-tab} json Linux
+{"status": "WIP"}
+````
+
+````{code-tab} json macOS
+{"status": "WIP"}
+````
+
+````{code-tab} json Windows
+{"status": "WIP"}
+````
+
+`````
+
+### URL protocols
+
+Each operating system has a slightly different way of associating a URL protocol to a given shortcut.
+
+* On Linux, you must use the `MimeType` option too.
+  Use the `x-scheme-handler/your-protocol-here` syntax.
+  Remember to add the `%u` (single URL) or `%U` (several URLs) placeholders to your command
+  so the URLs are passed adequately.
+* On macOS, use `CFBundleURLTypes`. Requires no placeholder.
+* On Windows, use `url_protocols`. Remember to add the `%1` or `%*` placeholders to your command
+  so the URLs are passed adequately.
+
+
+`````{tabs}
+
+````{code-tab} json Linux
+{"status": "WIP"}
+````
+
+````{code-tab} json macOS
+{"status": "WIP"}
+````
+
+````{code-tab} json Windows
+{"status": "WIP"}
+````
+
+`````
