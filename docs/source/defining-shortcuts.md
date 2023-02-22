@@ -61,26 +61,49 @@ Unix systems have the notion of MIME types, while Windows relies more on file na
 * On Linux, use the `MimeType` option.
   Remember to add the `%f` (single file) or `%F` (several files) placeholders to your command
   so the URLs are passed adequately.
-* On macOS, use `CFBundleDocumentTypes`. Requires no placeholder.
+* On macOS, use `CFBundleDocumentTypes`. Requires no placeholder. The opened document will be automatically passed as an argument.
 * On Windows, use `file_extensions`. Remember to add the `%1` or `%*` placeholders to your command
   so the path of the opened file(s) is passed adequately.
 
 
-`````{tabs}
+A multi-platform example:
 
-````{code-tab} json Linux
-{"status": "WIP"}
-````
-
-````{code-tab} json macOS
-{"status": "WIP"}
-````
-
-````{code-tab} json Windows
-{"status": "WIP"}
-````
-
-`````
+```json
+{
+    "$schema": "https://json-schema.org/draft-07/schema",
+    "$id": "https://schemas.conda.io/menuinst-1.schema.json",
+    "menu_name": "File type handler example",
+    "menu_items": [
+        {
+            "name": "My CSV Reader",
+            "activate": true,
+            "command": ["{{ PREFIX }}/bin/my_csv_reader.py"],
+            "icon": "{{ MENU_DIR }}/my_csv_reader.{{ ICON_EXT }}",
+            "platforms": {
+                "linux": {
+                    "command": ["{{ PREFIX }}/bin/my_csv_reader.py", "%f"],
+                    "MimeType": ["text/csv"]
+                },
+                "macos": {
+                    "CFBundleDocumentTypes": [
+                        {
+                            "CFBundleTypeIconFile": "{{ MENU_DIR }}/my_csv_reader",
+                            "CFBundleTypeName": "my-csv-reader.csv",
+                            "CFBundleTypeRole": "Viewer",
+                            "LSItemContentTypes": ["public.comma-separated-values-text"],
+                            "LSHandlerRank": "Default"
+                        }
+                    ]
+                },
+                "windows": {
+                    "command": ["{{ SCRIPTS_DIR }}/my_csv_reader.py", "%1"],
+                    "file_extensions": [".csv"]
+                }
+            }
+        }
+    ]
+}
+```
 
 ### URL protocols
 
@@ -90,23 +113,43 @@ Each operating system has a slightly different way of associating a URL protocol
   Use the `x-scheme-handler/your-protocol-here` syntax.
   Remember to add the `%u` (single URL) or `%U` (several URLs) placeholders to your command
   so the URLs are passed adequately.
-* On macOS, use `CFBundleURLTypes`. Requires no placeholder.
+* On macOS, use `CFBundleURLTypes`. Requires no placeholder. The URL will be dispatched via events. Right now, the .app launcher/forwarder doesn't know about the Apple events involved in this, so **it will not work**. WIP.
 * On Windows, use `url_protocols`. Remember to add the `%1` or `%*` placeholders to your command
   so the URLs are passed adequately.
 
 
-`````{tabs}
-
-````{code-tab} json Linux
-{"status": "WIP"}
-````
-
-````{code-tab} json macOS
-{"status": "WIP"}
-````
-
-````{code-tab} json Windows
-{"status": "WIP"}
-````
-
-`````
+```json
+{
+    "$schema": "https://json-schema.org/draft-07/schema",
+    "$id": "https://schemas.conda.io/menuinst-1.schema.json",
+    "menu_name": "Protocol handler example",
+    "menu_items": [
+        {
+            "name": "My custom menuinst:// handler",
+            "activate": true,
+            "command": ["{{ PREFIX }}/bin/my_protocol_handler.py"],
+            "icon": "{{ MENU_DIR }}/my_protocol_handler.{{ ICON_EXT }}",
+            "platforms": {
+                "linux": {
+                    "command": ["{{ PREFIX }}/bin/my_protocol_handler.py", "%u"],
+                    "MimeType": ["x-scheme-handler/menuinst"]
+                },
+                "macos": {
+                    "CFBundleDocumentTypes": [
+                        {
+                            "CFBundleTypeIconFile": "{{ MENU_DIR }}/my_protocol_handler",
+                            "CFBundleURLName": "my-protocol-handler.menuinst.does-not-work-yet",
+                            "CFBundleTypeRole": "Viewer",
+                            "CFBundleURLSchemes": ["menuinst"],
+                        }
+                    ]
+                },
+                "windows": {
+                    "command": ["{{ SCRIPTS_DIR }}/my_protocol_handler.py", "%1"],
+                    "url_protocols": ["menuinst"]
+                }
+            }
+        }
+    ]
+}
+```
