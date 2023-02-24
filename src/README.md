@@ -24,3 +24,13 @@ for target in "x86_64-apple-macos10.9" "arm64-apple-macos11.0"; do
     clang src/osx_launcher.c -o menuinst/data/osx_launcher_${arch_suffix} -target $target -isysroot "$SDK_PATH"
 done
 ```
+
+`appkit-launcher` is yet another launcher for macOS that is used to recieve
+Apple Events and dispatch them as command line arguments.
+
+```bash
+for arch in "x86_64" "arm64"; do
+    swift build -c release --arch $arch --package-path ./appkit-launcher
+    cp $(swift build -c release --arch $arch --package-path ./appkit-launcher --show-bin-path)/appkit-launcher "../menuinst/data/appkit_launcher_$arch"
+done
+```
