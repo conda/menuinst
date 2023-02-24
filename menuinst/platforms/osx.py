@@ -126,7 +126,7 @@ class MacOSMenuItem(MenuItem):
             "CFBundleDisplayName": name,
             "CFBundleExecutable": slugname,
             "CFBundleGetInfoString": f"{slugname}-1.0.0",
-            "CFBundleIdentifier": f"com.nested.{slugname}",
+            "CFBundleIdentifier": f"com.{slugname}",
             "CFBundlePackageType": "APPL",
             "CFBundleVersion": "1.0.0",
             "CFBundleShortVersionString": "1.0.0",
@@ -140,7 +140,9 @@ class MacOSMenuItem(MenuItem):
         with open(self._nested_location / "Contents" / "Info.plist", "wb") as f:
             plistlib.dump(pl, f)
 
-        pl["CFBundleIdentifier"] = f"com.{slugname}"
+        # the *outer* bundle is background-only and needs a different ID
+        pl["LSBackgroundOnly"] = True
+        pl["CFBundleIdentifier"] = f"com.appkit.{slugname}"
 
         # Override defaults with (potentially) user provided values
         ignore_keys = (*menuitem_defaults, "entitlements", "link_in_bundle")
