@@ -44,8 +44,16 @@ class MacOSMenuItem(MenuItem):
     @property
     def location(self) -> Path:
         "Path to the .app directory defining the menu item"
-        name = f"{self.render_key('name', extra={})}.app"
-        return self._base_location() / "Applications" / name
+        return self._base_location() / "Applications" / self._bundle_name
+
+    @property
+    def _bundle_name(self) -> str:
+        return f"{self.render_key('name', extra={})}.app"
+
+    @property
+    def _nested_location(self) -> Path:
+        "Path to the nested .app directory defining the menu item main app"
+        return self.location / "Contents" / "Resources" / self._bundle_name
 
     def _base_location(self) -> Path:
         if self.menu.mode == "user":
@@ -69,11 +77,10 @@ class MacOSMenuItem(MenuItem):
         log.debug("Creating %s", self.location)
         self._create_application_tree()
         self._precreate()
-        icon = self.render_key("icon")
-        if icon:
-            shutil.copy(self.render_key("icon"), self.location / "Contents" / "Resources")
+        self._copy_icon()
         self._write_pkginfo()
         self._write_plistinfo()
+        self._write_appkit_launcher()
         self._write_launcher()
         self._write_script()
         self._sign_with_entitlements()
@@ -88,18 +95,28 @@ class MacOSMenuItem(MenuItem):
         paths = [
             self.location / "Contents" / "Resources",
             self.location / "Contents" / "MacOS",
+            self._nested_location / "Contents" / "Resources",
+            self._nested_location / "Contents" / "MacOS",
         ]
         for path in paths:
             path.mkdir(parents=True, exist_ok=False)
         return tuple(paths)
 
+    def _copy_icon(self):
+        icon = self.render_key("icon")
+        if icon:
+            shutil.copy(icon, self.location / "Contents" / "Resources")
+            shutil.copy(icon, self._nested_location / "Contents" / "Resources")
+
     def _write_pkginfo(self):
-        with open(self.location / "Contents" / "PkgInfo", "w") as f:
-            f.write(f"APPL{self.render_key('name', slug=True)[:8]}")
+        for app in (self.location, self._nested_location):
+            with open(app / "Contents" / "PkgInfo", "w") as f:
+                f.write(f"APPL{self.render_key('name', slug=True)[:8]}")
 
     def _write_plistinfo(self):
         name = self.render_key("name")
         slugname = self.render_key("name", slug=True)
+        print(name, slugname)
         if len(slugname) > 16:
             shortname = slugname[:10] + sha1(slugname.encode()).hexdigest()[:6]
         else:
@@ -109,11 +126,21 @@ class MacOSMenuItem(MenuItem):
             "CFBundleDisplayName": name,
             "CFBundleExecutable": slugname,
             "CFBundleGetInfoString": f"{slugname}-1.0.0",
-            "CFBundleIdentifier": f"com.{slugname}",
+            "CFBundleIdentifier": f"com.nested.{slugname}",
             "CFBundlePackageType": "APPL",
             "CFBundleVersion": "1.0.0",
             "CFBundleShortVersionString": "1.0.0",
         }
+
+        icon = self.render_key("icon")
+        if icon:
+            pl["CFBundleIconFile"] = Path(icon).name
+
+        # write only the basic plist info into the nested bundle
+        with open(self._nested_location / "Contents" / "Info.plist", "wb") as f:
+            plistlib.dump(pl, f)
+
+        pl["CFBundleIdentifier"] = f"com.{slugname}"
 
         # Override defaults with (potentially) user provided values
         ignore_keys = (*menuitem_defaults, "entitlements", "link_in_bundle")
@@ -128,10 +155,6 @@ class MacOSMenuItem(MenuItem):
                 pl["CFBundleShortVersionString"] = value
                 pl["CFBundleGetInfoString"] = f"{slugname}-{value}"
             pl[key] = value
-
-        icon = self.render_key("icon")
-        if icon:
-            pl["CFBundleIconFile"] = Path(icon).name
 
         with open(self.location / "Contents" / "Info.plist", "wb") as f:
             plistlib.dump(pl, f)
@@ -171,6 +194,13 @@ class MacOSMenuItem(MenuItem):
 
         return "\n".join(lines)
 
+    def _write_appkit_launcher(self, launcher_path: Optional[os.PathLike] = None) -> os.PathLike:
+        if launcher_path is None:
+            launcher_path = self._default_appkit_launcher_path()
+        shutil.copy(self._find_appkit_launcher(), launcher_path)
+        os.chmod(launcher_path, 0o755)
+        return launcher_path
+
     def _write_launcher(self, launcher_path: Optional[os.PathLike] = None) -> os.PathLike:
         if launcher_path is None:
             launcher_path = self._default_launcher_path()
@@ -189,6 +219,14 @@ class MacOSMenuItem(MenuItem):
     def _paths(self) -> Tuple[os.PathLike]:
         return (self.location,)
 
+    def _find_appkit_launcher(self) -> Path:
+        launcher_name = f"appkit_launcher_{platform.machine()}"
+        for datapath in _menuinst_data.__path__:
+            launcher_path = Path(datapath) / launcher_name
+            if launcher_path.is_file() and os.access(launcher_path, os.X_OK):
+                return launcher_path
+        raise ValueError(f"Could not find executable launcher for {platform.machine()}")
+
     def _find_launcher(self) -> Path:
         launcher_name = f"osx_launcher_{platform.machine()}"
         for datapath in _menuinst_data.__path__:
@@ -197,9 +235,13 @@ class MacOSMenuItem(MenuItem):
                 return launcher_path
         raise ValueError(f"Could not find executable launcher for {platform.machine()}")
 
-    def _default_launcher_path(self, suffix: str = "") -> Path:
+    def _default_appkit_launcher_path(self, suffix: str = "") -> Path:
         name = self.render_key("name", slug=True)
         return self.location / "Contents" / "MacOS" / f'{name}{suffix}'
+
+    def _default_launcher_path(self, suffix: str = "") -> Path:
+        name = self.render_key("name", slug=True)
+        return self._nested_location / "Contents" / "MacOS" / f'{name}{suffix}'
 
     def _sign_with_entitlements(self):
         "Self-sign shortcut to apply required entitlements"
