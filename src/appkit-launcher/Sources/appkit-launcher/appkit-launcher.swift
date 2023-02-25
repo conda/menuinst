@@ -29,6 +29,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         let config = NSWorkspace.OpenConfiguration()
         // this allows multiple instances of napari to run, but we may not want that
         // config.createsNewApplicationInstance = true
+        config.environment = ProcessInfo.processInfo.environment
         NSWorkspace.shared.openApplication(
             at: launchScript!,
             configuration: config,
