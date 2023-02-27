@@ -3,7 +3,6 @@
 import os
 import shutil
 import warnings
-import winreg
 from logging import getLogger
 from pathlib import Path
 from subprocess import run, CompletedProcess
