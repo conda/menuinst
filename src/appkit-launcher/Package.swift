@@ -4,16 +4,15 @@
 import PackageDescription
 
 let package = Package(
-    name: "appkit-launcher",
-    platforms: [
-        .macOS(.v10_15),
-    ],
-    dependencies: [
-    ],
-    targets: [
-        .executableTarget(
-            name: "appkit-launcher",
-            dependencies: []
-        ),
-    ]
+  name: "appkit-launcher",
+  platforms: [
+    .macOS(.v10_15)
+  ],
+  dependencies: [],
+  targets: [
+    .executableTarget(
+      name: "appkit-launcher",
+      dependencies: []
+    )
+  ]
 )
