@@ -51,7 +51,9 @@
         },
         "win": {
           "desktop": true,
-          "quicklaunch": true
+          "quicklaunch": true,
+          "url_protocols": null,
+          "file_extensions": null
         }
       }
     }
