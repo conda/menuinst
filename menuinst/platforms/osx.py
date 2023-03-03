@@ -116,7 +116,6 @@ class MacOSMenuItem(MenuItem):
     def _write_plistinfo(self):
         name = self.render_key("name")
         slugname = self.render_key("name", slug=True)
-        print(name, slugname)
         if len(slugname) > 16:
             shortname = slugname[:10] + sha1(slugname.encode()).hexdigest()[:6]
         else:
