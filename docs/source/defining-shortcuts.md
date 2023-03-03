@@ -84,7 +84,7 @@ A multi-platform example:
                     "command": ["{{ PREFIX }}/bin/my_csv_reader.py", "%f"],
                     "MimeType": ["text/csv"]
                 },
-                "macos": {
+                "osx": {
                     "CFBundleDocumentTypes": [
                         {
                             "CFBundleTypeIconFile": "{{ MENU_DIR }}/my_csv_reader",
@@ -134,7 +134,7 @@ Each operating system has a slightly different way of associating a URL protocol
                     "command": ["{{ PREFIX }}/bin/my_protocol_handler.py", "%u"],
                     "MimeType": ["x-scheme-handler/menuinst"]
                 },
-                "macos": {
+                "osx": {
                     "CFBundleURLTypes": [
                         {
                             "CFBundleURLIconFile": "{{ MENU_DIR }}/my_protocol_handler",
