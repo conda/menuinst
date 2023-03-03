@@ -135,12 +135,12 @@ Each operating system has a slightly different way of associating a URL protocol
                     "MimeType": ["x-scheme-handler/menuinst"]
                 },
                 "macos": {
-                    "CFBundleDocumentTypes": [
+                    "CFBundleURLTypes": [
                         {
-                            "CFBundleTypeIconFile": "{{ MENU_DIR }}/my_protocol_handler",
+                            "CFBundleURLIconFile": "{{ MENU_DIR }}/my_protocol_handler",
                             "CFBundleURLName": "my-protocol-handler.menuinst.does-not-work-yet",
                             "CFBundleTypeRole": "Viewer",
-                            "CFBundleURLSchemes": ["menuinst"],
+                            "CFBundleURLSchemes": ["menuinst"]
                         }
                     ]
                 },
