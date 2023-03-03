@@ -1,0 +1,48 @@
+{
+    "$schema": "https://json-schema.org/draft-07/schema",
+    "$id": "https://schemas.conda.io/menuinst-1.schema.json",
+    "menu_name": "Example with file type association",
+    "menu_items": [
+        {
+            "name": "FileTypeAssociation",
+            "icon": null,
+            "command": [
+                "{{ PYTHON }}",
+                "-c",
+                "import sys, pathlib as p; Path(r'__OUTPUT_FILE__').write_text(sys.argv[1])"
+            ],
+            "platforms": {
+                "win": {
+                    "command": [
+                        "{{ PYTHON }}",
+                        "-c",
+                        "import sys, pathlib as p; Path(r'__OUTPUT_FILE__').write_text('%1')"
+                    ]
+                },
+                "linux": {
+                    "command": [
+                        "{{ PYTHON }}",
+                        "-c",
+                        "import sys, pathlib as p; Path(r'__OUTPUT_FILE__').write_text('%u')"
+                    ],
+                    "MimeType": ["x-scheme-handler/menuinst"]
+                },
+                "osx": {
+                    "command": [
+                        "{{ PYTHON }}",
+                        "-c",
+                        "import sys, pathlib as p; Path(r'__OUTPUT_FILE__').write_text(sys.argv[1])"
+                    ],
+                    "CFBundleURLTypes": [
+                        {
+                            "CFBundleURLIconFile": "{{ MENU_DIR }}/my_protocol_handler",
+                            "CFBundleURLName": "my-protocol-handler.menuinst",
+                            "CFBundleTypeRole": "Viewer",
+                            "CFBundleURLSchemes": ["menuinst"]
+                        }
+                    ]
+                }
+            }
+        }
+    ]
+}

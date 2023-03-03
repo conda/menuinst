@@ -1,0 +1,49 @@
+{
+    "$schema": "https://json-schema.org/draft-07/schema",
+    "$id": "https://schemas.conda.io/menuinst-1.schema.json",
+    "menu_name": "Example with file type association",
+    "menu_items": [
+        {
+            "name": "FileTypeAssociation",
+            "icon": null,
+            "command": [
+                "{{ PYTHON }}",
+                "-c",
+                "import sys, pathlib as p; Path(r'__OUTPUT_FILE__').write_text(sys.argv[1])"
+            ],
+            "platforms": {
+                "win": {
+                    "command": [
+                        "{{ PYTHON }}",
+                        "-c",
+                        "import sys, pathlib as p; Path(r'__OUTPUT_FILE__').write_text('%1')"
+                    ]
+                },
+                "linux": {
+                    "command": [
+                        "{{ PYTHON }}",
+                        "-c",
+                        "import sys, pathlib as p; Path(r'__OUTPUT_FILE__').write_text('%f')"
+                    ],
+                    "MimeType": ["text/csv"]
+                },
+                "osx": {
+                    "command": [
+                        "{{ PYTHON }}",
+                        "-c",
+                        "import sys, pathlib as p; Path(r'__OUTPUT_FILE__').write_text(sys.argv[1])"
+                    ],
+                    "CFBundleDocumentTypes": [
+                        {
+                            "CFBundleTypeIconFile": "{{ MENU_DIR }}/my_csv_reader",
+                            "CFBundleTypeName": "my-csv-reader.csv",
+                            "CFBundleTypeRole": "Viewer",
+                            "LSItemContentTypes": ["public.comma-separated-values-text"],
+                            "LSHandlerRank": "Default"
+                        }
+                    ]
+                }
+            }
+        }
+    ]
+}

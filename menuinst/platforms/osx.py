@@ -141,7 +141,7 @@ class MacOSMenuItem(MenuItem):
 
         # the *outer* bundle is background-only and needs a different ID
         pl["LSBackgroundOnly"] = True
-        pl["CFBundleIdentifier"] = f"com.appkit.{slugname}"
+        pl["CFBundleIdentifier"] = f"com.{slugname}-appkit-launcher"
 
         # Override defaults with (potentially) user provided values
         ignore_keys = (*menuitem_defaults, "entitlements", "link_in_bundle")
@@ -156,7 +156,6 @@ class MacOSMenuItem(MenuItem):
                 pl["CFBundleShortVersionString"] = value
                 pl["CFBundleGetInfoString"] = f"{slugname}-{value}"
             pl[key] = value
-
         with open(self.location / "Contents" / "Info.plist", "wb") as f:
             plistlib.dump(pl, f)
 
