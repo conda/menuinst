@@ -27,6 +27,7 @@ def test_file_extensions(tmp_path: Path, request):
         # be using it, but since we know these are synthetic and made up,
         # we try not to pollute the registry too much
         registry._reg_exe("delete", fr"HKCU\Software\Classes\.menuinst-{name}")
+
     request.addfinalizer(cleanup)
 
     registry.register_file_extension(
@@ -49,11 +50,7 @@ def test_file_extensions(tmp_path: Path, request):
         if not output_file.exists():
             raise AssertionError("Output file was never created")
     finally:
-        registry.unregister_file_extension(
-            extension=extension,
-            identifier=identifier,
-            mode="user"
-        )
+        registry.unregister_file_extension(extension=extension, identifier=identifier, mode="user")
 
     output_file.unlink()
     os.startfile(input_file)  # this will raise UI if not headless, ignore
@@ -96,7 +93,7 @@ def test_protocols(tmp_path):
         registry.unregister_url_protocol(
             protocol=f"menuinst-{name}",
             identifier=f"menuinst.protocol.menuinst-{name}",
-            mode="user"
+            mode="user",
         )
 
     output_file.unlink()

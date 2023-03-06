@@ -6,7 +6,7 @@ from os.path import isdir, isfile, islink
 def rm_empty_dir(path):
     try:
         os.rmdir(path)
-    except OSError: # directory might not exist or not be empty
+    except OSError:  # directory might not exist or not be empty
         pass
 
 

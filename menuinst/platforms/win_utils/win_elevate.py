@@ -61,6 +61,7 @@ if os.name == 'nt':
         windll,
     )
     from ctypes.wintypes import BOOL, DWORD, HANDLE, HINSTANCE, HKEY, HWND
+
     PHANDLE = POINTER(HANDLE)
     PDWORD = POINTER(DWORD)
     SEE_MASK_NOCLOSEPROCESS = 0x00000040
@@ -76,8 +77,8 @@ if os.name == 'nt':
 
     class ShellExecuteInfo(Structure):
         """
-https://docs.microsoft.com/en-us/windows/desktop/api/shellapi/nf-shellapi-shellexecuteexa
-https://docs.microsoft.com/en-us/windows/desktop/api/shellapi/ns-shellapi-_shellexecuteinfoa
+        https://docs.microsoft.com/en-us/windows/desktop/api/shellapi/nf-shellapi-shellexecuteexa
+        https://docs.microsoft.com/en-us/windows/desktop/api/shellapi/ns-shellapi-_shellexecuteinfoa
         """
 
         _fields_ = [
@@ -95,7 +96,7 @@ https://docs.microsoft.com/en-us/windows/desktop/api/shellapi/ns-shellapi-_shell
             ('hKeyClass', HKEY),
             ('dwHotKey', DWORD),
             ('hIcon', HANDLE),
-            ('hProcess', HANDLE)
+            ('hProcess', HANDLE),
         ]
 
         def __init__(self, **kwargs):
@@ -108,7 +109,7 @@ https://docs.microsoft.com/en-us/windows/desktop/api/shellapi/ns-shellapi-_shell
 
     PShellExecuteInfo = POINTER(ShellExecuteInfo)
     ShellExecuteEx = windll.Shell32.ShellExecuteExA
-    ShellExecuteEx.argtypes = (PShellExecuteInfo, )
+    ShellExecuteEx.argtypes = (PShellExecuteInfo,)
     ShellExecuteEx.restype = BOOL
 
 
@@ -148,13 +149,15 @@ def runAsAdmin(cmdLine=None, wait=True):
     # the more complex ShellExecuteEx() must be used.
 
     # procHandle = win32api.ShellExecute(0, lpVerb, cmd, params, cmdDir, showCmd)
-    execute_info = ShellExecuteInfo(nShow=showCmd,
-                              fMask=SEE_MASK_NOCLOSEPROCESS,
-                              lpVerb=lpVerb,
-                              lpFile=cmd,
-                              lpParameters=params,
-                              hwnd=None,
-                              lpDirectory=None)
+    execute_info = ShellExecuteInfo(
+        nShow=showCmd,
+        fMask=SEE_MASK_NOCLOSEPROCESS,
+        lpVerb=lpVerb,
+        lpFile=cmd,
+        lpParameters=params,
+        hwnd=None,
+        lpDirectory=None,
+    )
 
     successful = ShellExecuteEx(byref(execute_info))
 

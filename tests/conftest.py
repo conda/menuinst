@@ -59,10 +59,12 @@ def mock_locations(monkeypatch, tmp_path):
 
         def windows_locations(preferred_mode, check_other_mode, key):
             return tmp_path / key
+
         monkeypatch.setattr(knownfolders, "folder_path", windows_locations)
 
     def osx_base_location(self):
         return tmp_path
+
     monkeypatch.setattr(MacOSMenuItem, "_base_location", osx_base_location)
 
     # For Linux

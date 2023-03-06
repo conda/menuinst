@@ -169,7 +169,7 @@ class WinLex:
         return s
 
     @classmethod
-    def ensure_pad(cls, name: str, pad: str ="_"):
+    def ensure_pad(cls, name: str, pad: str = "_"):
         """
 
         Examples:
@@ -234,7 +234,11 @@ def deep_update(mapping: Mapping, *updating_mappings: Iterable[Mapping]) -> Mapp
     updated_mapping = mapping.copy()
     for updating_mapping in updating_mappings:
         for k, v in updating_mapping.items():
-            if k in updated_mapping and isinstance(updated_mapping[k], dict) and isinstance(v, dict):
+            if (
+                k in updated_mapping
+                and isinstance(updated_mapping[k], dict)
+                and isinstance(v, dict)
+            ):
                 updated_mapping[k] = deep_update(updated_mapping[k], v)
             else:
                 updated_mapping[k] = v
@@ -282,12 +286,12 @@ def python_executable(base_prefix: Optional[os.PathLike] = None) -> Sequence[str
         # If the base env (installation root)
         # ships a usable Python, use that one
         if base_prefix_python.is_file():
-            return (str(base_prefix_python), )
+            return (str(base_prefix_python),)
         # the base env does not have python,
         # use the conda-standalone wrapper
         return (sys.executable, "python")
     # in non-frozen executables:
-    return (sys.executable, )
+    return (sys.executable,)
 
 
 def elevate_as_needed(func: Callable) -> Callable:
@@ -355,7 +359,7 @@ def elevate_as_needed(func: Callable) -> Callable:
                 except Exception:
                     logger.warn(
                         "Error occurred! Falling back to user mode. Exception:\n%s",
-                        traceback.format_exc()
+                        traceback.format_exc(),
                     )
                 else:
                     os.environ.pop("_MENUINST_RECURSING", None)

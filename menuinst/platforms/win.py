@@ -91,7 +91,9 @@ class WindowsMenu(Menu):
             self.base_prefix / "bin" / "micromamba.exe",
         )
 
-    def render(self, value: Any, slug: bool = False, extra: Optional[Dict[str, str]] = None) -> Any:
+    def render(
+        self, value: Any, slug: bool = False, extra: Optional[Dict[str, str]] = None
+    ) -> Any:
         """
         We extend the render method here to replace forward slashes with backslashes.
         We ONLY do it if the string does not start with /, because it might

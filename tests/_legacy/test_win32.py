@@ -11,8 +11,8 @@ if sys.platform == "win32":
 
 log = getLogger(__name__)
 
-@pytest.mark.skipif(sys.platform != "win32",
-                    reason="Windows-only tests")
+
+@pytest.mark.skipif(sys.platform != "win32", reason="Windows-only tests")
 def test_quote_args_1():
     args = [
         "%windir%\\System32\\cmd.exe",
