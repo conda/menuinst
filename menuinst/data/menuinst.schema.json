@@ -495,6 +495,22 @@
           "title": "Quicklaunch",
           "default": true,
           "type": "boolean"
+        },
+        "url_protocols": {
+          "title": "Url Protocols",
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "\\S+"
+          }
+        },
+        "file_extensions": {
+          "title": "File Extensions",
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "\\.\\S*"
+          }
         }
       },
       "additionalProperties": false

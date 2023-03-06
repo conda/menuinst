@@ -68,6 +68,10 @@ class Windows(BasePlatformSpecific):
     "Whether to create a desktop icon in addition to the Start Menu item."
     quicklaunch: Optional[bool] = True
     "Whether to create a quick launch icon in addition to the Start Menu item."
+    url_protocols: Optional[List[constr(regex=r"\S+")]] = None
+    "URL protocols that will be associated with this program."
+    file_extensions: Optional[List[constr(regex=r"\.\S*")]] = None
+    "File extensions that will be associated with this program."
 
 
 class Linux(BasePlatformSpecific):
@@ -104,7 +108,13 @@ class Linux(BasePlatformSpecific):
     Keywords: Optional[Union[List[str], constr(regex=r"^.+;$")]] = None
     "Additional terms to describe this shortcut to aid in searching."
     MimeType: Optional[Union[List[str], constr(regex=r"^.+;$")]] = None
-    "The MIME type(s) supported by this application."
+    """
+    The MIME type(s) supported by this application.
+    Note this includes file types and URL protocols.
+    For URL protocols, use ``x-scheme-handler/your-protocol-here``.
+    For example, if you want to register ``menuinst:``, you would
+    include ``x-scheme-handler/menuinst``.
+    """
     NoDisplay: Optional[bool] = None
     """
     Do not show this item in the menu. Useful to associate MIME types

@@ -5,13 +5,19 @@ import shutil
 import warnings
 from logging import getLogger
 from pathlib import Path
-from subprocess import run
+from subprocess import run, CompletedProcess
 from tempfile import NamedTemporaryFile
 from typing import Any, Dict, Optional, Tuple
 
 from ..utils import WinLex, unlink
 from .base import Menu, MenuItem
 from .win_utils.knownfolders import folder_path as windows_folder_path
+from .win_utils.registry import (
+    register_file_extension,
+    register_url_protocol,
+    unregister_file_extension,
+    unregister_url_protocol,
+)
 
 log = getLogger(__name__)
 
@@ -126,30 +132,13 @@ class WindowsMenuItem(MenuItem):
         from .win_utils.winshortcut import create_shortcut
 
         self._precreate()
-
-        activate = self.metadata["activate"]
-        if activate:
-            script = self._write_script()
         paths = self._paths()
 
         for path in paths:
             if not path.suffix == ".lnk":
                 continue
 
-            if activate:
-                if self.metadata["terminal"]:
-                    command = ["cmd", "/K", str(script)]
-                else:
-                    system32 = Path(os.environ.get("SystemRoot", "C:\\Windows")) / "system32"
-                    command = [
-                        str(system32 / "WindowsPowerShell" / "v1.0" / "powershell.exe"),
-                        f"\"start '{script}' -WindowStyle hidden\"",
-                    ]
-            else:
-                command = self.render_key("command")
-
-            target_path, *arguments = WinLex.quote_args(command)
-
+            target_path, *arguments = self._process_command()
             working_dir = self.render_key("working_dir")
             if working_dir:
                 Path(working_dir).mkdir(parents=True, exist_ok=True)
@@ -170,13 +159,21 @@ class WindowsMenuItem(MenuItem):
                 working_dir,
                 icon,
             )
+
+        self._register_file_extensions()
+        self._register_url_protocols()
+
         return paths
 
     def remove(self) -> Tuple[Path, ...]:
+        self._unregister_file_extensions()
+        self._unregister_url_protocols()
+
         paths = self._paths()
         for path in paths:
             log.debug("Removing %s", path)
             unlink(path, missing_ok=True)
+
         return paths
 
     def _paths(self) -> Tuple[Path, ...]:
@@ -258,3 +255,133 @@ class WindowsMenuItem(MenuItem):
             f.write(self._command())
 
         return script_path
+
+    def _process_command(self) -> Tuple[str]:
+        if self.metadata["activate"]:
+            script = self._write_script()
+            if self.metadata["terminal"]:
+                command = ["cmd", "/K", str(script)]
+            else:
+                system32 = Path(os.environ.get("SystemRoot", "C:\\Windows")) / "system32"
+                command = [
+                    str(system32 / "WindowsPowerShell" / "v1.0" / "powershell.exe"),
+                    f"\"start '{script}' -WindowStyle hidden\"",
+                ]
+        else:
+            command = self.render_key("command")
+
+        return WinLex.quote_args(command)
+
+    def _ftype_identifier(self, extension):
+        identifier = self.render_key("name", slug=True)
+        return f"{identifier}.AssocFile{extension}"
+
+    def _register_file_extensions_cmd(self):
+        """
+        This function uses CMD's `assoc` and `ftype` commands.
+        """
+        extensions = self.metadata["file_extensions"]
+        if not extensions:
+            return
+        command = " ".join(self._process_command())
+        exts = list(dict.fromkeys([ext.lower() for ext in extensions]))
+        for ext in exts:
+            identifier = self._ftype_identifier(ext)
+            self._cmd_ftype(identifier, command)
+            self._cmd_assoc(ext, associate_to=identifier)
+
+    def _unregister_file_extensions_cmd(self):
+        """
+        This function uses CMD's `assoc` and `ftype` commands.
+        """
+        extensions = self.metadata["file_extensions"]
+        if not extensions:
+            return
+        exts = list(dict.fromkeys([ext.lower() for ext in extensions]))
+        for ext in exts:
+            identifier = self._ftype_identifier(ext)
+            self._cmd_ftype(identifier)  # remove
+            # TODO: Do we need to clean up the `assoc` mappings too?
+
+    @staticmethod
+    def _cmd_assoc(extension, associate_to=None, query=False, remove=False) -> CompletedProcess:
+        "https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/assoc"
+        if sum([associate_to, query, remove]) != 1:
+            raise ValueError("Only one of {associate_to, query, remove} must be set.")
+        if not extension.startswith("."):
+            raise ValueError("extension must startwith '.'")
+        if associate_to:
+            arg = f"{extension}={associate_to}"
+        elif query:
+            arg = extension
+        elif remove:
+            arg = f"{extension}="
+        p = run(
+            ["cmd", "/C", f"assoc {arg}"],
+            capture_output=True,
+            text=True,
+        )
+        p.check_returncode()
+        return p
+
+    @staticmethod
+    def _cmd_ftype(identifier, command=None, query=False, remove=False) -> CompletedProcess:
+        "https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/ftype"
+        if sum([command, query, remove]) != 1:
+            raise ValueError("Only one of {command, query, remove} must be set.")
+        if command:
+            arg = f"{identifier}={command}"
+        elif query:
+            arg = identifier
+        elif remove:
+            arg = f"{identifier}="
+        p = run(
+            ["cmd", "/C", f"assoc {arg}"],
+            capture_output=True,
+            text=True,
+        )
+        p.check_returncode()
+        return p
+
+    def _register_file_extensions(self):
+        """WIP"""
+        extensions = self.metadata["file_extensions"]
+        if not extensions:
+            return
+
+        command = " ".join(self._process_command())
+        icon = self.render_key("icon")
+        exts = list(dict.fromkeys([ext.lower() for ext in extensions]))
+        for ext in exts:
+            identifier = self._ftype_identifier(ext)
+            register_file_extension(ext, identifier, command, icon=icon, mode=self.parent.mode)
+
+    def _unregister_file_extensions(self):
+        extensions = self.metadata["file_extensions"]
+        if not extensions:
+            return
+
+        exts = list(dict.fromkeys([ext.lower() for ext in extensions]))
+        for ext in exts:
+            identifier = self._ftype_identifier(ext)
+            unregister_file_extension(ext, identifier, mode=self.parent.mode)
+
+    def _register_url_protocols(self):
+        "See https://learn.microsoft.com/en-us/previous-versions/windows/internet-explorer/ie-developer/platform-apis/aa767914(v=vs.85)"
+        protocols = self.metadata["url_protocols"]
+        if not protocols:
+            return
+        command = " ".join(self._process_command())
+        icon = self.render_key("icon")
+        for protocol in protocols:
+            identifier = self._ftype_identifier(protocol)
+            register_url_protocol(protocol, command, identifier, icon=icon, mode=self.parent.mode)
+
+    def _unregister_url_protocols(self):
+        protocols = self.metadata["url_protocols"]
+        if not protocols:
+            return
+        for protocol in protocols:
+            identifier = self._ftype_identifier(protocol)
+            unregister_url_protocol(protocol, identifier, mode=self.parent.mode)
+
