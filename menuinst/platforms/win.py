@@ -369,7 +369,7 @@ class WindowsMenuItem(MenuItem):
             unregister_file_extension(ext, identifier, mode=self.parent.mode)
 
     def _register_url_protocols(self):
-        "See https://learn.microsoft.com/en-us/previous-versions/windows/internet-explorer/ie-developer/platform-apis/aa767914(v=vs.85)"
+        "See https://learn.microsoft.com/en-us/previous-versions/windows/internet-explorer/ie-developer/platform-apis/aa767914(v=vs.85)"  # noqa
         protocols = self.metadata["url_protocols"]
         if not protocols:
             return

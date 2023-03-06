@@ -2,6 +2,8 @@
 Generate JSON schemas from pydantic models
 """
 
+# flake8: noqa
+
 import json
 from logging import getLogger
 from pathlib import Path

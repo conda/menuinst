@@ -233,7 +233,8 @@ def get_folder_path(folder_id, user=None):
 # [5] http://www.themacaque.com/?p=954
 
 # jaimergp: The code below was copied from menuinst.win32, 1.4.19
-# module: menuinst/win32.py - https://github.com/conda/menuinst/blob/e17afafd/menuinst/win32.py#L40-L102
+# module: menuinst/win32.py -
+#    https://github.com/conda/menuinst/blob/e17afafd/menuinst/win32.py#L40-L102
 # ----
 # When running as 'nt authority/system' as sometimes people do via SCCM,
 # various folders do not exist, such as QuickLaunch. This doesn't matter

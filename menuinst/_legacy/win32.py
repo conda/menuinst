@@ -66,8 +66,6 @@ def ensure_pad(name, pad="_"):
 
 
 def to_unicode(var, codec=locale.getpreferredencoding()):
-    if sys.version_info[0] < 3 and isinstance(var, unicode):
-        return var
     if not codec:
         codec = "utf-8"
     if hasattr(var, "decode"):
@@ -143,7 +141,7 @@ class Menu(object):
             mode if mode else ('user' if exists(join(self.prefix, u'.nonadmin')) else 'system')
         )
         logger.debug(
-            "Menu: name: '%s', prefix: '%s', env_name: '%s', mode: '%s', used_mode: '%s', root_prefix: '%s'"
+            "Menu: name: '%s', prefix: '%s', env_name: '%s', mode: '%s', used_mode: '%s', root_prefix: '%s'"  # noqa
             % (name, self.prefix, env_name, mode, used_mode, root_prefix)
         )
         try:
@@ -160,7 +158,7 @@ class Menu(object):
                 )
                 try:
                     self.set_dir(name, self.prefix, env_name, 'user')
-                except:
+                except:  # noqa
                     pass
             else:
                 logger.fatal("Unable to create AllUsers menu folder")

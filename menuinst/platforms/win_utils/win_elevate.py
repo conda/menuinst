@@ -16,11 +16,6 @@ import traceback
 from enum import IntEnum
 from subprocess import list2cmdline
 
-if sys.version_info < (3,):
-    text_type = basestring
-else:
-    text_type = str
-
 
 def isUserAdmin():
     if os.name != 'nt':
@@ -31,7 +26,7 @@ def isUserAdmin():
     # Requires Windows XP SP2 or higher!
     try:
         return ctypes.windll.shell32.IsUserAnAdmin()
-    except:
+    except:  # noqa
         traceback.print_exc()
         print("Admin check failed, assuming not an admin.")
         return False
@@ -136,7 +131,7 @@ def runAsAdmin(cmdLine=None, wait=True):
 
     if cmdLine is None:
         cmdLine = [python_exe] + sys.argv
-    elif not hasattr(cmdLine, "__iter__") or isinstance(cmdLine, text_type):
+    elif not hasattr(cmdLine, "__iter__") or isinstance(cmdLine, str):
         raise ValueError("cmdLine is not a sequence.")
 
     cmd = '"%s"' % (cmdLine[0],)

@@ -191,7 +191,7 @@ class UnixLex:
     @classmethod
     def quote_string(cls, s: str) -> str:
         quoted = shlex.quote(s)
-        if quoted.startswith("'") and not '"' in quoted:
+        if quoted.startswith("'") and '"' not in quoted:
             quoted = f'"{quoted[1:-1]}"'
         return quoted
 
