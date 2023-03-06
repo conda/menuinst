@@ -5,7 +5,7 @@ import shutil
 import warnings
 from logging import getLogger
 from pathlib import Path
-from subprocess import run, CompletedProcess
+from subprocess import CompletedProcess, run
 from tempfile import NamedTemporaryFile
 from typing import Any, Dict, Optional, Tuple
 
@@ -384,4 +384,3 @@ class WindowsMenuItem(MenuItem):
         for protocol in protocols:
             identifier = self._ftype_identifier(protocol)
             unregister_url_protocol(protocol, identifier, mode=self.parent.mode)
-
