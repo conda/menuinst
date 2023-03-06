@@ -7,7 +7,7 @@ Compilation happens via `setup.py`.
 
 # MacOS
 
-`osx_launcher.c` will build a script launcher on MacOS. 
+`osx_launcher.c` will build a script launcher on MacOS.
 It will find a shell script next to itself (executable name + `-script`) and launch it with `/bin/sh`.
 It only depends on the standard library. It is bundled as part of the `menuinst.data`.
 If it changes, recompile using these steps:

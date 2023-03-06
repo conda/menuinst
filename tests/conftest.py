@@ -1,8 +1,8 @@
-from pathlib import Path
-import shutil
-import os
 import json
 import logging
+import os
+import shutil
+from pathlib import Path
 from subprocess import check_output
 from tempfile import TemporaryDirectory
 
@@ -53,7 +53,7 @@ def tmpdir(tmpdir, request):
 def mock_locations(monkeypatch, tmp_path):
     from menuinst.platforms.linux import LinuxMenu
     from menuinst.platforms.osx import MacOSMenuItem
-    
+
     if os.name == "nt":
         from menuinst.platforms.win_utils import knownfolders
 

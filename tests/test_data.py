@@ -2,8 +2,8 @@
 
 import json
 
-from menuinst.utils import data_path
 from menuinst._schema import dump_default_to_json, dump_schema_to_json
+from menuinst.utils import data_path
 
 
 def test_schema_is_up_to_date():

@@ -2,6 +2,7 @@
 # Copyright (c) 2013 Continuum Analytics, Inc.
 # All rights reserved.
 import sys
+
 from setuptools import Extension, setup
 
 extensions = []

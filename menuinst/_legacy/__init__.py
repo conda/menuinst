@@ -3,9 +3,10 @@
 # All rights reserved.
 
 from __future__ import absolute_import
+
+import json
 import logging
 import sys
-import json
 from os.path import abspath, basename, exists, join
 
 try:
@@ -13,11 +14,11 @@ try:
 except ImportError:
     __version__ = "dev"
 
-from ..utils import DEFAULT_PREFIX, DEFAULT_BASE_PREFIX
+from ..utils import DEFAULT_BASE_PREFIX, DEFAULT_PREFIX
 
 if sys.platform == 'win32':
-    from .win32 import Menu, ShortCut
     from ..platforms.win_utils.win_elevate import isUserAdmin, runAsAdmin
+    from .win32 import Menu, ShortCut
 
 
 def _install(path, remove=False, prefix=None, mode=None, root_prefix=None):

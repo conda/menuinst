@@ -49,12 +49,12 @@ jobs:
           channels: conda-canary/label/conda-conda-pr-11882,conda-forge
           extra-specs: |
             python=${{ matrix.python-version }}
-            conda-canary/label/conda-conda-pr-11882::conda 
-            pip 
-            pytest 
-            pytest-cov 
-            pydantic 
-            hypothesis 
+            conda-canary/label/conda-conda-pr-11882::conda
+            pip
+            pytest
+            pytest-cov
+            pydantic
+            hypothesis
             hypothesis-jsonschema
 
       - shell: bash -el {0}

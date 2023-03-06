@@ -3,7 +3,6 @@ import shutil
 from os.path import isdir, isfile, islink
 
 
-
 def rm_empty_dir(path):
     try:
         os.rmdir(path)
