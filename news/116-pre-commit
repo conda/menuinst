@@ -16,4 +16,4 @@
 
 ### Other
 
-* Enable and apply pre-commit with isort. (#116)
+* Enable and apply pre-commit with isort/flake8/black. (#116, #125)
