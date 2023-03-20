@@ -150,6 +150,11 @@ class Linux(BasePlatformSpecific):
     determine if the program is actually installed and can be run. If the test
     fails, the shortcut might be ignored / hidden.
     """
+    glob_patterns: Optional[Dict[str, constr(regex=r".*\*.*")]] = None
+    """
+    Map of custom MIME types to their corresponding glob patterns (e.g. ``*.txt``).
+    Only needed if you define custom MIME types in ``MimeType``.
+    """
 
 
 class MacOS(BasePlatformSpecific):

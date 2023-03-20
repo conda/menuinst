@@ -2,7 +2,7 @@
 """
 import os
 import sys
-from typing import Union, List, Iterable, Literal, Dict, Any, Optional, Mapping
+from typing import List, Iterable, Dict, Any, Optional, Mapping
 from pathlib import Path
 from subprocess import check_output, run
 from logging import getLogger
@@ -10,7 +10,7 @@ from copy import deepcopy
 from tempfile import NamedTemporaryFile
 import json
 
-from ..utils import slugify, data_path, deep_update, DEFAULT_PREFIX, DEFAULT_BASE_PREFIX
+from ..utils import slugify, data_path, deep_update, DEFAULT_PREFIX, DEFAULT_BASE_PREFIX, _UserOrSystem
 
 log = getLogger(__name__)
 
@@ -21,7 +21,7 @@ class Menu:
         name: str,
         prefix: str = DEFAULT_PREFIX,
         base_prefix: str = DEFAULT_BASE_PREFIX,
-        mode: Union[Literal["user"], Literal["system"]] = "user",
+        mode: _UserOrSystem= "user",
     ):
         assert mode in ("user", "system"), f"mode={mode} must be `user` or `system`"
         self.mode = mode

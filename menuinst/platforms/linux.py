@@ -3,13 +3,15 @@
 import os
 from pathlib import Path
 import shutil
-import xml.etree.ElementTree as XMLTree
+from xml.etree import ElementTree
 import time
 from logging import getLogger
 from typing import Tuple, Iterable, Dict
+from tempfile import NamedTemporaryFile
+from subprocess import CalledProcessError
 
 from .base import Menu, MenuItem, menuitem_defaults
-from ..utils import indent_xml_tree, add_xml_child, UnixLex, unlink
+from ..utils import indent_xml_tree, add_xml_child, UnixLex, unlink, logged_run, _UserOrSystem
 
 
 log = getLogger(__name__)
@@ -105,7 +107,7 @@ class LinuxMenu(Menu):
 
     def _remove_this_menu(self):
         log.debug("Editing %s to remove %s config", self.menu_config_location, self.name)
-        tree = XMLTree.parse(self.menu_config_location)
+        tree = ElementTree.parse(self.menu_config_location)
         root = tree.getroot()
         for elt in root.findall("Menu"):
             if elt.find("Name").text == self.name:
@@ -113,12 +115,12 @@ class LinuxMenu(Menu):
         self._write_menu_file(tree)
 
     def _has_this_menu(self) -> bool:
-        root = XMLTree.parse(self.menu_config_location).getroot()
+        root = ElementTree.parse(self.menu_config_location).getroot()
         return any(e.text == self.name for e in root.findall("Menu/Name"))
 
     def _add_this_menu(self):
         log.debug("Editing %s to add %s config", self.menu_config_location, self.name)
-        tree = XMLTree.parse(self.menu_config_location)
+        tree = ElementTree.parse(self.menu_config_location)
         root = tree.getroot()
         menu_elt = add_xml_child(root, "Menu")
         add_xml_child(menu_elt, "Name", self.name)
@@ -129,12 +131,12 @@ class LinuxMenu(Menu):
 
     def _is_valid_menu_file(self) -> bool:
         try:
-            root = XMLTree.parse(self.menu_config_location).getroot()
+            root = ElementTree.parse(self.menu_config_location).getroot()
             return root is not None and root.tag == "Menu"
         except Exception:
             return False
 
-    def _write_menu_file(self, tree: XMLTree):
+    def _write_menu_file(self, tree: ElementTree):
         log.debug("Writing %s", self.menu_config_location)
         indent_xml_tree(tree.getroot())  # inplace!
         with open(self.menu_config_location, "wb") as f:
@@ -248,6 +250,72 @@ class LinuxMenuItem(MenuItem):
         with open(self.location, "w") as f:
             f.write("\n".join(lines))
             f.write("\n")
+
+    def _maybe_register_mime_types(self, register=True):
+        mime_types = self.render_key("mime_types")
+        if not mime_types:
+            return
+        self._register_mime_types(mime_types, register=register)
+
+    def _register_mime_types(self, mime_types: Iterable[str], register: bool = True):
+        glob_patterns = self.render_key("glob_patterns") or {}
+        for mime_type in mime_types:
+            glob_pattern = glob_patterns.get(mime_type)
+            if glob_pattern:
+                self._glob_pattern_for_mime_type(mime_type, install=register)
+        
+        if register:
+            xdg_mime = shutil.which("xdg-mime")
+            if not xdg_mime:
+                log.debug("xdg-mime not found, not registering mime types as default.")
+            # TODO: We might need sudo here, but at this point we should be "elevated" already
+            logged_run([xdg_mime, "default", self.location, mime_types, "--mode", self.menu.mode])
+
+    def _xml_path_for_mime_type(self, mime_type: str) -> Tuple[Path, bool]:
+        basename = mime_type.split("/")[-1]
+        xml_files = (self.menu.data_directory / "mime" / "applications").glob(f"*{basename}*.xml")
+        if xml_files:
+            if len(xml_files) > 1:
+                msg = "Found multiple files for MIME type %s: %s. Returning first."
+                log.debug(msg, mime_type, xml_files)
+            return xml_files[0], True
+        return self.menu.data_directory / "mime" / "packages" / f"{basename}.xml", False
+
+    def _glob_pattern_for_mime_type(
+            self, mime_type: str, glob_pattern: str, install: bool = True,
+        ) -> Path:
+        """
+        See https://specifications.freedesktop.org/mime-apps-spec/mime-apps-spec-latest.html
+        for more information on the default locations.
+        """
+        xml_path, exists = self._xml_path_for_mime_type(mime_type)
+        if exists:
+            return xml_path
+        
+        # Write the XML that binds our current mime type to the glob pattern
+        xmlns = "http://www.freedesktop.org/standards/shared-mime-info"
+        mime_info = ElementTree.Element("mime-info", xmlns=xmlns)
+        mime_type_tag = ElementTree.SubElement(mime_info, "mime-type", type=mime_type)
+        ElementTree.SubElement(mime_type_tag, "glob", pattern=glob_pattern)
+        descr = f"Custom MIME type {mime_type} for '{glob_pattern}' files (registered by menuinst)"
+        ElementTree.SubElement(mime_type_tag, "comment").text = descr
+        tree = ElementTree.ElementTree(mime_info)
+        
+        subcommand = "install" if install else "uninstall"
+        # Install the XML file and register it as default for our app
+        try:
+            with NamedTemporaryFile(mode="w", suffix=".xml", delete=False) as f:
+                tree.write(f, encoding="UTF-8", xml_declaration=True)
+            # TODO: We might need sudo here, but at this point we should be "elevated" already
+            logged_run(["xdg-mime", subcommand, "--mode", self.menu.mode, f.name], check=True)
+        except CalledProcessError:
+            log.debug(
+                "Could not un/register MIME type %s with xdg-mime. Writing to '%s' as a fallback.",
+                mime_type, xml_path
+            )
+            tree.write(xml_path, encoding="UTF-8", xml_declaration=True)
+        finally:
+            os.unlink(f.name)
 
     def _paths(self) -> Iterable[os.PathLike]:
         return (self.location,)

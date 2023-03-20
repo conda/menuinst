@@ -212,6 +212,14 @@
         "TryExec": {
           "title": "Tryexec",
           "type": "string"
+        },
+        "glob_patterns": {
+          "title": "Glob Patterns",
+          "type": "object",
+          "additionalProperties": {
+            "type": "string",
+            "pattern": ".*\\*.*"
+          }
         }
       },
       "additionalProperties": false

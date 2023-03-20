@@ -3,14 +3,14 @@
 
 from os import PathLike
 import sys
-from typing import Union, List, Tuple, Literal, Optional, Callable, Any
+from typing import Union, List, Tuple, Optional, Callable, Any
 from pathlib import Path
 import warnings
 import json
 from logging import getLogger
 
 from .platforms import Menu, MenuItem
-from .utils import elevate_as_needed, DEFAULT_PREFIX, DEFAULT_BASE_PREFIX
+from .utils import elevate_as_needed, DEFAULT_PREFIX, DEFAULT_BASE_PREFIX, _UserOrSystem
 
 log = getLogger(__name__)
 
@@ -27,7 +27,7 @@ def _load(
     metadata_or_path: Union[PathLike, dict],
     target_prefix: Optional[PathLike] = None,
     base_prefix: Optional[PathLike] = None,
-    _mode: Union[Literal["user"], Literal["system"]] = "user",
+    _mode: _UserOrSystem = "user",
 ) -> Tuple[Menu, List[MenuItem]]:
     target_prefix = target_prefix or DEFAULT_PREFIX
     base_prefix = base_prefix or DEFAULT_BASE_PREFIX
@@ -47,7 +47,7 @@ def install(
     *,
     target_prefix: Optional[PathLike] = None,
     base_prefix: Optional[PathLike] = None,
-    _mode: Union[Literal["user"], Literal["system"]] = "user",
+    _mode: _UserOrSystem = "user",
 ) -> List[PathLike]:
     target_prefix = target_prefix or DEFAULT_PREFIX
     base_prefix = base_prefix or DEFAULT_BASE_PREFIX
@@ -70,7 +70,7 @@ def remove(
     *,
     target_prefix: Optional[PathLike] = None,
     base_prefix: Optional[PathLike] = None,
-    _mode: Union[Literal["user"], Literal["system"]] = "user",
+    _mode: _UserOrSystem = "user",
 ) -> List[PathLike]:
     target_prefix = target_prefix or DEFAULT_PREFIX
     base_prefix = base_prefix or DEFAULT_BASE_PREFIX
@@ -93,7 +93,7 @@ def install_all(
     target_prefix: Optional[PathLike] = None,
     base_prefix: Optional[PathLike] = None,
     filter: Union[Callable, None] = None,
-    _mode: Union[Literal["user"], Literal["system"]] = "user",
+    _mode: _UserOrSystem = "user",
 ) -> List[List[PathLike]]:
     target_prefix = target_prefix or DEFAULT_PREFIX
     base_prefix = base_prefix or DEFAULT_BASE_PREFIX
@@ -106,7 +106,7 @@ def remove_all(
     target_prefix: Optional[PathLike] = None,
     base_prefix: Optional[PathLike] = None,
     filter: Union[Callable, None] = None,
-    _mode: Union[Literal["user"], Literal["system"]] = "user",
+    _mode: _UserOrSystem = "user",
 ) -> List[List[Union[str, PathLike]]]:
     target_prefix = target_prefix or DEFAULT_PREFIX
     base_prefix = base_prefix or DEFAULT_BASE_PREFIX
@@ -118,7 +118,7 @@ def _process_all(
     target_prefix: Optional[PathLike] = None,
     base_prefix: Optional[PathLike] = None,
     filter: Union[Callable, None] = None,
-    _mode: Union[Literal["user"], Literal["system"]] = "user",
+    _mode: _UserOrSystem = "user",
 ) -> List[Any]:
     target_prefix = target_prefix or DEFAULT_PREFIX
     base_prefix = base_prefix or DEFAULT_BASE_PREFIX

@@ -27,7 +27,10 @@
                         "-c",
                         "import sys, pathlib as p; Path(r'__OUTPUT_FILE__').write_text('%f')"
                     ],
-                    "MimeType": ["application/x-menuinst"]
+                    "MimeType": ["application/x-menuinst"],
+                    "glob_patterns": {
+                        "application/x-menuinst": ["*.menuinst"]
+                    }
                 },
                 "osx": {
                     "command": [

@@ -30,7 +30,8 @@
           "PrefersNonDefaultGPU": null,
           "StartupNotify": null,
           "StartupWMClass": null,
-          "TryExec": null
+          "TryExec": null,
+          "glob_patterns": null
         },
         "osx": {
           "CFBundleDisplayName": null,
