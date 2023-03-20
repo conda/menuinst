@@ -9,9 +9,9 @@ from contextlib import suppress
 from functools import wraps
 from logging import getLogger
 from pathlib import Path
+from typing import (Callable, Iterable, Literal, Mapping, Optional, Sequence,
+                    Union)
 from unicodedata import normalize
-from typing import Union, Literal, Optional, Sequence, Iterable, Mapping, Callable
-
 
 logger = getLogger(__name__)
 _TargetOrBase = Union[Literal["target"], Literal["base"]]
@@ -53,14 +53,14 @@ def _default_prefix(which: _TargetOrBase = "target"):
     if base:
         prefix = os.environ.get("MENUINST_BASE_PREFIX")
         if prefix:
-            return prefix 
+            return prefix
         if context:
             return context.root_prefix
         return os.environ.get("CONDA_ROOT_PREFIX", sys.base_prefix)
     # else
     prefix = os.environ.get("MENUINST_PREFIX")
     if prefix:
-        return prefix 
+        return prefix
     if context:
         return context.target_prefix
     return os.environ.get("CONDA_PREFIX", sys.prefix)
@@ -245,7 +245,7 @@ def deep_update(mapping: Mapping, *updating_mappings: Iterable[Mapping]) -> Mapp
 
 def user_is_admin() -> bool:
     if os.name == 'nt':
-        from .platforms.win_utils.win_elevate import isUserAdmin 
+        from .platforms.win_utils.win_elevate import isUserAdmin
 
         return isUserAdmin()
     elif os.name == 'posix':
@@ -281,11 +281,11 @@ def python_executable(base_prefix: Optional[os.PathLike] = None) -> Sequence[str
             base_prefix_python = base_prefix / "python.exe"
         else:
             base_prefix_python = base_prefix / "bin" / "python"
-        # If the base env (installation root) 
+        # If the base env (installation root)
         # ships a usable Python, use that one
         if base_prefix_python.is_file():
             return (str(base_prefix_python), )
-        # the base env does not have python, 
+        # the base env does not have python,
         # use the conda-standalone wrapper
         return (sys.executable, "python")
     # in non-frozen executables:
@@ -362,7 +362,7 @@ def elevate_as_needed(func: Callable) -> Callable:
                 else:
                     os.environ.pop("_MENUINST_RECURSING", None)
                     if return_code == 0:  # success, no need to fallback
-                        return 
+                        return
         # We have not returned yet? Well, let's try as a normal user
         return func(
             base_prefix=base_prefix,

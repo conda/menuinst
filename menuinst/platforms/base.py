@@ -1,16 +1,17 @@
 """
 """
+import json
 import os
 import sys
-from typing import List, Iterable, Dict, Any, Optional, Mapping
+from copy import deepcopy
+from logging import getLogger
 from pathlib import Path
 from subprocess import check_output, run
-from logging import getLogger
-from copy import deepcopy
 from tempfile import NamedTemporaryFile
-import json
+from typing import Any, Dict, Iterable, List, Mapping, Optional
 
-from ..utils import slugify, data_path, deep_update, DEFAULT_PREFIX, DEFAULT_BASE_PREFIX, _UserOrSystem
+from ..utils import (DEFAULT_BASE_PREFIX, DEFAULT_PREFIX, _UserOrSystem,
+                     data_path, deep_update, slugify)
 
 log = getLogger(__name__)
 
@@ -140,13 +141,13 @@ class MenuItem:
 
     def remove(self) -> List[Path]:
         raise NotImplementedError
-    
+
     @property
     def placeholders(self) -> Dict[str, str]:
         return {
             "MENU_ITEM_LOCATION": str(self.location),
         }
-    
+
     def render_key(self, key: str, slug: bool = False, extra: Optional[Dict[str, str]] = None) -> Any:
         value = self.metadata.get(key)
         return self.render(value, slug=slug, extra=extra)

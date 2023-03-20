@@ -22,10 +22,10 @@ write_to = "menuinst/_version.py"
 include-package-data = true
 
 [tool.setuptools.packages.find]
-where = ["."] 
+where = ["."]
 include = ["menuinst*"]
 namespaces = true
- 
+
 [tool.black]
 line-length = 99
 target-version = ['py38', 'py39', 'py310', 'py311']

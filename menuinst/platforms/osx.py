@@ -1,20 +1,20 @@
 """
 """
-from hashlib import sha1
-from logging import getLogger
-from pathlib import Path
-from subprocess import CalledProcessError, check_call, run
-from textwrap import dedent
-from typing import Tuple, Optional, Dict
 import os
 import platform
 import plistlib
 import shutil
 import sys
+from hashlib import sha1
+from logging import getLogger
+from pathlib import Path
+from subprocess import CalledProcessError, check_call, run
+from textwrap import dedent
+from typing import Dict, Optional, Tuple
 
-from .base import Menu, MenuItem, menuitem_defaults
-from ..utils import UnixLex
 from .. import data as _menuinst_data
+from ..utils import UnixLex
+from .base import Menu, MenuItem, menuitem_defaults
 
 log = getLogger(__name__)
 

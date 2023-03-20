@@ -1,18 +1,17 @@
 """"""
 import os
 import plistlib
-import sys
 import subprocess
+import sys
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 from time import sleep, time
 
 import pytest
+from conftest import DATA, PLATFORM
 
 from menuinst.api import install
 from menuinst.utils import DEFAULT_PREFIX
-
-from conftest import DATA, PLATFORM
 
 
 def _poll_for_file_contents(path, timeout=10):
@@ -96,8 +95,8 @@ def check_output_from_shortcut(
             arg = url_to_open
         app_location = paths[0]
         cmd = {
-            "linux": ["xdg-open"], 
-            "osx": ["open"], # "-a", app_location], 
+            "linux": ["xdg-open"],
+            "osx": ["open"], # "-a", app_location],
             "win": ["start"],
         }[PLATFORM]
         process = subprocess.run([*cmd, arg], text=True, capture_output=True)

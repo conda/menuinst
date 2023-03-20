@@ -1,16 +1,17 @@
 """
 """
 
-from os import PathLike
-import sys
-from typing import Union, List, Tuple, Optional, Callable, Any
-from pathlib import Path
-import warnings
 import json
+import sys
+import warnings
 from logging import getLogger
+from os import PathLike
+from pathlib import Path
+from typing import Any, Callable, List, Optional, Tuple, Union
 
 from .platforms import Menu, MenuItem
-from .utils import elevate_as_needed, DEFAULT_PREFIX, DEFAULT_BASE_PREFIX, _UserOrSystem
+from .utils import (DEFAULT_BASE_PREFIX, DEFAULT_PREFIX, _UserOrSystem,
+                    elevate_as_needed)
 
 log = getLogger(__name__)
 

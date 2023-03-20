@@ -20,7 +20,7 @@ def test_file_extensions(tmp_path: Path, request):
     name = str(hash(str(tmp_path)))[:6]
     extension = f".menuinst-{name}"
     identifier = f"menuinst.assoc.menuinst-{name}"
-    
+
     def cleanup():
         # This key is not normally cleaned up because another programs might
         # be using it, but since we know these are synthetic and made up,
@@ -29,7 +29,7 @@ def test_file_extensions(tmp_path: Path, request):
     request.addfinalizer(cleanup)
 
     registry.register_file_extension(
-        extension=extension, 
+        extension=extension,
         identifier=identifier,
         command=fr'cmd.exe /Q /D /V:ON /C "echo %1>{tmp_path}\output.txt"',
         mode="user",
@@ -74,7 +74,7 @@ def test_protocols(tmp_path):
     """
     name = str(hash(str(tmp_path)))[:6]
     registry.register_url_protocol(
-        protocol=f"menuinst-{name}", 
+        protocol=f"menuinst-{name}",
         command=fr'cmd.exe /Q /D /V:ON /C "echo %1>{tmp_path}\output.txt"',
         identifier=f"menuinst.protocol.menuinst-{name}",
         mode="user",
@@ -93,7 +93,7 @@ def test_protocols(tmp_path):
             raise AssertionError("Output file was never created")
     finally:
         registry.unregister_url_protocol(
-            protocol=f"menuinst-{name}", 
+            protocol=f"menuinst-{name}",
             identifier=f"menuinst.protocol.menuinst-{name}",
             mode="user"
         )

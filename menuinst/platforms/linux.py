@@ -1,18 +1,18 @@
 """
 """
 import os
-from pathlib import Path
 import shutil
-from xml.etree import ElementTree
 import time
 from logging import getLogger
-from typing import Tuple, Iterable, Dict
-from tempfile import NamedTemporaryFile
+from pathlib import Path
 from subprocess import CalledProcessError
+from tempfile import NamedTemporaryFile
+from typing import Dict, Iterable, Tuple
+from xml.etree import ElementTree
 
+from ..utils import (UnixLex, _UserOrSystem, add_xml_child, indent_xml_tree,
+                     logged_run, unlink)
 from .base import Menu, MenuItem, menuitem_defaults
-from ..utils import indent_xml_tree, add_xml_child, UnixLex, unlink, logged_run, _UserOrSystem
-
 
 log = getLogger(__name__)
 
@@ -263,7 +263,7 @@ class LinuxMenuItem(MenuItem):
             glob_pattern = glob_patterns.get(mime_type)
             if glob_pattern:
                 self._glob_pattern_for_mime_type(mime_type, install=register)
-        
+
         if register:
             xdg_mime = shutil.which("xdg-mime")
             if not xdg_mime:
@@ -291,7 +291,7 @@ class LinuxMenuItem(MenuItem):
         xml_path, exists = self._xml_path_for_mime_type(mime_type)
         if exists:
             return xml_path
-        
+
         # Write the XML that binds our current mime type to the glob pattern
         xmlns = "http://www.freedesktop.org/standards/shared-mime-info"
         mime_info = ElementTree.Element("mime-info", xmlns=xmlns)
@@ -300,7 +300,7 @@ class LinuxMenuItem(MenuItem):
         descr = f"Custom MIME type {mime_type} for '{glob_pattern}' files (registered by menuinst)"
         ElementTree.SubElement(mime_type_tag, "comment").text = descr
         tree = ElementTree.ElementTree(mime_info)
-        
+
         subcommand = "install" if install else "uninstall"
         # Install the XML file and register it as default for our app
         try:
