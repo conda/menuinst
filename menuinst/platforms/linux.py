@@ -11,8 +11,7 @@ from tempfile import NamedTemporaryFile
 from typing import Dict, Iterable, Tuple
 from xml.etree import ElementTree
 
-from ..utils import (UnixLex, _UserOrSystem, add_xml_child, indent_xml_tree,
-                     logged_run, unlink)
+from ..utils import UnixLex, _UserOrSystem, add_xml_child, indent_xml_tree, logged_run, unlink
 from .base import Menu, MenuItem, menuitem_defaults
 
 log = getLogger(__name__)

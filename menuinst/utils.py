@@ -9,8 +9,7 @@ from contextlib import suppress
 from functools import wraps
 from logging import getLogger
 from pathlib import Path
-from typing import (Callable, Iterable, Literal, Mapping, Optional, Sequence,
-                    Union)
+from typing import Callable, Iterable, Literal, Mapping, Optional, Sequence, Union
 from unicodedata import normalize
 
 logger = getLogger(__name__)

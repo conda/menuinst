@@ -10,8 +10,7 @@ from pathlib import Path
 from typing import Any, Callable, List, Optional, Tuple, Union
 
 from .platforms import Menu, MenuItem
-from .utils import (DEFAULT_BASE_PREFIX, DEFAULT_PREFIX, _UserOrSystem,
-                    elevate_as_needed)
+from .utils import DEFAULT_BASE_PREFIX, DEFAULT_PREFIX, _UserOrSystem, elevate_as_needed
 
 log = getLogger(__name__)
 

@@ -10,8 +10,14 @@ from subprocess import check_output, run
 from tempfile import NamedTemporaryFile
 from typing import Any, Dict, Iterable, List, Mapping, Optional
 
-from ..utils import (DEFAULT_BASE_PREFIX, DEFAULT_PREFIX, _UserOrSystem,
-                     data_path, deep_update, slugify)
+from ..utils import (
+    DEFAULT_BASE_PREFIX,
+    DEFAULT_PREFIX,
+    _UserOrSystem,
+    data_path,
+    deep_update,
+    slugify,
+)
 
 log = getLogger(__name__)
 

@@ -12,10 +12,12 @@ from typing import Any, Dict, Optional, Tuple
 from ..utils import WinLex, unlink
 from .base import Menu, MenuItem
 from .win_utils.knownfolders import folder_path as windows_folder_path
-from .win_utils.registry import (register_file_extension,
-                                 register_url_protocol,
-                                 unregister_file_extension,
-                                 unregister_url_protocol)
+from .win_utils.registry import (
+    register_file_extension,
+    register_url_protocol,
+    unregister_file_extension,
+    unregister_url_protocol,
+)
 
 log = getLogger(__name__)
 
