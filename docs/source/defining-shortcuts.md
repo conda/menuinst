@@ -140,7 +140,8 @@ shortcut.
 * On macOS, use `CFBundleURLTypes`. Requires no placeholders. The URL will be dispatched via
   events. You need to define the `url_handler` field to define a logic that will forward the caught
   URLs to your application (via sockets, API calls, inotify or any other inter-process
-  communication mechanism).
+  communication mechanism). Note that setting `CFBundleTypeRole` will make the wrapper blip in the
+  dock when the URL is opened. If you don't want that, do not set it.
 
 
 ```json
@@ -165,7 +166,6 @@ shortcut.
                         {
                             "CFBundleURLIconFile": "{{ MENU_DIR }}/my_protocol_handler",
                             "CFBundleURLName": "my-protocol-handler.menuinst.does-not-work-yet",
-                            "CFBundleTypeRole": "Viewer",
                             "CFBundleURLSchemes": ["menuinst"]
                         }
                     ],

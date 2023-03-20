@@ -36,7 +36,6 @@
                     "CFBundleURLTypes": [
                         {
                             "CFBundleURLName": "my-protocol-handler.menuinst",
-                            "CFBundleTypeRole": "Viewer",
                             "CFBundleURLSchemes": ["menuinst"]
                         }
                     ],
