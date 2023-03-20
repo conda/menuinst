@@ -25,7 +25,7 @@ for target in "x86_64-apple-macos10.9" "arm64-apple-macos11.0"; do
 done
 ```
 
-`appkit-launcher` is yet another launcher for macOS that is used to recieve
+`appkit-launcher` is yet another launcher for macOS that is used to receive
 Apple Events and dispatch them as command line arguments.
 
 ```bash

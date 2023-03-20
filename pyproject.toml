@@ -39,6 +39,10 @@ exclude = '''
 )
 '''
 
+[tool.isort]
+profile = "black"
+line_length = 99
+
 [tool.pyright]
 pythonPlatform = "All"
 

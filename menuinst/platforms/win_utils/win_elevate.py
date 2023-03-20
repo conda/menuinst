@@ -47,8 +47,18 @@ if os.name == 'nt':
             # In this case assume already binary type and do nothing
             return value
 
-    from ctypes import (POINTER, Structure, WinError, byref, c_char_p, c_int,
-                        c_ulong, c_void_p, sizeof, windll)
+    from ctypes import (
+        POINTER,
+        Structure,
+        WinError,
+        byref,
+        c_char_p,
+        c_int,
+        c_ulong,
+        c_void_p,
+        sizeof,
+        windll,
+    )
     from ctypes.wintypes import BOOL, DWORD, HANDLE, HINSTANCE, HKEY, HWND
     PHANDLE = POINTER(HANDLE)
     PDWORD = POINTER(DWORD)

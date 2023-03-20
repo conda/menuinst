@@ -3,6 +3,7 @@
 import os
 import shutil
 import time
+import xml.etree.ElementTree as XMLTree
 from logging import getLogger
 from pathlib import Path
 from subprocess import CalledProcessError
