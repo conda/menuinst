@@ -1,11 +1,11 @@
 # this script is used on windows to wrap shortcuts so that they are executed within an environment
 #   It only sets the appropriate prefix PATH entries - it does not actually activate environments
 
-import os
-import sys
-import subprocess
-from os.path import join, pathsep
 import argparse
+import os
+import subprocess
+import sys
+from os.path import join, pathsep
 
 from menuinst._legacy.knownfolders import FOLDERID, get_folder_path
 

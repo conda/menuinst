@@ -1,11 +1,11 @@
 """
 """
 
+import json
 import os
 import sys
-import json
-from os import PathLike
 from logging import getLogger as _getLogger
+from os import PathLike
 
 try:
     from ._version import __version__
@@ -14,8 +14,9 @@ except ImportError:
 
 
 from ._legacy import install as _legacy_install
-from .api import install as _api_install, remove as _api_remove
-from .utils import DEFAULT_PREFIX, DEFAULT_BASE_PREFIX
+from .api import install as _api_install
+from .api import remove as _api_remove
+from .utils import DEFAULT_BASE_PREFIX, DEFAULT_PREFIX
 
 _log = _getLogger(__name__)
 

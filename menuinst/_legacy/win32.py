@@ -5,17 +5,16 @@
 from __future__ import absolute_import, unicode_literals
 
 import ctypes
+import locale
 import logging
 import os
-from os.path import isdir, join, exists
 import sys
-import locale
+from os.path import exists, isdir, join
 
-
-from .utils import rm_empty_dir, rm_rf
 from ..platforms.win_utils.knownfolders import dirs_src, folder_path
 from ..platforms.win_utils.winshortcut import create_shortcut
 from ..utils import DEFAULT_BASE_PREFIX
+from .utils import rm_empty_dir, rm_rf
 
 # This allows debugging installer issues using DebugView from Microsoft.
 OutputDebugString = ctypes.windll.kernel32.OutputDebugStringW

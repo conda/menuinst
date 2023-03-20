@@ -2,7 +2,9 @@ import sys
 from os.path import join
 
 import menuinst._legacy as menuinst
+
 from ..utils import DEFAULT_PREFIX
+
 
 def main():
     from optparse import OptionParser

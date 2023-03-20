@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8; mode: python; py-indent-offset: 4; indent-tabs-mode: nil -*-
 # vim: fileencoding=utf-8 tabstop=4 expandtab shiftwidth=4
 #
@@ -9,7 +8,10 @@
 
 
 from __future__ import print_function
-import sys, os, traceback
+
+import os
+import sys
+import traceback
 from enum import IntEnum
 from subprocess import list2cmdline
 
@@ -24,6 +26,7 @@ def isUserAdmin():
         raise RuntimeError("This function is only implemented on Windows.")
 
     import ctypes
+
     # Requires Windows XP SP2 or higher!
     try:
         return ctypes.windll.shell32.IsUserAnAdmin()
@@ -44,9 +47,9 @@ if os.name == 'nt':
             # In this case assume already binary type and do nothing
             return value
 
-    from ctypes import (POINTER, Structure, WinError, byref, c_ulong, c_char_p, c_int,
-                        c_void_p, sizeof, windll)
-    from ctypes.wintypes import HANDLE, BOOL, DWORD, HWND, HINSTANCE, HKEY
+    from ctypes import (POINTER, Structure, WinError, byref, c_char_p, c_int,
+                        c_ulong, c_void_p, sizeof, windll)
+    from ctypes.wintypes import BOOL, DWORD, HANDLE, HINSTANCE, HKEY, HWND
     PHANDLE = POINTER(HANDLE)
     PDWORD = POINTER(DWORD)
     SEE_MASK_NOCLOSEPROCESS = 0x00000040

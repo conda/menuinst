@@ -5,20 +5,17 @@ import shutil
 import warnings
 from logging import getLogger
 from pathlib import Path
-from subprocess import run, CompletedProcess
+from subprocess import CompletedProcess, run
 from tempfile import NamedTemporaryFile
-from typing import Tuple, Optional, Dict, Any
+from typing import Any, Dict, Optional, Tuple
 
-from .base import Menu, MenuItem
 from ..utils import WinLex, unlink
-
+from .base import Menu, MenuItem
 from .win_utils.knownfolders import folder_path as windows_folder_path
-from .win_utils.registry import (
-    register_file_extension,
-    register_url_protocol,
-    unregister_file_extension,
-    unregister_url_protocol,
-)
+from .win_utils.registry import (register_file_extension,
+                                 register_url_protocol,
+                                 unregister_file_extension,
+                                 unregister_url_protocol)
 
 log = getLogger(__name__)
 
@@ -385,4 +382,3 @@ class WindowsMenuItem(MenuItem):
         for protocol in protocols:
             identifier = self._ftype_identifier(protocol)
             unregister_url_protocol(protocol, identifier, mode=self.parent.mode)
-

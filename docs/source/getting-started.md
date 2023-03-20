@@ -1,7 +1,7 @@
 # Getting started
 
 `menuinst` can be used to create shortcuts or menu items across operating systems.
-It's designed to integrate nicely with `conda` packages, 
+It's designed to integrate nicely with `conda` packages,
 but it can be used without it to an extent via its Python API (see below).
 
 <!-- NOTE: General Python support will be added. This section will be rephrased then -->

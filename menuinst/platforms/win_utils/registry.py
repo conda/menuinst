@@ -13,9 +13,9 @@ SetValueEx will create a value with name "path\with\keys"
 
 Mnemonic: SetValueEx for "excalars" (scalars, named values)
 """
+import winreg
 from logging import getLogger
 from subprocess import run
-import winreg
 
 log = getLogger(__name__)
 
@@ -47,7 +47,7 @@ def register_file_extension(extension, identifier, command, icon=None, mode="use
             DefaultIcon: "path to the app icon"
             shell/
               open/
-                command/: "the command to be executed when opening a file with this extension" 
+                command/: "the command to be executed when opening a file with this extension"
     """
     with winreg.OpenKeyEx(
         winreg.HKEY_LOCAL_MACHINE  # HKLM
@@ -58,9 +58,9 @@ def register_file_extension(extension, identifier, command, icon=None, mode="use
         # First we associate an extension with a handler
         winreg.SetValueEx(
             winreg.CreateKey(key, fr"{extension}\OpenWithProgids"),
-            identifier,  
+            identifier,
             0,
-            winreg.REG_SZ, 
+            winreg.REG_SZ,
             "", # presence of the key is enough
         )
         log.debug("Created registry entry for extension '%s'", extension)
@@ -110,7 +110,7 @@ def register_url_protocol(protocol, command, identifier=None, icon=None, mode="u
     with key:
         winreg.SetValueEx(key, "", 0, winreg.REG_SZ, f"URL:{protocol.title()}")
         winreg.SetValueEx(key, "URL Protocol", 0, winreg.REG_SZ, "")
-        # SetValue creates sub keys when slashes are present; 
+        # SetValue creates sub keys when slashes are present;
         # SetValueEx creates a value with backslashes - we don't want that here
         winreg.SetValue(key, r"shell\open\command", winreg.REG_SZ, command)
         if icon:
