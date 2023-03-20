@@ -41,3 +41,9 @@ exclude = '''
 
 [tool.pyright]
 pythonPlatform = "All"
+
+[tool.ruff]
+line-length = 99
+exclude = [
+  "_schema.py"
+]

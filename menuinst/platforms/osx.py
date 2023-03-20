@@ -3,12 +3,14 @@
 from hashlib import sha1
 from logging import getLogger
 from pathlib import Path
-from subprocess import check_call
+from subprocess import CalledProcessError, check_call, run
+from textwrap import dedent
 from typing import Tuple, Optional, Dict
 import os
 import platform
 import plistlib
 import shutil
+import sys
 
 from .base import Menu, MenuItem, menuitem_defaults
 from ..utils import UnixLex
@@ -41,6 +43,7 @@ class MacOSMenu(Menu):
 
 
 class MacOSMenuItem(MenuItem):
+
     @property
     def location(self) -> Path:
         "Path to the .app directory defining the menu item"
@@ -83,11 +86,14 @@ class MacOSMenuItem(MenuItem):
         self._write_appkit_launcher()
         self._write_launcher()
         self._write_script()
+        self._write_url_handler()
+        self._maybe_register_url()
         self._sign_with_entitlements()
         return (self.location,)
 
     def remove(self) -> Tuple[Path]:
         log.debug("Removing %s", self.location)
+        self._maybe_register_url(register=False)
         shutil.rmtree(self.location, ignore_errors=True)
         return (self.location,)
 
@@ -95,9 +101,12 @@ class MacOSMenuItem(MenuItem):
         paths = [
             self.location / "Contents" / "Resources",
             self.location / "Contents" / "MacOS",
-            self._nested_location / "Contents" / "Resources",
-            self._nested_location / "Contents" / "MacOS",
         ]
+        if self._needs_appkit_launcher:
+            paths += [
+                self._nested_location / "Contents" / "Resources",
+                self._nested_location / "Contents" / "MacOS",
+            ]
         for path in paths:
             path.mkdir(parents=True, exist_ok=False)
         return tuple(paths)
@@ -106,10 +115,14 @@ class MacOSMenuItem(MenuItem):
         icon = self.render_key("icon")
         if icon:
             shutil.copy(icon, self.location / "Contents" / "Resources")
-            shutil.copy(icon, self._nested_location / "Contents" / "Resources")
+            if self._needs_appkit_launcher:
+                shutil.copy(icon, self._nested_location / "Contents" / "Resources")
 
     def _write_pkginfo(self):
-        for app in (self.location, self._nested_location):
+        app_bundles = [self.location]
+        if self._needs_appkit_launcher:
+            app_bundles.append(self._nested_location)
+        for app in app_bundles:
             with open(app / "Contents" / "PkgInfo", "w") as f:
                 f.write(f"APPL{self.render_key('name', slug=True)[:8]}")
 
@@ -135,13 +148,13 @@ class MacOSMenuItem(MenuItem):
         if icon:
             pl["CFBundleIconFile"] = Path(icon).name
 
-        # write only the basic plist info into the nested bundle
-        with open(self._nested_location / "Contents" / "Info.plist", "wb") as f:
-            plistlib.dump(pl, f)
-
-        # the *outer* bundle is background-only and needs a different ID
-        pl["LSBackgroundOnly"] = True
-        pl["CFBundleIdentifier"] = f"com.{slugname}-appkit-launcher"
+        if self._needs_appkit_launcher:
+            # write only the basic plist info into the nested bundle
+            with open(self._nested_location / "Contents" / "Info.plist", "wb") as f:
+                plistlib.dump(pl, f)
+            # the *outer* bundle is background-only and needs a different ID
+            pl["LSBackgroundOnly"] = True
+            pl["CFBundleIdentifier"] = f"com.{slugname}-appkit-launcher"
 
         # Override defaults with (potentially) user provided values
         ignore_keys = (*menuitem_defaults, "entitlements", "link_in_bundle")
@@ -216,6 +229,26 @@ class MacOSMenuItem(MenuItem):
         os.chmod(script_path, 0o755)
         return script_path
 
+    def _write_url_handler(self, script_path: Optional[os.PathLike] = None) -> os.PathLike:
+        if not self._needs_appkit_launcher:
+            return
+        url_handler_logic = self.render_key("url_handler")
+        if url_handler_logic is None:
+            return
+        if script_path is None:
+            script_path = self.location / "Contents" / "Resources" / "handle-url"
+        with open(script_path, "w") as f:
+            f.write(
+                dedent(
+                    f"""
+                    #!/bin/bash
+                    {url_handler_logic}
+                    """
+                ).lstrip()
+            )
+        os.chmod(script_path, 0o755)
+        return script_path
+
     def _paths(self) -> Tuple[os.PathLike]:
         return (self.location,)
 
@@ -241,7 +274,19 @@ class MacOSMenuItem(MenuItem):
 
     def _default_launcher_path(self, suffix: str = "") -> Path:
         name = self.render_key("name", slug=True)
-        return self._nested_location / "Contents" / "MacOS" / f'{name}{suffix}'
+        if self._needs_appkit_launcher:
+            return self._nested_location / "Contents" / "MacOS" / f'{name}{suffix}'
+        return self.location / "Contents" / "MacOS" / f'{name}{suffix}'
+
+    def _maybe_register_url(self, register=True):
+        if not self._needs_appkit_launcher:
+            return
+        # register the URL scheme with `lsregister`
+        try:
+            unregister = () if register else ("-u",)
+            _lsregister("-R", *unregister, str(self.location))
+        except CalledProcessError as exc:
+            log.debug("Could not (un)register URL scheme", exc_info=exc)
 
     def _sign_with_entitlements(self):
         "Self-sign shortcut to apply required entitlements"
@@ -271,3 +316,24 @@ class MacOSMenuItem(MenuItem):
                 self.location
             ]
         )
+
+    @property
+    def _needs_appkit_launcher(self) -> bool:
+        if self.metadata.get("CFBundleURLTypes"):
+            return True
+        return False
+
+def _lsregister(*args):
+    exe = (
+        "/System/Library/Frameworks/CoreServices.framework"
+        "/Frameworks/LaunchServices.framework/Support/lsregister"
+    )
+    if not os.path.exists(exe):
+        return
+    p = run([exe, *args], capture_output=True, text=True)
+    if p.returncode:
+        log.debug("Command %s failed with error code %s", p.args, p.returncode)
+        log.debug(p.stdout)
+        log.debug(p.stderr, file=sys.stderr)
+        p.check_returncode()
+    return p

@@ -5,6 +5,7 @@
     "menu_items": [
         {
             "name": "FileTypeAssociation",
+            "description": "Testing file type association",
             "icon": null,
             "command": [
                 "{{ PYTHON }}",
@@ -17,7 +18,8 @@
                         "{{ PYTHON }}",
                         "-c",
                         "import sys, pathlib as p; Path(r'__OUTPUT_FILE__').write_text('%1')"
-                    ]
+                    ],
+                    "file_extensions": [".menuinst"]
                 },
                 "linux": {
                     "command": [
@@ -25,7 +27,7 @@
                         "-c",
                         "import sys, pathlib as p; Path(r'__OUTPUT_FILE__').write_text('%f')"
                     ],
-                    "MimeType": ["text/csv"]
+                    "MimeType": ["application/x-menuinst"]
                 },
                 "osx": {
                     "command": [
@@ -35,11 +37,21 @@
                     ],
                     "CFBundleDocumentTypes": [
                         {
-                            "CFBundleTypeIconFile": "{{ MENU_DIR }}/my_csv_reader",
-                            "CFBundleTypeName": "my-csv-reader.csv",
+                            "CFBundleTypeName": "org.conda.menuinst.filetype-example",
                             "CFBundleTypeRole": "Viewer",
-                            "LSItemContentTypes": ["public.comma-separated-values-text"],
+                            "LSItemContentTypes": ["org.conda.menuinst.main-file-uti"],
                             "LSHandlerRank": "Default"
+                        }
+                    ],
+                    "UTExportedTypeDeclarations": [
+                        {
+                            "UTTypeConformsTo": ["public.data", "public.content"],
+                            "UTTypeIdentifier": "org.conda.menuinst.main-file-uti",
+                            "UTTypeTagSpecification": [
+                                {
+                                    "public.filename-extension": ["menuinst"]
+                                }
+                            ]
                         }
                     ]
                 }

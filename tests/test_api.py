@@ -15,6 +15,21 @@ from menuinst.utils import DEFAULT_PREFIX
 from conftest import DATA, PLATFORM
 
 
+def _poll_for_file_contents(path, timeout=10):
+    t0 = time()
+    while not os.path.isfile(path):
+        sleep(1)
+        if time() >= t0 + timeout / 2:
+            raise RuntimeError(f"Timeout. File '{path}' was not created!")
+    out = ""
+    while not out:
+        out = Path(path).read_text()
+        sleep(1)
+        if time() >= t0 + timeout:
+            raise RuntimeError(f"Timeout. File '{path}' was empty!")
+    return out
+
+
 def check_output_from_shortcut(
     delete_files,
     json_path,
@@ -25,6 +40,7 @@ def check_output_from_shortcut(
 ):
     assert action in ("run_shortcut", "open_file", "open_url")
 
+    output_file = None
     abs_json_path = DATA / "jsons" / json_path
     contents = abs_json_path.read_text()
     if "__OUTPUT_FILE__" in contents:
@@ -37,20 +53,14 @@ def check_output_from_shortcut(
 
     paths = install(abs_json_path)
     print(paths)
-    # delete_files += list(paths)
+    delete_files += list(paths)
 
     if action == "run_shortcut":
         if PLATFORM == "win":
             lnk = next(p for p in paths if p.suffix == ".lnk")
             assert lnk.is_file()
             os.startfile(lnk)
-            t0 = time()
-            while not os.path.isfile(output_file):
-                sleep(1)
-                if time() >= t0 + 10:
-                    raise RuntimeError(f"Timeout. File '{output_file}' was not created!")
-            with open(output_file) as f:
-                output = f.read()
+            output = _poll_for_file_contents(output_file)
         else:
             if PLATFORM == "linux":
                 desktop = next(p for p in paths if p.suffix == ".desktop")
@@ -84,13 +94,18 @@ def check_output_from_shortcut(
         elif action == "open_url":
             assert url_to_open is not None
             arg = url_to_open
-        cmd = {"linux": "xdg-open", "osx": "open", "win": "start"}[PLATFORM]
-        process = subprocess.run([cmd, arg], text=True, capture_output=True)
+        app_location = paths[0]
+        cmd = {
+            "linux": ["xdg-open"], 
+            "osx": ["open"], # "-a", app_location], 
+            "win": ["start"],
+        }[PLATFORM]
+        process = subprocess.run([*cmd, arg], text=True, capture_output=True)
         if process.returncode:
             print(process.stdout, file=sys.stdout)
             print(process.stderr, file=sys.stderr)
             process.check_returncode()
-        output = process.stdout
+        output = _poll_for_file_contents(output_file)
 
     if expected_output is not None:
         assert output.strip() == expected_output
@@ -180,7 +195,7 @@ def test_osx_symlinks(delete_files):
 
 
 def test_file_type_association(delete_files):
-    test_file = "test.csv"
+    test_file = "test.menuinst"
     _, output = check_output_from_shortcut(
         delete_files,
         "file_types.json",

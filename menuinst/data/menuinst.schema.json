@@ -301,6 +301,48 @@
       ],
       "additionalProperties": false
     },
+    "UTTypeDeclarationModel": {
+      "title": "UTTypeDeclarationModel",
+      "type": "object",
+      "properties": {
+        "UTTypeConformsTo": {
+          "title": "Uttypeconformsto",
+          "type": "string"
+        },
+        "UTTypeDescription": {
+          "title": "Uttypedescription",
+          "type": "string"
+        },
+        "UTTypeIconFile": {
+          "title": "Uttypeiconfile",
+          "type": "string"
+        },
+        "UTTypeIdentifier": {
+          "title": "Uttypeidentifier",
+          "type": "string"
+        },
+        "UTTypeReferenceURL": {
+          "title": "Uttypereferenceurl",
+          "type": "string"
+        },
+        "UTTypeTagSpecification": {
+          "title": "Uttypetagspecification",
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "required": [
+        "UTTypeConformsTo",
+        "UTTypeIdentifier",
+        "UTTypeTagSpecification"
+      ],
+      "additionalProperties": false
+    },
     "MacOS": {
       "title": "MacOS",
       "description": "Mac-specific instructions. Check these URLs for more info:\n\n- ``CF*`` keys: see `Core Foundation Keys <cf-keys>`_\n- ``LS*`` keys: see `Launch Services Keys <ls-keys>`_\n- ``entitlements``: see `entitlements docs <entitlements-docs>`_\n\n.. _cf-keys: https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html\n.. _ls-keys: https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/LaunchServicesKeys.html\n.. _entitlements-docs: https://developer.apple.com/documentation/bundleresources/entitlements.",
@@ -417,6 +459,20 @@
           "title": "Lsrequiresnativeexecution",
           "type": "boolean"
         },
+        "UTExportedTypeDeclarations": {
+          "title": "Utexportedtypedeclarations",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/UTTypeDeclarationModel"
+          }
+        },
+        "UTImportedTypeDeclarations": {
+          "title": "Utimportedtypedeclarations",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/UTTypeDeclarationModel"
+          }
+        },
         "entitlements": {
           "title": "Entitlements",
           "type": "array",
@@ -432,6 +488,11 @@
             "type": "string",
             "pattern": "^(?!\\/)(?!\\.\\./).*"
           }
+        },
+        "url_handler": {
+          "title": "Url Handler",
+          "minLength": 1,
+          "type": "string"
         }
       },
       "additionalProperties": false
