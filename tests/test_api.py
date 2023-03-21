@@ -96,7 +96,8 @@ def check_output_from_shortcut(
         app_location = paths[0]
         cmd = {
             "linux": ["xdg-open"],
-            "osx": ["open"], # "-a", app_location],
+            # FIXME: Should work WITHOUT -a <app_location>
+            "osx": ["open", "-a", app_location],
             "win": ["start"],
         }[PLATFORM]
         process = subprocess.run([*cmd, arg], text=True, capture_output=True)
