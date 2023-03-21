@@ -87,13 +87,13 @@ class MacOSMenuItem(MenuItem):
         self._write_launcher()
         self._write_script()
         self._write_url_handler()
-        self._maybe_register_url()
+        self._maybe_register_with_launchservices()
         self._sign_with_entitlements()
         return (self.location,)
 
     def remove(self) -> Tuple[Path]:
         log.debug("Removing %s", self.location)
-        self._maybe_register_url(register=False)
+        self._maybe_register_with_launchservices(register=False)
         shutil.rmtree(self.location, ignore_errors=True)
         return (self.location,)
 
@@ -278,9 +278,11 @@ class MacOSMenuItem(MenuItem):
             return self._nested_location / "Contents" / "MacOS" / f'{name}{suffix}'
         return self.location / "Contents" / "MacOS" / f'{name}{suffix}'
 
-    def _maybe_register_url(self, register=True):
-        if not self._needs_appkit_launcher:
+    def _maybe_register_with_launchservices(self, register=True):
+        needed_keys = ("CFBundleURLTypes", "CFBundleDocumentTypes")
+        if not any([self.metadata.get(k) for k in needed_keys]):
             return
+
         # register the URL scheme with `lsregister`
         try:
             unregister = () if register else ("-u",)
