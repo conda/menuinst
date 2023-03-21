@@ -11,6 +11,7 @@ import pytest
 from conftest import DATA, PLATFORM
 
 from menuinst.api import install
+from menuinst.platforms.osx import _lsregister
 from menuinst.utils import DEFAULT_PREFIX
 
 
@@ -100,12 +101,16 @@ def check_output_from_shortcut(
             "osx": ["open", "-a", app_location],
             "win": ["start"],
         }[PLATFORM]
-        process = subprocess.run([*cmd, arg], text=True, capture_output=True)
-        if process.returncode:
-            print(process.stdout, file=sys.stdout)
-            print(process.stderr, file=sys.stderr)
-            process.check_returncode()
-        output = _poll_for_file_contents(output_file)
+        try:
+            process = subprocess.run([*cmd, arg], text=True, capture_output=True)
+            if process.returncode:
+                print(process.stdout, file=sys.stdout)
+                print(process.stderr, file=sys.stderr)
+                process.check_returncode()
+            output = _poll_for_file_contents(output_file)
+        finally:
+            if PLATFORM == "osx":
+                _lsregister("-u", str(app_location))
 
     if expected_output is not None:
         assert output.strip() == expected_output
@@ -196,21 +201,29 @@ def test_osx_symlinks(delete_files):
 
 def test_file_type_association(delete_files):
     test_file = "test.menuinst"
-    _, output = check_output_from_shortcut(
-        delete_files,
-        "file_types.json",
-        action="open_file",
-        file_to_open=test_file,
-    )
-    assert output.strip().endswith(test_file)
+    try:
+        _, output = check_output_from_shortcut(
+            delete_files,
+            "file_types.json",
+            action="open_file",
+            file_to_open=test_file,
+        )
+        assert output.strip().endswith(test_file)
+    finally:
+        if PLATFORM == "osx":
+            _lsregister("-kill", "-r", "-domain", "local", "-domain", "user", "-domain", "system")
 
 
 def test_url_protocol_association(delete_files):
     url = "menuinst://test"
-    check_output_from_shortcut(
-        delete_files,
-        "url_protocols.json",
-        action="open_url",
-        url_to_open=url,
-        expected_output=url,
-    )
+    try:
+        check_output_from_shortcut(
+            delete_files,
+            "url_protocols.json",
+            action="open_url",
+            url_to_open=url,
+            expected_output=url,
+        )
+    finally:
+        if PLATFORM == "osx":
+            _lsregister("-kill", "-r", "-domain", "local", "-domain", "user", "-domain", "system")
