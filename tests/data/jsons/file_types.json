@@ -51,7 +51,7 @@
                             "UTTypeConformsTo": ["public.data", "public.content"],
                             "UTTypeIdentifier": "org.conda.menuinst.main-file-uti",
                             "UTTypeTagSpecification": {
-                                    "public.filename-extension": ["menuinst"]
+                                "public.filename-extension": ["menuinst"]
                             }
                         }
                     ]

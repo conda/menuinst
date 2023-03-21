@@ -374,6 +374,7 @@ def dump_schema_to_json(write=True):
         print(schema)
         with open(here / "data" / "menuinst.schema.json", "w") as f:
             f.write(schema)
+            f.write("\n")
     return MenuInstSchema.schema()
 
 
@@ -406,6 +407,7 @@ def dump_default_to_json(write=True):
         pprint(default)
         with open(here / "data" / "menuinst.default.json", "w") as f:
             json.dump(default, f, indent=2)
+            f.write("\n")
     return default
 
 
