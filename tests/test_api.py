@@ -211,6 +211,8 @@ def test_file_type_association(delete_files):
         assert output.strip().endswith(test_file)
     finally:
         if PLATFORM == "osx":
+            # print("debug_files.txt:")
+            # print((Path(os.environ.get("RUNNER_TEMP", Path.home())) / "debug_files.txt").read_text())
             _lsregister("-kill", "-r", "-domain", "local", "-domain", "user", "-domain", "system")
 
 
@@ -226,4 +228,6 @@ def test_url_protocol_association(delete_files):
         )
     finally:
         if PLATFORM == "osx":
+            print("debug_urls.txt:")
+            print((Path(os.environ.get("RUNNER_TEMP", Path.home())) / "debug_urls.txt").read_text())
             _lsregister("-kill", "-r", "-domain", "local", "-domain", "user", "-domain", "system")
