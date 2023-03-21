@@ -29,7 +29,7 @@
                     ],
                     "MimeType": ["application/x-menuinst"],
                     "glob_patterns": {
-                        "application/x-menuinst": ["*.menuinst"]
+                        "application/x-menuinst": "*.menuinst"
                     }
                 },
                 "osx": {
@@ -50,11 +50,9 @@
                         {
                             "UTTypeConformsTo": ["public.data", "public.content"],
                             "UTTypeIdentifier": "org.conda.menuinst.main-file-uti",
-                            "UTTypeTagSpecification": [
-                                {
+                            "UTTypeTagSpecification": {
                                     "public.filename-extension": ["menuinst"]
-                                }
-                            ]
+                            }
                         }
                     ]
                 }

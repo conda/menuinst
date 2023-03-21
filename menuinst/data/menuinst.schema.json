@@ -256,7 +256,6 @@
         }
       },
       "required": [
-        "CFBundleTypeRole",
         "CFBundleURLSchemes"
       ],
       "additionalProperties": false
@@ -303,7 +302,6 @@
       },
       "required": [
         "CFBundleTypeName",
-        "CFBundleTypeRole",
         "LSItemContentTypes",
         "LSHandlerRank"
       ],
@@ -315,7 +313,10 @@
       "properties": {
         "UTTypeConformsTo": {
           "title": "Uttypeconformsto",
-          "type": "string"
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         },
         "UTTypeDescription": {
           "title": "Uttypedescription",

@@ -173,7 +173,7 @@ class MacOS(BasePlatformSpecific):
 
     class CFBundleURLTypesModel(BaseModel):
         "Describes a URL scheme associated with the app."
-        CFBundleTypeRole: Literal["Editor", "Viewer", "Shell", "None"] = ...
+        CFBundleTypeRole: Optional[Literal["Editor", "Viewer", "Shell", "None"]] = None
         "This key specifies the app's role with respect to the URL."
         CFBundleURLSchemes: List[str] = ...
         "URL schemes / protocols handled by this type (e.g. 'mailto').",
@@ -188,7 +188,7 @@ class MacOS(BasePlatformSpecific):
         "Name of the icon image file (minus the .icns extension).",
         CFBundleTypeName: str = ...
         "Abstract name for this document type. Uniqueness recommended.",
-        CFBundleTypeRole: Literal["Editor", "Viewer", "Shell", "None"] = ...
+        CFBundleTypeRole: Optional[Literal["Editor", "Viewer", "Shell", "None"]] = None
         "This key specifies the app's role with respect to the type."
         LSItemContentTypes: List[str] = ...
         """
@@ -210,7 +210,7 @@ class MacOS(BasePlatformSpecific):
         """
 
     class UTTypeDeclarationModel(BaseModel):
-        UTTypeConformsTo: str = ...
+        UTTypeConformsTo: List[str] = ...
         "The Uniform Type Identifier types that this type conforms to."
         UTTypeDescription: Optional[str] = None
         "A description for this type."
