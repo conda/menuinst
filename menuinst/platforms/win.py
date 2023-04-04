@@ -354,7 +354,7 @@ class WindowsMenuItem(MenuItem):
         exts = list(dict.fromkeys([ext.lower() for ext in extensions]))
         for ext in exts:
             identifier = self._ftype_identifier(ext)
-            register_file_extension(ext, identifier, command, icon=icon, mode=self.parent.mode)
+            register_file_extension(ext, identifier, command, icon=icon, mode=self.menu.mode)
 
     def _unregister_file_extensions(self):
         extensions = self.metadata["file_extensions"]
@@ -364,7 +364,7 @@ class WindowsMenuItem(MenuItem):
         exts = list(dict.fromkeys([ext.lower() for ext in extensions]))
         for ext in exts:
             identifier = self._ftype_identifier(ext)
-            unregister_file_extension(ext, identifier, mode=self.parent.mode)
+            unregister_file_extension(ext, identifier, mode=self.menu.mode)
 
     def _register_url_protocols(self):
         "See https://learn.microsoft.com/en-us/previous-versions/windows/internet-explorer/ie-developer/platform-apis/aa767914(v=vs.85)"
@@ -375,7 +375,7 @@ class WindowsMenuItem(MenuItem):
         icon = self.render_key("icon")
         for protocol in protocols:
             identifier = self._ftype_identifier(protocol)
-            register_url_protocol(protocol, command, identifier, icon=icon, mode=self.parent.mode)
+            register_url_protocol(protocol, command, identifier, icon=icon, mode=self.menu.mode)
 
     def _unregister_url_protocols(self):
         protocols = self.metadata["url_protocols"]
@@ -383,4 +383,4 @@ class WindowsMenuItem(MenuItem):
             return
         for protocol in protocols:
             identifier = self._ftype_identifier(protocol)
-            unregister_url_protocol(protocol, identifier, mode=self.parent.mode)
+            unregister_url_protocol(protocol, identifier, mode=self.menu.mode)
