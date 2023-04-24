@@ -19,9 +19,11 @@ def check_output_from_shortcut(delete_files, json_path, expected_output=None):
     if PLATFORM == "win":
         with open(abs_json_path) as f:
             contents = f.read()
-        with NamedTemporaryFile(suffix=json_path, mode="w",  delete=False) as tmp:
+        with NamedTemporaryFile(suffix=json_path, mode="w", delete=False) as tmp:
             win_output_file = tmp.name + ".out"
-            contents = contents.replace("__WIN_OUTPUT_FILE__", win_output_file.replace("\\", "\\\\"))
+            contents = contents.replace(
+                "__WIN_OUTPUT_FILE__", win_output_file.replace("\\", "\\\\")
+            )
             tmp.write(contents)
         abs_json_path = tmp.name
         delete_files.append(abs_json_path)
@@ -41,7 +43,11 @@ def check_output_from_shortcut(delete_files, json_path, expected_output=None):
         output = subprocess.check_output(cmd, shell=True, universal_newlines=True)
     elif PLATFORM == 'osx':
         app_location = paths[0]
-        executable = next(p for p in (app_location / "Contents" / "MacOS").iterdir() if not p.name.endswith('-script'))
+        executable = next(
+            p
+            for p in (app_location / "Contents" / "MacOS").iterdir()
+            if not p.name.endswith('-script')
+        )
         process = subprocess.run([str(executable)], text=True, capture_output=True)
         if process.returncode:
             print(process.stdout, file=sys.stdout)
@@ -76,17 +82,23 @@ def test_install_prefix(delete_files):
 
 
 def test_precommands(delete_files):
-    check_output_from_shortcut(delete_files, "precommands.json", expected_output="rhododendron and bees")
+    check_output_from_shortcut(
+        delete_files, "precommands.json", expected_output="rhododendron and bees"
+    )
 
 
 @pytest.mark.skipif(PLATFORM != "osx", reason="macOS only")
 def test_entitlements(delete_files):
-    paths, _ = check_output_from_shortcut(delete_files, "entitlements.json", expected_output="entitlements")
+    paths, _ = check_output_from_shortcut(
+        delete_files, "entitlements.json", expected_output="entitlements"
+    )
     # verify signature
     app_dir = next(p for p in paths if p.name.endswith('.app'))
     subprocess.check_call(["/usr/bin/codesign", "--verbose", "--verify", str(app_dir)])
 
-    launcher = next(p for p in (app_dir / "Contents" / "MacOS").iterdir() if not p.name.endswith('-script'))
+    launcher = next(
+        p for p in (app_dir / "Contents" / "MacOS").iterdir() if not p.name.endswith('-script')
+    )
     subprocess.check_call(["/usr/bin/codesign", "--verbose", "--verify", str(launcher)])
 
     for path in app_dir.rglob("Info.plist"):
@@ -107,9 +119,13 @@ def test_entitlements(delete_files):
 
 @pytest.mark.skipif(PLATFORM != "osx", reason="macOS only")
 def test_no_entitlements_no_signature(delete_files):
-    paths, _ = check_output_from_shortcut(delete_files, "sys-prefix.json", expected_output=sys.prefix)
+    paths, _ = check_output_from_shortcut(
+        delete_files, "sys-prefix.json", expected_output=sys.prefix
+    )
     app_dir = next(p for p in paths if p.name.endswith('.app'))
-    launcher = next(p for p in (app_dir / "Contents" / "MacOS").iterdir() if not p.name.endswith('-script'))
+    launcher = next(
+        p for p in (app_dir / "Contents" / "MacOS").iterdir() if not p.name.endswith('-script')
+    )
     with pytest.raises(subprocess.CalledProcessError):
         subprocess.check_call(["/usr/bin/codesign", "--verbose", "--verify", str(app_dir)])
     with pytest.raises(subprocess.CalledProcessError):
@@ -119,9 +135,7 @@ def test_no_entitlements_no_signature(delete_files):
 @pytest.mark.skipif(PLATFORM != "osx", reason="macOS only")
 def test_info_plist(delete_files):
     paths, _ = check_output_from_shortcut(
-        delete_files,
-        "entitlements.json",
-        expected_output="entitlements"
+        delete_files, "entitlements.json", expected_output="entitlements"
     )
     app_dir = next(p for p in paths if p.name.endswith('.app'))
 

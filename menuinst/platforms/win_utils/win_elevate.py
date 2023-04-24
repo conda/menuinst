@@ -16,11 +16,6 @@ import traceback
 from enum import IntEnum
 from subprocess import list2cmdline
 
-if sys.version_info < (3,):
-    text_type = basestring
-else:
-    text_type = str
-
 
 def isUserAdmin():
     if os.name != 'nt':
@@ -31,7 +26,7 @@ def isUserAdmin():
     # Requires Windows XP SP2 or higher!
     try:
         return ctypes.windll.shell32.IsUserAnAdmin()
-    except:
+    except:  # noqa
         traceback.print_exc()
         print("Admin check failed, assuming not an admin.")
         return False
@@ -61,6 +56,7 @@ if os.name == 'nt':
         windll,
     )
     from ctypes.wintypes import BOOL, DWORD, HANDLE, HINSTANCE, HKEY, HWND
+
     PHANDLE = POINTER(HANDLE)
     PDWORD = POINTER(DWORD)
     SEE_MASK_NOCLOSEPROCESS = 0x00000040
@@ -76,8 +72,8 @@ if os.name == 'nt':
 
     class ShellExecuteInfo(Structure):
         """
-https://docs.microsoft.com/en-us/windows/desktop/api/shellapi/nf-shellapi-shellexecuteexa
-https://docs.microsoft.com/en-us/windows/desktop/api/shellapi/ns-shellapi-_shellexecuteinfoa
+        https://docs.microsoft.com/en-us/windows/desktop/api/shellapi/nf-shellapi-shellexecuteexa
+        https://docs.microsoft.com/en-us/windows/desktop/api/shellapi/ns-shellapi-_shellexecuteinfoa
         """
 
         _fields_ = [
@@ -95,7 +91,7 @@ https://docs.microsoft.com/en-us/windows/desktop/api/shellapi/ns-shellapi-_shell
             ('hKeyClass', HKEY),
             ('dwHotKey', DWORD),
             ('hIcon', HANDLE),
-            ('hProcess', HANDLE)
+            ('hProcess', HANDLE),
         ]
 
         def __init__(self, **kwargs):
@@ -108,7 +104,7 @@ https://docs.microsoft.com/en-us/windows/desktop/api/shellapi/ns-shellapi-_shell
 
     PShellExecuteInfo = POINTER(ShellExecuteInfo)
     ShellExecuteEx = windll.Shell32.ShellExecuteExA
-    ShellExecuteEx.argtypes = (PShellExecuteInfo, )
+    ShellExecuteEx.argtypes = (PShellExecuteInfo,)
     ShellExecuteEx.restype = BOOL
 
 
@@ -135,7 +131,7 @@ def runAsAdmin(cmdLine=None, wait=True):
 
     if cmdLine is None:
         cmdLine = [python_exe] + sys.argv
-    elif not hasattr(cmdLine, "__iter__") or isinstance(cmdLine, text_type):
+    elif not hasattr(cmdLine, "__iter__") or isinstance(cmdLine, str):
         raise ValueError("cmdLine is not a sequence.")
 
     cmd = '"%s"' % (cmdLine[0],)
@@ -148,13 +144,15 @@ def runAsAdmin(cmdLine=None, wait=True):
     # the more complex ShellExecuteEx() must be used.
 
     # procHandle = win32api.ShellExecute(0, lpVerb, cmd, params, cmdDir, showCmd)
-    execute_info = ShellExecuteInfo(nShow=showCmd,
-                              fMask=SEE_MASK_NOCLOSEPROCESS,
-                              lpVerb=lpVerb,
-                              lpFile=cmd,
-                              lpParameters=params,
-                              hwnd=None,
-                              lpDirectory=None)
+    execute_info = ShellExecuteInfo(
+        nShow=showCmd,
+        fMask=SEE_MASK_NOCLOSEPROCESS,
+        lpVerb=lpVerb,
+        lpFile=cmd,
+        lpParameters=params,
+        hwnd=None,
+        lpDirectory=None,
+    )
 
     successful = ShellExecuteEx(byref(execute_info))
 

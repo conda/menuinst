@@ -66,8 +66,6 @@ def ensure_pad(name, pad="_"):
 
 
 def to_unicode(var, codec=locale.getpreferredencoding()):
-    if sys.version_info[0] < 3 and isinstance(var, unicode):
-        return var
     if not codec:
         codec = "utf-8"
     if hasattr(var, "decode"):
@@ -79,7 +77,7 @@ def to_bytes(var, codec=locale.getpreferredencoding()):
     if isinstance(var, bytes):
         return var
     if not codec:
-        codec="utf-8"
+        codec = "utf-8"
     if hasattr(var, "encode"):
         var = var.encode(codec)
     return var
@@ -106,22 +104,31 @@ def substitute_env_variables(text, dir):
         (u'${PREFIX}', env_prefix),
         (u'${ROOT_PREFIX}', root_prefix),
         (u'${DISTRIBUTION_NAME}', os.path.split(root_prefix)[-1].capitalize()),
-        (u'${PYTHON_SCRIPTS}',
-          os.path.normpath(join(env_prefix, u'Scripts')).replace(u"\\", u"/")),
+        (
+            u'${PYTHON_SCRIPTS}',
+            os.path.normpath(join(env_prefix, u'Scripts')).replace(u"\\", u"/"),
+        ),
         (u'${MENU_DIR}', join(env_prefix, u'Menu')),
         (u'${PERSONALDIR}', dir['documents']),
         (u'${USERPROFILE}', dir['profile']),
         (u'${ENV_NAME}', env_name),
         (u'${PY_VER}', u'%d' % (py_major_ver)),
         (u'${PLATFORM}', u"(%s-bit)" % py_bitness),
-        ):
+    ):
         if b:
             text = text.replace(a, b)
     return text
 
 
 class Menu(object):
-    def __init__(self, name, prefix=unicode_root_prefix, env_name=u"", mode=None, root_prefix=unicode_root_prefix):
+    def __init__(
+        self,
+        name,
+        prefix=unicode_root_prefix,
+        env_name=u"",
+        mode=None,
+        root_prefix=unicode_root_prefix,
+    ):
         """
         Prefix is the system prefix to be used -- this is needed since
         there is the possibility of a different Python's packages being managed.
@@ -130,9 +137,13 @@ class Menu(object):
         # bytestrings passed in need to become unicode
         self.prefix = to_unicode(prefix)
         self.root_prefix = to_unicode(root_prefix)
-        used_mode = mode if mode else ('user' if exists(join(self.prefix, u'.nonadmin')) else 'system')
-        logger.debug("Menu: name: '%s', prefix: '%s', env_name: '%s', mode: '%s', used_mode: '%s', root_prefix: '%s'"
-                    % (name, self.prefix, env_name, mode, used_mode, root_prefix))
+        used_mode = (
+            mode if mode else ('user' if exists(join(self.prefix, u'.nonadmin')) else 'system')
+        )
+        logger.debug(
+            "Menu: name: '%s', prefix: '%s', env_name: '%s', mode: '%s', used_mode: '%s', root_prefix: '%s'"  # noqa
+            % (name, self.prefix, env_name, mode, used_mode, root_prefix)
+        )
         try:
             self.set_dir(name, self.prefix, env_name, used_mode, root_prefix)
         except WindowsError:
@@ -141,11 +152,13 @@ class Menu(object):
             #   required.  If the process isn't elevated, we get the
             #   WindowsError
             if 'user' in dirs_src and used_mode == 'system':
-                logger.warn("Insufficient permissions to write menu folder.  "
-                            "Falling back to user location")
+                logger.warn(
+                    "Insufficient permissions to write menu folder.  "
+                    "Falling back to user location"
+                )
                 try:
                     self.set_dir(name, self.prefix, env_name, 'user')
-                except:
+                except:  # noqa
                     pass
             else:
                 logger.fatal("Unable to create AllUsers menu folder")
@@ -194,9 +207,11 @@ def quote_args(args):
     # cmd.exe /K or /C expects a single string argument and requires
     # doubled-up quotes when any sub-arguments have spaces:
     # https://stackoverflow.com/a/6378038/3257826
-    if (len(args) > 2 and ("CMD.EXE" in args[0].upper() or "%COMSPEC%" in args[0].upper())
-            and (args[1].upper() == '/K' or args[1].upper() == '/C')
-            and any(' ' in arg for arg in args[2:])
+    if (
+        len(args) > 2
+        and ("CMD.EXE" in args[0].upper() or "%COMSPEC%" in args[0].upper())
+        and (args[1].upper() == '/K' or args[1].upper() == '/C')
+        and any(' ' in arg for arg in args[2:])
     ):
         args = [
             ensure_pad(args[0], '"'),  # cmd.exe
@@ -222,11 +237,11 @@ class ShortCut(object):
         fix_win_slashes = [0]
         prefix = self.menu.prefix.replace('/', '\\')
         unicode_root_prefix = self.menu.root_prefix.replace('/', '\\')
-        root_py  = join(unicode_root_prefix, u"python.exe")
+        root_py = join(unicode_root_prefix, u"python.exe")
         root_pyw = join(unicode_root_prefix, u"pythonw.exe")
-        env_py  = join(prefix, u"python.exe")
+        env_py = join(prefix, u"python.exe")
         env_pyw = join(prefix, u"pythonw.exe")
-        cwp_py  = [root_py,  join(unicode_root_prefix, u'cwp.py'), prefix, env_py]
+        cwp_py = [root_py, join(unicode_root_prefix, u'cwp.py'), prefix, env_py]
         cwp_pyw = [root_pyw, join(unicode_root_prefix, u'cwp.py'), prefix, env_pyw]
         if "pywscript" in self.shortcut:
             args = cwp_pyw
@@ -241,7 +256,7 @@ class ShortCut(object):
         elif "script" in self.shortcut:
             # It is unclear whether running through cwp.py is what we want here. In
             # the long term I would rather this was made an explicit choice.
-            args = [root_py,  join(unicode_root_prefix, u'cwp.py'), prefix]
+            args = [root_py, join(unicode_root_prefix, u'cwp.py'), prefix]
             fix_win_slashes = [len(args)]
             args += self.shortcut["script"].split()
             extend_script_args(args, self.shortcut)
@@ -287,7 +302,9 @@ class ShortCut(object):
         if self.shortcut.get('quicklaunch') and 'quicklaunch' in self.menu.dir:
             dst_dirs.append(self.menu.dir['quicklaunch'])
 
-        name_suffix = " ({})".format(self.menu.dir['env_name']) if self.menu.dir['env_name'] else ""
+        name_suffix = (
+            " ({})".format(self.menu.dir['env_name']) if self.menu.dir['env_name'] else ""
+        )
         for dst_dir in dst_dirs:
             name = substitute_env_variables(self.shortcut['name'], self.menu.dir)
             dst = join(dst_dir, name + name_suffix + '.lnk')

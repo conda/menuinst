@@ -10,30 +10,29 @@ if sys.platform == "win32":
 
 
 def file_exist(mode, name):
-    file = os.path.join(dirs_src[mode]['start'][0],
-                        'Anaconda3 (64-bit) - Test Menu',
-                        '%s.lnk' % name)
+    file = os.path.join(
+        dirs_src[mode]['start'][0], 'Anaconda3 (64-bit) - Test Menu', '%s.lnk' % name
+    )
     return os.path.exists(file)
 
 
 menu_dir = os.path.dirname(__file__)
 
-@pytest.mark.skipif(sys.platform != "win32",
-                    reason="Windows-only tests")
-class TestWindowsShortcuts(object):
 
+@pytest.mark.skipif(sys.platform != "win32", reason="Windows-only tests")
+class TestWindowsShortcuts(object):
     def test_install_folders_exist(self):
         for mode in ["user", "system"]:
             for path, _ in dirs_src[mode].values():
                 assert os.path.exists(path)
 
     def test_create_and_remove_shortcut(self):
-        nonadmin=os.path.join(sys.prefix, ".nonadmin")
+        nonadmin = os.path.join(sys.prefix, ".nonadmin")
         shortcut = os.path.join(menu_dir, "menu-windows.json")
         has_nonadmin = os.path.exists(nonadmin)
         name = 'Anaconda Prompt'
         for mode in ["user", "system"]:
-            if mode=="user":
+            if mode == "user":
                 open(nonadmin, 'a').close()
             menuinst.install(shortcut, remove=False)
             assert file_exist(mode, name)
@@ -45,7 +44,7 @@ class TestWindowsShortcuts(object):
             open(nonadmin, 'a').close()
 
     def test_create_shortcut_env(self):
-        nonadmin=os.path.join(sys.prefix, ".nonadmin")
+        nonadmin = os.path.join(sys.prefix, ".nonadmin")
         open(nonadmin, 'a').close()
         shortcut = os.path.join(menu_dir, "menu-windows.json")
         test_env_name = 'test_env'
@@ -59,7 +58,7 @@ class TestWindowsShortcuts(object):
         run_command("remove", "-n", test_env_name, "--all")
 
     def test_root_prefix(self):
-        nonadmin=os.path.join(sys.prefix, ".nonadmin")
+        nonadmin = os.path.join(sys.prefix, ".nonadmin")
         open(nonadmin, 'a').close()
         shortcut = os.path.join(menu_dir, "menu-windows.json")
         root_prefix = os.path.join(menu_dir, 'temp_env')

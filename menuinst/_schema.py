@@ -2,6 +2,8 @@
 Generate JSON schemas from pydantic models
 """
 
+# flake8: noqa
+
 import json
 from logging import getLogger
 from pathlib import Path
@@ -252,7 +254,9 @@ class MacOS(BasePlatformSpecific):
 
     .. entitlements: https://developer.apple.com/documentation/bundleresources/entitlements
     """
-    link_in_bundle: Optional[Dict[constr(min_length=1), constr(regex=r"^(?!\/)(?!\.\./).*")]] = None
+    link_in_bundle: Optional[
+        Dict[constr(min_length=1), constr(regex=r"^(?!\/)(?!\.\./).*")]
+    ] = None
     """
     Paths that should be symlinked into the shortcut app bundle.
     It takes a mapping of source to destination paths. Destination paths must be
@@ -346,10 +350,7 @@ def dump_schema_to_json(write=True):
 def dump_default_to_json(write=True):
     here = Path(__file__).parent
     default_item = MenuItem(
-        name="REQUIRED",
-        description="REQUIRED",
-        command=["REQUIRED"],
-        platforms={}
+        name="REQUIRED", description="REQUIRED", command=["REQUIRED"], platforms={}
     ).dict()
     default_item["platforms"] = {
         "win": Windows().dict(),
@@ -362,7 +363,7 @@ def dump_default_to_json(write=True):
         **{
             "$id": "https://schemas.conda.io/menuinst-1.schema.json",
             "$schema": "https://json-schema.org/draft-07/schema",
-        }
+        },
     ).dict()
     for platform_value in default["menu_items"][0]["platforms"].values():
         for key in list(platform_value.keys()):

@@ -30,7 +30,9 @@ def new_environment(tmpdir, *packages):
     try:
         prefix = str(tmpdir / "prefix")
         print("--- CREATING", prefix, "---")
-        stdout, stderr, retcode = run_command("create", prefix, "-y", "--offline", *[str(p) for p in packages])
+        stdout, stderr, retcode = run_command(
+            "create", prefix, "-y", "--offline", *[str(p) for p in packages]
+        )
         assert not retcode
         for stream in (stdout, stderr):
             if "menuinst Exception" in stream:
