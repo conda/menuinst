@@ -272,9 +272,14 @@ class WindowsMenuItem(MenuItem):
                 # We use CMD to call PowerShell to call the BAT file
                 # This flashes faster than Powershell -> BAT! Don't ask me why.
                 command = [
-                    str(system32 / "cmd.exe"), "/C", "START", "/MIN", '""',
+                    f'"{system32 / "cmd.exe"}"',
+                    "/C",
+                    "START",
+                    "/MIN",
+                    '""',
                     f'"{system32 / "WindowsPowerShell" / "v1.0" / "powershell.exe"}"',
-                    "-WindowStyle", "hidden",
+                    "-WindowStyle",
+                    "hidden",
                     f"\"start '{script}' {arg1}-WindowStyle hidden\"",
                 ]
             return command

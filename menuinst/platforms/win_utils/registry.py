@@ -18,7 +18,6 @@ from logging import getLogger
 
 from ...utils import logged_run
 
-
 log = getLogger(__name__)
 
 
