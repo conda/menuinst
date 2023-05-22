@@ -206,7 +206,7 @@ def test_file_type_association(delete_files):
     finally:
         if PLATFORM == "osx":
             _lsregister("-kill", "-r", "-domain", "local", "-domain", "user", "-domain", "system")
-            assert "menuinst" not in _lsregister("-dump").stdout
+            assert "menuinst" not in _lsregister("-dump", log=False).stdout
 
 
 def test_url_protocol_association(delete_files):
@@ -222,4 +222,4 @@ def test_url_protocol_association(delete_files):
     finally:
         if PLATFORM == "osx":
             _lsregister("-kill", "-r", "-domain", "local", "-domain", "user", "-domain", "system")
-            assert "menuinst" not in _lsregister("-dump").stdout
+            assert "menuinst" not in _lsregister("-dump", log=False).stdout
