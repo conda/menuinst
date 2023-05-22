@@ -262,21 +262,26 @@ class WindowsMenuItem(MenuItem):
         if self.metadata["activate"]:
             script = self._write_script()
             if self.metadata["terminal"]:
-                command = ["cmd", "/K", str(script)]
+                command = ["cmd", "/K", f'"{script}"']
                 if with_arg1:
                     command.append("%1")
             else:
                 system32 = Path(os.environ.get("SystemRoot", "C:\\Windows")) / "system32"
                 arg1 = "%1 " if with_arg1 else ""
+                # This is an UGLY hack to start the script in a hidden window
+                # We use CMD to call PowerShell to call the BAT file
+                # This flashes faster than Powershell -> BAT! Don't ask me why.
                 command = [
-                    str(system32 / "WindowsPowerShell" / "v1.0" / "powershell.exe"),
+                    str(system32 / "cmd.exe"), "/C", "START", "/MIN", '""',
+                    f'"{system32 / "WindowsPowerShell" / "v1.0" / "powershell.exe"}"',
+                    "-WindowStyle", "hidden",
                     f"\"start '{script}' {arg1}-WindowStyle hidden\"",
                 ]
-        else:
-            command = self.render_key("command")
-            if with_arg1 and all("%1" not in arg for arg in command):
-                command.append("%1")
+            return command
 
+        command = self.render_key("command")
+        if with_arg1 and all("%1" not in arg for arg in command):
+            command.append("%1")
         return WinLex.quote_args(command)
 
     def _ftype_identifier(self, extension):
