@@ -13,7 +13,7 @@ from conftest import DATA, PLATFORM
 
 from menuinst.api import install
 from menuinst.platforms.osx import _lsregister
-from menuinst.utils import DEFAULT_PREFIX
+from menuinst.utils import DEFAULT_PREFIX, logged_run
 
 
 def _poll_for_file_contents(path, timeout=10):
