@@ -6,7 +6,7 @@ import sys
 from copy import deepcopy
 from logging import getLogger
 from pathlib import Path
-from subprocess import check_output, run
+from subprocess import check_output
 from tempfile import NamedTemporaryFile
 from typing import Any, Dict, Iterable, List, Mapping, Optional
 
@@ -16,6 +16,7 @@ from ..utils import (
     _UserOrSystem,
     data_path,
     deep_update,
+    logged_run,
     slugify,
 )
 
@@ -192,7 +193,7 @@ class MenuItem:
             cmd = [tmp.name]
         else:
             cmd = ["bash", tmp.name]
-        run(cmd, check=True)
+        logged_run(cmd, check=True)
         os.unlink(tmp.name)
 
     def _paths(self) -> Iterable[os.PathLike]:

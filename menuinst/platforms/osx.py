@@ -4,16 +4,15 @@ import os
 import platform
 import plistlib
 import shutil
-import sys
 from hashlib import sha1
 from logging import getLogger
 from pathlib import Path
-from subprocess import CalledProcessError, check_call, run
+from subprocess import CalledProcessError
 from textwrap import dedent
 from typing import Dict, Optional, Tuple
 
 from .. import data as _menuinst_data
-from ..utils import UnixLex
+from ..utils import UnixLex, logged_run
 from .base import Menu, MenuItem, menuitem_defaults
 
 log = getLogger(__name__)
@@ -299,7 +298,7 @@ class MacOSMenuItem(MenuItem):
         entitlements_path = self.location / "Contents" / "Entitlements.plist"
         with open(entitlements_path, "wb") as f:
             plistlib.dump(plist, f)
-        check_call(
+        logged_run(
             [
                 # hardcode to system location to avoid accidental clobber in PATH
                 "/usr/bin/codesign",
@@ -315,7 +314,8 @@ class MacOSMenuItem(MenuItem):
                 "--entitlements",
                 entitlements_path,
                 self.location,
-            ]
+            ],
+            check=True,
         )
 
     @property
@@ -332,10 +332,4 @@ def _lsregister(*args):
     )
     if not os.path.exists(exe):
         return
-    p = run([exe, *args], capture_output=True, text=True)
-    if p.returncode:
-        log.debug("Command %s failed with error code %s", p.args, p.returncode)
-        log.debug(p.stdout)
-        log.debug(p.stderr, file=sys.stderr)
-        p.check_returncode()
-    return p
+    return logged_run([exe, *args], check=True)

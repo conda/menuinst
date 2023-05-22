@@ -80,11 +80,7 @@ def check_output_from_shortcut(
                     if not p.name.endswith("-script")
                 )
                 cmd = [str(executable)]
-            process = subprocess.run(cmd, text=True, capture_output=True)
-            if process.returncode:
-                print(process.stdout, file=sys.stdout)
-                print(process.stderr, file=sys.stderr)
-                process.check_returncode()
+            process = logged_run(cmd, check=True)
             output = process.stdout
     else:
         if action == "open_file":
@@ -104,11 +100,7 @@ def check_output_from_shortcut(
             "win": ["start"],
         }[PLATFORM]
         try:
-            process = subprocess.run([*cmd, arg], text=True, capture_output=True)
-            if process.returncode:
-                print(process.stdout, file=sys.stdout)
-                print(process.stderr, file=sys.stderr)
-                process.check_returncode()
+            process = logged_run([*cmd, arg], check=True)
             output = _poll_for_file_contents(output_file)
         finally:
             if PLATFORM == "osx":

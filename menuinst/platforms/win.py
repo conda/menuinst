@@ -5,11 +5,11 @@ import shutil
 import warnings
 from logging import getLogger
 from pathlib import Path
-from subprocess import CompletedProcess, run
+from subprocess import CompletedProcess
 from tempfile import NamedTemporaryFile
 from typing import Any, Dict, Optional, Tuple
 
-from ..utils import WinLex, unlink
+from ..utils import WinLex, logged_run, unlink
 from .base import Menu, MenuItem
 from .win_utils.knownfolders import folder_path as windows_folder_path
 from .win_utils.registry import (
@@ -214,7 +214,7 @@ class WindowsMenuItem(MenuItem):
             str(system32 / "WindowsPowerShell" / "v1.0" / "powershell.exe"),
             f"\"start '{tmp.name}' -WindowStyle hidden\"",
         ]
-        run(cmd, check=True)
+        logged_run(cmd, check=True)
         os.unlink(tmp.name)
 
     def _command(self) -> str:
@@ -318,13 +318,7 @@ class WindowsMenuItem(MenuItem):
             arg = extension
         elif remove:
             arg = f"{extension}="
-        p = run(
-            ["cmd", "/C", f"assoc {arg}"],
-            capture_output=True,
-            text=True,
-        )
-        p.check_returncode()
-        return p
+        return logged_run(["cmd", "/C", f"assoc {arg}"], check=True)
 
     @staticmethod
     def _cmd_ftype(identifier, command=None, query=False, remove=False) -> CompletedProcess:
@@ -337,13 +331,7 @@ class WindowsMenuItem(MenuItem):
             arg = identifier
         elif remove:
             arg = f"{identifier}="
-        p = run(
-            ["cmd", "/C", f"assoc {arg}"],
-            capture_output=True,
-            text=True,
-        )
-        p.check_returncode()
-        return p
+        return logged_run(["cmd", "/C", f"assoc {arg}"], check=True)
 
     def _register_file_extensions(self):
         """WIP"""
