@@ -32,7 +32,7 @@
                     "command": [
                         "bash", "-c", "nc -l localhost 40256 > __OUTPUT_FILE__"
                     ],
-                    "url_handler": "echo \"Handler ran\" >> ${RUNNER_TEMP:-$HOME}/debug_urls.txt; for i in 1 2 3 4 5; do echo \"$*\" | nc localhost 40256 && break || sleep 1; done",
+                    "url_handler": "echo \"Handler ran\" >> /Users/runner/work/_temp/debug_urls.txt; for i in 1 2 3 4 5; do echo \"$*\" | nc localhost 40256 && break || sleep 1; done",
                     "CFBundleURLTypes": [
                         {
                             "CFBundleURLName": "my-protocol-handler.menuinst",
