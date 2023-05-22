@@ -285,8 +285,11 @@ class LinuxMenuItem(MenuItem):
         return self.menu.data_directory / "mime" / "packages" / f"{basename}.xml", False
 
     def _glob_pattern_for_mime_type(
-            self, mime_type: str, glob_pattern: str, install: bool = True,
-        ) -> Path:
+        self,
+        mime_type: str,
+        glob_pattern: str,
+        install: bool = True,
+    ) -> Path:
         """
         See https://specifications.freedesktop.org/mime-apps-spec/mime-apps-spec-latest.html
         for more information on the default locations.
@@ -314,7 +317,8 @@ class LinuxMenuItem(MenuItem):
         except CalledProcessError:
             log.debug(
                 "Could not un/register MIME type %s with xdg-mime. Writing to '%s' as a fallback.",
-                mime_type, xml_path
+                mime_type,
+                xml_path,
             )
             tree.write(xml_path, encoding="UTF-8", xml_declaration=True)
         finally:

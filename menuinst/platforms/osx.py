@@ -43,7 +43,6 @@ class MacOSMenu(Menu):
 
 
 class MacOSMenuItem(MenuItem):
-
     @property
     def location(self) -> Path:
         "Path to the .app directory defining the menu item"
@@ -324,6 +323,7 @@ class MacOSMenuItem(MenuItem):
         if self.metadata.get("CFBundleURLTypes"):
             return True
         return False
+
 
 def _lsregister(*args):
     exe = (

@@ -28,7 +28,7 @@ class Menu:
         name: str,
         prefix: str = DEFAULT_PREFIX,
         base_prefix: str = DEFAULT_BASE_PREFIX,
-        mode: _UserOrSystem= "user",
+        mode: _UserOrSystem = "user",
     ):
         assert mode in ("user", "system"), f"mode={mode} must be `user` or `system`"
         self.mode = mode
