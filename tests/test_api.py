@@ -105,6 +105,10 @@ def check_output_from_shortcut(
         finally:
             if PLATFORM == "osx":
                 _lsregister("-u", str(app_location))
+                _lsregister(
+                    "-kill", "-r", "-domain", "local", "-domain", "user", "-domain", "system"
+                )
+                assert "menuinst" not in _lsregister("-dump", log=False).stdout
 
     if expected_output is not None:
         assert output.strip() == expected_output
@@ -195,31 +199,21 @@ def test_osx_symlinks(delete_files):
 
 def test_file_type_association(delete_files):
     test_file = "test.menuinst"
-    try:
-        _, output = check_output_from_shortcut(
-            delete_files,
-            "file_types.json",
-            action="open_file",
-            file_to_open=test_file,
-        )
-        assert output.strip().endswith(test_file)
-    finally:
-        if PLATFORM == "osx":
-            _lsregister("-kill", "-r", "-domain", "local", "-domain", "user", "-domain", "system")
-            assert "menuinst" not in _lsregister("-dump", log=False).stdout
+    _, output = check_output_from_shortcut(
+        delete_files,
+        "file_types.json",
+        action="open_file",
+        file_to_open=test_file,
+    )
+    assert output.strip().endswith(test_file)
 
 
 def test_url_protocol_association(delete_files):
     url = "menuinst://test"
-    try:
-        check_output_from_shortcut(
-            delete_files,
-            "url_protocols.json",
-            action="open_url",
-            url_to_open=url,
-            expected_output=url,
-        )
-    finally:
-        if PLATFORM == "osx":
-            _lsregister("-kill", "-r", "-domain", "local", "-domain", "user", "-domain", "system")
-            assert "menuinst" not in _lsregister("-dump", log=False).stdout
+    check_output_from_shortcut(
+        delete_files,
+        "url_protocols.json",
+        action="open_url",
+        url_to_open=url,
+        expected_output=url,
+    )
