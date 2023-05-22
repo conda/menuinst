@@ -1,6 +1,7 @@
 """"""
 import os
 import plistlib
+import shlex
 import subprocess
 import sys
 from pathlib import Path
@@ -67,7 +68,7 @@ def check_output_from_shortcut(
                 with open(desktop) as f:
                     for line in f:
                         if line.startswith("Exec="):
-                            executable = line.split("=", 1)[1].strip()
+                            cmd = shlex.split(line.split("=", 1)[1].strip())
                             break
                     else:
                         raise ValueError("Didn't find Exec line")
@@ -78,7 +79,8 @@ def check_output_from_shortcut(
                     for p in (app_location / "Contents" / "MacOS").iterdir()
                     if not p.name.endswith("-script")
                 )
-            process = subprocess.run([str(executable)], text=True, capture_output=True)
+                cmd = [str(executable)]
+            process = subprocess.run(cmd, text=True, capture_output=True)
             if process.returncode:
                 print(process.stdout, file=sys.stdout)
                 print(process.stderr, file=sys.stderr)
