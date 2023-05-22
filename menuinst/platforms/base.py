@@ -154,11 +154,15 @@ class MenuItem:
             "MENU_ITEM_LOCATION": str(self.location),
         }
 
-    def render_key(self, key: str, slug: bool = False, extra: Optional[Dict[str, str]] = None) -> Any:
+    def render_key(
+        self, key: str, slug: bool = False, extra: Optional[Dict[str, str]] = None
+    ) -> Any:
         value = self.metadata.get(key)
         return self.render(value, slug=slug, extra=extra)
 
-    def render(self, value: Any, slug: bool = False, extra: Optional[Dict[str, str]] = None) -> Any:
+    def render(
+        self, value: Any, slug: bool = False, extra: Optional[Dict[str, str]] = None
+    ) -> Any:
         if value in (None, True, False):
             return value
         kwargs = {
@@ -168,10 +172,7 @@ class MenuItem:
         if isinstance(value, str):
             return self.menu.render(value, **kwargs)
         if hasattr(value, "items"):
-            return {
-                key: self.menu.render(value, **kwargs)
-                for key, value in value.items()
-            }
+            return {key: self.menu.render(value, **kwargs) for key, value in value.items()}
         return [self.menu.render(item, **kwargs) for item in value]
 
     def _precreate(self):

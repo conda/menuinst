@@ -91,7 +91,9 @@ class WindowsMenu(Menu):
             self.base_prefix / "bin" / "micromamba.exe",
         )
 
-    def render(self, value: Any, slug: bool = False, extra: Optional[Dict[str, str]] = None) -> Any:
+    def render(
+        self, value: Any, slug: bool = False, extra: Optional[Dict[str, str]] = None
+    ) -> Any:
         """
         We extend the render method here to replace forward slashes with backslashes.
         We ONLY do it if the string does not start with /, because it might
@@ -367,7 +369,7 @@ class WindowsMenuItem(MenuItem):
             unregister_file_extension(ext, identifier, mode=self.menu.mode)
 
     def _register_url_protocols(self):
-        "See https://learn.microsoft.com/en-us/previous-versions/windows/internet-explorer/ie-developer/platform-apis/aa767914(v=vs.85)"
+        "See https://learn.microsoft.com/en-us/previous-versions/windows/internet-explorer/ie-developer/platform-apis/aa767914(v=vs.85)"  # noqa
         protocols = self.metadata["url_protocols"]
         if not protocols:
             return

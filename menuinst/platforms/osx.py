@@ -315,7 +315,7 @@ class MacOSMenuItem(MenuItem):
                 "--deep",
                 "--entitlements",
                 entitlements_path,
-                self.location
+                self.location,
             ]
         )
 

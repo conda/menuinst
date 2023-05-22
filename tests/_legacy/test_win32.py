@@ -11,8 +11,8 @@ if sys.platform == "win32":
 
 log = getLogger(__name__)
 
-@pytest.mark.skipif(sys.platform != "win32",
-                    reason="Windows-only tests")
+
+@pytest.mark.skipif(sys.platform != "win32", reason="Windows-only tests")
 def test_quote_args_1():
     args = [
         "%windir%\\System32\\cmd.exe",
@@ -23,5 +23,5 @@ def test_quote_args_1():
     assert quote_args(args) == [
         "\"%windir%\\System32\\cmd.exe\"",
         "/K",
-        "\"\"c:\\Users\\Francisco García Carrión Martínez\\Anaconda 3\\Scripts\\activate.bat\" \"c:\\Users\\Francisco García Carrión Martínez\\Anaconda 3\"\"",
+        "\"\"c:\\Users\\Francisco García Carrión Martínez\\Anaconda 3\\Scripts\\activate.bat\" \"c:\\Users\\Francisco García Carrión Martínez\\Anaconda 3\"\"",  # noqa
     ]
