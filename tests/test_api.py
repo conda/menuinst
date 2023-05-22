@@ -46,7 +46,7 @@ def check_output_from_shortcut(
     contents = abs_json_path.read_text()
     if "__OUTPUT_FILE__" in contents:
         with NamedTemporaryFile(suffix=json_path, mode="w", delete=False) as tmp:
-            output_file = tmp.name + ".out"
+            output_file = str(Path(tmp.name).resolve()) + ".out"
             contents = contents.replace("__OUTPUT_FILE__", output_file.replace("\\", "\\\\"))
             tmp.write(contents)
         abs_json_path = tmp.name
@@ -211,7 +211,7 @@ def test_file_type_association(delete_files):
 
 
 def test_url_protocol_association(delete_files):
-    url = "menuinst://test"
+    url = "menuinst://test/"
     check_output_from_shortcut(
         delete_files,
         "url_protocols.json",

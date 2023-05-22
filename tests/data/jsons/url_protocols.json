@@ -10,21 +10,22 @@
             "command": [
                 "{{ PYTHON }}",
                 "-c",
-                "import sys, pathlib as p; Path(r'__OUTPUT_FILE__').write_text(sys.argv[1])"
+                "import sys, pathlib as p; p.Path(r'__OUTPUT_FILE__').write_text(sys.argv[1])"
             ],
             "platforms": {
                 "win": {
                     "command": [
                         "{{ PYTHON }}",
                         "-c",
-                        "import sys, pathlib as p; Path(r'__OUTPUT_FILE__').write_text('%1')"
-                    ]
+                        "import sys, pathlib as p; p.Path(r'__OUTPUT_FILE__').write_text('%1')"
+                    ],
+                    "url_protocols": ["menuinst"]
                 },
                 "linux": {
                     "command": [
                         "{{ PYTHON }}",
                         "-c",
-                        "import sys, pathlib as p; Path(r'__OUTPUT_FILE__').write_text('%u')"
+                        "import sys, pathlib as p; p.Path(r'__OUTPUT_FILE__').write_text('%u')"
                     ],
                     "MimeType": ["x-scheme-handler/menuinst"]
                 },

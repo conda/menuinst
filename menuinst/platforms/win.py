@@ -258,19 +258,24 @@ class WindowsMenuItem(MenuItem):
 
         return script_path
 
-    def _process_command(self) -> Tuple[str]:
+    def _process_command(self, with_arg1=False) -> Tuple[str]:
         if self.metadata["activate"]:
             script = self._write_script()
             if self.metadata["terminal"]:
                 command = ["cmd", "/K", str(script)]
+                if with_arg1:
+                    command.append("%1")
             else:
                 system32 = Path(os.environ.get("SystemRoot", "C:\\Windows")) / "system32"
+                arg1 = "%1 " if with_arg1 else ""
                 command = [
                     str(system32 / "WindowsPowerShell" / "v1.0" / "powershell.exe"),
-                    f"\"start '{script}' -WindowStyle hidden\"",
+                    f"\"start '{script}' {arg1}-WindowStyle hidden\"",
                 ]
         else:
             command = self.render_key("command")
+            if with_arg1 and all("%1" not in arg for arg in command):
+                command.append("%1")
 
         return WinLex.quote_args(command)
 
@@ -339,7 +344,7 @@ class WindowsMenuItem(MenuItem):
         if not extensions:
             return
 
-        command = " ".join(self._process_command())
+        command = " ".join(self._process_command(with_arg1=True))
         icon = self.render_key("icon")
         exts = list(dict.fromkeys([ext.lower() for ext in extensions]))
         for ext in exts:
@@ -361,7 +366,7 @@ class WindowsMenuItem(MenuItem):
         protocols = self.metadata["url_protocols"]
         if not protocols:
             return
-        command = " ".join(self._process_command())
+        command = " ".join(self._process_command(with_arg1=True))
         icon = self.render_key("icon")
         for protocol in protocols:
             identifier = self._ftype_identifier(protocol)

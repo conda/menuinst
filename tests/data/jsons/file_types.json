@@ -10,14 +10,14 @@
             "command": [
                 "{{ PYTHON }}",
                 "-c",
-                "import sys, pathlib as p; Path(r'__OUTPUT_FILE__').write_text(sys.argv[1])"
+                "import sys, pathlib as p; p.Path(r'__OUTPUT_FILE__').write_text(sys.argv[1])"
             ],
             "platforms": {
                 "win": {
                     "command": [
                         "{{ PYTHON }}",
                         "-c",
-                        "import sys, pathlib as p; Path(r'__OUTPUT_FILE__').write_text('%1')"
+                        "import sys, pathlib as p; p.Path(r'__OUTPUT_FILE__').write_text(r'%1')"
                     ],
                     "file_extensions": [".menuinst"]
                 },
@@ -25,7 +25,7 @@
                     "command": [
                         "{{ PYTHON }}",
                         "-c",
-                        "import sys, pathlib as p; Path(r'__OUTPUT_FILE__').write_text('%f')"
+                        "import sys, pathlib as p; p.Path(r'__OUTPUT_FILE__').write_text(r'%f')"
                     ],
                     "MimeType": ["application/x-menuinst"],
                     "glob_patterns": {
@@ -36,7 +36,7 @@
                     "command": [
                         "{{ PYTHON }}",
                         "-c",
-                        "import sys, pathlib as p; Path(r'__OUTPUT_FILE__').write_text(sys.argv[1])"
+                        "import sys, pathlib as p; p.Path(r'__OUTPUT_FILE__').write_text(sys.argv[1])"
                     ],
                     "CFBundleDocumentTypes": [
                         {
