@@ -17,7 +17,7 @@
                     "command": [
                         "{{ PYTHON }}",
                         "-c",
-                        "import sys, pathlib as p; p.Path(r'__OUTPUT_FILE__').write_text('%1')"
+                        "import sys, pathlib as p; p.Path(r'__OUTPUT_FILE__').write_text(r'%1')"
                     ],
                     "url_protocols": ["menuinst"]
                 },
@@ -25,7 +25,7 @@
                     "command": [
                         "{{ PYTHON }}",
                         "-c",
-                        "import sys, pathlib as p; p.Path(r'__OUTPUT_FILE__').write_text('%u')"
+                        "import sys, pathlib as p; p.Path(r'__OUTPUT_FILE__').write_text(r'%u')"
                     ],
                     "MimeType": ["x-scheme-handler/menuinst"]
                 },
