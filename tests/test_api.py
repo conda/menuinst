@@ -96,7 +96,7 @@ def check_output_from_shortcut(
         cmd = {
             "linux": ["xdg-open"],
             # FIXME: Should work WITHOUT -a <app_location>
-            "osx": ["open", "-a", app_location],
+            "osx": ["open", "-a", str(app_location)],
             "win": ["start"],
         }[PLATFORM]
         try:
