@@ -6,10 +6,13 @@ from pathlib import Path
 from subprocess import check_output
 from tempfile import TemporaryDirectory
 
+logging.basicConfig(level=logging.DEBUG)
+
 import py
 import pytest
 
 from menuinst.platforms.base import platform_key
+
 
 os.environ["PYTEST_IN_USE"] = "1"
 DATA = Path(__file__).parent / "data"
