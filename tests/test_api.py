@@ -98,7 +98,7 @@ def check_output_from_shortcut(
             # FIXME: Should work WITHOUT -a <app_location>
             # "osx": ["open"],
             "osx": ["open", "-a", str(app_location)],
-            "win": ["start"],
+            "win": ["cmd", "/C", "start"],
         }[PLATFORM]
         try:
             process = logged_run([*cmd, arg], check=True)
