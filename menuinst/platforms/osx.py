@@ -325,11 +325,11 @@ class MacOSMenuItem(MenuItem):
         return False
 
 
-def _lsregister(*args):
+def _lsregister(*args, **kwargs):
     exe = (
         "/System/Library/Frameworks/CoreServices.framework"
         "/Frameworks/LaunchServices.framework/Support/lsregister"
     )
     if not os.path.exists(exe):
         return
-    return logged_run([exe, *args], check=True)
+    return logged_run([exe, *args], check=True, **kwargs)

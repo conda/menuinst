@@ -385,11 +385,12 @@ def _test(base_prefix: Optional[os.PathLike] = None, _mode: str = "user"):
     print(user_is_admin(), file=out)
 
 
-def logged_run(args, check=False, **kwargs) -> subprocess.CompletedProcess:
+def logged_run(args, check=False, log=True, **kwargs) -> subprocess.CompletedProcess:
     process = subprocess.run(args, capture_output=True, text=True, **kwargs)
-    logger.debug("%s returned %d", process.args, process.returncode)
-    logger.debug("stdout:\n%s", process.stdout)
-    logger.debug("stderr:\n%s", process.stderr)
+    if log:
+        logger.debug("%s returned %d", process.args, process.returncode)
+        logger.debug("stdout:\n%s", process.stdout)
+        logger.debug("stderr:\n%s", process.stderr)
     if check:
         process.check_returncode()
     return process
