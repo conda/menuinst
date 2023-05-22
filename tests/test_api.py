@@ -96,6 +96,7 @@ def check_output_from_shortcut(
         cmd = {
             "linux": ["xdg-open"],
             # FIXME: Should work WITHOUT -a <app_location>
+            # "osx": ["open"],
             "osx": ["open", "-a", str(app_location)],
             "win": ["start"],
         }[PLATFORM]
@@ -104,6 +105,7 @@ def check_output_from_shortcut(
             output = _poll_for_file_contents(output_file)
         finally:
             if PLATFORM == "osx":
+                print(Path(f'{os.environ.get("RUNNER_TEMP", os.environ.get("HOME"))}/debug_urls.txt').read_text())
                 _lsregister("-u", str(app_location))
                 _lsregister(
                     "-kill", "-r", "-domain", "local", "-domain", "user", "-domain", "system"
