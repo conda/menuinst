@@ -27,7 +27,7 @@ jobs:
   run_test_suite:
     name: ${{ matrix.os }}-py${{ matrix.python-version }}
     runs-on: ${{ matrix.os }}-latest
-    timeout-minutes: 30
+    timeout-minutes: 60
     env:
       CONDA_NUMBER_CHANNEL_NOTICES: 0
     strategy:
