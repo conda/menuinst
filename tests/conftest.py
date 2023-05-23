@@ -32,16 +32,15 @@ BASE_PREFIX = base_prefix()
 def delete_files():
     paths = []
     yield paths
-    if not os.environ.get("CI"):
-        for path in paths:
-            path = Path(path)
-            try:
-                if path.is_dir():
-                    shutil.rmtree(path)
-                else:
-                    path.unlink()
-            except IOError:
-                logging.warning("Could not delete %s", path, exc_info=True)
+    for path in paths:
+        path = Path(path)
+        try:
+            if path.is_dir():
+                shutil.rmtree(path)
+            else:
+                path.unlink()
+        except IOError:
+            logging.warning("Could not delete %s", path, exc_info=True)
 
 
 @pytest.fixture(scope="function")

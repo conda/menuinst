@@ -113,7 +113,13 @@ def check_output_from_shortcut(
             )
             sleep(5)
             if "menuinst" in _lsregister("-dump", log=False).stdout:
-                warnings.warn("menuinst still registered with LaunchServices")
+                warnings.warn(
+                    "menuinst still registered with LaunchServices! "
+                    "This usually fixes itself after a couple minutes. "
+                    "Run '/System/Library/Frameworks/CoreServices.framework/Frameworks/"
+                    "LaunchServices.framework/Support/lsregister -dump | grep menuinst' "
+                    "to double check."
+                )
             
 
     if expected_output is not None:
