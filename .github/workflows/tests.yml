@@ -44,7 +44,7 @@ jobs:
       - name: Add Linux dependencies
         if: matrix.os == 'ubuntu'
         run: |
-          sudo apt-get install libfile-mimeinfo-perl libglib2.0-bin
+          sudo apt-get install libfile-mimeinfo-perl desktop-file-utils
           echo "XDG_UTILS_DEBUG_LEVEL=2" >> $GITHUB_ENV
 
       - name: Install dependencies
