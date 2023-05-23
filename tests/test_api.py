@@ -86,7 +86,8 @@ def check_output_from_shortcut(
         if action == "open_file":
             assert file_to_open is not None
             with NamedTemporaryFile(suffix=file_to_open, delete=False) as f:
-                f.write(b"")
+                # file cannot be empty; otherwise mimetype detection fails on Linux
+                f.write(b"1234")
             delete_files.append(f.name)
             arg = f.name
         elif action == "open_url":

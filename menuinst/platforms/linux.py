@@ -1,12 +1,13 @@
 """
 """
 import os
+import shlex
 import shutil
 import time
 from logging import getLogger
 from pathlib import Path
 from subprocess import CalledProcessError
-from tempfile import NamedTemporaryFile
+from tempfile import TemporaryDirectory
 from typing import Dict, Iterable, Tuple
 from xml.etree import ElementTree
 
@@ -191,13 +192,23 @@ class LinuxMenuItem(MenuItem):
         log.debug("Creating %s", self.location)
         self._precreate()
         self._write_desktop_file()
+        self._maybe_register_mime_types(register=True)
+        logged_run(
+            ["update-desktop-database", str(self.menu.desktop_entries_location)],
+            check=False,
+        )
         return self._paths()
 
     def remove(self) -> Iterable[os.PathLike]:
         paths = self._paths()
+        self._maybe_register_mime_types(register=False)
         for path in paths:
             log.debug("Removing %s", path)
             unlink(path, missing_ok=True)
+        logged_run(
+            ["update-desktop-database", str(self.menu.desktop_entries_location)],
+            check=False,
+        )
         return paths
 
     def _command(self) -> str:
@@ -213,7 +224,7 @@ class LinuxMenuItem(MenuItem):
                 activate = "shell.bash activate"
             parts.append(f'eval "$("{conda_exe}" {activate} "{self.menu.prefix}")"')
         parts.append(" ".join(UnixLex.quote_args(self.render_key("command"))))
-        return f"bash -c '{' && '.join(parts)}'"
+        return "bash -c " + shlex.quote(" && ".join(parts))
 
     def _write_desktop_file(self):
         lines = [
@@ -239,7 +250,7 @@ class LinuxMenuItem(MenuItem):
             lines.append(f"Path={working_dir}")
 
         for key in menuitem_defaults["platforms"]["linux"]:
-            if key in menuitem_defaults:
+            if key in (*menuitem_defaults, "glob_patterns"):
                 continue
             value = self.render_key(key)
             if value is None:
@@ -255,7 +266,7 @@ class LinuxMenuItem(MenuItem):
             f.write("\n")
 
     def _maybe_register_mime_types(self, register=True):
-        mime_types = self.render_key("mime_types")
+        mime_types = self.render_key("MimeType")
         if not mime_types:
             return
         self._register_mime_types(mime_types, register=register)
@@ -265,18 +276,21 @@ class LinuxMenuItem(MenuItem):
         for mime_type in mime_types:
             glob_pattern = glob_patterns.get(mime_type)
             if glob_pattern:
-                self._glob_pattern_for_mime_type(mime_type, install=register)
+                self._glob_pattern_for_mime_type(mime_type, glob_pattern, install=register)
 
         if register:
             xdg_mime = shutil.which("xdg-mime")
             if not xdg_mime:
                 log.debug("xdg-mime not found, not registering mime types as default.")
-            # TODO: We might need sudo here, but at this point we should be "elevated" already
-            logged_run([xdg_mime, "default", self.location, mime_types, "--mode", self.menu.mode])
+            logged_run([xdg_mime, "default", self.location, *mime_types])
+
+        logged_run(["update-mime-database", "-V", self.menu.data_directory / "mime"], check=False)
 
     def _xml_path_for_mime_type(self, mime_type: str) -> Tuple[Path, bool]:
-        basename = mime_type.split("/")[-1]
-        xml_files = (self.menu.data_directory / "mime" / "applications").glob(f"*{basename}*.xml")
+        basename = mime_type.replace("/", "-")
+        xml_files = list(
+            (self.menu.data_directory / "mime" / "applications").glob(f"*{basename}*.xml")
+        )
         if xml_files:
             if len(xml_files) > 1:
                 msg = "Found multiple files for MIME type %s: %s. Returning first."
@@ -310,10 +324,13 @@ class LinuxMenuItem(MenuItem):
         subcommand = "install" if install else "uninstall"
         # Install the XML file and register it as default for our app
         try:
-            with NamedTemporaryFile(mode="w", suffix=".xml", delete=False) as f:
-                tree.write(f, encoding="UTF-8", xml_declaration=True)
-            # TODO: We might need sudo here, but at this point we should be "elevated" already
-            logged_run(["xdg-mime", subcommand, "--mode", self.menu.mode, f.name], check=True)
+            with TemporaryDirectory() as tmp:
+                with open(os.path.join(tmp, os.path.basename(xml_path)), "wb") as f:
+                    tree.write(f, encoding="UTF-8", xml_declaration=True)
+                logged_run(
+                    ["xdg-mime", subcommand, "--mode", self.menu.mode, "--novendor", f.name],
+                    check=True,
+                )
         except CalledProcessError:
             log.debug(
                 "Could not un/register MIME type %s with xdg-mime. Writing to '%s' as a fallback.",
@@ -321,8 +338,12 @@ class LinuxMenuItem(MenuItem):
                 xml_path,
             )
             tree.write(xml_path, encoding="UTF-8", xml_declaration=True)
-        finally:
-            os.unlink(f.name)
 
     def _paths(self) -> Iterable[os.PathLike]:
-        return (self.location,)
+        paths = [self.location]
+        mime_types = self.render_key("MimeType") or ()
+        for mime in mime_types:
+            xml_path, exists = self._xml_path_for_mime_type(mime)
+            if exists and "registered by menuinst" in xml_path.read_text():
+                paths.append(xml_path)
+        return tuple(paths)
