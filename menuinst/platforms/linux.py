@@ -193,10 +193,7 @@ class LinuxMenuItem(MenuItem):
         self._precreate()
         self._write_desktop_file()
         self._maybe_register_mime_types(register=True)
-        logged_run(
-            ["update-desktop-database", str(self.menu.desktop_entries_location)],
-            check=False,
-        )
+        self._update_desktop_database()
         return self._paths()
 
     def remove(self) -> Iterable[os.PathLike]:
@@ -205,11 +202,16 @@ class LinuxMenuItem(MenuItem):
         for path in paths:
             log.debug("Removing %s", path)
             unlink(path, missing_ok=True)
-        logged_run(
-            ["update-desktop-database", str(self.menu.desktop_entries_location)],
-            check=False,
-        )
+        self._update_desktop_database()
         return paths
+
+    def _update_desktop_database(self):
+        exe = shutil.which("update-desktop-database")
+        if exe:
+            logged_run(
+                [exe, str(self.menu.desktop_entries_location)],
+                check=False,
+            )
 
     def _command(self) -> str:
         parts = []
@@ -284,7 +286,12 @@ class LinuxMenuItem(MenuItem):
                 log.debug("xdg-mime not found, not registering mime types as default.")
             logged_run([xdg_mime, "default", self.location, *mime_types])
 
-        logged_run(["update-mime-database", "-V", self.menu.data_directory / "mime"], check=False)
+        update_mime_database = shutil.which("update-mime-database")
+        if update_mime_database:
+            logged_run(
+                [update_mime_database, "-V", self.menu.data_directory / "mime"],
+                check=False,
+            )
 
     def _xml_path_for_mime_type(self, mime_type: str) -> Tuple[Path, bool]:
         basename = mime_type.replace("/", "-")
