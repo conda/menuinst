@@ -70,7 +70,8 @@ def mock_locations(monkeypatch, tmp_path):
     monkeypatch.setattr(MacOSMenuItem, "_base_location", osx_base_location)
 
     # For Linux
-    monkeypatch.setattr(LinuxMenu, "_system_config_directory", tmp_path / "config")
-    monkeypatch.setattr(LinuxMenu, "_system_data_directory", tmp_path / "data")
-    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path / "config"))
-    monkeypatch.setenv("XDG_DATA_HOME", str(tmp_path / "data"))
+    if not os.environ.get("CI"):
+        monkeypatch.setattr(LinuxMenu, "_system_config_directory", tmp_path / "config")
+        monkeypatch.setattr(LinuxMenu, "_system_data_directory", tmp_path / "data")
+        monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path / "config"))
+        monkeypatch.setenv("XDG_DATA_HOME", str(tmp_path / "data"))
