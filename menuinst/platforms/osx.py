@@ -277,16 +277,14 @@ class MacOSMenuItem(MenuItem):
         return self.location / "Contents" / "MacOS" / f'{name}{suffix}'
 
     def _maybe_register_with_launchservices(self, register=True):
-        needed_keys = ("CFBundleURLTypes", "CFBundleDocumentTypes")
-        if not any([self.metadata.get(k) for k in needed_keys]):
+        if not self._needs_appkit_launcher:
             return
-
-        # register the URL scheme with `lsregister`
-        try:
-            unregister = () if register else ("-u",)
-            _lsregister("-R", *unregister, str(self.location))
-        except CalledProcessError as exc:
-            log.debug("Could not (un)register URL scheme", exc_info=exc)
+        if register:
+            # register the URL scheme with `lsregister`
+            _lsregister("-R", str(self.location))
+        else:
+            _lsregister("-R", "-u", "-all", str(self.location))
+        
 
     def _sign_with_entitlements(self):
         "Self-sign shortcut to apply required entitlements"
@@ -320,16 +318,15 @@ class MacOSMenuItem(MenuItem):
 
     @property
     def _needs_appkit_launcher(self) -> bool:
-        if self.metadata.get("CFBundleURLTypes"):
-            return True
-        return False
+        needed_keys = ("CFBundleURLTypes", "CFBundleDocumentTypes")
+        return any([self.metadata.get(k) for k in needed_keys])
 
 
-def _lsregister(*args, **kwargs):
+def _lsregister(*args, check=True, **kwargs):
     exe = (
         "/System/Library/Frameworks/CoreServices.framework"
         "/Frameworks/LaunchServices.framework/Support/lsregister"
     )
     if not os.path.exists(exe):
         return
-    return logged_run([exe, *args], check=True, **kwargs)
+    return logged_run([exe, *args], check=check, **kwargs)
