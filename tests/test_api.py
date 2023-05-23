@@ -55,80 +55,67 @@ def check_output_from_shortcut(
         delete_files.append(abs_json_path)
 
     paths = install(abs_json_path)
-    print(paths)
     delete_files += list(paths)
 
-    if action == "run_shortcut":
-        if PLATFORM == "win":
-            lnk = next(p for p in paths if p.suffix == ".lnk")
-            assert lnk.is_file()
-            os.startfile(lnk)
-            output = _poll_for_file_contents(output_file)
+    try:
+        if action == "run_shortcut":
+            if PLATFORM == "win":
+                lnk = next(p for p in paths if p.suffix == ".lnk")
+                assert lnk.is_file()
+                os.startfile(lnk)
+                output = _poll_for_file_contents(output_file)
+            else:
+                if PLATFORM == "linux":
+                    desktop = next(p for p in paths if p.suffix == ".desktop")
+                    with open(desktop) as f:
+                        for line in f:
+                            if line.startswith("Exec="):
+                                cmd = shlex.split(line.split("=", 1)[1].strip())
+                                break
+                        else:
+                            raise ValueError("Didn't find Exec line")
+                elif PLATFORM == "osx":
+                    app_location = paths[0]
+                    executable = next(
+                        p
+                        for p in (app_location / "Contents" / "MacOS").iterdir()
+                        if not p.name.endswith("-script")
+                    )
+                    cmd = [str(executable)]
+                process = logged_run(cmd, check=True)
+                output = process.stdout
         else:
-            if PLATFORM == "linux":
-                desktop = next(p for p in paths if p.suffix == ".desktop")
-                with open(desktop) as f:
-                    for line in f:
-                        if line.startswith("Exec="):
-                            cmd = shlex.split(line.split("=", 1)[1].strip())
-                            break
-                    else:
-                        raise ValueError("Didn't find Exec line")
-            elif PLATFORM == "osx":
-                app_location = paths[0]
-                executable = next(
-                    p
-                    for p in (app_location / "Contents" / "MacOS").iterdir()
-                    if not p.name.endswith("-script")
-                )
-                cmd = [str(executable)]
-            process = logged_run(cmd, check=True)
-            output = process.stdout
-    else:
-        if action == "open_file":
-            assert file_to_open is not None
-            with NamedTemporaryFile(suffix=file_to_open, delete=False) as f:
-                # file cannot be empty; otherwise mimetype detection fails on Linux
-                f.write(b"1234")
-            delete_files.append(f.name)
-            arg = f.name
-        elif action == "open_url":
-            assert url_to_open is not None
-            arg = url_to_open
-        app_location = paths[0]
-        cmd = {
-            "linux": ["xdg-open"],
-            # FIXME: Should work WITHOUT -a <app_location>
-            # "osx": ["open"],
-            "osx": ["open", "-a", str(app_location)],
-            "win": ["cmd", "/C", "start"],
-        }[PLATFORM]
-        try:
+            if action == "open_file":
+                assert file_to_open is not None
+                with NamedTemporaryFile(suffix=file_to_open, delete=False) as f:
+                    # file cannot be empty; otherwise mimetype detection fails on Linux
+                    f.write(b"1234")
+                delete_files.append(f.name)
+                arg = f.name
+            elif action == "open_url":
+                assert url_to_open is not None
+                arg = url_to_open
+            app_location = paths[0]
+            cmd = {
+                "linux": ["xdg-open"],
+                # FIXME: Should work WITHOUT -a <app_location>
+                # "osx": ["open"],
+                "osx": ["open", "-a", str(app_location)],
+                "win": ["cmd", "/C", "start"],
+            }[PLATFORM]
             process = logged_run([*cmd, arg], check=True)
             output = _poll_for_file_contents(output_file)
-        finally:
-            if PLATFORM == "osx":
-                print(
-                    Path(
-                        f'{os.environ.get("RUNNER_TEMP", os.environ.get("HOME"))}/debug_urls.txt'
-                    ).read_text()
-                )
-                _lsregister("-u", str(app_location))
-                _lsregister(
-                    "-kill", "-r", "-domain", "local", "-domain", "user", "-domain", "system"
-                )
-                assert "menuinst" not in _lsregister("-dump", log=False).stdout
-            elif PLATFORM == "linux":
-                # check gio output
-                logged_run(["gio", "open", arg], check=False)
-                print("mimeapps.list")
-                print((Path(os.environ["HOME"]) / ".config/mimeapps.list").read_text())
+    finally:
+        if remove_after:
+            remove(abs_json_path)
+        if action in ("open_file", "open_url") and PLATFORM == "osx":
+            _lsregister(
+                "-kill", "-r", "-domain", "local", "-domain", "user", "-domain", "system"
+            )
+            assert "menuinst" not in _lsregister("-dump", log=False).stdout
 
     if expected_output is not None:
         assert output.strip() == expected_output
-
-    if remove_after:
-        remove(abs_json_path)
 
     return abs_json_path, paths, output
 
