@@ -45,6 +45,7 @@ jobs:
         if: matrix.os == 'ubuntu'
         run: |
           sudo apt-get install libfile-mimeinfo-perl libglib2.0-bin
+          echo "XDG_UTILS_DEBUG_LEVEL=2" >> $GITHUB_ENV
 
       - name: Install dependencies
         uses: mamba-org/provision-with-micromamba@main
