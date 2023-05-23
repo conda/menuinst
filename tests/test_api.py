@@ -225,6 +225,7 @@ def test_file_type_association(delete_files):
     *_, output = check_output_from_shortcut(
         delete_files,
         "file_types.json",
+        remove_after="CI" not in os.environ,
         action="open_file",
         file_to_open=test_file,
     )
@@ -237,6 +238,7 @@ def test_url_protocol_association(delete_files):
     check_output_from_shortcut(
         delete_files,
         "url_protocols.json",
+        remove_after="CI" not in os.environ,
         action="open_url",
         url_to_open=url,
         expected_output=url,
