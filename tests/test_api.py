@@ -121,7 +121,9 @@ def check_output_from_shortcut(
             elif PLATFORM == "linux":
                 # check gio output
                 logged_run(["gio", "open", arg], check=False)
-                
+                print("mimeapps.list")
+                print((Path(os.environ["HOME"]) / ".config/mimeapps.list").read_text())
+
     if expected_output is not None:
         assert output.strip() == expected_output
 
