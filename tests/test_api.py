@@ -109,7 +109,14 @@ def check_output_from_shortcut(
             remove(abs_json_path)
         if PLATFORM == "osx" and action in ("open_file", "open_url"):
             _lsregister(
-                "-kill", "-r", "-domain", "local", "-domain", "user", "-domain", "system",
+                "-kill",
+                "-r",
+                "-domain",
+                "local",
+                "-domain",
+                "user",
+                "-domain",
+                "system",
             )
             sleep(5)
             if "menuinst" in _lsregister("-dump", log=False).stdout:
@@ -120,7 +127,6 @@ def check_output_from_shortcut(
                     "LaunchServices.framework/Support/lsregister -dump | grep menuinst' "
                     "to double check."
                 )
-            
 
     if expected_output is not None:
         assert output.strip() == expected_output
@@ -219,9 +225,9 @@ def test_osx_symlinks(delete_files):
 
 def _dump_ls_services():
     lsservicesplist = Path(
-        os.environ["HOME"], 
-        "Library/Preferences/com.apple.LaunchServices/"
-        "com.apple.launchservices.secure.plist")
+        os.environ["HOME"],
+        "Library/Preferences/com.apple.LaunchServices/com.apple.launchservices.secure.plist",
+    )
     plist = plistlib.loads(lsservicesplist.read_bytes())
     print(json.dumps(plist, indent=2))
 
@@ -236,7 +242,6 @@ def test_file_type_association(delete_files):
         file_to_open=test_file,
     )
     assert output.strip().endswith(test_file)
-
 
 
 def test_url_protocol_association(delete_files):

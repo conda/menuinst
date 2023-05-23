@@ -7,7 +7,6 @@ import shutil
 from hashlib import sha1
 from logging import getLogger
 from pathlib import Path
-from subprocess import CalledProcessError
 from textwrap import dedent
 from typing import Dict, Optional, Tuple
 
@@ -284,7 +283,6 @@ class MacOSMenuItem(MenuItem):
             _lsregister("-R", str(self.location))
         else:
             _lsregister("-R", "-u", "-all", str(self.location))
-        
 
     def _sign_with_entitlements(self):
         "Self-sign shortcut to apply required entitlements"
