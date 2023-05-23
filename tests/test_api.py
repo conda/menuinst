@@ -109,10 +109,15 @@ def check_output_from_shortcut(
         if remove_after:
             remove(abs_json_path)
         if action in ("open_file", "open_url") and PLATFORM == "osx":
+            debug_urls = Path("/Users/runner/work/_temp/debug_urls.txt")
+            if debug_urls.exists():
+                print("debug_urls.txt:")
+                print(debug_urls.read_text())
             _lsregister(
                 "-kill", "-r", "-domain", "local", "-domain", "user", "-domain", "system"
             )
             assert "menuinst" not in _lsregister("-dump", log=False).stdout
+            
 
     if expected_output is not None:
         assert output.strip() == expected_output
