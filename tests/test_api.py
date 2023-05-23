@@ -7,11 +7,12 @@ import sys
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 from time import sleep, time
+from typing import Iterable, Tuple
 
 import pytest
 from conftest import DATA, PLATFORM
 
-from menuinst.api import install
+from menuinst.api import install, remove
 from menuinst.platforms.osx import _lsregister
 from menuinst.utils import DEFAULT_PREFIX, logged_run
 
@@ -34,11 +35,12 @@ def _poll_for_file_contents(path, timeout=10):
 def check_output_from_shortcut(
     delete_files,
     json_path,
+    remove_after=True,
     expected_output=None,
     action="run_shortcut",
     file_to_open=None,
     url_to_open=None,
-):
+) -> Tuple[Path, Iterable[Path], str]:
     assert action in ("run_shortcut", "open_file", "open_url")
 
     output_file = None
@@ -116,11 +118,17 @@ def check_output_from_shortcut(
                     "-kill", "-r", "-domain", "local", "-domain", "user", "-domain", "system"
                 )
                 assert "menuinst" not in _lsregister("-dump", log=False).stdout
-
+            elif PLATFORM == "linux":
+                # check gio output
+                logged_run(["gio", "open", arg], check=False)
+                
     if expected_output is not None:
         assert output.strip() == expected_output
 
-    return paths, output
+    if remove_after:
+        remove(abs_json_path)
+
+    return abs_json_path, paths, output
 
 
 def test_install_prefix(delete_files):
@@ -135,8 +143,8 @@ def test_precommands(delete_files):
 
 @pytest.mark.skipif(PLATFORM != "osx", reason="macOS only")
 def test_entitlements(delete_files):
-    paths, _ = check_output_from_shortcut(
-        delete_files, "entitlements.json", expected_output="entitlements"
+    json_path, paths, _ = check_output_from_shortcut(
+        delete_files, "entitlements.json", remove_after=False, expected_output="entitlements"
     )
     # verify signature
     app_dir = next(p for p in paths if p.name.endswith(".app"))
@@ -162,11 +170,13 @@ def test_entitlements(delete_files):
     else:
         raise AssertionError("Didn't find Entitlements.plist")
 
+    remove(json_path)
+
 
 @pytest.mark.skipif(PLATFORM != "osx", reason="macOS only")
 def test_no_entitlements_no_signature(delete_files):
-    paths, _ = check_output_from_shortcut(
-        delete_files, "sys-prefix.json", expected_output=sys.prefix
+    json_path, paths, _ = check_output_from_shortcut(
+        delete_files, "sys-prefix.json", remove_after=False, expected_output=sys.prefix
     )
     app_dir = next(p for p in paths if p.name.endswith(".app"))
     launcher = next(
@@ -176,12 +186,13 @@ def test_no_entitlements_no_signature(delete_files):
         subprocess.check_call(["/usr/bin/codesign", "--verbose", "--verify", str(app_dir)])
     with pytest.raises(subprocess.CalledProcessError):
         subprocess.check_call(["/usr/bin/codesign", "--verbose", "--verify", str(launcher)])
+    remove(json_path)
 
 
 @pytest.mark.skipif(PLATFORM != "osx", reason="macOS only")
 def test_info_plist(delete_files):
-    paths, _ = check_output_from_shortcut(
-        delete_files, "entitlements.json", expected_output="entitlements"
+    json_path, paths, _ = check_output_from_shortcut(
+        delete_files, "entitlements.json", remove_after=False, expected_output="entitlements"
     )
     app_dir = next(p for p in paths if p.name.endswith(".app"))
 
@@ -194,19 +205,24 @@ def test_info_plist(delete_files):
 
     assert plist["LSEnvironment"]["example_var"] == "example_value"
 
+    remove(json_path)
+
 
 @pytest.mark.skipif(PLATFORM != "osx", reason="macOS only")
 def test_osx_symlinks(delete_files):
-    paths, output = check_output_from_shortcut(delete_files, "osx_symlinks.json")
+    json_path, paths, output = check_output_from_shortcut(
+        delete_files, "osx_symlinks.json", remove_after=False
+    )
     app_dir = next(p for p in paths if p.name.endswith(".app"))
     symlinked_python = app_dir / "Contents" / "Resources" / "python"
     assert output.strip() == str(symlinked_python)
     assert symlinked_python.resolve() == (Path(DEFAULT_PREFIX) / "bin" / "python").resolve()
+    remove(json_path)
 
 
 def test_file_type_association(delete_files):
     test_file = "test.menuinst"
-    _, output = check_output_from_shortcut(
+    *_, output = check_output_from_shortcut(
         delete_files,
         "file_types.json",
         action="open_file",

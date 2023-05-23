@@ -44,7 +44,7 @@ jobs:
       - name: Add Linux dependencies
         if: matrix.os == 'ubuntu'
         run: |
-          sudo apt-get install libfile-mimeinfo-perl
+          sudo apt-get install libfile-mimeinfo-perl libglib2.0-bin
 
       - name: Install dependencies
         uses: mamba-org/provision-with-micromamba@main
