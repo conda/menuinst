@@ -25,9 +25,9 @@ def _poll_for_file_contents(path, timeout=10):
         sleep(1)
         if time() >= t0 + timeout / 2:
             raise RuntimeError(f"Timeout. File '{path}' was not created!")
+
     out = ""
-    while not out:
-        out = Path(path).read_text()
+    while not (out := Path(path).read_text()):
         sleep(1)
         if time() >= t0 + timeout:
             raise RuntimeError(f"Timeout. File '{path}' was empty!")
