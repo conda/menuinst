@@ -30,6 +30,7 @@ jobs:
     timeout-minutes: 60
     env:
       CONDA_NUMBER_CHANNEL_NOTICES: 0
+      PYTHONUNBUFFERED: 1
     strategy:
       fail-fast: false
       matrix:
@@ -80,11 +81,11 @@ jobs:
       - shell: bash -el {0}
         name: Run test suite
         run: |
-          python -I -m pytest tests/ --cov-append --cov-report=xml --cov=menuinst
+          python -I -u -m pytest tests/ --cov-append --cov-report=xml --cov=menuinst
 
-      # - name: Debug with tmate on failure
-      #   if: ${{ failure() }}
-      #   uses: mxschmitt/action-tmate@v3
+      - name: Debug with tmate on failure
+        if: ${{ failure() }}
+        uses: mxschmitt/action-tmate@v3
 
       - uses: codecov/codecov-action@v1
         with:
