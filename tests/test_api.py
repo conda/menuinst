@@ -107,26 +107,26 @@ def check_output_from_shortcut(
         delete_files += list(paths)
         if remove_after:
             remove(abs_json_path)
-        if PLATFORM == "osx" and action in ("open_file", "open_url"):
-            _lsregister(
-                "-kill",
-                "-r",
-                "-domain",
-                "local",
-                "-domain",
-                "user",
-                "-domain",
-                "system",
-            )
-            sleep(5)
-            if "menuinst" in _lsregister("-dump", log=False).stdout:
-                warnings.warn(
-                    "menuinst still registered with LaunchServices! "
-                    "This usually fixes itself after a couple minutes. "
-                    "Run '/System/Library/Frameworks/CoreServices.framework/Frameworks/"
-                    "LaunchServices.framework/Support/lsregister -dump | grep menuinst' "
-                    "to double check."
+            if PLATFORM == "osx" and action in ("open_file", "open_url"):
+                _lsregister(
+                    "-kill",
+                    "-r",
+                    "-domain",
+                    "local",
+                    "-domain",
+                    "user",
+                    "-domain",
+                    "system",
                 )
+                sleep(5)
+                if "menuinst" in _lsregister("-dump", log=False).stdout:
+                    warnings.warn(
+                        "menuinst still registered with LaunchServices! "
+                        "This usually fixes itself after a couple minutes. "
+                        "Run '/System/Library/Frameworks/CoreServices.framework/Frameworks/"
+                        "LaunchServices.framework/Support/lsregister -dump | grep menuinst' "
+                        "to double check."
+                    )
 
     if expected_output is not None:
         assert output.strip() == expected_output
