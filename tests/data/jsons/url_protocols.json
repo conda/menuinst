@@ -33,7 +33,7 @@
                     "command": [
                         "bash", "-c", "nc -l 40256 > __OUTPUT_FILE__"
                     ],
-                    "url_handler": "for i in 1 2 3 4 5; do echo \"$*\n\" | nc 127.0.0.1 40256 && break || sleep 1; done",
+                    "url_handler": "for i in 1 2 3 4 5; do echo \"$*\" | nc 127.0.0.1 40256 && break || sleep 1; done",
                     "CFBundleURLTypes": [
                         {
                             "CFBundleURLName": "my-protocol-handler.menuinst",

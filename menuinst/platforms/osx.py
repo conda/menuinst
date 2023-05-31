@@ -235,14 +235,7 @@ class MacOSMenuItem(MenuItem):
         if script_path is None:
             script_path = self.location / "Contents" / "Resources" / "handle-url"
         with open(script_path, "w") as f:
-            f.write(
-                dedent(
-                    f"""
-                    #!/bin/bash
-                    {url_handler_logic}
-                    """
-                ).lstrip()
-            )
+            f.write(f"#!/bin/bash\n{url_handler_logic}\n")
         os.chmod(script_path, 0o755)
         return script_path
 
