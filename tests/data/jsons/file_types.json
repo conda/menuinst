@@ -34,7 +34,7 @@
                 },
                 "osx": {
                     "command": [
-                        "bash", "-c", "nc -l 127.0.0.1 40257 > __OUTPUT_FILE__"
+                        "bash", "-c", "nc -l 40257 > __OUTPUT_FILE__"
                     ],
                     "url_handler": "for i in 1 2 3 4 5; do echo \"$*\n\" | nc 127.0.0.1 40257 && break || sleep 1; done",
                     "CFBundleDocumentTypes": [
