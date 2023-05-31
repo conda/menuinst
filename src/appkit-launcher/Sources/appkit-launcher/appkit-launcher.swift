@@ -30,7 +30,6 @@ Authors, 2023
 */
 
 import AppKit
-import Darwin
 import Foundation
 import os.log
 
@@ -66,7 +65,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     ) { [weak self] (notification: Notification) in
       if self?.mainApp?.isTerminated ?? false {
         os_log("Main app finished. Wrapper will terminate", log: self!.osLog, type: .debug)
-        fputs("Main app finished. Wrapper will terminate\n", stderr)
         NSApplication.shared.terminate(self)
       }
     }
@@ -79,7 +77,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     config.environment = env
 
     os_log("Opening app %@", log: self.osLog, type: .debug, self.wrappedApp()!.absoluteString)
-    fputs("Opening app \(self.wrappedApp()!.absoluteString)\n", stderr)
     NSWorkspace.shared.openApplication(
       at: self.wrappedApp()!,
       configuration: config,
@@ -88,7 +85,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
       }
     )
     os_log("Opened app %@", log: self.osLog, type: .debug, self.wrappedApp()!.absoluteString)
-    fputs("Opened app \(self.wrappedApp()!.absoluteString)\n", stderr)
   }
 
   func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool
@@ -106,7 +102,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
   func application(_ application: NSApplication, open urls: [URL]) {
     // convert the urls to strings and pass them to the main app via `handle-url`
     os_log("%s will open urls: %@", log: self.osLog, type: .debug, self.wrappedScript()!.absoluteString, urls)
-    fputs("\(self.wrappedScript()!.absoluteString) will open urls: \(urls)\n", stderr)
     self.mainApp?.activate(options: [.activateAllWindows, .activateIgnoringOtherApps])
     if let openURLScript = Bundle.main.url(forResource: "handle-url", withExtension: nil) {
       do {
@@ -118,11 +113,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         // process.waitUntilExit()  // TODO: might want/need to wait on this process
       } catch {
           os_log("Could not handle URLs: %@", log: self.osLog, type: .error, urls)
-          fputs("Could not handle URLs: \(urls)\n", stderr)
       }
     } else {
       os_log("Could not find `handle-url` script under Resources", log: self.osLog, type: .error)
-      fputs("Could not find `handle-url` script under Resources\n", stderr)
     }
   }
 }
