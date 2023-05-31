@@ -7,7 +7,6 @@ import shutil
 from hashlib import sha1
 from logging import getLogger
 from pathlib import Path
-from textwrap import dedent
 from typing import Dict, Optional, Tuple
 
 from .. import data as _menuinst_data
