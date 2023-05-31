@@ -104,30 +104,29 @@ def check_output_from_shortcut(
             process = logged_run([*cmd, arg], check=True)
             output = _poll_for_file_contents(output_file)
     finally:
-        # TMP
-        # delete_files += list(paths)
+        delete_files += list(paths)
         if remove_after:
             remove(abs_json_path)
-            if PLATFORM == "osx" and action in ("open_file", "open_url"):
-                _lsregister(
-                    "-kill",
-                    "-r",
-                    "-domain",
-                    "local",
-                    "-domain",
-                    "user",
-                    "-domain",
-                    "system",
+        if PLATFORM == "osx" and action in ("open_file", "open_url"):
+            _lsregister(
+                "-kill",
+                "-r",
+                "-domain",
+                "local",
+                "-domain",
+                "user",
+                "-domain",
+                "system",
+            )
+            sleep(5)
+            if "menuinst" in _lsregister("-dump", log=False).stdout:
+                warnings.warn(
+                    "menuinst still registered with LaunchServices! "
+                    "This usually fixes itself after a couple minutes. "
+                    "Run '/System/Library/Frameworks/CoreServices.framework/Frameworks/"
+                    "LaunchServices.framework/Support/lsregister -dump | grep menuinst' "
+                    "to double check."
                 )
-                sleep(5)
-                if "menuinst" in _lsregister("-dump", log=False).stdout:
-                    warnings.warn(
-                        "menuinst still registered with LaunchServices! "
-                        "This usually fixes itself after a couple minutes. "
-                        "Run '/System/Library/Frameworks/CoreServices.framework/Frameworks/"
-                        "LaunchServices.framework/Support/lsregister -dump | grep menuinst' "
-                        "to double check."
-                    )
 
     if expected_output is not None:
         assert output.strip() == expected_output
@@ -233,24 +232,24 @@ def _dump_ls_services():
     print(json.dumps(plist, indent=2))
 
 
+@pytest.mark.skipif("CI" not in os.environ, reason="Only run on CI. Export CI=1 to run locally.")
 def test_file_type_association(delete_files):
     test_file = "test.menuinst"
     *_, output = check_output_from_shortcut(
         delete_files,
         "file_types.json",
-        remove_after="CI" not in os.environ,
         action="open_file",
         file_to_open=test_file,
     )
     assert output.strip().endswith(test_file)
 
 
+@pytest.mark.skipif("CI" not in os.environ, reason="Only run on CI. Export CI=1 to run locally.")
 def test_url_protocol_association(delete_files):
     url = "menuinst://test/"
     check_output_from_shortcut(
         delete_files,
         "url_protocols.json",
-        remove_after="CI" not in os.environ,
         action="open_url",
         url_to_open=url,
         expected_output=url,
