@@ -104,7 +104,8 @@ def check_output_from_shortcut(
             process = logged_run([*cmd, arg], check=True)
             output = _poll_for_file_contents(output_file)
     finally:
-        delete_files += list(paths)
+        # TMP
+        # delete_files += list(paths)
         if remove_after:
             remove(abs_json_path)
             if PLATFORM == "osx" and action in ("open_file", "open_url"):
