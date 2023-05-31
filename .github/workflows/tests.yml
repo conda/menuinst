@@ -84,7 +84,7 @@ jobs:
           python -I -u -m pytest tests/ --cov-append --cov-report=xml --cov=menuinst
 
       - name: Debug with tmate on failure
-        if: failure()
+        if: matrix.os == 'macos'
         uses: mxschmitt/action-tmate@v3
 
       - uses: codecov/codecov-action@v1
