@@ -64,7 +64,6 @@ jobs:
             pydantic
             hypothesis
             hypothesis-jsonschema
-            typing_extensions<4.6.0a0
 
       - shell: bash -el {0}
         name: Conda info
@@ -81,7 +80,7 @@ jobs:
       - shell: bash -el {0}
         name: Run test suite
         run: |
-          python -I -u -m pytest tests/ --cov-append --cov-report=xml --cov=menuinst
+          python -I -m pytest tests/ --cov-append --cov-report=xml --cov=menuinst
 
       - uses: codecov/codecov-action@v1
         with:
