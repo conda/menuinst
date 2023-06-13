@@ -316,7 +316,7 @@ class MacOSMenuItem(MenuItem):
         wrapped application in the shortcut.
 
         See:
-        - https://developer.apple.com/library/archive/documentation/Carbon/Conceptual/LaunchServicesConcepts/LSCConcepts/LSCConcepts.html
+        - https://developer.apple.com/library/archive/documentation/Carbon/Conceptual/LaunchServicesConcepts/LSCConcepts/LSCConcepts.html  # noqa
         - The source code at /src/appkit-launcher in this repository
         """
         needed_keys = ("CFBundleURLTypes", "CFBundleDocumentTypes")
