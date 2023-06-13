@@ -252,9 +252,15 @@ class MacOS(BasePlatformSpecific):
     application version.
     """
     CFBundleURLTypes: Optional[List[CFBundleURLTypesModel]] = None
-    "URL types supported by this app. Requires setting `url_handler` too."
+    """
+    URL types supported by this app. Requires setting `event_handler` too.
+    Note this feature requires macOS 10.15+.
+    """
     CFBundleDocumentTypes: Optional[List[CFBundleDocumentTypesModel]] = None
-    "Document types supported by this app."
+    """
+    Document types supported by this app. Requires setting `event_handler` too.
+    Requires macOS 10.15+.
+    """
     LSApplicationCategoryType: Optional[constr(regex=r"^public\.app-category\.\S+$")] = None
     "The App Store uses this string to determine the appropriate categorization."
     LSBackgroundOnly: Optional[bool] = None
@@ -292,7 +298,7 @@ class MacOS(BasePlatformSpecific):
     It takes a mapping of source to destination paths. Destination paths must be
     relative. Placeholder ``{{ MENU_ITEM_LOCATION }}`` can be useful.
     """
-    url_handler: Optional[constr(min_length=1)] = None
+    event_handler: Optional[constr(min_length=1)] = None
     """
     Required shell script logic to handle opened URL payloads.
     """

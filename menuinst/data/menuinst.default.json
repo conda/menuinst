@@ -51,7 +51,7 @@
           "UTImportedTypeDeclarations": null,
           "entitlements": null,
           "link_in_bundle": null,
-          "url_handler": null
+          "event_handler": null
         },
         "win": {
           "desktop": true,

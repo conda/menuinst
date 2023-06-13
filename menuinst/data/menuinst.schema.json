@@ -498,8 +498,8 @@
             "pattern": "^(?!\\/)(?!\\.\\./).*"
           }
         },
-        "url_handler": {
-          "title": "Url Handler",
+        "event_handler": {
+          "title": "Event Handler",
           "minLength": 1,
           "type": "string"
         }

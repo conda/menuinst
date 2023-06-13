@@ -82,7 +82,7 @@ class MacOSMenuItem(MenuItem):
         self._write_appkit_launcher()
         self._write_launcher()
         self._write_script()
-        self._write_url_handler()
+        self._write_event_handler()
         self._maybe_register_with_launchservices()
         self._sign_with_entitlements()
         return (self.location,)
@@ -225,16 +225,16 @@ class MacOSMenuItem(MenuItem):
         os.chmod(script_path, 0o755)
         return script_path
 
-    def _write_url_handler(self, script_path: Optional[os.PathLike] = None) -> os.PathLike:
+    def _write_event_handler(self, script_path: Optional[os.PathLike] = None) -> os.PathLike:
         if not self._needs_appkit_launcher:
             return
-        url_handler_logic = self.render_key("url_handler")
-        if url_handler_logic is None:
+        event_handler_logic = self.render_key("event_handler")
+        if event_handler_logic is None:
             return
         if script_path is None:
-            script_path = self.location / "Contents" / "Resources" / "handle-url"
+            script_path = self.location / "Contents" / "Resources" / "handle-event"
         with open(script_path, "w") as f:
-            f.write(f"#!/bin/bash\n{url_handler_logic}\n")
+            f.write(f"#!/bin/bash\n{event_handler_logic}\n")
         os.chmod(script_path, 0o755)
         return script_path
 
@@ -308,6 +308,17 @@ class MacOSMenuItem(MenuItem):
 
     @property
     def _needs_appkit_launcher(self) -> bool:
+        """
+        In macOS, file type and URL protocol associations are handled by the
+        Apple Events system. When the user opens on a file or URL, the system
+        will send an Apple Event to the application that was registered as a handler.
+        We need a special launcher to handle these events and pass them to the
+        wrapped application in the shortcut.
+
+        See:
+        - https://developer.apple.com/library/archive/documentation/Carbon/Conceptual/LaunchServicesConcepts/LSCConcepts/LSCConcepts.html
+        - The source code at /src/appkit-launcher in this repository
+        """
         needed_keys = ("CFBundleURLTypes", "CFBundleDocumentTypes")
         return any([self.metadata.get(k) for k in needed_keys])
 

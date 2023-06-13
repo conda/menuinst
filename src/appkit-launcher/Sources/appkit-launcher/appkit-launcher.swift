@@ -12,7 +12,7 @@ Let's define two apps:
 
 The swift launcher will open the shortcut app (bundled as a Resource) and then
 will stay open "listening" for more macOS events. When it receives an event, it
-will send call the `handle-url` script placed under Resources. This script will
+will send call the `handle-event` script placed under Resources. This script will
 be given the event payload as a command line argument. It can then do whatever;
 some examples:
 
@@ -100,10 +100,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
   }
 
   func application(_ application: NSApplication, open urls: [URL]) {
-    // convert the urls to strings and pass them to the main app via `handle-url`
+    // convert the urls to strings and pass them to the main app via `handle-event`
     os_log("%s will open urls: %@", log: self.osLog, type: .debug, self.wrappedScript()!.absoluteString, urls)
     self.mainApp?.activate(options: [.activateAllWindows, .activateIgnoringOtherApps])
-    if let openURLScript = Bundle.main.url(forResource: "handle-url", withExtension: nil) {
+    if let openURLScript = Bundle.main.url(forResource: "handle-event", withExtension: nil) {
       do {
         let process = try Process.run(
           openURLScript,
@@ -115,7 +115,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
           os_log("Could not handle URLs: %@", log: self.osLog, type: .error, urls)
       }
     } else {
-      os_log("Could not find `handle-url` script under Resources", log: self.osLog, type: .error)
+      os_log("Could not find `handle-event` script under Resources", log: self.osLog, type: .error)
     }
   }
 }
