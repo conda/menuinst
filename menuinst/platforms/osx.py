@@ -328,6 +328,4 @@ def _lsregister(*args, check=True, **kwargs):
         "/System/Library/Frameworks/CoreServices.framework"
         "/Frameworks/LaunchServices.framework/Support/lsregister"
     )
-    if not os.path.exists(exe):
-        return
     return logged_run([exe, *args], check=check, **kwargs)
