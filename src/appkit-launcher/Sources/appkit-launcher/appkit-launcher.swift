@@ -69,21 +69,27 @@ class AppDelegate: NSObject, NSApplicationDelegate {
       }
     }
 
-    let env = ProcessInfo.processInfo.environment
-    // TODO: only available on macOS 10.15+, do we need to support older?
-    // https://developer.apple.com/documentation/appkit/nsworkspace/1532940-open
-    let config = NSWorkspace.OpenConfiguration()
-    config.createsNewApplicationInstance = env.keys.contains("MENUINST_ALLOW_MULTIPLE_INSTANCES")
-    config.environment = env
-
     os_log("Opening app %@", log: self.osLog, type: .debug, self.wrappedApp()!.absoluteString)
-    NSWorkspace.shared.openApplication(
-      at: self.wrappedApp()!,
-      configuration: config,
-      completionHandler: { [weak self] app, error in
-        self?.mainApp = app
-      }
-    )
+    let env = ProcessInfo.processInfo.environment
+    if #available(macOS 10.15, *) {
+      let config = NSWorkspace.OpenConfiguration()
+      config.environment = env
+      config.createsNewApplicationInstance = env.keys.contains("MENUINST_ALLOW_MULTIPLE_INSTANCES")
+
+      NSWorkspace.shared.openApplication(
+        at: self.wrappedApp()!,
+        configuration: config,
+        completionHandler: { [weak self] app, error in
+          self?.mainApp = app
+        }
+      )
+    } else {
+      // Fallback on earlier versions (>=10.6,<10.15)
+      try! NSWorkspace.shared.launchApplication(
+        at: self.wrappedApp()!,
+        configuration: [NSWorkspace.LaunchConfigurationKey.environment: env]
+      )
+    }
     os_log("Opened app %@", log: self.osLog, type: .debug, self.wrappedApp()!.absoluteString)
   }
 
