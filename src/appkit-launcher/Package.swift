@@ -6,7 +6,7 @@ import PackageDescription
 let package = Package(
   name: "appkit-launcher",
   platforms: [
-    .macOS(.v10_15)
+    .macOS("10.6")
   ],
   dependencies: [],
   targets: [

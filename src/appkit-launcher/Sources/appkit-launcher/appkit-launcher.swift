@@ -85,8 +85,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
       )
     } else {
       // Fallback on earlier versions (>=10.6,<10.15)
-      try! NSWorkspace.shared.launchApplication(
+      var options: NSWorkspace.LaunchOptions = []
+      if env.keys.contains("MENUINST_ALLOW_MULTIPLE_INSTANCES") {
+        options.insert(.newInstance)
+      }
+      let app = try! NSWorkspace.shared.launchApplication(
         at: self.wrappedApp()!,
+        options: options,
         configuration: [NSWorkspace.LaunchConfigurationKey.environment: env]
       )
     }
