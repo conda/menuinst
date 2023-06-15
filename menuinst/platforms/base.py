@@ -6,11 +6,19 @@ import sys
 from copy import deepcopy
 from logging import getLogger
 from pathlib import Path
-from subprocess import check_output, run
+from subprocess import check_output
 from tempfile import NamedTemporaryFile
-from typing import Any, Dict, Iterable, List, Literal, Mapping, Optional, Union
+from typing import Any, Dict, Iterable, List, Mapping, Optional
 
-from ..utils import DEFAULT_BASE_PREFIX, DEFAULT_PREFIX, data_path, deep_update, slugify
+from ..utils import (
+    DEFAULT_BASE_PREFIX,
+    DEFAULT_PREFIX,
+    _UserOrSystem,
+    data_path,
+    deep_update,
+    logged_run,
+    slugify,
+)
 
 log = getLogger(__name__)
 
@@ -21,7 +29,7 @@ class Menu:
         name: str,
         prefix: str = DEFAULT_PREFIX,
         base_prefix: str = DEFAULT_BASE_PREFIX,
-        mode: Union[Literal["user"], Literal["system"]] = "user",
+        mode: _UserOrSystem = "user",
     ):
         assert mode in ("user", "system"), f"mode={mode} must be `user` or `system`"
         self.mode = mode
@@ -185,7 +193,7 @@ class MenuItem:
             cmd = [tmp.name]
         else:
             cmd = ["bash", tmp.name]
-        run(cmd, check=True)
+        logged_run(cmd, check=True)
         os.unlink(tmp.name)
 
     def _paths(self) -> Iterable[os.PathLike]:

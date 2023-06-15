@@ -15,20 +15,14 @@ Mnemonic: SetValueEx for "excalars" (scalars, named values)
 """
 import winreg
 from logging import getLogger
-from subprocess import run
+
+from ...utils import logged_run
 
 log = getLogger(__name__)
 
 
 def _reg_exe(*args, check=True):
-    p = run(["reg.exe", *args, "/f"], capture_output=True, text=True)
-    log.debug("Ran reg.exe with args %s", args)
-    log.debug("Return: %s", p.returncode)
-    log.debug("Stdout:\n%s", p.stdout)
-    log.debug("Stderr:\n%s", p.stderr)
-    if check:
-        p.check_returncode()
-    return p
+    return logged_run(["reg.exe", *args, "/f"], check=True)
 
 
 def register_file_extension(extension, identifier, command, icon=None, mode="user"):

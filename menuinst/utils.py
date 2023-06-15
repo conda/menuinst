@@ -14,6 +14,7 @@ from unicodedata import normalize
 
 logger = getLogger(__name__)
 _TargetOrBase = Union[Literal["target"], Literal["base"]]
+_UserOrSystem = Union[Literal["user"], Literal["system"]]
 
 
 def _default_prefix(which: _TargetOrBase = "target"):
@@ -382,6 +383,17 @@ def _test(base_prefix: Optional[os.PathLike] = None, _mode: str = "user"):
     else:
         out = sys.stdout
     print(user_is_admin(), file=out)
+
+
+def logged_run(args, check=False, log=True, **kwargs) -> subprocess.CompletedProcess:
+    process = subprocess.run(args, capture_output=True, text=True, **kwargs)
+    if log:
+        logger.debug("%s returned %d", process.args, process.returncode)
+        logger.debug("stdout:\n%s", process.stdout)
+        logger.debug("stderr:\n%s", process.stderr)
+    if check:
+        process.check_returncode()
+    return process
 
 
 if __name__ == "__main__":
