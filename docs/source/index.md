@@ -11,4 +11,5 @@ getting-started
 defining-shortcuts
 conda
 reference
+development
 ```
