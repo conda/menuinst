@@ -14,6 +14,7 @@ from unicodedata import normalize
 
 logger = getLogger(__name__)
 _TargetOrBase = Union[Literal["target"], Literal["base"]]
+_UserOrSystem = Union[Literal["user"], Literal["system"]]
 
 
 def _default_prefix(which: _TargetOrBase = "target"):
@@ -169,7 +170,7 @@ class WinLex:
         return s
 
     @classmethod
-    def ensure_pad(cls, name: str, pad: str ="_"):
+    def ensure_pad(cls, name: str, pad: str = "_"):
         """
 
         Examples:
@@ -191,7 +192,7 @@ class UnixLex:
     @classmethod
     def quote_string(cls, s: str) -> str:
         quoted = shlex.quote(s)
-        if quoted.startswith("'") and not '"' in quoted:
+        if quoted.startswith("'") and '"' not in quoted:
             quoted = f'"{quoted[1:-1]}"'
         return quoted
 
@@ -234,7 +235,11 @@ def deep_update(mapping: Mapping, *updating_mappings: Iterable[Mapping]) -> Mapp
     updated_mapping = mapping.copy()
     for updating_mapping in updating_mappings:
         for k, v in updating_mapping.items():
-            if k in updated_mapping and isinstance(updated_mapping[k], dict) and isinstance(v, dict):
+            if (
+                k in updated_mapping
+                and isinstance(updated_mapping[k], dict)
+                and isinstance(v, dict)
+            ):
                 updated_mapping[k] = deep_update(updated_mapping[k], v)
             else:
                 updated_mapping[k] = v
@@ -282,12 +287,12 @@ def python_executable(base_prefix: Optional[os.PathLike] = None) -> Sequence[str
         # If the base env (installation root)
         # ships a usable Python, use that one
         if base_prefix_python.is_file():
-            return (str(base_prefix_python), )
+            return (str(base_prefix_python),)
         # the base env does not have python,
         # use the conda-standalone wrapper
         return (sys.executable, "python")
     # in non-frozen executables:
-    return (sys.executable, )
+    return (sys.executable,)
 
 
 def elevate_as_needed(func: Callable) -> Callable:
@@ -355,7 +360,7 @@ def elevate_as_needed(func: Callable) -> Callable:
                 except Exception:
                     logger.warn(
                         "Error occurred! Falling back to user mode. Exception:\n%s",
-                        traceback.format_exc()
+                        traceback.format_exc(),
                     )
                 else:
                     os.environ.pop("_MENUINST_RECURSING", None)
@@ -378,6 +383,17 @@ def _test(base_prefix: Optional[os.PathLike] = None, _mode: str = "user"):
     else:
         out = sys.stdout
     print(user_is_admin(), file=out)
+
+
+def logged_run(args, check=False, log=True, **kwargs) -> subprocess.CompletedProcess:
+    process = subprocess.run(args, capture_output=True, text=True, **kwargs)
+    if log:
+        logger.debug("%s returned %d", process.args, process.returncode)
+        logger.debug("stdout:\n%s", process.stdout)
+        logger.debug("stderr:\n%s", process.stderr)
+    if check:
+        process.check_returncode()
+    return process
 
 
 if __name__ == "__main__":

@@ -30,7 +30,8 @@
           "PrefersNonDefaultGPU": null,
           "StartupNotify": null,
           "StartupWMClass": null,
-          "TryExec": null
+          "TryExec": null,
+          "glob_patterns": null
         },
         "osx": {
           "CFBundleDisplayName": null,
@@ -46,8 +47,11 @@
           "LSMinimumSystemVersion": null,
           "LSMultipleInstancesProhibited": null,
           "LSRequiresNativeExecution": null,
+          "UTExportedTypeDeclarations": null,
+          "UTImportedTypeDeclarations": null,
           "entitlements": null,
-          "link_in_bundle": null
+          "link_in_bundle": null,
+          "event_handler": null
         },
         "win": {
           "desktop": true,

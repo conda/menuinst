@@ -139,6 +139,7 @@ cython_debug/
 
 # MacOS
 .DS_Store
+.build
 
 # setuptools-scm
 menuinst/_version.py

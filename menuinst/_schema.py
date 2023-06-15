@@ -2,6 +2,8 @@
 Generate JSON schemas from pydantic models
 """
 
+# flake8: noqa
+
 import json
 from logging import getLogger
 from pathlib import Path
@@ -151,6 +153,11 @@ class Linux(BasePlatformSpecific):
     determine if the program is actually installed and can be run. If the test
     fails, the shortcut might be ignored / hidden.
     """
+    glob_patterns: Optional[Dict[str, constr(regex=r".*\*.*")]] = None
+    """
+    Map of custom MIME types to their corresponding glob patterns (e.g. ``*.txt``).
+    Only needed if you define custom MIME types in ``MimeType``.
+    """
 
 
 class MacOS(BasePlatformSpecific):
@@ -168,7 +175,7 @@ class MacOS(BasePlatformSpecific):
 
     class CFBundleURLTypesModel(BaseModel):
         "Describes a URL scheme associated with the app."
-        CFBundleTypeRole: Literal["Editor", "Viewer", "Shell", "None"] = ...
+        CFBundleTypeRole: Optional[Literal["Editor", "Viewer", "Shell", "None"]] = None
         "This key specifies the app's role with respect to the URL."
         CFBundleURLSchemes: List[str] = ...
         "URL schemes / protocols handled by this type (e.g. 'mailto').",
@@ -183,19 +190,40 @@ class MacOS(BasePlatformSpecific):
         "Name of the icon image file (minus the .icns extension).",
         CFBundleTypeName: str = ...
         "Abstract name for this document type. Uniqueness recommended.",
-        CFBundleTypeRole: Literal["Editor", "Viewer", "Shell", "None"] = ...
+        CFBundleTypeRole: Optional[Literal["Editor", "Viewer", "Shell", "None"]] = None
         "This key specifies the app's role with respect to the type."
         LSItemContentTypes: List[str] = ...
         """
         List of UTI strings defining a supported file type; e.g. for
-        PNG files, use 'public.png'. Sync with 'NSExportableTypes' key with the
-        appropriate entries.
+        PNG files, use 'public.png'. See `UTI Reference <uti-reference>`_
+        for more info about the system-defined UTIs. Custom UTIs can be
+        defined via 'UTExportedTypeDeclarations'. UTIs defined by other
+        apps (not the system) need to be imported via 'UTImportedTypeDeclarations'.
+
+        See `Fun with UTIs <fun-with-utis>`_ for more info.
+
+        .. _uti-reference: https://developer.apple.com/library/archive/documentation/Miscellaneous/Reference/UTIRef/Articles/System-DeclaredUniformTypeIdentifiers.html
+        .. _fun-with-utis: https://www.cocoanetics.com/2012/09/fun-with-uti/
         """
         LSHandlerRank: Literal["Owner", "Default", "Alternate"] = ...
         """
         Determines how Launch Services ranks this app among the apps
         that declare themselves editors or viewers of files of this type.
         """
+
+    class UTTypeDeclarationModel(BaseModel):
+        UTTypeConformsTo: List[str] = ...
+        "The Uniform Type Identifier types that this type conforms to."
+        UTTypeDescription: Optional[str] = None
+        "A description for this type."
+        UTTypeIconFile: Optional[str] = None
+        "The bundle icon resource to associate with this type."
+        UTTypeIdentifier: str = ...
+        "The Uniform Type Identifier to assign to this type."
+        UTTypeReferenceURL: Optional[str] = None
+        "The webpage for a reference document that describes this type."
+        UTTypeTagSpecification: Dict[str, List[str]] = ...
+        "A dictionary defining one or more equivalent type identifiers."
 
     CFBundleDisplayName: Optional[str] = None
     """
@@ -224,9 +252,15 @@ class MacOS(BasePlatformSpecific):
     application version.
     """
     CFBundleURLTypes: Optional[List[CFBundleURLTypesModel]] = None
-    "URL types supported by this app."
+    """
+    URL types supported by this app. Requires setting `event_handler` too.
+    Note this feature requires macOS 10.15+.
+    """
     CFBundleDocumentTypes: Optional[List[CFBundleDocumentTypesModel]] = None
-    "Document types supported by this app."
+    """
+    Document types supported by this app. Requires setting `event_handler` too.
+    Requires macOS 10.15+.
+    """
     LSApplicationCategoryType: Optional[constr(regex=r"^public\.app-category\.\S+$")] = None
     "The App Store uses this string to determine the appropriate categorization."
     LSBackgroundOnly: Optional[bool] = None
@@ -245,6 +279,10 @@ class MacOS(BasePlatformSpecific):
     If true, prevent a universal binary from being run under
     Rosetta emulation on an Intel-based Mac.
     """
+    UTExportedTypeDeclarations: Optional[List[UTTypeDeclarationModel]] = None
+    "The uniform type identifiers owned and exported by the app."
+    UTImportedTypeDeclarations: Optional[List[UTTypeDeclarationModel]] = None
+    "The uniform type identifiers inherently supported, but not owned, by the app."
     entitlements: Optional[List[constr(regex=r"[a-z0-9\.\-]+")]] = None
     """
     List of permissions to request for the launched application.
@@ -252,11 +290,17 @@ class MacOS(BasePlatformSpecific):
 
     .. entitlements: https://developer.apple.com/documentation/bundleresources/entitlements
     """
-    link_in_bundle: Optional[Dict[constr(min_length=1), constr(regex=r"^(?!\/)(?!\.\./).*")]] = None
+    link_in_bundle: Optional[
+        Dict[constr(min_length=1), constr(regex=r"^(?!\/)(?!\.\./).*")]
+    ] = None
     """
     Paths that should be symlinked into the shortcut app bundle.
     It takes a mapping of source to destination paths. Destination paths must be
     relative. Placeholder ``{{ MENU_ITEM_LOCATION }}`` can be useful.
+    """
+    event_handler: Optional[constr(min_length=1)] = None
+    """
+    Required shell script logic to handle opened URL payloads.
     """
 
 
@@ -340,16 +384,14 @@ def dump_schema_to_json(write=True):
         print(schema)
         with open(here / "data" / "menuinst.schema.json", "w") as f:
             f.write(schema)
+            f.write("\n")
     return MenuInstSchema.schema()
 
 
 def dump_default_to_json(write=True):
     here = Path(__file__).parent
     default_item = MenuItem(
-        name="REQUIRED",
-        description="REQUIRED",
-        command=["REQUIRED"],
-        platforms={}
+        name="REQUIRED", description="REQUIRED", command=["REQUIRED"], platforms={}
     ).dict()
     default_item["platforms"] = {
         "win": Windows().dict(),
@@ -362,7 +404,7 @@ def dump_default_to_json(write=True):
         **{
             "$id": "https://schemas.conda.io/menuinst-1.schema.json",
             "$schema": "https://json-schema.org/draft-07/schema",
-        }
+        },
     ).dict()
     for platform_value in default["menu_items"][0]["platforms"].values():
         for key in list(platform_value.keys()):
@@ -372,6 +414,7 @@ def dump_default_to_json(write=True):
         pprint(default)
         with open(here / "data" / "menuinst.default.json", "w") as f:
             json.dump(default, f, indent=2)
+            f.write("\n")
     return default
 
 

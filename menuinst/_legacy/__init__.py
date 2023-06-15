@@ -68,15 +68,22 @@ def install(path, remove=False, prefix=None, recursing=False, root_prefix=None):
             retcode = 1
             try:
                 if not recursing:
-                    retcode = runAsAdmin([join(root_prefix, 'python'), '-c',
-                                          "import menuinst; menuinst.install(%r, %r, %r, %r, %r)" % (
-                                              path, bool(remove), prefix, True, root_prefix)])
+                    retcode = runAsAdmin(
+                        [
+                            join(root_prefix, 'python'),
+                            '-c',
+                            "import menuinst; menuinst.install(%r, %r, %r, %r, %r)"
+                            % (path, bool(remove), prefix, True, root_prefix),
+                        ]
+                    )
             except OSError:
                 pass
 
             if retcode != 0:
-                logging.warn("Insufficient permissions to write menu folder.  "
-                             "Falling back to user location")
+                logging.warn(
+                    "Insufficient permissions to write menu folder.  "
+                    "Falling back to user location"
+                )
                 _install(path, remove, prefix, mode='user', root_prefix=root_prefix)
     else:
         _install(path, remove, prefix, mode='user', root_prefix=root_prefix)

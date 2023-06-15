@@ -18,7 +18,7 @@
                     "command": [
                         "echo",
                         "%TEST_VAR%>",
-                        "__WIN_OUTPUT_FILE__"
+                        "__OUTPUT_FILE__"
                     ],
                     "description": "A space is needed after the > redirection, but if it's added in the same argument, it will trigger extra quoting that will break the syntax."
                 },

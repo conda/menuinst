@@ -11,6 +11,8 @@ import pytest
 
 from menuinst.platforms.base import platform_key
 
+logging.basicConfig(level=logging.DEBUG)
+
 os.environ["PYTEST_IN_USE"] = "1"
 DATA = Path(__file__).parent / "data"
 PLATFORM = platform_key()
@@ -38,7 +40,7 @@ def delete_files():
             else:
                 path.unlink()
         except IOError:
-            logging.warning("Could not delete %s", path)
+            logging.warning("Could not delete %s", path, exc_info=True)
 
 
 @pytest.fixture(scope="function")
@@ -59,14 +61,18 @@ def mock_locations(monkeypatch, tmp_path):
 
         def windows_locations(preferred_mode, check_other_mode, key):
             return tmp_path / key
+
         monkeypatch.setattr(knownfolders, "folder_path", windows_locations)
 
     def osx_base_location(self):
         return tmp_path
-    monkeypatch.setattr(MacOSMenuItem, "_base_location", osx_base_location)
+
+    if not os.environ.get("CI"):
+        monkeypatch.setattr(MacOSMenuItem, "_base_location", osx_base_location)
 
     # For Linux
-    monkeypatch.setattr(LinuxMenu, "_system_config_directory", tmp_path / "config")
-    monkeypatch.setattr(LinuxMenu, "_system_data_directory", tmp_path / "data")
-    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path / "config"))
-    monkeypatch.setenv("XDG_DATA_HOME", str(tmp_path / "data"))
+    if not os.environ.get("CI"):
+        monkeypatch.setattr(LinuxMenu, "_system_config_directory", tmp_path / "config")
+        monkeypatch.setattr(LinuxMenu, "_system_data_directory", tmp_path / "data")
+        monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path / "config"))
+        monkeypatch.setenv("XDG_DATA_HOME", str(tmp_path / "data"))

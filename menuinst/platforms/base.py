@@ -6,11 +6,19 @@ import sys
 from copy import deepcopy
 from logging import getLogger
 from pathlib import Path
-from subprocess import check_output, run
+from subprocess import check_output
 from tempfile import NamedTemporaryFile
-from typing import Any, Dict, Iterable, List, Literal, Mapping, Optional, Union
+from typing import Any, Dict, Iterable, List, Mapping, Optional
 
-from ..utils import DEFAULT_BASE_PREFIX, DEFAULT_PREFIX, data_path, deep_update, slugify
+from ..utils import (
+    DEFAULT_BASE_PREFIX,
+    DEFAULT_PREFIX,
+    _UserOrSystem,
+    data_path,
+    deep_update,
+    logged_run,
+    slugify,
+)
 
 log = getLogger(__name__)
 
@@ -21,7 +29,7 @@ class Menu:
         name: str,
         prefix: str = DEFAULT_PREFIX,
         base_prefix: str = DEFAULT_BASE_PREFIX,
-        mode: Union[Literal["user"], Literal["system"]] = "user",
+        mode: _UserOrSystem = "user",
     ):
         assert mode in ("user", "system"), f"mode={mode} must be `user` or `system`"
         self.mode = mode
@@ -147,11 +155,15 @@ class MenuItem:
             "MENU_ITEM_LOCATION": str(self.location),
         }
 
-    def render_key(self, key: str, slug: bool = False, extra: Optional[Dict[str, str]] = None) -> Any:
+    def render_key(
+        self, key: str, slug: bool = False, extra: Optional[Dict[str, str]] = None
+    ) -> Any:
         value = self.metadata.get(key)
         return self.render(value, slug=slug, extra=extra)
 
-    def render(self, value: Any, slug: bool = False, extra: Optional[Dict[str, str]] = None) -> Any:
+    def render(
+        self, value: Any, slug: bool = False, extra: Optional[Dict[str, str]] = None
+    ) -> Any:
         if value in (None, True, False):
             return value
         kwargs = {
@@ -161,10 +173,7 @@ class MenuItem:
         if isinstance(value, str):
             return self.menu.render(value, **kwargs)
         if hasattr(value, "items"):
-            return {
-                key: self.menu.render(value, **kwargs)
-                for key, value in value.items()
-            }
+            return {key: self.menu.render(value, **kwargs) for key, value in value.items()}
         return [self.menu.render(item, **kwargs) for item in value]
 
     def _precreate(self):
@@ -184,7 +193,7 @@ class MenuItem:
             cmd = [tmp.name]
         else:
             cmd = ["bash", tmp.name]
-        run(cmd, check=True)
+        logged_run(cmd, check=True)
         os.unlink(tmp.name)
 
     def _paths(self) -> Iterable[os.PathLike]:

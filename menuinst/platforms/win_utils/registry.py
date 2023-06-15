@@ -15,20 +15,14 @@ Mnemonic: SetValueEx for "excalars" (scalars, named values)
 """
 import winreg
 from logging import getLogger
-from subprocess import run
+
+from ...utils import logged_run
 
 log = getLogger(__name__)
 
 
 def _reg_exe(*args, check=True):
-    p = run(["reg.exe", *args, "/f"], capture_output=True, text=True)
-    log.debug("Ran reg.exe with args %s", args)
-    log.debug("Return: %s", p.returncode)
-    log.debug("Stdout:\n%s", p.stdout)
-    log.debug("Stderr:\n%s", p.stderr)
-    if check:
-        p.check_returncode()
-    return p
+    return logged_run(["reg.exe", *args, "/f"], check=True)
 
 
 def register_file_extension(extension, identifier, command, icon=None, mode="user"):
@@ -53,7 +47,7 @@ def register_file_extension(extension, identifier, command, icon=None, mode="use
         winreg.HKEY_LOCAL_MACHINE  # HKLM
         if mode == "system"
         else winreg.HKEY_CURRENT_USER,  # HKCU
-        r"Software\Classes"
+        r"Software\Classes",
     ) as key:
         # First we associate an extension with a handler
         winreg.SetValueEx(
@@ -61,7 +55,7 @@ def register_file_extension(extension, identifier, command, icon=None, mode="use
             identifier,
             0,
             winreg.REG_SZ,
-            "", # presence of the key is enough
+            "",  # presence of the key is enough
         )
         log.debug("Created registry entry for extension '%s'", extension)
 
@@ -86,15 +80,23 @@ def register_file_extension(extension, identifier, command, icon=None, mode="use
 
 
 def unregister_file_extension(extension, identifier, mode="user"):
-    root, root_str = (winreg.HKEY_LOCAL_MACHINE, "HKLM") if mode == "system" else (winreg.HKEY_CURRENT_USER, "HKCU")
+    root, root_str = (
+        (winreg.HKEY_LOCAL_MACHINE, "HKLM")
+        if mode == "system"
+        else (winreg.HKEY_CURRENT_USER, "HKCU")
+    )
     _reg_exe("delete", fr"{root_str}\Software\Classes\{identifier}")
 
     try:
-        with winreg.OpenKey(root, fr"Software\Classes\{extension}\OpenWithProgids", 0, winreg.KEY_ALL_ACCESS) as key:
+        with winreg.OpenKey(
+            root, fr"Software\Classes\{extension}\OpenWithProgids", 0, winreg.KEY_ALL_ACCESS
+        ) as key:
             try:
                 winreg.QueryValueEx(key, identifier)
             except FileNotFoundError:
-                log.debug("Handler '%s' is not associated with extension '%s'", identifier, extension)
+                log.debug(
+                    "Handler '%s' is not associated with extension '%s'", identifier, extension
+                )
             else:
                 winreg.DeleteValue(key, identifier)
     except Exception as exc:
@@ -129,7 +131,7 @@ def unregister_url_protocol(protocol, identifier=None, mode="user"):
         key_str = fr"HKCU\Software\Classes\{protocol}"
     try:
         with winreg.OpenKey(*key_tuple) as key:
-            value, _  = winreg.QueryValueEx(key, "_menuinst")
+            value, _ = winreg.QueryValueEx(key, "_menuinst")
             delete = identifier is None or value == identifier
     except OSError as exc:
         log.exception("Could not check key %s for deletion", protocol, exc_info=exc)

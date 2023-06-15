@@ -6,13 +6,13 @@ on:
       - main
       - cep-devel
     paths-ignore:
-      - 'docs/**'
+      - "docs/**"
   pull_request:
     branches:
       - main
       - cep-devel
     paths-ignore:
-      - 'docs/**'
+      - "docs/**"
 
 concurrency:
   # Concurrency group that uses the workflow name and PR number if available
@@ -27,19 +27,27 @@ jobs:
   run_test_suite:
     name: ${{ matrix.os }}-py${{ matrix.python-version }}
     runs-on: ${{ matrix.os }}-latest
-    timeout-minutes: 30
+    timeout-minutes: 60
     env:
       CONDA_NUMBER_CHANNEL_NOTICES: 0
+      PYTHONUNBUFFERED: 1
     strategy:
       fail-fast: false
       matrix:
         os: [windows, ubuntu, macos]
-        python-version: ["3.8", "3.9", "3.10",] # "3.11"]
+        python-version: ["3.8", "3.9", "3.10"] # "3.11"]
 
     steps:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
+
+      - name: Add Linux dependencies
+        if: matrix.os == 'ubuntu'
+        run: |
+          sudo apt-get install libfile-mimeinfo-perl desktop-file-utils
+          echo "XDG_UTILS_DEBUG_LEVEL=2" >> $GITHUB_ENV
+          echo "XDG_CURRENT_DESKTOP=GNOME" >> $GITHUB_ENV
 
       - name: Install dependencies
         uses: mamba-org/provision-with-micromamba@main

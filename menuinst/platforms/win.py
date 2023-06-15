@@ -5,11 +5,11 @@ import shutil
 import warnings
 from logging import getLogger
 from pathlib import Path
-from subprocess import CompletedProcess, run
+from subprocess import CompletedProcess
 from tempfile import NamedTemporaryFile
 from typing import Any, Dict, Optional, Tuple
 
-from ..utils import WinLex, unlink
+from ..utils import WinLex, logged_run, unlink
 from .base import Menu, MenuItem
 from .win_utils.knownfolders import folder_path as windows_folder_path
 from .win_utils.registry import (
@@ -91,7 +91,9 @@ class WindowsMenu(Menu):
             self.base_prefix / "bin" / "micromamba.exe",
         )
 
-    def render(self, value: Any, slug: bool = False, extra: Optional[Dict[str, str]] = None) -> Any:
+    def render(
+        self, value: Any, slug: bool = False, extra: Optional[Dict[str, str]] = None
+    ) -> Any:
         """
         We extend the render method here to replace forward slashes with backslashes.
         We ONLY do it if the string does not start with /, because it might
@@ -212,7 +214,7 @@ class WindowsMenuItem(MenuItem):
             str(system32 / "WindowsPowerShell" / "v1.0" / "powershell.exe"),
             f"\"start '{tmp.name}' -WindowStyle hidden\"",
         ]
-        run(cmd, check=True)
+        logged_run(cmd, check=True)
         os.unlink(tmp.name)
 
     def _command(self) -> str:
@@ -256,20 +258,35 @@ class WindowsMenuItem(MenuItem):
 
         return script_path
 
-    def _process_command(self) -> Tuple[str]:
+    def _process_command(self, with_arg1=False) -> Tuple[str]:
         if self.metadata["activate"]:
             script = self._write_script()
             if self.metadata["terminal"]:
-                command = ["cmd", "/K", str(script)]
+                command = ["cmd", "/K", f'"{script}"']
+                if with_arg1:
+                    command.append("%1")
             else:
                 system32 = Path(os.environ.get("SystemRoot", "C:\\Windows")) / "system32"
+                arg1 = "%1 " if with_arg1 else ""
+                # This is an UGLY hack to start the script in a hidden window
+                # We use CMD to call PowerShell to call the BAT file
+                # This flashes faster than Powershell -> BAT! Don't ask me why.
                 command = [
-                    str(system32 / "WindowsPowerShell" / "v1.0" / "powershell.exe"),
-                    f"\"start '{script}' -WindowStyle hidden\"",
+                    f'"{system32 / "cmd.exe"}"',
+                    "/C",
+                    "START",
+                    "/MIN",
+                    '""',
+                    f'"{system32 / "WindowsPowerShell" / "v1.0" / "powershell.exe"}"',
+                    "-WindowStyle",
+                    "hidden",
+                    f"\"start '{script}' {arg1}-WindowStyle hidden\"",
                 ]
-        else:
-            command = self.render_key("command")
+            return command
 
+        command = self.render_key("command")
+        if with_arg1 and all("%1" not in arg for arg in command):
+            command.append("%1")
         return WinLex.quote_args(command)
 
     def _ftype_identifier(self, extension):
@@ -316,13 +333,7 @@ class WindowsMenuItem(MenuItem):
             arg = extension
         elif remove:
             arg = f"{extension}="
-        p = run(
-            ["cmd", "/C", f"assoc {arg}"],
-            capture_output=True,
-            text=True,
-        )
-        p.check_returncode()
-        return p
+        return logged_run(["cmd", "/C", f"assoc {arg}"], check=True)
 
     @staticmethod
     def _cmd_ftype(identifier, command=None, query=False, remove=False) -> CompletedProcess:
@@ -335,13 +346,7 @@ class WindowsMenuItem(MenuItem):
             arg = identifier
         elif remove:
             arg = f"{identifier}="
-        p = run(
-            ["cmd", "/C", f"assoc {arg}"],
-            capture_output=True,
-            text=True,
-        )
-        p.check_returncode()
-        return p
+        return logged_run(["cmd", "/C", f"assoc {arg}"], check=True)
 
     def _register_file_extensions(self):
         """WIP"""
@@ -349,12 +354,12 @@ class WindowsMenuItem(MenuItem):
         if not extensions:
             return
 
-        command = " ".join(self._process_command())
+        command = " ".join(self._process_command(with_arg1=True))
         icon = self.render_key("icon")
         exts = list(dict.fromkeys([ext.lower() for ext in extensions]))
         for ext in exts:
             identifier = self._ftype_identifier(ext)
-            register_file_extension(ext, identifier, command, icon=icon, mode=self.parent.mode)
+            register_file_extension(ext, identifier, command, icon=icon, mode=self.menu.mode)
 
     def _unregister_file_extensions(self):
         extensions = self.metadata["file_extensions"]
@@ -364,18 +369,18 @@ class WindowsMenuItem(MenuItem):
         exts = list(dict.fromkeys([ext.lower() for ext in extensions]))
         for ext in exts:
             identifier = self._ftype_identifier(ext)
-            unregister_file_extension(ext, identifier, mode=self.parent.mode)
+            unregister_file_extension(ext, identifier, mode=self.menu.mode)
 
     def _register_url_protocols(self):
-        "See https://learn.microsoft.com/en-us/previous-versions/windows/internet-explorer/ie-developer/platform-apis/aa767914(v=vs.85)"
+        "See https://learn.microsoft.com/en-us/previous-versions/windows/internet-explorer/ie-developer/platform-apis/aa767914(v=vs.85)"  # noqa
         protocols = self.metadata["url_protocols"]
         if not protocols:
             return
-        command = " ".join(self._process_command())
+        command = " ".join(self._process_command(with_arg1=True))
         icon = self.render_key("icon")
         for protocol in protocols:
             identifier = self._ftype_identifier(protocol)
-            register_url_protocol(protocol, command, identifier, icon=icon, mode=self.parent.mode)
+            register_url_protocol(protocol, command, identifier, icon=icon, mode=self.menu.mode)
 
     def _unregister_url_protocols(self):
         protocols = self.metadata["url_protocols"]
@@ -383,4 +388,4 @@ class WindowsMenuItem(MenuItem):
             return
         for protocol in protocols:
             identifier = self._ftype_identifier(protocol)
-            unregister_url_protocol(protocol, identifier, mode=self.parent.mode)
+            unregister_url_protocol(protocol, identifier, mode=self.menu.mode)

@@ -45,3 +45,9 @@ line_length = 99
 
 [tool.pyright]
 pythonPlatform = "All"
+
+[tool.ruff]
+line-length = 99
+exclude = [
+  "_schema.py"
+]
