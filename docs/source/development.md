@@ -18,7 +18,7 @@ We recommend using Docker to run the tests on Linux. However, some tasks require
 
 ```
 $ docker run -it --rm --platform=linux/aarch64 \
-    -v ~/my/repos/menuinst:/opt/menuinst-src \                                      
+    -v ~/my/repos/menuinst:/opt/menuinst-src \
     ghcr.io/conda/conda-ci:main-linux-python3.10-conda-forge bash
 ```
 
