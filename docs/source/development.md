@@ -5,6 +5,9 @@
 `menuinst` is a multiplatform tool with heavy reliance on OS-specific behaviour, APIs and tools.
 Each platform requires its own setup.
 
+> Since some tests might leave traces behind, we recommend running the tests from a VM (if you can).
+For your own protection, some tests only run when the `CI` env var has been set to a non-empty value. If you do want to run these on your local machine, you can set the `CI` env var to `1` before running the tests; it better be on a VM though!
+
 ## Linux
 
 We recommend using Docker to run the tests on Linux. However, some tasks require a graphical environment.
@@ -63,8 +66,15 @@ This is recommended for Apple Silicon.
 
 ### Debug in CI
 
-TBA.
+In extreme cases, you can edit the Github Actions workflow to add a step for [`mxschmitt/action-tmate`](https://github.com/marketplace/actions/debugging-with-tmate) and then connect to the VM via SSH. Please be mindful of the resources and only add it for the platforms and Python versions you need. For example:
+
+```yaml
+- name: Setup tmate session
+  uses: mxschmitt/action-tmate@v3
+  timeout-minutes: 60
+  if: ${{ failure() && matrix.os == 'macos-latest' && matrix.python-version == '3.9' }}
+```
 
 ## Windows
 
-TBA.
+Some tests will add changes to your system configuration (Windows registry, new files added, etc). We try to clean up after ourselves, but it's not always possible. We recommend running the tests from a VM (if you can).
