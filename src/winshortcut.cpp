@@ -120,7 +120,7 @@ static PyObject *CreateShortcut(PyObject *self, PyObject *args)
     }
 
     if (app_id) {
-        hres = shellLink->QueryInterface(IID_PPV_ARGS(&pPropertyStore)); 
+        hres = shellLink->QueryInterface(IID_PPV_ARGS(&pPropertyStore));
         if (FAILED(hres)) {
             PyErr_Format(PyExc_OSError,
                            "QueryInterface(IPropertyStore) error 0x%x", hres);
