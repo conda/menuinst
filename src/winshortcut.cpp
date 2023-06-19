@@ -15,6 +15,8 @@
 #include <objbase.h>
 #include <shlobj.h>
 #include <objidl.h>
+#include <propvarutil.h>
+#include <propkey.h>
 #include "resource.h"
 
 #include <stdio.h>
@@ -120,7 +122,7 @@ static PyObject *CreateShortcut(PyObject *self, PyObject *args)
     }
 
     if (app_id) {
-        hres = shellLink->QueryInterface(IID_PPV_ARGS(&pPropertyStore));
+        hres = pShellLink->QueryInterface(IID_PPV_ARGS(&pPropertyStore));
         if (FAILED(hres)) {
             PyErr_Format(PyExc_OSError,
                            "QueryInterface(IPropertyStore) error 0x%x", hres);
