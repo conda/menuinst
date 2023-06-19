@@ -1,6 +1,6 @@
 ### Enhancements
 
-* Add support for URL protocol and file type association in all operating systems. Adds tests and examples. (#118 via #119)
+* Add support for URL protocol and file type association in all operating systems. Adds tests and examples. (#118 via #119, #135)
 
 ### Bug fixes
 
