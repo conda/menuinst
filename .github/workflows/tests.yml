@@ -81,7 +81,7 @@ jobs:
         name: Run test suite
         run: |
           python -I -m pytest tests/ --cov-append --cov-report=xml --cov=menuinst -vvv
-      
+
       - name: Setup tmate session
         if: ${{ failure() }}
         uses: mxschmitt/action-tmate@v3
