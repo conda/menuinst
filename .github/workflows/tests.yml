@@ -82,11 +82,6 @@ jobs:
         run: |
           python -I -m pytest tests/ --cov-append --cov-report=xml --cov=menuinst -vvv
 
-      - name: Setup tmate session
-        if: ${{ failure() }}
-        uses: mxschmitt/action-tmate@v3
-        timeout-minutes: 60
-
       - uses: codecov/codecov-action@v1
         with:
           name: ${{ matrix.os }}-py${{ matrix.python-version }}
