@@ -160,6 +160,7 @@ class WindowsMenuItem(MenuItem):
                 " ".join(arguments),
                 working_dir,
                 icon,
+                0,
                 self._app_user_model_id(),
             )
 
