@@ -152,7 +152,7 @@ class WindowsMenuItem(MenuItem):
             # winshortcut is a windows-only C extension! create_shortcut has this API
             # Notice args must be passed as positional, no keywords allowed!
             # winshortcut.create_shortcut(path, description, filename, arguments="",
-            #                             workdir=None, iconpath=None, iconindex=0)
+            #                             workdir=None, iconpath=None, iconindex=0, app_id="")
             create_shortcut(
                 target_path,
                 self._shortcut_filename(ext=""),
@@ -160,6 +160,7 @@ class WindowsMenuItem(MenuItem):
                 " ".join(arguments),
                 working_dir,
                 icon,
+                self._app_user_model_id(),
             )
 
         self._register_file_extensions()
@@ -389,3 +390,9 @@ class WindowsMenuItem(MenuItem):
         for protocol in protocols:
             identifier = self._ftype_identifier(protocol)
             unregister_url_protocol(protocol, identifier, mode=self.menu.mode)
+
+    def _app_user_model_id(self):
+        aumi = self.render_key("app_user_model_id")
+        if not aumi:
+            return f"Menuinst.{self.render_key('name', slug=True).replace('.', '')}"[:128]
+        return aumi

@@ -74,6 +74,16 @@ class Windows(BasePlatformSpecific):
     "URL protocols that will be associated with this program."
     file_extensions: Optional[List[constr(regex=r"\.\S*")]] = None
     "File extensions that will be associated with this program."
+    app_user_model_id: Optional[constr(regex=r"\S+\.\S+", max_length=128)] = None
+    """
+    Identifier used in Windows 7 and above to associate processes, files and windows with a
+    particular application. If your shortcut produces duplicated icons, you need to define this
+    field. If not set, it will default to ``Menuinst.<name>``.
+
+    See `AppUserModelID docs <aumi-docs>`__ for more information on the required string format.
+
+    .. aumi-docs: https://learn.microsoft.com/en-us/windows/win32/shell/appids#how-to-form-an-application-defined-appusermodelid
+    """
 
 
 class Linux(BasePlatformSpecific):
