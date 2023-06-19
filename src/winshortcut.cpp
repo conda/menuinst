@@ -128,7 +128,7 @@ static PyObject *CreateShortcut(PyObject *self, PyObject *args)
                            "QueryInterface(IPropertyStore) error 0x%x", hres);
             goto error;
         }
-        hr = InitPropVariantFromString(U8toWs(app_id), &pv);
+        hres = InitPropVariantFromString(U8toWs(app_id), &pv);
         if (FAILED(hres)) {
             PyErr_Format(PyExc_OSError,
                            "InitPropVariantFromString() error 0x%x", hres);
