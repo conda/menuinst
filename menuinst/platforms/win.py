@@ -264,7 +264,7 @@ class WindowsMenuItem(MenuItem):
         if self.metadata["activate"]:
             script = self._write_script()
             if self.metadata["terminal"]:
-                command = ["cmd", "/K", f'"{script}"']
+                command = ["cmd", "/D", "/K", f'"{script}"']
                 if with_arg1:
                     command.append("%1")
             else:
@@ -275,6 +275,7 @@ class WindowsMenuItem(MenuItem):
                 # This flashes faster than Powershell -> BAT! Don't ask me why.
                 command = [
                     f'"{system32 / "cmd.exe"}"',
+                    "/D",
                     "/C",
                     "START",
                     "/MIN",
@@ -335,7 +336,7 @@ class WindowsMenuItem(MenuItem):
             arg = extension
         elif remove:
             arg = f"{extension}="
-        return logged_run(["cmd", "/C", f"assoc {arg}"], check=True)
+        return logged_run(["cmd", "/D", "/C", f"assoc {arg}"], check=True)
 
     @staticmethod
     def _cmd_ftype(identifier, command=None, query=False, remove=False) -> CompletedProcess:
@@ -348,7 +349,7 @@ class WindowsMenuItem(MenuItem):
             arg = identifier
         elif remove:
             arg = f"{identifier}="
-        return logged_run(["cmd", "/C", f"assoc {arg}"], check=True)
+        return logged_run(["cmd", "/D", "/C", f"assoc {arg}"], check=True)
 
     def _register_file_extensions(self):
         """WIP"""
