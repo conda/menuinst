@@ -1,10 +1,8 @@
-import os
-
-from menuinst.utils import _test_elevation, elevate_as_needed
+from menuinst.utils import _test_elevation, elevate_as_needed, user_is_admin
 
 
 def test_elevation(tmp_path, capfd):
-    assert os.getuid() != 0  # We need to start as a non-root user
+    assert not user_is_admin()  # We need to start as a non-root user
 
     _test_elevation(str(tmp_path))
     assert capfd.readouterr().out.strip() == "user_is_admin(): False _mode: user"
