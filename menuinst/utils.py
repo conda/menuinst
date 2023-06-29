@@ -312,6 +312,7 @@ def elevate_as_needed(func: Callable) -> Callable:
     will run in a separate process, so we won't be able to capture the return
     value anyway.
     """
+
     @wraps(func)
     def wrapper_elevate(
         *args,

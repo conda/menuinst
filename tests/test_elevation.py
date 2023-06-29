@@ -1,6 +1,6 @@
 import os
 
-from menuinst.utils import elevate_as_needed, _test_elevation
+from menuinst.utils import _test_elevation, elevate_as_needed
 
 
 def test_elevation(tmp_path, capfd):
