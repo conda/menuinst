@@ -581,6 +581,12 @@
             "type": "string",
             "pattern": "\\.\\S*"
           }
+        },
+        "app_user_model_id": {
+          "title": "App User Model Id",
+          "maxLength": 128,
+          "pattern": "\\S+\\.\\S+",
+          "type": "string"
         }
       },
       "additionalProperties": false

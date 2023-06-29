@@ -15,6 +15,8 @@
 #include <objbase.h>
 #include <shlobj.h>
 #include <objidl.h>
+#include <propvarutil.h>
+#include <propkey.h>
 #include "resource.h"
 
 #include <stdio.h>
@@ -38,10 +40,13 @@ static PyObject *CreateShortcut(PyObject *self, PyObject *args)
     Py_UNICODE *iconpath = NULL;
     int iconindex = 0;
     Py_UNICODE *workdir = NULL;
+    Py_UNICODE *app_id = NULL;
 
     IShellLink *pShellLink = NULL;
     IPersistFile *pPersistFile = NULL;
+    IPropertyStore *pPropertyStore = NULL;
 
+    PROPVARIANT pv;
     HRESULT hres;
 
     hres = CoInitialize(NULL);
@@ -51,9 +56,9 @@ static PyObject *CreateShortcut(PyObject *self, PyObject *args)
         goto error;
     }
 
-    if (!PyArg_ParseTuple(args, "uuu|uuui",
+    if (!PyArg_ParseTuple(args, "uuu|uuuiu",
                           &path, &description, &filename,
-                          &arguments, &workdir, &iconpath, &iconindex)) {
+                          &arguments, &workdir, &iconpath, &iconindex, &app_id)) {
         return NULL;
     }
 
@@ -116,6 +121,25 @@ static PyObject *CreateShortcut(PyObject *self, PyObject *args)
         }
     }
 
+    if (app_id) {
+        hres = pShellLink->QueryInterface(IID_PPV_ARGS(&pPropertyStore));
+        if (FAILED(hres)) {
+            PyErr_Format(PyExc_OSError,
+                           "QueryInterface(IPropertyStore) error 0x%x", hres);
+            goto error;
+        }
+        hres = InitPropVariantFromString(app_id, &pv);
+        if (FAILED(hres)) {
+            PyErr_Format(PyExc_OSError,
+                           "InitPropVariantFromString() error 0x%x", hres);
+            goto error;
+        }
+        pPropertyStore->SetValue(PKEY_AppUserModel_ID, pv);
+        pPropertyStore->Commit();
+        PropVariantClear(&pv);
+        pPropertyStore->Release();
+    }
+
     hres = pPersistFile->Save(filename, TRUE);
     if (FAILED(hres)) {
         PyObject *fn = PyUnicode_FromWideChar(filename, wcslen(filename));
@@ -144,6 +168,9 @@ static PyObject *CreateShortcut(PyObject *self, PyObject *args)
     }
     if (pShellLink) {
         pShellLink->Release();
+    }
+    if (pPropertyStore) {
+        pPropertyStore->Release();
     }
 
     CoUninitialize();

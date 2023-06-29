@@ -80,7 +80,7 @@ jobs:
       - shell: bash -el {0}
         name: Run test suite
         run: |
-          python -I -m pytest tests/ --cov-append --cov-report=xml --cov=menuinst
+          python -I -m pytest tests/ --cov-append --cov-report=xml --cov=menuinst -vvv
 
       - uses: codecov/codecov-action@v1
         with:
