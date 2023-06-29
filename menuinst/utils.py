@@ -349,6 +349,7 @@ def elevate_as_needed(func: Callable) -> Callable:
                         f"{func.__name__}("
                         f"*{args!r},"
                         f"base_prefix={base_prefix!r},"
+                        f"_mode='system',"
                         f"**{kwargs!r}"
                         ")",
                     ]
