@@ -375,12 +375,18 @@ def elevate_as_needed(func: Callable) -> Callable:
     return wrapper_elevate
 
 
-def _test(base_prefix: Optional[os.PathLike] = None, _mode: str = "user"):
+def _test_elevation(base_prefix: Optional[os.PathLike] = None, _mode: str = "user"):
     if os.name == "nt":
-        out = open("output.txt", "a")
+        if base_prefix:
+            output = os.path.join(base_prefix, "_test_output.txt")
+        else:
+            output = "_test_output.txt"
+        out = open(output, "a")
     else:
         out = sys.stdout
-    print(user_is_admin(), file=out)
+    print("user_is_admin():", user_is_admin(), "_mode:", _mode, file=out)
+    if os.name == "nt":
+        out.close()
 
 
 def logged_run(args, check=False, log=True, **kwargs) -> subprocess.CompletedProcess:
@@ -392,9 +398,3 @@ def logged_run(args, check=False, log=True, **kwargs) -> subprocess.CompletedPro
     if check:
         process.check_returncode()
     return process
-
-
-if __name__ == "__main__":
-    _test()
-    _test = elevate_as_needed(_test)
-    _test()
