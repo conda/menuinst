@@ -250,7 +250,7 @@ def user_is_admin() -> bool:
     if os.name == 'nt':
         from .platforms.win_utils.win_elevate import isUserAdmin
 
-        return isUserAdmin()
+        return bool(isUserAdmin())
     elif os.name == 'posix':
         # Check for root on Linux, macOS and other posix systems
         return os.getuid() == 0
