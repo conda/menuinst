@@ -10,7 +10,7 @@ def test_elevation(tmp_path, capfd):
         if not on_ci:
             # Windows runners on GHA always run as admin
             assert not is_admin
-        
+
         _test_elevation(str(tmp_path))
         output = (tmp_path / "_test_output.txt").read_text().strip()
         if on_ci:
