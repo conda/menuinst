@@ -250,7 +250,7 @@ def user_is_admin() -> bool:
     if os.name == 'nt':
         from .platforms.win_utils.win_elevate import isUserAdmin
 
-        return isUserAdmin()
+        return bool(isUserAdmin())
     elif os.name == 'posix':
         # Check for root on Linux, macOS and other posix systems
         return os.getuid() == 0
@@ -312,8 +312,6 @@ def elevate_as_needed(func: Callable) -> Callable:
     will run in a separate process, so we won't be able to capture the return
     value anyway.
     """
-    if os.name != "nt":
-        return func
 
     @wraps(func)
     def wrapper_elevate(
@@ -352,6 +350,7 @@ def elevate_as_needed(func: Callable) -> Callable:
                         f"{func.__name__}("
                         f"*{args!r},"
                         f"base_prefix={base_prefix!r},"
+                        f"_mode='system',"
                         f"**{kwargs!r}"
                         ")",
                     ]
@@ -377,12 +376,18 @@ def elevate_as_needed(func: Callable) -> Callable:
     return wrapper_elevate
 
 
-def _test(base_prefix: Optional[os.PathLike] = None, _mode: str = "user"):
+def _test_elevation(base_prefix: Optional[os.PathLike] = None, _mode: str = "user"):
     if os.name == "nt":
-        out = open("output.txt", "a")
+        if base_prefix:
+            output = os.path.join(base_prefix, "_test_output.txt")
+        else:
+            output = "_test_output.txt"
+        out = open(output, "a")
     else:
         out = sys.stdout
-    print(user_is_admin(), file=out)
+    print("user_is_admin():", user_is_admin(), "_mode:", _mode, file=out)
+    if os.name == "nt":
+        out.close()
 
 
 def logged_run(args, check=False, log=True, **kwargs) -> subprocess.CompletedProcess:
@@ -394,9 +399,3 @@ def logged_run(args, check=False, log=True, **kwargs) -> subprocess.CompletedPro
     if check:
         process.check_returncode()
     return process
-
-
-if __name__ == "__main__":
-    _test()
-    _test = elevate_as_needed(_test)
-    _test()

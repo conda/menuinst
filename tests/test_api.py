@@ -7,7 +7,7 @@ import subprocess
 import sys
 import warnings
 from pathlib import Path
-from tempfile import NamedTemporaryFile
+from tempfile import NamedTemporaryFile, mkdtemp
 from time import sleep, time
 from typing import Iterable, Tuple
 
@@ -56,7 +56,10 @@ def check_output_from_shortcut(
         abs_json_path = tmp.name
         delete_files.append(abs_json_path)
 
-    paths = install(abs_json_path)
+    tmp_base_path = mkdtemp()
+    delete_files.append(tmp_base_path)
+    (Path(tmp_base_path) / ".nonadmin").touch()
+    paths = install(abs_json_path, base_prefix=tmp_base_path)
     try:
         if action == "run_shortcut":
             if PLATFORM == "win":
@@ -104,9 +107,10 @@ def check_output_from_shortcut(
             process = logged_run([*cmd, arg], check=True)
             output = _poll_for_file_contents(output_file)
     finally:
-        delete_files += list(paths)
+        if paths:
+            delete_files += list(paths)
         if remove_after:
-            remove(abs_json_path)
+            remove(abs_json_path, base_prefix=tmp_base_path)
         if PLATFORM == "osx" and action in ("open_file", "open_url"):
             _lsregister(
                 "-kill",

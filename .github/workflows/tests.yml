@@ -61,7 +61,7 @@ jobs:
             pip
             pytest
             pytest-cov
-            pydantic
+            pydantic <2.0a0
             hypothesis
             hypothesis-jsonschema
 
