@@ -4,7 +4,7 @@
 import json
 import os
 import sys
-from logging import getLogger as _getLogger
+from logging import getLogger as _getLogger, basicConfig as _basicConfig
 from os import PathLike
 
 try:
@@ -19,6 +19,10 @@ from .api import remove as _api_remove
 from .utils import DEFAULT_BASE_PREFIX, DEFAULT_PREFIX
 
 _log = _getLogger(__name__)
+
+
+if os.environ.get("MENUINST_DEBUG"):
+    _basicConfig(level="DEBUG")
 
 
 def install(path: PathLike, remove: bool = False, prefix: PathLike = DEFAULT_PREFIX, **kwargs):
