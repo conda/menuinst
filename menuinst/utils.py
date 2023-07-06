@@ -341,11 +341,17 @@ def elevate_as_needed(func: Callable) -> Callable:
                         )
                     else:
                         import_func = f"from {func.__module__} import {func.__name__};"
+                    env_vars = ";".join([
+                        f"os.environ.setdefault('{k}', '{v}')"
+                        for (k, v) in os.environ.items()
+                        if k.startswith(("CONDA_", "CONSTRUCTOR_", "MENUINST_"))
+                    ])
                     cmd = [
                         *python_executable(),
                         "-c",
                         f"import os;"
                         f"os.environ.setdefault('_MENUINST_RECURSING', '1');"
+                        f"{env_vars};"
                         f"{import_func}"
                         f"{func.__name__}("
                         f"*{args!r},"
@@ -376,7 +382,7 @@ def elevate_as_needed(func: Callable) -> Callable:
     return wrapper_elevate
 
 
-def _test_elevation(base_prefix: Optional[os.PathLike] = None, _mode: str = "user"):
+def _test_elevation(base_prefix: Optional[os.PathLike] = None, _mode: _UserOrSystem = "user"):
     if os.name == "nt":
         if base_prefix:
             output = os.path.join(base_prefix, "_test_output.txt")
