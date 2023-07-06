@@ -98,9 +98,9 @@ def slugify(text: str):
     Remove characters that aren't alphanumerics, or hyphens.
     Convert to lowercase. Also strip leading and trailing whitespace.
     """
-    text = normalize('NFKD', text).encode('ascii', 'ignore').decode('ascii')
-    text = re.sub(r'[^\w\s-]', '', text).strip().lower()
-    return re.sub(r'[_\-\s]+', '-', text)
+    text = normalize("NFKD", text).encode("ascii", "ignore").decode("ascii")
+    text = re.sub(r"[^\w\s-]", "", text).strip().lower()
+    return re.sub(r"[_\-\s]+", "-", text)
 
 
 def indent_xml_tree(elem, level=0):
@@ -247,11 +247,11 @@ def deep_update(mapping: Mapping, *updating_mappings: Iterable[Mapping]) -> Mapp
 
 
 def user_is_admin() -> bool:
-    if os.name == 'nt':
+    if os.name == "nt":
         from .platforms.win_utils.win_elevate import isUserAdmin
 
         return bool(isUserAdmin())
-    elif os.name == 'posix':
+    elif os.name == "posix":
         # Check for root on Linux, macOS and other posix systems
         return os.getuid() == 0
     else:
@@ -262,11 +262,11 @@ def run_as_admin(argv: Sequence[str]) -> int:
     """
     Rerun this command in a new process with admin permissions.
     """
-    if os.name == 'nt':
+    if os.name == "nt":
         from .platforms.win_utils.win_elevate import runAsAdmin
 
         return runAsAdmin(argv)
-    elif os.name == 'posix':
+    elif os.name == "posix":
         return subprocess.call(["sudo", *argv])
     else:
         raise RuntimeError(f"Unsupported operating system: {os.name}")
@@ -279,7 +279,7 @@ def python_executable(base_prefix: Optional[os.PathLike] = None) -> Sequence[str
     # in these cases, we prefer using the base env python to
     # avoid a 2nd decompression + hacky console, so we try that
     # first; otherwise, we use 'conda-standalone.exe python'
-    if getattr(sys, 'frozen', False):
+    if getattr(sys, "frozen", False):
         if os.name == "nt":
             base_prefix_python = base_prefix / "python.exe"
         else:
@@ -341,11 +341,19 @@ def elevate_as_needed(func: Callable) -> Callable:
                         )
                     else:
                         import_func = f"from {func.__module__} import {func.__name__};"
+                    env_vars = ";".join(
+                        [
+                            f"os.environ.setdefault('{k}', '{v}')"
+                            for (k, v) in os.environ.items()
+                            if k.startswith(("CONDA_", "CONSTRUCTOR_", "MENUINST_"))
+                        ]
+                    )
                     cmd = [
                         *python_executable(),
                         "-c",
                         f"import os;"
                         f"os.environ.setdefault('_MENUINST_RECURSING', '1');"
+                        f"{env_vars};"
                         f"{import_func}"
                         f"{func.__name__}("
                         f"*{args!r},"
@@ -376,7 +384,7 @@ def elevate_as_needed(func: Callable) -> Callable:
     return wrapper_elevate
 
 
-def _test_elevation(base_prefix: Optional[os.PathLike] = None, _mode: str = "user"):
+def _test_elevation(base_prefix: Optional[os.PathLike] = None, _mode: _UserOrSystem = "user"):
     if os.name == "nt":
         if base_prefix:
             output = os.path.join(base_prefix, "_test_output.txt")
@@ -385,7 +393,15 @@ def _test_elevation(base_prefix: Optional[os.PathLike] = None, _mode: str = "use
         out = open(output, "a")
     else:
         out = sys.stdout
-    print("user_is_admin():", user_is_admin(), "_mode:", _mode, file=out)
+    print(
+        "user_is_admin():",
+        user_is_admin(),
+        "env_var:",
+        os.environ.get("MENUINST_TEST", "N/A"),
+        "_mode:",
+        _mode,
+        file=out,
+    )
     if os.name == "nt":
         out.close()
 
