@@ -4,7 +4,8 @@
 import json
 import os
 import sys
-from logging import getLogger as _getLogger, basicConfig as _basicConfig
+from logging import basicConfig as _basicConfig
+from logging import getLogger as _getLogger
 from os import PathLike
 
 try:
