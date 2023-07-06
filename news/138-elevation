@@ -1,6 +1,6 @@
 ### Enhancements
 
-* Enable automatic elevation on Unix platforms too, and add tests. (#137 via #138)
+* Enable automatic elevation on Unix platforms too, and add tests. (#137 via #138, #139)
 
 ### Bug fixes
 
