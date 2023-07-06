@@ -341,11 +341,13 @@ def elevate_as_needed(func: Callable) -> Callable:
                         )
                     else:
                         import_func = f"from {func.__module__} import {func.__name__};"
-                    env_vars = ";".join([
-                        f"os.environ.setdefault('{k}', '{v}')"
-                        for (k, v) in os.environ.items()
-                        if k.startswith(("CONDA_", "CONSTRUCTOR_", "MENUINST_"))
-                    ])
+                    env_vars = ";".join(
+                        [
+                            f"os.environ.setdefault('{k}', '{v}')"
+                            for (k, v) in os.environ.items()
+                            if k.startswith(("CONDA_", "CONSTRUCTOR_", "MENUINST_"))
+                        ]
+                    )
                     cmd = [
                         *python_executable(),
                         "-c",
