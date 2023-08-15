@@ -1,77 +1,59 @@
-# Copyright (c) 2008-2011 by Enthought, Inc.
-# Copyright (c) 2013-2015 Continuum Analytics, Inc.
-# All rights reserved.
+"""
+"""
 
-from __future__ import absolute_import
-import logging
-import sys
 import json
-from os.path import abspath, basename, exists, join
+import os
+import sys
+from logging import basicConfig as _basicConfig
+from logging import getLogger as _getLogger
+from os import PathLike
 
-from ._version import get_versions
-__version__ = get_versions()['version']
-del get_versions
-
-
-if sys.platform.startswith('linux'):
-    from .linux import Menu, ShortCut
-
-elif sys.platform == 'darwin':
-    from .darwin import Menu, ShortCut
-
-elif sys.platform == 'win32':
-    from .win32 import Menu, ShortCut
-    from .win_elevate import isUserAdmin, runAsAdmin
+try:
+    from ._version import __version__
+except ImportError:
+    __version__ = "dev"
 
 
-def _install(path, remove=False, prefix=sys.prefix, mode=None, root_prefix=sys.prefix):
-    if abspath(prefix) == abspath(root_prefix):
-        env_name = None
-    else:
-        env_name = basename(prefix)
+from ._legacy import install as _legacy_install
+from .api import install as _api_install
+from .api import remove as _api_remove
+from .utils import DEFAULT_BASE_PREFIX, DEFAULT_PREFIX
 
-    data = json.load(open(path))
-    try:
-        menu_name = data['menu_name']
-    except KeyError:
-        menu_name = 'Python-%d.%d' % sys.version_info[:2]
-
-    shortcuts = data['menu_items']
-    m = Menu(menu_name, prefix=prefix, env_name=env_name, mode=mode, root_prefix=root_prefix)
-    if remove:
-        for sc in shortcuts:
-            ShortCut(m, sc).remove()
-        m.remove()
-    else:
-        m.create()
-        for sc in shortcuts:
-            ShortCut(m, sc).create()
+_log = _getLogger(__name__)
 
 
-def install(path, remove=False, prefix=sys.prefix, recursing=False, root_prefix=sys.prefix):
+if os.environ.get("MENUINST_DEBUG"):
+    _basicConfig(level="DEBUG")
+
+
+def install(path: PathLike, remove: bool = False, prefix: PathLike = DEFAULT_PREFIX, **kwargs):
     """
-    Install Menu and shortcuts
-
-    # Specifying `root_prefix` is used with conda-standalone, because we can't use
-    # `sys.prefix`, therefore we need to specify it  
+    This function is only here as a legacy adapter for menuinst v1.x.
+    Please use `menuinst.api` functions instead.
     """
-    # this root_prefix is intentional.  We want to reflect the state of the root installation.
-    if sys.platform == 'win32' and not exists(join(root_prefix, '.nonadmin')):
-        if isUserAdmin():
-            _install(path, remove, prefix, mode='system', root_prefix=root_prefix)
+    if sys.platform == "win32":
+        path = path.replace("/", "\\")
+    json_path = os.path.join(prefix, path)
+    with open(json_path) as f:
+        metadata = json.load(f)
+    if "$id" not in metadata:  # old style JSON
+        if sys.platform == "win32":
+            kwargs.setdefault("root_prefix", kwargs.pop("base_prefix", DEFAULT_BASE_PREFIX))
+            if kwargs["root_prefix"] is None:
+                kwargs["root_prefix"] = DEFAULT_BASE_PREFIX
+            _legacy_install(json_path, remove=remove, prefix=prefix, **kwargs)
         else:
-            retcode = 1
-            try:
-                if not recursing:
-                    retcode = runAsAdmin([join(root_prefix, 'python'), '-c',
-                                          "import menuinst; menuinst.install(%r, %r, %r, %r, %r)" % (
-                                              path, bool(remove), prefix, True, root_prefix)])
-            except WindowsError:
-                pass
-
-            if retcode != 0:
-                logging.warn("Insufficient permissions to write menu folder.  "
-                             "Falling back to user location")
-                _install(path, remove, prefix, mode='user', root_prefix=root_prefix)
+            _log.warn(
+                "menuinst._legacy is only supported on Windows. "
+                "Switch to the new-style menu definitions "
+                "for cross-platform compatibility."
+            )
     else:
-        _install(path, remove, prefix, mode='user', root_prefix=root_prefix)
+        # patch kwargs to reroute root_prefix to base_prefix
+        kwargs.setdefault("base_prefix", kwargs.pop("root_prefix", DEFAULT_BASE_PREFIX))
+        if kwargs["base_prefix"] is None:
+            kwargs["base_prefix"] = DEFAULT_BASE_PREFIX
+        if remove:
+            _api_remove(metadata, target_prefix=prefix, **kwargs)
+        else:
+            _api_install(metadata, target_prefix=prefix, **kwargs)

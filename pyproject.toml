@@ -1,0 +1,53 @@
+[build-system]
+requires = ["setuptools>=45", "setuptools_scm[toml]>=6.2"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "menuinst"
+description = "cross platform install of menu items"
+readme = "README.md"
+license = {file = "LICENSE.txt"}
+requires-python = ">=3.8"
+dynamic = [
+  "version"
+]
+
+[project.urls]
+repository = "https://github.com/conda/menuinst"
+
+[tool.setuptools_scm]
+write_to = "menuinst/_version.py"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["menuinst*"]
+namespaces = true
+
+[tool.black]
+line-length = 99
+target-version = ['py38', 'py39', 'py310', 'py311']
+include = '\.pyi?$'
+exclude = '''
+^/(
+    (
+        menuinst/_legacy
+      | tests/_legacy
+    )/
+)
+'''
+
+[tool.isort]
+profile = "black"
+line_length = 99
+
+[tool.pyright]
+pythonPlatform = "All"
+
+[tool.ruff]
+line-length = 99
+exclude = [
+  "_schema.py"
+]

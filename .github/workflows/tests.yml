@@ -1,50 +1,84 @@
 name: Tests
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - "docs/**"
+  pull_request:
+    branches:
+      - main
+    paths-ignore:
+      - "docs/**"
+
+concurrency:
+  # Concurrency group that uses the workflow name and PR number if available
+  # or commit SHA as a fallback. If a new build is triggered under that
+  # concurrency group while a previous build is running it will be canceled.
+  # Repeated pushes to a PR will cancel all previous builds, while multiple
+  # merges to main will not cancel.
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: true
 
 jobs:
   run_test_suite:
     name: ${{ matrix.os }}-py${{ matrix.python-version }}
     runs-on: ${{ matrix.os }}-latest
-    timeout-minutes: 30
+    timeout-minutes: 60
     env:
-      test-dependencies: pytest pytest-cov conda
+      CONDA_NUMBER_CHANNEL_NOTICES: 0
+      PYTHONUNBUFFERED: 1
     strategy:
       fail-fast: false
       matrix:
-        os: [windows]
-        python-version: [3.7, 3.8, 3.9]
+        os: [windows, ubuntu, macos]
+        python-version: ["3.8", "3.9", "3.10"] # "3.11"]
 
     steps:
-      - uses: actions/checkout@v2
-
-      - uses: conda-incubator/setup-miniconda@v2
+      - uses: actions/checkout@v3
         with:
-          auto-update-conda: true
-          python-version: ${{ matrix.python-version }}
+          fetch-depth: 0
 
+      - name: Add Linux dependencies
+        if: matrix.os == 'ubuntu'
+        run: |
+          sudo apt-get install libfile-mimeinfo-perl desktop-file-utils
+          echo "XDG_UTILS_DEBUG_LEVEL=2" >> $GITHUB_ENV
+          echo "XDG_CURRENT_DESKTOP=GNOME" >> $GITHUB_ENV
 
-      - shell: bash -l {0}
+      - name: Install dependencies
+        uses: mamba-org/provision-with-micromamba@main
+        with:
+          environment-file: false
+          environment-name: test
+          channels: conda-canary/label/conda-conda-pr-11882,conda-forge
+          extra-specs: |
+            python=${{ matrix.python-version }}
+            conda-canary/label/conda-conda-pr-11882::conda
+            pip
+            pytest
+            pytest-cov
+            pydantic <2.0a0
+            hypothesis
+            hypothesis-jsonschema
+
+      - shell: bash -el {0}
         name: Conda info
         run: |
           conda info
           conda list
 
-      - shell: bash -l {0}
-        name: Install dependencies
-        run: |
-          conda install ${{ env.dependencies }} ${{ env.test-dependencies }}
-          conda list
-
-      - shell: bash -l {0}
+      - shell: bash -el {0}
         name: Install menuinst
         run: |
-          pip install -e .
+          python -m pip install -vv .
+          conda list
 
-      - shell: bash -l {0}
+      - shell: bash -el {0}
         name: Run test suite
         run: |
-          pytest tests --cov-append --cov-report=xml --cov=menuinst
+          python -I -m pytest tests/ --cov-append --cov-report=xml --cov=menuinst -vvv
 
       - uses: codecov/codecov-action@v1
         with:
