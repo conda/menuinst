@@ -1,0 +1,65 @@
+package:
+  name: menuinst
+  version: {{ GIT_DESCRIBE_TAG }}+{{ GIT_BUILD_STR }}
+
+source:
+  git_url: ../
+
+build:
+  number: 0
+  script_env:
+    - SETUPTOOLS_SCM_PRETEND_VERSION="{{ GIT_DESCRIBE_TAG }}+{{ GIT_BUILD_STR }}"
+  script:
+    # Apparently these files make the post-build linkage analysis crash
+    # and we should not need them on Windows
+    - del /q "{{ SRC_DIR }}\\menuinst\\data\\osx_launcher_*"  # [win]
+    - {{ PYTHON }} -m pip install . -vv
+    - copy "%SRC_DIR%\\cwp.py" "%PREFIX%\\"  # [win]
+
+  # entry_points:
+  #   - menuinst = menuinst.main:main
+
+requirements:
+  build:
+    - python                                 # [build_platform != target_platform]
+    - cross-python_{{ target_platform }}     # [build_platform != target_platform]
+    - {{ compiler('c') }}  # [win]
+    - {{ compiler('cxx') }}  # [win]
+  host:
+    - python
+    - pip
+  run:
+    - python
+
+test:
+  requires:
+    - conda
+    - pytest
+    - pytest-cov
+    - pydantic <2.0a0
+    - hypothesis
+    - hypothesis-jsonschema
+  source_files:
+    - tests
+  imports:
+    - menuinst
+  commands:
+    - unset CI  # [unix]
+    - set "CI="  # [win]
+    - pytest --no-cov -vvs -k "not elevation"
+
+about:
+  home: https://github.com/conda/menuinst/
+  license: BSD-3-Clause
+  license_file: LICENSE.txt
+  summary: cross platform install of menu items
+
+  dev_url: https://github.com/conda/menuinst
+  doc_url: https://github.com/conda/menuinst/wiki
+
+extra:
+  recipe-maintainers:
+    - goanpeca
+    - jakirkham
+    - carlodri
+    - jaimergp
