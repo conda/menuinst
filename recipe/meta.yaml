@@ -14,7 +14,8 @@ build:
     # and we should not need them on Windows
     - del /q "{{ SRC_DIR }}\\menuinst\\data\\osx_launcher_*"  # [win]
     - {{ PYTHON }} -m pip install . -vv
-    - copy "%SRC_DIR%\\cwp.py" "%PREFIX%\\"  # [win]
+    # menuinst v1 expects cwp.py in PREFIX; backwards compat fix
+    - copy "%SP_DIR%\\menuinst\\_legacy\cwp.py" "%PREFIX%\\"  # [win]
 
   # entry_points:
   #   - menuinst = menuinst.main:main
