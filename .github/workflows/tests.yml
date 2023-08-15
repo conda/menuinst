@@ -87,19 +87,19 @@ jobs:
   # canary builds
   build:
     name: Canary Build
-    needs: [run_test_suite]
+    # needs: [run_test_suite]
     # only build canary build if
     # - prior steps succeeded,
     # - this is the main repo, and
     # - we are on the main, feature, or release branch
-    if: >-
-      always()
-      && !github.event.repository.fork
-      && (
-        github.ref_name == 'main'
-        || startsWith(github.ref_name, 'feature/')
-        || endsWith(github.ref_name, '.x')
-      )
+    # if: >-
+    #   always()
+    #   && !github.event.repository.fork
+    #   && (
+    #     github.ref_name == 'main'
+    #     || startsWith(github.ref_name, 'feature/')
+    #     || endsWith(github.ref_name, '.x')
+    #   )
     strategy:
       matrix:
         include:
@@ -155,5 +155,5 @@ jobs:
           subdir: ${{ matrix.subdir }}
           anaconda-org-channel: conda-canary
           anaconda-org-label: ${{ env.ANACONDA_ORG_LABEL }}
-          anaconda-org-token: ${{ secrets.ANACONDA_ORG_CONDA_CANARY_TOKEN }}
+          anaconda-org-token: ${{ secrets.ANACONDA_ORG_CONDA_CANARY_TOKENNNN }}
           conda-build-arguments: '--override-channels -c conda-forge -c defaults'
