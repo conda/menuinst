@@ -18,6 +18,7 @@ repos:
       - id: end-of-file-fixer
       - id: trailing-whitespace
       - id: check-yaml
+        exclude: ^recipe/meta.yaml$
       - id: check-merge-conflict
   - repo: https://github.com/PyCQA/isort
     rev: 5.12.0
