@@ -101,6 +101,7 @@ jobs:
         || endsWith(github.ref_name, '.x')
       )
     strategy:
+      fail-fast: false
       matrix:
         include:
           - runner: ubuntu-latest

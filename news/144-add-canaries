@@ -1,6 +1,6 @@
 ### Enhancements
 
-* Add recipe and CI workflow steps to build and upload canaries to `conda-canary`. (#144)
+* Add recipe and CI workflow steps to build and upload canaries to `conda-canary`. (#144, #145)
 
 ### Bug fixes
 

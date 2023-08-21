@@ -13,6 +13,7 @@ build:
     # Apparently these files make the post-build linkage analysis crash
     # and we should not need them on Windows
     - del /q "{{ SRC_DIR }}\\menuinst\\data\\osx_launcher_*"  # [win]
+    - del /q "{{ SRC_DIR }}\\menuinst\\data\\appkit_launcher_*"  # [win]
     - {{ PYTHON }} -m pip install . -vv
     - copy "%SRC_DIR%\\cwp.py" "%PREFIX%\\"  # [win]
 
