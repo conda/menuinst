@@ -33,7 +33,7 @@ available under the `menuinst._legacy` subpackage.
 | --- | :-: |
 | [`conda install defaults::menuinst`](https://anaconda.org/anaconda/menuinst) | [![Anaconda-Server Badge](https://anaconda.org/anaconda/menuinst/badges/version.svg)](https://anaconda.org/anaconda/menuinst) |
 | [`conda install conda-forge::menuinst`](https://anaconda.org/conda-forge/menuinst) | [![Anaconda-Server Badge](https://anaconda.org/conda-forge/menuinst/badges/version.svg)](https://anaconda.org/conda-forge/menuinst) |
-| [`conda install conda-canary/label/dev::menuinst`](https://anaconda.org/conda-canary/menuinst) | [![Anaconda-Server Badge](https://anaconda.org/conda-canary/menuinst/badges/version.svg)](https://anaconda.org/conda-canary/constructor) |
+| [`conda install conda-canary/label/dev::menuinst`](https://anaconda.org/conda-canary/menuinst) | [![Anaconda-Server Badge](https://anaconda.org/conda-canary/menuinst/badges/version.svg)](https://anaconda.org/conda-canary/menuinst) |
 
 [CEP-11]: https://github.com/conda-incubator/ceps/blob/3da0fb0ece/cep-11.md
 [reference]: https://conda.github.io/menuinst/reference/
