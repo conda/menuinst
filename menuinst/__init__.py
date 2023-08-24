@@ -18,8 +18,6 @@ if os.environ.get("MENUINST_DEBUG"):
 
 # Compatibility forwarders for menuinst v1.x (Windows only)
 if os.name == "nt":
-    # Calling initpkg clears the 'menuinst' top-level namespace and replaces it with exportdefs
-    # if we want to keep something defined here, use the attr dictionary
     _apipkg.initpkg(
         __name__,
         exportdefs={
@@ -38,5 +36,7 @@ if os.name == "nt":
                 "isUserAdmin": "menuinst.platforms.win_utils.win_elevate:isUserAdmin",
             },
         },
+        # Calling initpkg clears the 'menuinst' top-level namespace and replaces it with exportdefs
+        # if we want to keep something defined in this module, use the attr dictionary
         attr={"__version__": __version__, "install": install},
     )
