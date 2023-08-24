@@ -4,8 +4,8 @@
 import json
 import os
 import sys
-from logging import basicConfig as _basicConfig
-from logging import getLogger as _getLogger
+import warnings
+from logging import basicConfig as _basicConfig, getLogger as _getLogger
 from os import PathLike
 
 try:
@@ -14,9 +14,6 @@ except ImportError:
     __version__ = "dev"
 
 
-from ._legacy import install as _legacy_install
-from .api import install as _api_install
-from .api import remove as _api_remove
 from .utils import DEFAULT_BASE_PREFIX, DEFAULT_PREFIX
 
 _log = _getLogger(__name__)
@@ -37,6 +34,8 @@ def install(path: PathLike, remove: bool = False, prefix: PathLike = DEFAULT_PRE
     with open(json_path) as f:
         metadata = json.load(f)
     if "$id" not in metadata:  # old style JSON
+        from ._legacy import install as _legacy_install
+
         if sys.platform == "win32":
             kwargs.setdefault("root_prefix", kwargs.pop("base_prefix", DEFAULT_BASE_PREFIX))
             if kwargs["root_prefix"] is None:
@@ -49,6 +48,8 @@ def install(path: PathLike, remove: bool = False, prefix: PathLike = DEFAULT_PRE
                 "for cross-platform compatibility."
             )
     else:
+        from .api import install as _api_install, remove as _api_remove
+
         # patch kwargs to reroute root_prefix to base_prefix
         kwargs.setdefault("base_prefix", kwargs.pop("root_prefix", DEFAULT_BASE_PREFIX))
         if kwargs["base_prefix"] is None:
@@ -57,3 +58,28 @@ def install(path: PathLike, remove: bool = False, prefix: PathLike = DEFAULT_PRE
             _api_remove(metadata, target_prefix=prefix, **kwargs)
         else:
             _api_install(metadata, target_prefix=prefix, **kwargs)
+
+
+if os.name == "nt":
+    # Compatibility forwarders for menuinst v1.x (Windows only)
+    import apipkg as _apipkg
+
+    _apipkg.initpkg(
+        __name__,
+        {
+            "win32": {
+                "dirs_src": "menuinst.platforms.win_utils.knownfolders:dirs_src",
+            },
+            "knownfolders": {
+                "get_folder_path": "menuinst.platforms.win_utils.knownfolders:get_folder_path",
+                "FOLDERID": "menuinst.platforms.win_utils.knownfolders:FOLDERID",
+            },
+            "winshortcut": {
+                "create_shortcut": "menuinst.platforms.win_utils.winshortcut:create_shortcut",
+            },
+            "win_elevate": {
+                "runAsAdmin": "menuinst.platforms.win_utils.win_elevate:runAsAdmin",
+                "isUserAdmin": "menuinst.platforms.win_utils.win_elevate:isUserAdmin",
+            },
+        },
+    )
