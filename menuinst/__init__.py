@@ -4,8 +4,8 @@
 import json
 import os
 import sys
-import warnings
-from logging import basicConfig as _basicConfig, getLogger as _getLogger
+from logging import basicConfig as _basicConfig
+from logging import getLogger as _getLogger
 from os import PathLike
 
 try:
@@ -48,7 +48,8 @@ def install(path: PathLike, remove: bool = False, prefix: PathLike = DEFAULT_PRE
                 "for cross-platform compatibility."
             )
     else:
-        from .api import install as _api_install, remove as _api_remove
+        from .api import install as _api_install
+        from .api import remove as _api_remove
 
         # patch kwargs to reroute root_prefix to base_prefix
         kwargs.setdefault("base_prefix", kwargs.pop("root_prefix", DEFAULT_BASE_PREFIX))
