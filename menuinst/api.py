@@ -2,7 +2,6 @@
 """
 
 import json
-import os
 import sys
 import warnings
 from logging import getLogger
@@ -129,40 +128,3 @@ def _process_all(
         if filter is not None and filter(path):
             results.append(function(path, target_prefix, base_prefix, _mode))
     return results
-
-
-def _install_adapter(
-    path: PathLike, remove: bool = False, prefix: PathLike = DEFAULT_PREFIX, **kwargs
-):
-    """
-    This function is only here as a legacy adapter for menuinst v1.x.
-    Please use `menuinst.api` functions instead.
-    """
-    if sys.platform == "win32":
-        path = path.replace("/", "\\")
-    json_path = os.path.join(prefix, path)
-    with open(json_path) as f:
-        metadata = json.load(f)
-    if "$id" not in metadata:  # old style JSON
-        from ._legacy import install as _legacy_install
-
-        if sys.platform == "win32":
-            kwargs.setdefault("root_prefix", kwargs.pop("base_prefix", DEFAULT_BASE_PREFIX))
-            if kwargs["root_prefix"] is None:
-                kwargs["root_prefix"] = DEFAULT_BASE_PREFIX
-            _legacy_install(json_path, remove=remove, prefix=prefix, **kwargs)
-        else:
-            log.warn(
-                "menuinst._legacy is only supported on Windows. "
-                "Switch to the new-style menu definitions "
-                "for cross-platform compatibility."
-            )
-    else:
-        # patch kwargs to reroute root_prefix to base_prefix
-        kwargs.setdefault("base_prefix", kwargs.pop("root_prefix", DEFAULT_BASE_PREFIX))
-        if kwargs["base_prefix"] is None:
-            kwargs["base_prefix"] = DEFAULT_BASE_PREFIX
-        if remove:
-            remove(metadata, target_prefix=prefix, **kwargs)
-        else:
-            install(metadata, target_prefix=prefix, **kwargs)
