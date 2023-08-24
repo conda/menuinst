@@ -52,16 +52,22 @@ jobs:
         with:
           environment-file: false
           environment-name: test
-          channels: conda-canary/label/conda-conda-pr-11882,conda-forge
+          channels: conda-forge
           extra-specs: |
             python=${{ matrix.python-version }}
-            conda-canary/label/conda-conda-pr-11882::conda
+            conda
+            apipkg
             pip
             pytest
             pytest-cov
             pydantic <2.0a0
             hypothesis
             hypothesis-jsonschema
+
+      - name: Patch conda with PR#11882
+        shell: bash -el {0}
+        run: |
+          pip install -U --no-deps https://github.com/conda/conda/archive/cep-menuinst.tar.gz
 
       - shell: bash -el {0}
         name: Conda info
@@ -123,7 +129,7 @@ jobs:
       # Explicitly use Python 3.11 since each of the OSes has a different default Python
       - uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
+          python-version: "3.11"
 
       - name: Detect label
         shell: python
@@ -157,4 +163,4 @@ jobs:
           anaconda-org-channel: conda-canary
           anaconda-org-label: ${{ env.ANACONDA_ORG_LABEL }}
           anaconda-org-token: ${{ secrets.ANACONDA_ORG_CONDA_CANARY_TOKEN }}
-          conda-build-arguments: '--override-channels -c conda-forge -c defaults'
+          conda-build-arguments: "--override-channels -c conda-forge -c defaults"
