@@ -131,7 +131,9 @@ def _process_all(
     return results
 
 
-def _install_adapter(path: PathLike, remove: bool = False, prefix: PathLike = DEFAULT_PREFIX, **kwargs):
+def _install_adapter(
+    path: PathLike, remove: bool = False, prefix: PathLike = DEFAULT_PREFIX, **kwargs
+):
     """
     This function is only here as a legacy adapter for menuinst v1.x.
     Please use `menuinst.api` functions instead.
