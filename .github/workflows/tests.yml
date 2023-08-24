@@ -51,16 +51,14 @@ jobs:
         uses: conda-incubator/setup-miniconda@v2
         with:
           miniforge-version: latest
-          python-version: ${{ matrix.python-version }}
-          use-mamba: true
-          auto-activate-base: true
-          activate-environment: ""
-          channels: conda-forge
 
       - name: Add dependencies
         shell: bash -el {0}
         run: |
           conda install -yq --solver libmamba \
+            python=${{ matrix.python-version }} \
+            pip \
+            conda \
             apipkg \
             pydantic <2.0a0 \
             pytest \
