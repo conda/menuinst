@@ -20,9 +20,9 @@ __all__ = ["install", "__version__"]
 
 # Compatibility forwarders for menuinst v1.x (Windows only)
 if os.name == "nt":
-    import apipkg
+    from ._vendor.apipkg import initpkg
 
-    apipkg.initpkg(
+    initpkg(
         __name__,
         exportdefs={
             "win32": {
