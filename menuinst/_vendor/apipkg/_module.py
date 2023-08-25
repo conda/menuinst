@@ -11,7 +11,7 @@ from typing import Iterable
 from ._importing import _py_abspath
 from ._importing import importobj
 from ._syncronized import _synchronized
-from apipkg import AliasModule
+from ._alias_module import AliasModule
 
 
 class ApiModule(ModuleType):
