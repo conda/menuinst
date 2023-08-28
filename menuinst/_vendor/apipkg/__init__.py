@@ -15,8 +15,7 @@ from ._alias_module import AliasModule
 from ._importing import distribution_version as distribution_version
 from ._module import _initpkg
 from ._module import ApiModule
-# from ._version import version as __version__
-__version__ = "3.0.1"
+from ._version import version as __version__
 
 
 def initpkg(

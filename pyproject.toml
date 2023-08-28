@@ -51,3 +51,18 @@ line-length = 99
 exclude = [
   "_schema.py"
 ]
+
+[tool.vendoring]
+destination = "menuinst/_vendor/"
+namespace = "menuinst._vendor"
+requirements = "dev/vendoring/vendor.txt"
+
+patches-dir = "dev/vendoring/patches"
+protected-files = ["__init__.py", "vendor.txt", "README.md"]
+
+[tool.vendoring.typing-stubs]
+# prevent stubs from being generated
+apipkg = []
+
+[tool.vendoring.license.fallback-urls]
+apipkg = "https://raw.githubusercontent.com/pytest-dev/apipkg/master/LICENSE"
