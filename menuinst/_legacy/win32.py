@@ -103,7 +103,7 @@ def substitute_env_variables(text, dir):
     for a, b in (
         (u'${PREFIX}', env_prefix),
         (u'${ROOT_PREFIX}', root_prefix),
-        (u'${DISTRIBUTION_NAME}', os.path.split(root_prefix)[-1].capitalize()),
+        (u'${DISTRIBUTION_NAME}', os.path.split(root_prefix)[-1]),
         (
             u'${PYTHON_SCRIPTS}',
             os.path.normpath(join(env_prefix, u'Scripts')).replace(u"\\", u"/"),
