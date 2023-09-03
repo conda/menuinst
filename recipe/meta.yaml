@@ -52,8 +52,10 @@ test:
 
 about:
   home: https://github.com/conda/menuinst/
-  license: BSD-3-Clause
-  license_file: LICENSE.txt
+  license: BSD-3-Clause AND MIT
+  license_file:
+    - LICENSE.txt
+    - menuinst/_vendor/apipkg/LICENSE
   summary: cross platform install of menu items
   doc_url: https://conda.github.io/menuinst/
 

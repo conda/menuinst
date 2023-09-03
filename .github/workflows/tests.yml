@@ -59,6 +59,11 @@ jobs:
             --file tests/requirements.txt \
             python=${{ matrix.python-version }}
 
+      - name: Patch conda with PR#11882 (TEMPORARY)
+        shell: bash -el {0}
+        run: |
+          pip install -U --no-deps https://github.com/conda/conda/archive/cep-menuinst.tar.gz
+
       - shell: bash -el {0}
         name: Conda info
         run: |
@@ -119,7 +124,7 @@ jobs:
       # Explicitly use Python 3.11 since each of the OSes has a different default Python
       - uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
+          python-version: "3.11"
 
       - name: Detect label
         shell: python
@@ -153,4 +158,4 @@ jobs:
           anaconda-org-channel: conda-canary
           anaconda-org-label: ${{ env.ANACONDA_ORG_LABEL }}
           anaconda-org-token: ${{ secrets.ANACONDA_ORG_CONDA_CANARY_TOKEN }}
-          conda-build-arguments: '--override-channels -c conda-forge -c defaults'
+          conda-build-arguments: "--override-channels -c conda-forge -c defaults"
