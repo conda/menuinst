@@ -245,29 +245,29 @@ def deep_update(mapping: Mapping, *updating_mappings: Iterable[Mapping]) -> Mapp
     return updated_mapping
 
 
-def needs_admin(prefix: os.PathLike, base_prefix: os.PathLike) -> bool:
+def needs_admin(target_prefix: os.PathLike, base_prefix: os.PathLike) -> bool:
     """
     Checks if the current installation needs admin permissions.
     """
     if user_is_admin():
         return False
     
-    if Path(prefix, ".nonadmin").exists():
+    if Path(target_prefix, ".nonadmin").exists():
         # This file is planted by the constructor installer
         # and signals we don't need admin permissions
         return False
     
     try:
-        Path(prefix, ".nonadmin").touch()
+        Path(target_prefix, ".nonadmin").touch()
         return False
     except Exception as exc:
-        logger.debug("Attempt to write %s/.nonadmin failed.", prefix, exc_info=exc)
+        logger.debug("Attempt to write %s/.nonadmin failed.", target_prefix, exc_info=exc)
 
-    if base_prefix == prefix:
+    if base_prefix == target_prefix:
         # We are already in the base env, no need to check further
         return True
 
-    # I can't think of cases where users can't write to the target prefix but can to base
+    # I can't think of cases where users can't write to target_prefix but can to base
     # so maybe we can skip everything underneath?
 
     if Path(base_prefix, ".nonadmin").exists():
@@ -284,7 +284,7 @@ def needs_admin(prefix: os.PathLike, base_prefix: os.PathLike) -> bool:
         try:
             Path(base_prefix, ".nonadmin").touch()
         except Exception as exc:
-            logger.debug("Attempt to write %s/.nonadmin failed.", prefix, exc_info=exc)
+            logger.debug("Attempt to write %s/.nonadmin failed.", target_prefix, exc_info=exc)
             return True
         else:
             return False
@@ -361,14 +361,14 @@ def elevate_as_needed(func: Callable) -> Callable:
     @wraps(func)
     def wrapper_elevate(
         *args,
-        prefix: os.PathLike = None,
+        target_prefix: os.PathLike = None,
         base_prefix: os.PathLike = None,
         **kwargs,
     ):
         kwargs.pop("_mode", None)
-        prefix = prefix or DEFAULT_BASE_PREFIX  
+        target_prefix = target_prefix or DEFAULT_BASE_PREFIX  
         base_prefix = base_prefix or DEFAULT_BASE_PREFIX  
-        if needs_admin(prefix, base_prefix) and os.environ.get("_MENUINST_RECURSING") != "1":
+        if needs_admin(target_prefix, base_prefix) and os.environ.get("_MENUINST_RECURSING") != "1":
             # call the wrapped func with elevated prompt...
             # from the command line; not pretty!
             try:
@@ -396,7 +396,7 @@ def elevate_as_needed(func: Callable) -> Callable:
                     f"{import_func}"
                     f"{func.__name__}("
                     f"*{args!r},"
-                    f"prefix={prefix!r},"
+                    f"target_prefix={target_prefix!r},"
                     f"base_prefix={base_prefix!r},"
                     f"_mode='system',"
                     f"**{kwargs!r}"
@@ -413,7 +413,7 @@ def elevate_as_needed(func: Callable) -> Callable:
         elif user_is_admin():
             # We are already running as admin, no need to elevate
             return func(
-                prefix=prefix,
+                target_prefix=target_prefix,
                 base_prefix=base_prefix,
                 _mode="system",
                 *args,
@@ -421,7 +421,7 @@ def elevate_as_needed(func: Callable) -> Callable:
             )
         # We have not returned yet? Well, let's try as a normal user
         return func(
-            prefix=prefix,
+            target_prefix=target_prefix,
             base_prefix=base_prefix,
             _mode="user",
             *args,
