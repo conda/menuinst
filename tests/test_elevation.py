@@ -12,14 +12,14 @@ def test_elevation(tmp_path, capfd):
             # Windows runners on GHA always run as admin
             assert not is_admin
 
-        _test_elevation(str(tmp_path))
+        _test_elevation(target_prefix=str(tmp_path), base_prefix=str(tmp_path))
         output = (tmp_path / "_test_output.txt").read_text().strip()
         if on_ci:
             assert output.endswith("env_var: TEST _mode: user")
         else:
             assert output.endswith("user_is_admin(): False env_var: TEST _mode: user")
 
-        elevate_as_needed(_test_elevation)(base_prefix=str(tmp_path))
+        elevate_as_needed(_test_elevation)(target_prefix=str(tmp_path), base_prefix=str(tmp_path))
         output = (tmp_path / "_test_output.txt").read_text().strip()
         if on_ci:
             assert output.endswith("env_var: TEST _mode: system")
