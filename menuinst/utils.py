@@ -5,7 +5,7 @@ import subprocess
 import sys
 import xml.etree.ElementTree as XMLTree
 from contextlib import suppress
-from functools import wraps, lru_cache
+from functools import lru_cache, wraps
 from logging import getLogger
 from pathlib import Path
 from typing import Callable, Iterable, Literal, Mapping, Optional, Sequence, Union
