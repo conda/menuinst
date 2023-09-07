@@ -251,12 +251,12 @@ def needs_admin(target_prefix: os.PathLike, base_prefix: os.PathLike) -> bool:
     """
     if user_is_admin():
         return False
-    
+
     if Path(target_prefix, ".nonadmin").exists():
         # This file is planted by the constructor installer
         # and signals we don't need admin permissions
         return False
-    
+
     try:
         Path(target_prefix, ".nonadmin").touch()
         return False
@@ -276,7 +276,7 @@ def needs_admin(target_prefix: os.PathLike, base_prefix: os.PathLike) -> bool:
     if os.name == "nt":
         # Absence of $base_prefix/.nonadmin in Windows means we need admin permissions
         return True
-    
+
     if os.name == "posix":
         # Absence of $base_prefix/.nonadmin in Linux, macOS and other posix systems
         # has no meaning for historic reasons, so let's try to see if we can
@@ -366,9 +366,12 @@ def elevate_as_needed(func: Callable) -> Callable:
         **kwargs,
     ):
         kwargs.pop("_mode", None)
-        target_prefix = target_prefix or DEFAULT_BASE_PREFIX  
-        base_prefix = base_prefix or DEFAULT_BASE_PREFIX  
-        if needs_admin(target_prefix, base_prefix) and os.environ.get("_MENUINST_RECURSING") != "1":
+        target_prefix = target_prefix or DEFAULT_BASE_PREFIX
+        base_prefix = base_prefix or DEFAULT_BASE_PREFIX
+        if (
+            needs_admin(target_prefix, base_prefix)
+            and os.environ.get("_MENUINST_RECURSING") != "1"
+        ):
             # call the wrapped func with elevated prompt...
             # from the command line; not pretty!
             try:
@@ -431,7 +434,11 @@ def elevate_as_needed(func: Callable) -> Callable:
     return wrapper_elevate
 
 
-def _test_elevation(base_prefix: Optional[os.PathLike] = None, _mode: _UserOrSystem = "user"):
+def _test_elevation(
+    target_prefix: Optional[os.PathLike] = None,
+    base_prefix: Optional[os.PathLike] = None,
+    _mode: _UserOrSystem = "user",
+):
     if os.name == "nt":
         if base_prefix:
             output = os.path.join(base_prefix, "_test_output.txt")
