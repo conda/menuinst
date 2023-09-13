@@ -28,6 +28,44 @@
 * Move `cwp.py` from the repository root to `menuinst._legacy` subpackage.
   It's still shipped to `%PREFIX%` in the conda package. (#145)
 
+### Contributors
+
+* @aganders3
+* @dbast
+* @jaimergp
+* @conda-bot
+* @pre-commit-ci[bot]
+
+
+
+## 2.0.0 (2023-09-14)
+
+### Enhancements
+
+* Add support for file extension and URL protocol association on Windows. (#117)
+* Add support for URL protocol and file type association in all operating systems. Adds tests and examples. (#118 via #119, #135)
+* Add `app_user_model_id` field on Windows shortcuts to group taskbar icons together. (#127 via #133)
+* Enable automatic elevation on Unix platforms too, and add tests. (#137 via #138, #139)
+* Add recipe and CI workflow steps to build and upload canaries to `conda-canary`. (#144, #145, #149)
+* Implement auto-elevation logic in Unix systems so it doesn't depend on pre-existing `.nonadmin` files. (#150 via #156)
+
+### Bug fixes
+
+* Ensure some v1-only import paths are still available for backwards compatibility. (#151)
+* Do not capitalize `${DISTRIBUTION_NAME}` in v1-style `menuinst` JSON documents. (#153)
+
+### Docs
+
+* Create Sphinx-based documentation following community practices (constructor, conda-libmamba-solver). Absorbs and updates the existing info in wiki and non-deployed docs. (#112)
+* Add development documentation. (#131)
+
+### Other
+
+* Enable and apply pre-commit with isort/flake8/black. (#116, #125)
+* Adjust workflows to only target `main` after merging the `cep-devel` branch. (#141)
+* Move `cwp.py` from the repository root to `menuinst._legacy` subpackage.
+  It's still shipped to `%PREFIX%` in the conda package. (#145)
+
 
 ## 1.4.19 (2022-08-17)
 
