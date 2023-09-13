@@ -12,14 +12,14 @@ def test_elevation(tmp_path, capfd):
             # Windows runners on GHA always run as admin
             assert not is_admin
 
-        _test_elevation(str(tmp_path))
+        _test_elevation(target_prefix=str(tmp_path), base_prefix=str(tmp_path))
         output = (tmp_path / "_test_output.txt").read_text().strip()
         if on_ci:
             assert output.endswith("env_var: TEST _mode: user")
         else:
             assert output.endswith("user_is_admin(): False env_var: TEST _mode: user")
 
-        elevate_as_needed(_test_elevation)(base_prefix=str(tmp_path))
+        elevate_as_needed(_test_elevation)(target_prefix=str(tmp_path), base_prefix=str(tmp_path))
         output = (tmp_path / "_test_output.txt").read_text().strip()
         if on_ci:
             assert output.endswith("env_var: TEST _mode: system")
@@ -31,11 +31,16 @@ def test_elevation(tmp_path, capfd):
         _test_elevation(str(tmp_path))
         assert capfd.readouterr().out.strip() == "user_is_admin(): False env_var: TEST _mode: user"
 
-        elevate_as_needed(_test_elevation)(base_prefix=str(tmp_path))
+        # make tmp_path not writable by the current user to force elevation
+        tmp_path.chmod(0o500)
+        elevate_as_needed(_test_elevation)(target_prefix=str(tmp_path), base_prefix=str(tmp_path))
         assert (
             capfd.readouterr().out.strip() == "user_is_admin(): True env_var: TEST _mode: system"
         )
+        assert not (tmp_path / ".nonadmin").exists()
 
-        (tmp_path / ".nonadmin").touch()
-        elevate_as_needed(_test_elevation)(base_prefix=str(tmp_path))
+        # restore permissions
+        tmp_path.chmod(0o700)
+        elevate_as_needed(_test_elevation)(target_prefix=str(tmp_path), base_prefix=str(tmp_path))
         assert capfd.readouterr().out.strip() == "user_is_admin(): False env_var: TEST _mode: user"
+        assert (tmp_path / ".nonadmin").exists()

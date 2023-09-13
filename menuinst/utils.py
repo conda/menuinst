@@ -3,10 +3,9 @@ import re
 import shlex
 import subprocess
 import sys
-import traceback
 import xml.etree.ElementTree as XMLTree
 from contextlib import suppress
-from functools import wraps
+from functools import lru_cache, wraps
 from logging import getLogger
 from pathlib import Path
 from typing import Callable, Iterable, Literal, Mapping, Optional, Sequence, Union
@@ -246,6 +245,52 @@ def deep_update(mapping: Mapping, *updating_mappings: Iterable[Mapping]) -> Mapp
     return updated_mapping
 
 
+def needs_admin(target_prefix: os.PathLike, base_prefix: os.PathLike) -> bool:
+    """
+    Checks if the current installation needs admin permissions.
+    """
+    if user_is_admin():
+        return False
+
+    if Path(target_prefix, ".nonadmin").exists():
+        # This file is planted by the constructor installer
+        # and signals we don't need admin permissions
+        return False
+
+    try:
+        Path(target_prefix, ".nonadmin").touch()
+        return False
+    except Exception as exc:
+        logger.debug("Attempt to write %s/.nonadmin failed.", target_prefix, exc_info=exc)
+
+    if base_prefix == target_prefix:
+        # We are already in the base env, no need to check further
+        return True
+
+    # I can't think of cases where users can't write to target_prefix but can to base
+    # so maybe we can skip everything underneath?
+
+    if Path(base_prefix, ".nonadmin").exists():
+        return False
+
+    if os.name == "nt":
+        # Absence of $base_prefix/.nonadmin in Windows means we need admin permissions
+        return True
+
+    if os.name == "posix":
+        # Absence of $base_prefix/.nonadmin in Linux, macOS and other posix systems
+        # has no meaning for historic reasons, so let's try to see if we can
+        # write to the installation root
+        try:
+            Path(base_prefix, ".nonadmin").touch()
+        except Exception as exc:
+            logger.debug("Attempt to write %s/.nonadmin failed.", target_prefix, exc_info=exc)
+            return True
+        else:
+            return False
+
+
+@lru_cache(maxsize=1)
 def user_is_admin() -> bool:
     if os.name == "nt":
         from .platforms.win_utils.win_elevate import isUserAdmin
@@ -316,65 +361,70 @@ def elevate_as_needed(func: Callable) -> Callable:
     @wraps(func)
     def wrapper_elevate(
         *args,
+        target_prefix: os.PathLike = None,
         base_prefix: os.PathLike = None,
         **kwargs,
     ):
         kwargs.pop("_mode", None)
+        target_prefix = target_prefix or DEFAULT_BASE_PREFIX
         base_prefix = base_prefix or DEFAULT_BASE_PREFIX
-        if not (Path(base_prefix) / ".nonadmin").exists():
-            if user_is_admin():
-                return func(
-                    base_prefix=base_prefix,
-                    _mode="system",
-                    *args,
-                    **kwargs,
-                )
-            if os.environ.get("_MENUINST_RECURSING") != "1":
-                # call the wrapped func with elevated prompt...
-                # from the command line; not pretty!
-                try:
-                    if func.__module__ == "__main__":
-                        import_func = (
-                            f"import runpy;"
-                            f"{func.__name__} = runpy.run_path('{__file__}')"
-                            f"['{func.__name__}'];"
-                        )
-                    else:
-                        import_func = f"from {func.__module__} import {func.__name__};"
-                    env_vars = ";".join(
-                        [
-                            f"os.environ.setdefault('{k}', '{v}')"
-                            for (k, v) in os.environ.items()
-                            if k.startswith(("CONDA_", "CONSTRUCTOR_", "MENUINST_"))
-                        ]
-                    )
-                    cmd = [
-                        *python_executable(),
-                        "-c",
-                        f"import os;"
-                        f"os.environ.setdefault('_MENUINST_RECURSING', '1');"
-                        f"{env_vars};"
-                        f"{import_func}"
-                        f"{func.__name__}("
-                        f"*{args!r},"
-                        f"base_prefix={base_prefix!r},"
-                        f"_mode='system',"
-                        f"**{kwargs!r}"
-                        ")",
-                    ]
-                    logger.debug("Elevating command: %s", cmd)
-                    return_code = run_as_admin(cmd)
-                except Exception:
-                    logger.warn(
-                        "Error occurred! Falling back to user mode. Exception:\n%s",
-                        traceback.format_exc(),
+        if (
+            needs_admin(target_prefix, base_prefix)
+            and os.environ.get("_MENUINST_RECURSING") != "1"
+        ):
+            # call the wrapped func with elevated prompt...
+            # from the command line; not pretty!
+            try:
+                if func.__module__ == "__main__":
+                    import_func = (
+                        f"import runpy;"
+                        f"{func.__name__} = runpy.run_path('{__file__}')"
+                        f"['{func.__name__}'];"
                     )
                 else:
-                    os.environ.pop("_MENUINST_RECURSING", None)
-                    if return_code == 0:  # success, no need to fallback
-                        return
+                    import_func = f"from {func.__module__} import {func.__name__};"
+                env_vars = ";".join(
+                    [
+                        f"os.environ.setdefault('{k}', '{v}')"
+                        for (k, v) in os.environ.items()
+                        if k.startswith(("CONDA_", "CONSTRUCTOR_", "MENUINST_"))
+                    ]
+                )
+                cmd = [
+                    *python_executable(),
+                    "-c",
+                    f"import os;"
+                    f"os.environ.setdefault('_MENUINST_RECURSING', '1');"
+                    f"{env_vars};"
+                    f"{import_func}"
+                    f"{func.__name__}("
+                    f"*{args!r},"
+                    f"target_prefix={target_prefix!r},"
+                    f"base_prefix={base_prefix!r},"
+                    f"_mode='system',"
+                    f"**{kwargs!r}"
+                    ")",
+                ]
+                logger.debug("Elevating command: %s", cmd)
+                return_code = run_as_admin(cmd)
+            except Exception as exc:
+                logger.warn("Elevation failed! Falling back to user mode.", exc_info=exc)
+            else:
+                os.environ.pop("_MENUINST_RECURSING", None)
+                if return_code == 0:  # success, we are done
+                    return
+        elif user_is_admin():
+            # We are already running as admin, no need to elevate
+            return func(
+                target_prefix=target_prefix,
+                base_prefix=base_prefix,
+                _mode="system",
+                *args,
+                **kwargs,
+            )
         # We have not returned yet? Well, let's try as a normal user
         return func(
+            target_prefix=target_prefix,
             base_prefix=base_prefix,
             _mode="user",
             *args,
@@ -384,7 +434,11 @@ def elevate_as_needed(func: Callable) -> Callable:
     return wrapper_elevate
 
 
-def _test_elevation(base_prefix: Optional[os.PathLike] = None, _mode: _UserOrSystem = "user"):
+def _test_elevation(
+    target_prefix: Optional[os.PathLike] = None,
+    base_prefix: Optional[os.PathLike] = None,
+    _mode: _UserOrSystem = "user",
+):
     if os.name == "nt":
         if base_prefix:
             output = os.path.join(base_prefix, "_test_output.txt")
