@@ -33,10 +33,11 @@
 * @aganders3
 * @dbast
 * @jaimergp
-* @conda-bot
-* @pre-commit-ci[bot]
 
+### New Contributors
 
+* @dbast made their first contribution in https://github.com/conda/menuinst/pull/116
+* @aganders3 made their first contribution in https://github.com/conda/menuinst/pull/119
 
 ## 2.0.0 (2023-09-14)
 
