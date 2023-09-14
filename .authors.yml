@@ -1,0 +1,163 @@
+- name: Mark Wiebe
+  email: mwwiebe@gmail.com
+  num_commits: 0
+  first_commit: 2013-06-18 00:11:02
+  github: mwiebe
+- name: Kale Franz
+  email: kfranz@continuum.io
+  alternate_emails:
+  - kalefranz@users.noreply.github.com
+  num_commits: 0
+  first_commit: 2018-01-30 21:51:11
+  github: kalefranz
+- name: Jannis Leidel
+  email: jannis@leidel.info
+  num_commits: 0
+  first_commit: 2021-07-07 18:38:53
+  github: jezdez
+- name: Mike Sarahan
+  email: msarahan@gmail.com
+  aliases:
+  - Michael Sarahan
+  alternate_emails:
+  - msarahan@continuum.io
+  num_commits: 0
+  first_commit: 2015-09-21 19:47:56
+  github: msarahan
+- name: Jaime Rodríguez-Guerra
+  email: jaimergp@users.noreply.github.com
+  aliases:
+  - jaimergp
+  num_commits: 0
+  first_commit: 2022-08-17 17:00:32
+  github: jaimergp
+- name: Trent Nelson
+  email: trent@trent.me
+  num_commits: 0
+  first_commit: 2013-10-14 05:26:39
+  github: tpn
+- name: Eric Prestat
+  email: eric.prestat@gmail.com
+  num_commits: 0
+  first_commit: 2021-01-14 21:30:02
+  github: ericpre
+- name: Daniel Bast
+  email: 2790401+dbast@users.noreply.github.com
+  num_commits: 0
+  first_commit: 2023-03-06 16:24:01
+  github: dbast
+- name: dpeterson
+  email: dpeterson@651a555e-23ca-0310-84fe-ca9f7c59d2ea
+  num_commits: 0
+  first_commit: 2008-09-25 18:26:33
+- name: Prabhu Ramachandran
+  email: prabhu@enthought.com
+  num_commits: 0
+  first_commit: 2012-04-24 19:13:45
+  github: prabhuramachandran
+- name: dmartin
+  email: dmartin@651a555e-23ca-0310-84fe-ca9f7c59d2ea
+  num_commits: 0
+  first_commit: 2008-12-30 23:43:52
+- name: Ray Donnelly
+  email: mingw.android@gmail.com
+  num_commits: 0
+  first_commit: 2016-05-24 01:47:12
+  github: mingwandroid
+- name: Ilan Schnell
+  email: ischnell@enthought.com
+  aliases:
+  - ischnell
+  alternate_emails:
+  - ischnell@651a555e-23ca-0310-84fe-ca9f7c59d2ea
+  - ilanschnell@gmail.com
+  - ilan@continuum.io
+  num_commits: 0
+  first_commit: 2009-01-25 20:45:58
+  github: enthought
+- name: Ken Odegard
+  email: kodegard@anaconda.com
+  num_commits: 0
+  first_commit: 2022-06-15 21:09:06
+  github: kenodegard
+- name: conda-bot
+  email: ad-team+condabot@anaconda.com
+  alternate_emails:
+  - 18747875+conda-bot@users.noreply.github.com
+  aliases:
+  - Conda Bot
+  - conda bot
+  num_commits: 0
+  first_commit: 2022-01-25 22:53:19
+  github: conda-bot
+- name: Aaron Meurer
+  email: asmeurer@gmail.com
+  num_commits: 0
+  first_commit: 2014-07-30 19:19:19
+  github: asmeurer
+- name: David Li
+  email: li.davidm96@gmail.com
+  num_commits: 0
+  first_commit: 2014-07-17 19:17:42
+  github: lidavidm
+- name: Connor Martin
+  email: connormartin7@gmail.com
+  num_commits: 0
+  first_commit: 2021-04-01 21:58:30
+  github: cjmartian
+- name: Isuru Fernando
+  email: isuruf@gmail.com
+  num_commits: 0
+  first_commit: 2022-08-15 10:10:48
+  github: isuruf
+- name: pre-commit-ci[bot]
+  email: 66853113+pre-commit-ci[bot]@users.noreply.github.com
+  num_commits: 0
+  first_commit: 2023-08-21 19:22:51
+  github: pre-commit-ci[bot]
+- name: Martin Chilvers
+  email: martin.chilvers@gmail.com
+  num_commits: 0
+  first_commit: 2011-11-09 12:49:29
+  github: Chilvers
+- name: Nehal J Wani
+  email: nehaljw.kkd1@gmail.com
+  num_commits: 0
+  first_commit: 2018-02-06 18:22:34
+  github: nehaljwani
+- name: ccasey
+  email: ccasey@651a555e-23ca-0310-84fe-ca9f7c59d2ea
+  num_commits: 0
+  first_commit: 2008-10-28 16:16:07
+- name: Cheng H. Lee
+  email: chenghlee@users.noreply.github.com
+  alternate_emails:
+  - clee@anaconda.com
+  num_commits: 0
+  first_commit: 2021-07-13 17:58:02
+  github: chenghlee
+- name: Jason McCampbell
+  email: jmccampbell@enthought.com
+  num_commits: 0
+  first_commit: 2012-06-07 22:47:59
+  github: jasonmccampbell
+- name: Ashley Anderson
+  email: aganders3@gmail.com
+  num_commits: 0
+  first_commit: 2023-06-15 15:21:13
+  github: aganders3
+- name: Shaun Walbridge
+  email: shaun.walbridge@gmail.com
+  num_commits: 0
+  first_commit: 2016-03-17 21:51:55
+  github: scw
+- name: Pankaj Pandey
+  email: pankaj86@gmail.com
+  num_commits: 0
+  first_commit: 2012-06-06 14:21:43
+  github: pankajp
+- name: Kai Tietz
+  email: ktietz@anaconda.com
+  num_commits: 0
+  first_commit: 2019-03-06 17:36:09
+  github: katietz
