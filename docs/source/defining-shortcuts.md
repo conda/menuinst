@@ -66,6 +66,8 @@ Unix systems have the notion of MIME types, while Windows relies more on file na
   files) placeholders to your command so the paths are passed adequately. If you are defining a new
   MIME type, you must fill the `glob_patterns` field by mapping the new MIME type to the file
   extensions you want to associate with it.
+- On Windows, use `file_extensions`. Remember to add the `%1` or `%*` placeholders to your command
+  so the path of the opened file(s) is passed adequately.
 - On macOS, use `CFBundleDocumentTypes`. Requires no placeholder. The opened document will be
   automatically passed as a regular command-line argument. The file will be dispatched via events.
   You need to define the `event_handler` field to define a logic that will forward the caught files
@@ -73,8 +75,15 @@ Unix systems have the notion of MIME types, while Windows relies more on file na
   mechanism) The association happens via UTI strings (Uniform Type Identifiers). If you need UTIs
   not defined by Apple, use the `UTImportedTypeDeclarations` field if they are provided by other
   apps, or `UTExportedTypeDeclarations` if you are defining them yourself.
-- On Windows, use `file_extensions`. Remember to add the `%1` or `%*` placeholders to your command
-  so the path of the opened file(s) is passed adequately.
+
+:::{note}
+On macOS, this feature uses an additional launcher written in Swift to handle the Apple events.
+The Swift runtime libraries are only guaranteed to be available on macOS 10.14.4 and later.
+If you need to support older versions of macOS, you will need to instruct your users to install
+the Swift runtime libraries manually, available at https://support.apple.com/kb/DL1998.
+You can add a dependency on `__osx>=10.14.4` on your conda package if you wish to enforce it.
+:::
+
 
 A multi-platform example:
 
@@ -143,6 +152,14 @@ shortcut.
   caught URLs to your application (via sockets, API calls, inotify or any other inter-process
   communication mechanism). Note that setting `CFBundleTypeRole` will make the wrapper blip in the
   dock when the URL is opened. If you don't want that, do not set it.
+
+:::{note}
+On macOS, this feature uses an additional launcher written in Swift to handle the Apple events.
+The Swift runtime libraries are only guaranteed to be available on macOS 10.14.4 and later.
+If you need to support older versions of macOS, you will need to instruct your users to install
+the Swift runtime libraries manually, available at https://support.apple.com/kb/DL1998.
+You can add a dependency on `__osx>=10.14.4` on your conda package if you wish to enforce it.
+:::
 
 ```json
 {

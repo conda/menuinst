@@ -264,12 +264,12 @@ class MacOS(BasePlatformSpecific):
     CFBundleURLTypes: Optional[List[CFBundleURLTypesModel]] = None
     """
     URL types supported by this app. Requires setting `event_handler` too.
-    Note this feature requires macOS 10.15+.
+    Note this feature requires macOS 10.14.4 or above.
     """
     CFBundleDocumentTypes: Optional[List[CFBundleDocumentTypesModel]] = None
     """
     Document types supported by this app. Requires setting `event_handler` too.
-    Requires macOS 10.15+.
+    Requires macOS 10.14.4 or above.
     """
     LSApplicationCategoryType: Optional[constr(regex=r"^public\.app-category\.\S+$")] = None
     "The App Store uses this string to determine the appropriate categorization."
@@ -311,6 +311,7 @@ class MacOS(BasePlatformSpecific):
     event_handler: Optional[constr(min_length=1)] = None
     """
     Required shell script logic to handle opened URL payloads.
+    Note this feature requires macOS 10.14.4 or above.
     """
 
 
