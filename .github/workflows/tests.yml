@@ -87,10 +87,6 @@ jobs:
         name: Run test suite
         run: |
           python -I -m pytest tests/ --cov-append --cov-report=xml --cov=menuinst -vvv
-      
-      - uses: mxschmitt/action-tmate@v3
-        timeout-minutes: 60
-        if: failure() && matrix.os == 'windows' && matrix.python-version == '3.12'
 
       - uses: codecov/codecov-action@v1
         with:
