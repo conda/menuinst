@@ -33,11 +33,11 @@
 static PyObject *CreateShortcut(PyObject *self, PyObject *args)
 {
     PyObject *py_path; /* path and filename */
-    wchar_t *path;
+    wchar_t *path = NULL;
     PyObject *py_description;
-    wchar_t *description;
+    wchar_t *description = NULL;
     PyObject *py_filename;
-    wchar_t *filename;
+    wchar_t *filename = NULL;
 
     PyObject *py_arguments = NULL;
     PyObject *py_iconpath = NULL;
@@ -198,9 +198,15 @@ static PyObject *CreateShortcut(PyObject *self, PyObject *args)
     pPersistFile->Release();
     pShellLink->Release();
 
-    PyMem_Free(path);
-    PyMem_Free(description);
-    PyMem_Free(filename);
+    if (path) {
+        PyMem_Free(path);
+    }
+    if (description) {
+        PyMem_Free(description);
+    }
+    if (filename) {
+        PyMem_Free(filename);
+    }
 
     Py_DECREF(py_path);
     Py_DECREF(py_description);
