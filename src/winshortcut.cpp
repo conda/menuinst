@@ -227,7 +227,7 @@ static PyObject *CreateShortcut(PyObject *self, PyObject *args)
     PyMem_Free(path);
     PyMem_Free(description);
     PyMem_Free(filename);
-    
+
     Py_DECREF(py_path);
     Py_DECREF(py_description);
     Py_DECREF(py_filename);
@@ -244,7 +244,7 @@ PyMethodDef meth[] = {
     {"create_shortcut", CreateShortcut, METH_VARARGS,
         "winshortcut.create_shortcut(path, description, filename,\n"
         "                  arguments=u\"\", workdir=None, iconpath=None,\n"
-        "                  iconindex=0)\n"
+        "                  iconindex=0, app_id=None)\n"
         "\n"
         "  Creates a shortcut ``filename`` (a .lnk file), whose\n"
         "  target path is ``path``. All the input strings must be\n"
