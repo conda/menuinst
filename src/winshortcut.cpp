@@ -33,8 +33,11 @@
 static PyObject *CreateShortcut(PyObject *self, PyObject *args)
 {
     PyObject *py_path; /* path and filename */
+    wchar_t *path;
     PyObject *py_description;
+    wchar_t *description;
     PyObject *py_filename;
+    wchar_t *filename;
 
     PyObject *py_arguments = NULL;
     PyObject *py_iconpath = NULL;
@@ -62,39 +65,16 @@ static PyObject *CreateShortcut(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    wchar_t *path;
     path = PyUnicode_AsWideCharString(py_path, NULL);
     if (path == NULL) {
         return NULL;
     }
-    wchar_t *description;
     description = PyUnicode_AsWideCharString(py_description, NULL);
     if (description == NULL) {
         return NULL;
     }
-    wchar_t *filename;
     filename = PyUnicode_AsWideCharString(py_filename, NULL);
     if (filename == NULL) {
-        return NULL;
-    }
-    wchar_t *arguments;
-    arguments = PyUnicode_AsWideCharString(py_arguments, NULL);
-    if (arguments == NULL) {
-        return NULL;
-    }
-    wchar_t *workdir;
-    workdir = PyUnicode_AsWideCharString(py_workdir, NULL);
-    if (workdir == NULL) {
-        return NULL;
-    }
-    wchar_t *iconpath;
-    iconpath = PyUnicode_AsWideCharString(py_iconpath, NULL);
-    if (iconpath == NULL) {
-        return NULL;
-    }
-    wchar_t *app_id;
-    app_id = PyUnicode_AsWideCharString(py_app_id, NULL);
-    if (app_id == NULL) {
         return NULL;
     }
 
@@ -130,34 +110,53 @@ static PyObject *CreateShortcut(PyObject *self, PyObject *args)
         goto error;
     }
 
-    if (arguments) {
+    if (py_arguments) {
+        wchar_t *arguments = PyUnicode_AsWideCharString(py_arguments, NULL);
+        if (arguments == NULL) {
+            return NULL;
+        }
         hres = pShellLink->SetArguments(arguments);
         if (FAILED(hres)) {
                 PyErr_Format(PyExc_OSError,
                                "SetArguments() error 0x%x", hres);
                 goto error;
         }
+        PyMem_Free(arguments);
     }
 
-    if (iconpath) {
+    if (py_iconpath) {
+        wchar_t *iconpath = PyUnicode_AsWideCharString(py_iconpath, NULL);
+        if (iconpath == NULL) {
+            return NULL;
+        }
         hres = pShellLink->SetIconLocation(iconpath, iconindex);
         if (FAILED(hres)) {
                 PyErr_Format(PyExc_OSError,
                                "SetIconLocation() error 0x%x", hres);
                 goto error;
         }
+        PyMem_Free(iconpath);
     }
 
-    if (workdir) {
+    if (py_workdir) {
+        wchar_t *workdir = PyUnicode_AsWideCharString(py_workdir, NULL);
+        if (workdir == NULL) {
+            return NULL;
+        }
         hres = pShellLink->SetWorkingDirectory(workdir);
         if (FAILED(hres)) {
                 PyErr_Format(PyExc_OSError,
                                "SetWorkingDirectory() error 0x%x", hres);
                 goto error;
         }
+        PyMem_Free(workdir);
     }
 
-    if (app_id) {
+    if (py_app_id) {
+        wchar_t *app_id = PyUnicode_AsWideCharString(py_app_id, NULL);
+        if (app_id == NULL) {
+            return NULL;
+        }
         hres = pShellLink->QueryInterface(IID_PPV_ARGS(&pPropertyStore));
         if (FAILED(hres)) {
             PyErr_Format(PyExc_OSError,
@@ -170,6 +169,7 @@ static PyObject *CreateShortcut(PyObject *self, PyObject *args)
                            "InitPropVariantFromString() error 0x%x", hres);
             goto error;
         }
+        PyMem_Free(app_id);
         pPropertyStore->SetValue(PKEY_AppUserModel_ID, pv);
         pPropertyStore->Commit();
         PropVariantClear(&pv);
@@ -198,10 +198,6 @@ static PyObject *CreateShortcut(PyObject *self, PyObject *args)
     PyMem_Free(path);
     PyMem_Free(description);
     PyMem_Free(filename);
-    PyMem_Free(arguments);
-    PyMem_Free(workdir);
-    PyMem_Free(iconpath);
-    PyMem_Free(app_id);
 
     CoUninitialize();
     Py_RETURN_NONE;
@@ -216,6 +212,10 @@ static PyObject *CreateShortcut(PyObject *self, PyObject *args)
     if (pPropertyStore) {
         pPropertyStore->Release();
     }
+
+    PyMem_Free(path);
+    PyMem_Free(description);
+    PyMem_Free(filename);
 
     CoUninitialize();
     return NULL;

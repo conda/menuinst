@@ -322,6 +322,4 @@ class ShortCut(object):
                     " ".join([str(arg) for arg in args]),
                     str(workdir),
                     str(icon),
-                    0,
-                    "",
                 )
