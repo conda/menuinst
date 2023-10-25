@@ -319,7 +319,9 @@ class ShortCut(object):
                     str(cmd),
                     str(name + name_suffix),
                     str(dst),
-                    ' '.join([str(arg) for arg in args]),
+                    " ".join([str(arg) for arg in args]),
                     str(workdir),
                     str(icon),
+                    0,
+                    "",
                 )
