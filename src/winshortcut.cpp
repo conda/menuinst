@@ -62,20 +62,20 @@ static PyObject *CreateShortcut(PyObject *self, PyObject *args)
     if (!PyArg_ParseTuple(args, "UUU|UUUiU",
                           &py_path, &py_description, &py_filename,
                           &py_arguments, &py_workdir, &py_iconpath, &iconindex, &py_app_id)) {
-        return NULL;
+        goto error;
     }
 
     path = PyUnicode_AsWideCharString(py_path, NULL);
     if (path == NULL) {
-        return NULL;
+        goto error;
     }
     description = PyUnicode_AsWideCharString(py_description, NULL);
     if (description == NULL) {
-        return NULL;
+        goto error;
     }
     filename = PyUnicode_AsWideCharString(py_filename, NULL);
     if (filename == NULL) {
-        return NULL;
+        goto error;
     }
 
     hres = CoCreateInstance(CLSID_ShellLink, NULL,
@@ -113,12 +113,13 @@ static PyObject *CreateShortcut(PyObject *self, PyObject *args)
     if (py_arguments) {
         wchar_t *arguments = PyUnicode_AsWideCharString(py_arguments, NULL);
         if (arguments == NULL) {
-            return NULL;
+            goto error;
         }
         hres = pShellLink->SetArguments(arguments);
         if (FAILED(hres)) {
                 PyErr_Format(PyExc_OSError,
                                "SetArguments() error 0x%x", hres);
+                PyMem_Free(arguments);
                 goto error;
         }
         PyMem_Free(arguments);
@@ -127,12 +128,13 @@ static PyObject *CreateShortcut(PyObject *self, PyObject *args)
     if (py_iconpath) {
         wchar_t *iconpath = PyUnicode_AsWideCharString(py_iconpath, NULL);
         if (iconpath == NULL) {
-            return NULL;
+            goto error;
         }
         hres = pShellLink->SetIconLocation(iconpath, iconindex);
         if (FAILED(hres)) {
                 PyErr_Format(PyExc_OSError,
                                "SetIconLocation() error 0x%x", hres);
+                PyMem_Free(iconpath);
                 goto error;
         }
         PyMem_Free(iconpath);
@@ -141,13 +143,14 @@ static PyObject *CreateShortcut(PyObject *self, PyObject *args)
     if (py_workdir) {
         wchar_t *workdir = PyUnicode_AsWideCharString(py_workdir, NULL);
         if (workdir == NULL) {
-            return NULL;
+            goto error;
         }
         hres = pShellLink->SetWorkingDirectory(workdir);
         if (FAILED(hres)) {
-                PyErr_Format(PyExc_OSError,
-                               "SetWorkingDirectory() error 0x%x", hres);
-                goto error;
+            PyErr_Format(PyExc_OSError,
+                            "SetWorkingDirectory() error 0x%x", hres);
+            PyMem_Free(workdir);
+            goto error;
         }
         PyMem_Free(workdir);
     }
@@ -155,7 +158,7 @@ static PyObject *CreateShortcut(PyObject *self, PyObject *args)
     if (py_app_id) {
         wchar_t *app_id = PyUnicode_AsWideCharString(py_app_id, NULL);
         if (app_id == NULL) {
-            return NULL;
+            goto error;
         }
         hres = pShellLink->QueryInterface(IID_PPV_ARGS(&pPropertyStore));
         if (FAILED(hres)) {
@@ -199,6 +202,14 @@ static PyObject *CreateShortcut(PyObject *self, PyObject *args)
     PyMem_Free(description);
     PyMem_Free(filename);
 
+    Py_XDECREF(py_path);
+    Py_XDECREF(py_description);
+    Py_XDECREF(py_filename);
+    Py_XDECREF(py_arguments);
+    Py_XDECREF(py_iconpath);
+    Py_XDECREF(py_workdir);
+    Py_XDECREF(py_app_id);
+
     CoUninitialize();
     Py_RETURN_NONE;
 
@@ -216,6 +227,14 @@ static PyObject *CreateShortcut(PyObject *self, PyObject *args)
     PyMem_Free(path);
     PyMem_Free(description);
     PyMem_Free(filename);
+    
+    Py_XDECREF(py_path);
+    Py_XDECREF(py_description);
+    Py_XDECREF(py_filename);
+    Py_XDECREF(py_arguments);
+    Py_XDECREF(py_iconpath);
+    Py_XDECREF(py_workdir);
+    Py_XDECREF(py_app_id);
 
     CoUninitialize();
     return NULL;
