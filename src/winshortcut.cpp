@@ -198,15 +198,9 @@ static PyObject *CreateShortcut(PyObject *self, PyObject *args)
     pPersistFile->Release();
     pShellLink->Release();
 
-    if (path) {
-        PyMem_Free(path);
-    }
-    if (description) {
-        PyMem_Free(description);
-    }
-    if (filename) {
-        PyMem_Free(filename);
-    }
+    PyMem_Free(path);
+    PyMem_Free(description);
+    PyMem_Free(filename);
 
     Py_DECREF(py_path);
     Py_DECREF(py_description);
@@ -230,9 +224,15 @@ static PyObject *CreateShortcut(PyObject *self, PyObject *args)
         pPropertyStore->Release();
     }
 
-    PyMem_Free(path);
-    PyMem_Free(description);
-    PyMem_Free(filename);
+    if (path) {
+        PyMem_Free(path);
+    }
+    if (description) {
+        PyMem_Free(description);
+    }
+    if (filename) {
+        PyMem_Free(filename);
+    }
 
     Py_DECREF(py_path);
     Py_DECREF(py_description);
