@@ -65,7 +65,6 @@ jobs:
           conda install -yq --solver libmamba \
             --file tests/requirements.txt \
             python=${{ matrix.python-version }}
-          conda install -yq --solver libmamba conda --only-deps
 
       - name: Patch conda with PR#11882 (TEMPORARY)
         shell: bash -el {0}
