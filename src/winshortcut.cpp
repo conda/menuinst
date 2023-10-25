@@ -202,9 +202,9 @@ static PyObject *CreateShortcut(PyObject *self, PyObject *args)
     PyMem_Free(description);
     PyMem_Free(filename);
 
-    Py_XDECREF(py_path);
-    Py_XDECREF(py_description);
-    Py_XDECREF(py_filename);
+    Py_DECREF(py_path);
+    Py_DECREF(py_description);
+    Py_DECREF(py_filename);
     Py_XDECREF(py_arguments);
     Py_XDECREF(py_iconpath);
     Py_XDECREF(py_workdir);
@@ -228,9 +228,9 @@ static PyObject *CreateShortcut(PyObject *self, PyObject *args)
     PyMem_Free(description);
     PyMem_Free(filename);
     
-    Py_XDECREF(py_path);
-    Py_XDECREF(py_description);
-    Py_XDECREF(py_filename);
+    Py_DECREF(py_path);
+    Py_DECREF(py_description);
+    Py_DECREF(py_filename);
     Py_XDECREF(py_arguments);
     Py_XDECREF(py_iconpath);
     Py_XDECREF(py_workdir);
