@@ -32,15 +32,15 @@
 
 static PyObject *CreateShortcut(PyObject *self, PyObject *args)
 {
-    Py_UNICODE *path; /* path and filename */
-    Py_UNICODE *description;
-    Py_UNICODE *filename;
+    PyObject *py_path; /* path and filename */
+    PyObject *py_description;
+    PyObject *py_filename;
 
-    Py_UNICODE *arguments = NULL;
-    Py_UNICODE *iconpath = NULL;
+    PyObject *py_arguments = NULL;
+    PyObject *py_iconpath = NULL;
     int iconindex = 0;
-    Py_UNICODE *workdir = NULL;
-    Py_UNICODE *app_id = NULL;
+    PyObject *py_workdir = NULL;
+    PyObject *py_app_id = NULL;
 
     IShellLink *pShellLink = NULL;
     IPersistFile *pPersistFile = NULL;
@@ -56,9 +56,45 @@ static PyObject *CreateShortcut(PyObject *self, PyObject *args)
         goto error;
     }
 
-    if (!PyArg_ParseTuple(args, "uuu|uuuiu",
-                          &path, &description, &filename,
-                          &arguments, &workdir, &iconpath, &iconindex, &app_id)) {
+    if (!PyArg_ParseTuple(args, "UUU|UUUiU",
+                          &py_path, &py_description, &py_filename,
+                          &py_arguments, &py_workdir, &py_iconpath, &iconindex, &py_app_id)) {
+        return NULL;
+    }
+
+    wchar_t *path;
+    path = PyUnicode_AsWideCharString(py_path, NULL);
+    if (path == NULL) {
+        return NULL;
+    }
+    wchar_t *description;
+    description = PyUnicode_AsWideCharString(py_description, NULL);
+    if (description == NULL) {
+        return NULL;
+    }
+    wchar_t *filename;
+    filename = PyUnicode_AsWideCharString(py_filename, NULL);
+    if (filename == NULL) {
+        return NULL;
+    }
+    wchar_t *arguments;
+    arguments = PyUnicode_AsWideCharString(py_arguments, NULL);
+    if (arguments == NULL) {
+        return NULL;
+    }
+    wchar_t *workdir;
+    workdir = PyUnicode_AsWideCharString(py_workdir, NULL);
+    if (workdir == NULL) {
+        return NULL;
+    }
+    wchar_t *iconpath;
+    iconpath = PyUnicode_AsWideCharString(py_iconpath, NULL);
+    if (iconpath == NULL) {
+        return NULL;
+    }
+    wchar_t *app_id;
+    app_id = PyUnicode_AsWideCharString(py_app_id, NULL);
+    if (app_id == NULL) {
         return NULL;
     }
 
@@ -158,6 +194,14 @@ static PyObject *CreateShortcut(PyObject *self, PyObject *args)
 
     pPersistFile->Release();
     pShellLink->Release();
+
+    PyMem_Free(path);
+    PyMem_Free(description);
+    PyMem_Free(filename);
+    PyMem_Free(arguments);
+    PyMem_Free(workdir);
+    PyMem_Free(iconpath);
+    PyMem_Free(app_id);
 
     CoUninitialize();
     Py_RETURN_NONE;
