@@ -39,6 +39,9 @@
 * @dbast made their first contribution in https://github.com/conda/menuinst/pull/116
 * @aganders3 made their first contribution in https://github.com/conda/menuinst/pull/119
 
+## 1.4.20 (2023-10-30)
+
+  * Add support for Python 3.12 (#165)
 
 ## 1.4.19 (2022-08-17)
 
