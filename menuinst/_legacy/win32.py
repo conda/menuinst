@@ -316,10 +316,10 @@ class ShortCut(object):
                 # and 4 optional ones (args, working_dir, icon_path and
                 # icon_index).
                 create_shortcut(
-                    str(cmd),
-                    str(name + name_suffix),
-                    str(dst),
-                    " ".join([str(arg) for arg in args]),
-                    str(workdir),
-                    str(icon),
+                    u'' + cmd,
+                    u'' + name + name_suffix,
+                    u'' + dst,
+                    u' '.join(arg for arg in args),
+                    u'' + workdir,
+                    u'' + icon,
                 )
