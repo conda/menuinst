@@ -7,7 +7,8 @@ import subprocess
 import sys
 from os.path import join, pathsep
 
-from menuinst._legacy.knownfolders import FOLDERID, get_folder_path
+# this must be an absolute import since the cwp.py script is copied to $PREFIX
+from menuinst.knownfolders import FOLDERID, get_folder_path
 
 # call as: python cwp.py [--no-console] PREFIX ARGs...
 parser = argparse.ArgumentParser()
