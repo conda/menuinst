@@ -6,7 +6,7 @@ import pytest
 @pytest.mark.skipif(os.name != "nt", reason="Windows only")
 def test_import_paths():
     """Imports used by conda <=23.7.2. Ensure they still work."""
-    import menuinst._legacy.cwd  # noqa: F401
+    import menuinst._legacy.cwp  # noqa: F401
     import menuinst._legacy.main  # noqa: F401
     import menuinst._legacy.utils  # noqa: F401
     import menuinst._legacy.win32  # noqa: F401
