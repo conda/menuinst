@@ -59,11 +59,6 @@ jobs:
             --file tests/requirements.txt \
             python=${{ matrix.python-version }}
 
-      - name: Patch conda with PR#11882 (TEMPORARY)
-        shell: bash -el {0}
-        run: |
-          pip install -U --no-deps https://github.com/conda/conda/archive/cep-menuinst.tar.gz
-
       - shell: bash -el {0}
         name: Conda info
         run: |
