@@ -1,7 +1,7 @@
 python
 pip
 conda
-pydantic<2.0a0
+pydantic
 pytest
 pytest-cov
 hypothesis
