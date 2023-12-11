@@ -1,8 +1,7 @@
 import sys
 from os.path import join
 
-import menuinst._legacy as menuinst
-
+from .. import __version__, install
 from ..utils import DEFAULT_PREFIX
 
 
@@ -20,11 +19,11 @@ def main():
     opts, args = p.parse_args()
 
     if opts.version:
-        sys.stdout.write("menuinst: %s\n" % menuinst.__version__)
+        sys.stdout.write("menuinst: %s\n" % __version__)
         return
 
     for arg in args:
-        menuinst.install(join(opts.prefix, arg), opts.remove, opts.prefix)
+        install(join(opts.prefix, arg), opts.remove, opts.prefix)
 
 
 if __name__ == '__main__':
