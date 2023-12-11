@@ -18,8 +18,6 @@
 
 * @jaimergp
 * @kenodegard
-* @conda-bot
-* @pre-commit-ci[bot]
 
 
 
