@@ -1,5 +1,28 @@
 [//]: # (current developments)
 
+## 2.0.1 (2023-12-11)
+
+### Enhancements
+
+* Update `winshortcut` C extension to support Python 3.12. (#164)
+
+### Bug fixes
+
+* Fix invalid import in `menuinst v1`'s legacy `cwp.py`. (#168)
+
+### Other
+
+* Add support for `pydantic` v2 in `menuinst._schema`. (#166 via #169)
+
+### Contributors
+
+* @jaimergp
+* @kenodegard
+* @conda-bot
+* @pre-commit-ci[bot]
+
+
+
 ## 2.0.0 (2023-09-14)
 
 ### Enhancements
