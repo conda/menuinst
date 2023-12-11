@@ -1,5 +1,26 @@
 [//]: # (current developments)
 
+## 2.0.1 (2023-12-11)
+
+### Enhancements
+
+* Update `winshortcut` C extension to support Python 3.12. (#164)
+
+### Bug fixes
+
+* Fix a regression in 2.0.0, where v1-style Windows shortcuts would fail to start applications that required environment activation. Addressed by adjusting an invalid import in `menuinst v1`'s legacy `cwp.py`. (#167 via #168)
+
+### Other
+
+* Add support for `pydantic` v2 in `menuinst._schema`. (#166 via #169)
+
+### Contributors
+
+* @jaimergp
+* @kenodegard
+
+
+
 ## 2.0.0 (2023-09-14)
 
 ### Enhancements
