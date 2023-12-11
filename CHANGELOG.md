@@ -8,7 +8,7 @@
 
 ### Bug fixes
 
-* Fix invalid import in `menuinst v1`'s legacy `cwp.py`. (#168)
+* Fix a regression in 2.0.0, where v1-style Windows shortcuts would fail to start applications that required environment activation. Addressed by adjusting an invalid import in `menuinst v1`'s legacy `cwp.py`. (#167 via #168)
 
 ### Other
 
