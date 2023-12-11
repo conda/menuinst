@@ -3,7 +3,8 @@ from conftest import DATA
 
 # from hypothesis import given, settings, HealthCheck
 # from hypothesis_jsonschema import from_schema
-from pydantic import ValidationError
+from pydantic import ValidationError as ValidationErrorV2
+from pydantic.v1 import ValidationError as ValidationErrorV1
 
 from menuinst._schema import BasePlatformSpecific, MenuItem, validate
 
@@ -14,10 +15,12 @@ from menuinst._schema import BasePlatformSpecific, MenuItem, validate
 #     assert value
 
 
-@pytest.mark.parametrize("path", (DATA / "jsons").glob("*.json"))
+@pytest.mark.parametrize(
+    "path", [pytest.param(path, id=path.name) for path in sorted((DATA / "jsons").glob("*.json"))]
+)
 def test_examples(path):
     if "invalid" in path.name:
-        with pytest.raises(ValidationError):
+        with pytest.raises((ValidationErrorV1, ValidationErrorV2)):
             assert validate(path)
     else:
         assert validate(path)

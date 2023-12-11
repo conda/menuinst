@@ -10,8 +10,14 @@ from pathlib import Path
 from pprint import pprint
 from typing import Dict, List, Literal, Optional, Union
 
-from pydantic import BaseModel as _BaseModel
-from pydantic import Field, conlist, constr
+try:
+    from pydantic.v1 import BaseModel as _BaseModel
+    from pydantic.v1 import Field, conlist, constr
+except ImportError:
+    # pydantic v1
+    from pydantic import BaseModel as _BaseModel
+    from pydantic import Field, conlist, constr
+
 
 log = getLogger(__name__)
 

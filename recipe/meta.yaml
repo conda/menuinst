@@ -38,7 +38,7 @@ test:
     - conda
     - pytest
     - pytest-cov
-    - pydantic <2.0a0
+    - pydantic
     - hypothesis
     - hypothesis-jsonschema
   source_files:
