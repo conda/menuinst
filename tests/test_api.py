@@ -144,17 +144,16 @@ def test_install_prefix(delete_files):
 
 @pytest.mark.skipif(PLATFORM != "win", reason="Windows only")
 def test_placeholders_in_menu_name(delete_files):
-    abs_json_path, paths, tmp_base_path, _ = check_output_from_shortcut(
+    _, paths, tmp_base_path, _ = check_output_from_shortcut(
         delete_files,
         "sys-prefix.json",
         expected_output=sys.prefix,
     )
     for path in paths:
-        if path.is_dir() and "Start Menu" in path.parts:
+        if path.suffix == ".lnk" and "Start Menu" in path.parts:
             assert path.name == f"Sys.Prefix {Path(tmp_base_path).name}"
     else:
         raise AssertionError("Didn't find Start Menu")
-    remove(abs_json_path, base_prefix=tmp_base_path)
 
 
 def test_precommands(delete_files):
