@@ -49,7 +49,7 @@ class WindowsMenu(Menu):
         In this property we only report the path to the Start menu.
         For other menus, check their respective properties.
         """
-        return Path(windows_folder_path(self.mode, False, "start")) / self.name
+        return Path(windows_folder_path(self.mode, False, "start")) / self.render(self.name)
 
     @property
     def quick_launch_location(self) -> Path:
