@@ -139,7 +139,16 @@ def check_output_from_shortcut(
 
 
 def test_install_prefix(delete_files):
-    check_output_from_shortcut(delete_files, "sys-prefix.json", expected_output=sys.prefix)
+    _, paths, _ = check_output_from_shortcut(
+        delete_files, "sys-prefix.json", expected_output=sys.prefix
+    )
+    if sys.platform == "win32":
+        for path in paths:
+            if path.suffix == ".lnk":
+                menu_dir = path.parent
+                assert menu_dir.name == f"Sys.Prefix {Path(sys.prefix).name}"
+        else:
+            raise AssertionError("Didn't find .lnk")
 
 
 def test_precommands(delete_files):
