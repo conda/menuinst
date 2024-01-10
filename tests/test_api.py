@@ -139,7 +139,9 @@ def check_output_from_shortcut(
 
 
 def test_install_prefix(delete_files):
-    _, paths, base_prefix, _ = check_output_from_shortcut(delete_files, "sys-prefix.json", expected_output=sys.prefix)
+    _, paths, base_prefix, _ = check_output_from_shortcut(
+        delete_files, "sys-prefix.json", expected_output=sys.prefix
+    )
     if PLATFORM == "win":
         for path in paths:
             if path.is_dir() and "Start Menu" in path.parts:
