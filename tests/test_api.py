@@ -152,6 +152,7 @@ def test_placeholders_in_menu_name(delete_files):
     for path in paths:
         if path.suffix == ".lnk" and "Start Menu" in path.parts:
             assert path.parent.name == f"Sys.Prefix {Path(tmp_base_path).name}"
+            break
     else:
         raise AssertionError("Didn't find Start Menu")
 
