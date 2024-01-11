@@ -1,5 +1,17 @@
 [//]: # (current developments)
 
+## 2.0.2 (2024-01-11)
+
+### Bug fixes
+
+* Render placeholders in `menu_name` key. (#175)
+
+### Contributors
+
+* @jaimergp
+
+
+
 ## 2.0.1 (2023-12-11)
 
 ### Enhancements
