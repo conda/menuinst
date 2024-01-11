@@ -135,11 +135,26 @@ def check_output_from_shortcut(
     if expected_output is not None:
         assert output.strip() == expected_output
 
-    return abs_json_path, paths, output
+    return abs_json_path, paths, tmp_base_path, output
 
 
 def test_install_prefix(delete_files):
     check_output_from_shortcut(delete_files, "sys-prefix.json", expected_output=sys.prefix)
+
+
+@pytest.mark.skipif(PLATFORM != "win", reason="Windows only")
+def test_placeholders_in_menu_name(delete_files):
+    _, paths, tmp_base_path, _ = check_output_from_shortcut(
+        delete_files,
+        "sys-prefix.json",
+        expected_output=sys.prefix,
+    )
+    for path in paths:
+        if path.suffix == ".lnk" and "Start Menu" in path.parts:
+            assert path.parent.name == f"Sys.Prefix {Path(tmp_base_path).name}"
+            break
+    else:
+        raise AssertionError("Didn't find Start Menu")
 
 
 def test_precommands(delete_files):
@@ -150,7 +165,7 @@ def test_precommands(delete_files):
 
 @pytest.mark.skipif(PLATFORM != "osx", reason="macOS only")
 def test_entitlements(delete_files):
-    json_path, paths, _ = check_output_from_shortcut(
+    json_path, paths, *_ = check_output_from_shortcut(
         delete_files, "entitlements.json", remove_after=False, expected_output="entitlements"
     )
     # verify signature
@@ -182,7 +197,7 @@ def test_entitlements(delete_files):
 
 @pytest.mark.skipif(PLATFORM != "osx", reason="macOS only")
 def test_no_entitlements_no_signature(delete_files):
-    json_path, paths, _ = check_output_from_shortcut(
+    json_path, paths, *_ = check_output_from_shortcut(
         delete_files, "sys-prefix.json", remove_after=False, expected_output=sys.prefix
     )
     app_dir = next(p for p in paths if p.name.endswith(".app"))
@@ -198,7 +213,7 @@ def test_no_entitlements_no_signature(delete_files):
 
 @pytest.mark.skipif(PLATFORM != "osx", reason="macOS only")
 def test_info_plist(delete_files):
-    json_path, paths, _ = check_output_from_shortcut(
+    json_path, paths, *_ = check_output_from_shortcut(
         delete_files, "entitlements.json", remove_after=False, expected_output="entitlements"
     )
     app_dir = next(p for p in paths if p.name.endswith(".app"))
@@ -217,7 +232,7 @@ def test_info_plist(delete_files):
 
 @pytest.mark.skipif(PLATFORM != "osx", reason="macOS only")
 def test_osx_symlinks(delete_files):
-    json_path, paths, output = check_output_from_shortcut(
+    json_path, paths, _, output = check_output_from_shortcut(
         delete_files, "osx_symlinks.json", remove_after=False
     )
     app_dir = next(p for p in paths if p.name.endswith(".app"))
