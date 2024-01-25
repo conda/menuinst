@@ -210,3 +210,72 @@ Directories defined by `menu_name` may not always appear in the Start Menu.
 On Windows 11, directories are only shown if they contain more than one shortcut.
 Otherwise, the shortcut will appear directly under "All apps".
 This behavior is normal for Windows 11 - `menuinst` still creates the directories correctly.
+
+### Migrating `pywscript` and `pyscript` to `menuinst v2`
+
+`menuinst v1` contained `pywscript` and `pyscript` fields that allowed python scripts inside
+a `conda` environment to be called.
+
+```json
+{
+  "menu_name": "App",
+  "menu_items": [
+    {
+      "name": "Launch App",
+      "pywscript": "${SCRIPTS_DIR}/app-launcher.py"
+    }
+  ]
+}
+```
+
+However, these wrappers just adjusted `PATH` and did not activate the `conda` environment
+so that environment variables were unavailable.
+
+These fields have been removed with `menuinst v2`. Instead, the environment should be activated
+and the script executed directly.
+
+```json
+{
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "$id": "https://schemas.conda.io/menuinst-1.schema.json",
+  "name": "App",
+  "menu_items": [
+    "name": "Launch App"
+    "description": "Launch App",
+    "activate": true,
+    "command": ["{{ PREFIX }}/pythonw.exe", "{{ SCRIPTS_DIR }}/app-launcher.py"],
+    "platforms": {
+      "win": {
+      }
+    }
+  ]
+}
+```
+
+This will briefly open a terminal Window to launch the python instance.
+If this flashing is not desired, `menuinst v1` behavior can be restored
+by explicitly calling the wrapper:
+
+```json
+{
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "$id": "https://schemas.conda.io/menuinst-1.schema.json",
+  "name": "App",
+  "menu_items": [
+    "name": "Launch App"
+    "description": "Launch App",
+    "activate": true,
+    "command": [
+      "{{ BASE_PYTHONW }}",
+      "{{ BASE_PREFIX }}/cwp.py",
+      "{{ PREFIX }}",
+      "{{ PYTHONW }}",
+      "{{ SCRIPTS_DIR }}/app-launcher.py"
+    ],
+    "platforms": {
+      "win": {
+      }
+    }
+  ]
+}
+```
