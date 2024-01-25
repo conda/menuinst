@@ -88,5 +88,5 @@ $ sed "s/__PKG_VERSION__/${PKG_VERSION}/g" "${RECIPE_DIR}/menu.json" > "${PREFIX
 ````
 
 ````{note}
-`menuinst` will add " ({{ ENV_NAME }})" to the shortcut name if the package is installed outside the base environment.
+On Windows, `menuinst` will add " ({{ ENV_NAME }})" to the shortcut name if the package is installed outside the base environment.
 ````
