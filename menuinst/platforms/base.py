@@ -37,7 +37,10 @@ class Menu:
         self.prefix = Path(prefix)
         self.base_prefix = Path(base_prefix)
 
-        self.env_name = None
+        if self.prefix.absolute() == self.base_prefix.absolute():
+            self.env_name = None
+        else:
+            self.env_name = self.prefix.name
 
     def create(self) -> List[Path]:
         raise NotImplementedError
