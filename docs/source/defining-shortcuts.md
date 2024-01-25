@@ -201,3 +201,12 @@ You can add a dependency on `__osx>=10.14.4` on your conda package if you wish t
   ]
 }
 ```
+
+## Notes on Windows shortcuts
+
+### Directories do not appear under `All apps` in the Start Menu
+
+Directories defined by `menu_name` may not always appear in the Start Menu.
+On Windows 11, directories are only shown if they contain more than one shortcut.
+Otherwise, the shortcut will appear directly under "All apps".
+This behavior is normal for Windows 11 - `menuinst` still creates the directories correctly.
