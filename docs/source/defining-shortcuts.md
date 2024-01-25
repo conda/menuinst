@@ -243,7 +243,10 @@ and the script executed directly.
     "name": "Launch App"
     "description": "Launch App",
     "activate": true,
-    "command": ["{{ PREFIX }}/pythonw.exe", "{{ SCRIPTS_DIR }}/app-launcher.py"],
+    "command": [
+      "{{ PREFIX }}/pythonw.exe",
+      "{{ SCRIPTS_DIR }}/app-launcher.py"
+    ],
     "platforms": {
       "win": {
       }
