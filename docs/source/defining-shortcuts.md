@@ -204,14 +204,14 @@ You can add a dependency on `__osx>=10.14.4` on your conda package if you wish t
 
 ## Notes on Windows shortcuts
 
-### Directories do not appear under `All apps` in the Start Menu
+### Directories do not appear under All apps in the Start Menu
 
 Directories defined by `menu_name` may not always appear in the Start Menu.
 On Windows 11, directories are only shown if they contain more than one shortcut.
 Otherwise, the shortcut will appear directly under "All apps".
 This behavior is normal for Windows 11 - `menuinst` still creates the directories correctly.
 
-### Migrating `pywscript` and `pyscript` to `menuinst v2`
+### Migrating pywscript and pyscript to menuinst v2
 
 `menuinst v1` contained `pywscript` and `pyscript` fields that allowed python scripts inside
 a `conda` environment to be called.
