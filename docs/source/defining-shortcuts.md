@@ -222,7 +222,7 @@ a `conda` environment to be called.
   "menu_items": [
     {
       "name": "Launch App",
-      "pywscript": "${SCRIPTS_DIR}/app-launcher.py"
+      "pywscript": "${PYTHON_SCRIPTS}/app-launcher.py"
     }
   ]
 }
