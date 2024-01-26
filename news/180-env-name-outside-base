@@ -4,7 +4,7 @@
 
 ### Bug fixes
 
-* Set env_name outside base environment to add environment name to shortcuts outside base environment on Windows
+* Set env_name outside base environment to add environment name to shortcuts outside base environment on Windows (#180)
 
 ### Deprecations
 
