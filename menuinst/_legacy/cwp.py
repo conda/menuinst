@@ -18,7 +18,9 @@ def main():
         "--no-console", action="store_true", help="Create subprocess with CREATE_NO_WINDOW flag."
     )
     parser.add_argument("prefix", help="Prefix to be 'activated' before calling `args`.")
-    parser.add_argument("args", nargs=argparse.REMAINDER, help="Command (and arguments) to be executed.")
+    parser.add_argument(
+        "args", nargs=argparse.REMAINDER, help="Command (and arguments) to be executed."
+    )
     parsed_args = parser.parse_args()
 
     no_console = parsed_args.no_console
