@@ -11,7 +11,7 @@ from os.path import join, pathsep
 from menuinst.knownfolders import FOLDERID, get_folder_path
 
 
-def main():
+def main(argv=None):
     # call as: python cwp.py [--no-console] PREFIX ARGs...
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -21,7 +21,7 @@ def main():
     parser.add_argument(
         "args", nargs=argparse.REMAINDER, help="Command (and arguments) to be executed."
     )
-    parsed_args = parser.parse_args()
+    parsed_args = parser.parse_args(argv)
 
     no_console = parsed_args.no_console
     prefix = parsed_args.prefix
