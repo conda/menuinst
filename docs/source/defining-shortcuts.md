@@ -79,9 +79,10 @@ Unix systems have the notion of MIME types, while Windows relies more on file na
 :::{admonition} Event handlers in macOS
 :class: note
 
-On macOS, opened files are dispatched via system events. If your application knows how to handle these events, then you don't need anything else. However, if your app is not aware of system
+On macOS, opened files are dispatched via system events. If your application knows how to handle
+these events, then you don't need anything else. However, if your app is not aware of system
 events, you need to set the `event_handler` field to define a logic that will forward the caught
-files to your application (via sockets, API calls, inotify or any other inter-process communication
+files to your application (via sockets, API calls, `inotify` or any other inter-process communication
 mechanism). [See `event_handler` example](https://github.com/conda/menuinst/blob/e992e76/tests/data/jsons/file_types.json#L35-L57).
 
 When `event_handler` is set, `menuinst` will inject an additional launcher written in Swift to
