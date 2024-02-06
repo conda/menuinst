@@ -161,7 +161,7 @@ shortcut.
   so the URLs are passed adequately.
 - On Windows, use `url_protocols`. Remember to add the `%1` or `%*` placeholders to your command so
   the URLs are passed adequately.
-- On macOS, use `CFBundleURLTypes`. Requires no placeholders. See 
+- On macOS, use `CFBundleURLTypes`. Requires no placeholders. See
   {ref}`relevant note in File Types <macos-event-handler>`.
 
 ```json
