@@ -44,6 +44,10 @@ jobs:
         with:
           # Upload entire repository
           path: 'docs/_build/dirhtml'
+      
+      - name: Check links
+        run: |
+          make linkcheck
 
   pages:
     runs-on: ubuntu-latest

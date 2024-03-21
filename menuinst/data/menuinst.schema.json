@@ -43,7 +43,7 @@
   "definitions": {
     "Linux": {
       "title": "Linux",
-      "description": "Linux-specific instructions.\n\nCheck the `Desktop entry specification <desktop-entry-spec>`__ for more details.\n\n.. desktop-entry-spec: https://specifications.freedesktop.org/desktop-entry-spec/desktop-entry-spec-latest.html#recognized-keys",
+      "description": "Linux-specific instructions.\n\nCheck the `Desktop entry specification\n<https://specifications.freedesktop.org/desktop-entry-spec/desktop-entry-spec-latest.html#recognized-keys>`__\nfor more details.",
       "type": "object",
       "properties": {
         "name": {
@@ -354,7 +354,7 @@
     },
     "MacOS": {
       "title": "MacOS",
-      "description": "Mac-specific instructions. Check these URLs for more info:\n\n- ``CF*`` keys: see `Core Foundation Keys <cf-keys>`_\n- ``LS*`` keys: see `Launch Services Keys <ls-keys>`_\n- ``entitlements``: see `entitlements docs <entitlements-docs>`_\n\n.. _cf-keys: https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html\n.. _ls-keys: https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/LaunchServicesKeys.html\n.. _entitlements-docs: https://developer.apple.com/documentation/bundleresources/entitlements.",
+      "description": "Mac-specific instructions. Check these URLs for more info:\n\n- ``CF*`` keys: see `Core Foundation Keys <https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html>`__\n- ``LS*`` keys: see `Launch Services Keys <https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/LaunchServicesKeys.html>`__\n- ``entitlements``: see `Entitlements documentation <https://developer.apple.com/documentation/bundleresources/entitlements>`__",
       "type": "object",
       "properties": {
         "name": {
