@@ -100,57 +100,7 @@ Note that setting `CFBundleTypeRole` will make the wrapper blip in the dock when
 opened. If you don't want that, do not set it.
 :::
 
-A multi-platform example:
-
-```json
-{
-  "$schema": "https://json-schema.org/draft-07/schema",
-  "$id": "https://schemas.conda.io/menuinst-1.schema.json",
-  "menu_name": "File type handler example",
-  "menu_items": [
-    {
-      "name": "My CSV Reader",
-      "activate": true,
-      "command": ["{{ PREFIX }}/bin/open_menuinst_files.py"],
-      "icon": "{{ MENU_DIR }}/open_menuinst_files.{{ ICON_EXT }}",
-      "platforms": {
-        "linux": {
-          "command": ["{{ PREFIX }}/bin/open_menuinst_files.py", "%f"],
-          "MimeType": ["application/x-menuinst"],
-          "glob_patterns": {
-            "application/x-menuinst": ["*.menuinst"]
-          }
-        },
-        "osx": {
-          "CFBundleDocumentTypes": [
-            {
-              "CFBundleTypeName": "org.conda.menuinst.opener",
-              "CFBundleTypeRole": "Viewer",
-              "LSItemContentTypes": ["org.conda.menuinst.main-file-uti"],
-              "LSHandlerRank": "Default"
-            }
-          ],
-          "UTExportedTypeDeclarations": [
-            {
-              "UTTypeConformsTo": ["public.data", "public.content"],
-              "UTTypeIdentifier": "org.conda.menuinst.main-file-uti",
-              "UTTypeTagSpecification": [
-                {
-                  "public.filename-extension": ["menuinst"]
-                }
-              ]
-            }
-          ]
-        },
-        "windows": {
-          "command": ["{{ SCRIPTS_DIR }}/open_menuinst_files.py", "%1"],
-          "file_extensions": [".csv"]
-        }
-      }
-    }
-  ]
-}
-```
+A multi-platform example can be found at [`tests/data/jsons/file_types.json`](https://github.com/conda/menuinst/blob/main/tests/data/jsons/file_types.json).
 
 ### URL protocols
 
@@ -165,46 +115,7 @@ shortcut.
 - On macOS, use `CFBundleURLTypes`. Requires no placeholders. See
   {ref}`relevant note in File Types <macos-event-handler>`.
 
-```json
-{
-  "$schema": "https://json-schema.org/draft-07/schema",
-  "$id": "https://schemas.conda.io/menuinst-1.schema.json",
-  "menu_name": "Protocol handler example",
-  "menu_items": [
-    {
-      "name": "My custom menuinst:// handler",
-      "activate": true,
-      "command": ["{{ PREFIX }}/bin/my_protocol_handler.py"],
-      "icon": "{{ MENU_DIR }}/my_protocol_handler.{{ ICON_EXT }}",
-      "platforms": {
-        "linux": {
-          "command": ["{{ PREFIX }}/bin/my_protocol_handler.py", "%u"],
-          "MimeType": ["x-scheme-handler/menuinst"]
-        },
-        "osx": {
-          "command": [
-            "{{ PREFIX }}/bin/my_protocol_handler.py",
-            "--listen",
-            "4444"
-          ],
-          "CFBundleURLTypes": [
-            {
-              "CFBundleURLIconFile": "{{ MENU_DIR }}/my_protocol_handler",
-              "CFBundleURLName": "my-protocol-handler.menuinst.does-not-work-yet",
-              "CFBundleURLSchemes": ["menuinst"]
-            }
-          ],
-          "event_handler": "for i in 1 2 3 4 5; do echo \"$*\" | nc localhost 4444 && break || sleep 1; done"
-        },
-        "windows": {
-          "command": ["{{ SCRIPTS_DIR }}/my_protocol_handler.py", "%1"],
-          "url_protocols": ["menuinst"]
-        }
-      }
-    }
-  ]
-}
-```
+A multi-platform example can be found at [`tests/data/jsons/url_protocols.json`](https://github.com/conda/menuinst/blob/main/tests/data/jsons/url_protocols.json).
 
 ## Notes on Windows shortcuts
 
