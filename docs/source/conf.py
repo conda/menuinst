@@ -74,10 +74,10 @@ nitpick_ignore = [
     ("py:class", "menuinst._schema.ConstrainedStrValue"),
 ]
 
-linkcheck_anchors_ignore = (
+linkcheck_anchors_ignore = [
     r"^L[0-9]+$",
     r"^L[0-9]+-L[0-9]+$",
-)
+]
 
 templates_path = ["_templates"]
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
