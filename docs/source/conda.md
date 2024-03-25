@@ -86,7 +86,3 @@ Use `sed` like this:
 $ sed "s/__PKG_VERSION__/${PKG_VERSION}/g" "${RECIPE_DIR}/menu.json" > "${PREFIX}/Menu/${PKG_NAME}_menu.json"
 ```
 ````
-
-```{note}
-On Windows, `menuinst` will add " (\{\{ ENV_NAME \}\})" to the shortcut name if the package is installed outside the base environment.
-```
