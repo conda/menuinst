@@ -48,8 +48,25 @@
       "properties": {
         "name": {
           "title": "Name",
-          "minLength": 1,
-          "type": "string"
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "object",
+              "patternProperties": {
+                "^target_environment_is(_not)?_base$": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "additionalProperties": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          ]
         },
         "description": {
           "title": "Description",
@@ -359,8 +376,25 @@
       "properties": {
         "name": {
           "title": "Name",
-          "minLength": 1,
-          "type": "string"
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "object",
+              "patternProperties": {
+                "^target_environment_is(_not)?_base$": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "additionalProperties": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          ]
         },
         "description": {
           "title": "Description",
@@ -513,8 +547,25 @@
       "properties": {
         "name": {
           "title": "Name",
-          "minLength": 1,
-          "type": "string"
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "object",
+              "patternProperties": {
+                "^target_environment_is(_not)?_base$": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "additionalProperties": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          ]
         },
         "description": {
           "title": "Description",
@@ -615,8 +666,25 @@
       "properties": {
         "name": {
           "title": "Name",
-          "minLength": 1,
-          "type": "string"
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "object",
+              "patternProperties": {
+                "^target_environment_is(_not)?_base$": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "additionalProperties": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          ]
         },
         "description": {
           "title": "Description",

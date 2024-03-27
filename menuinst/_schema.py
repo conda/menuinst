@@ -36,8 +36,19 @@ class BasePlatformSpecific(BaseModel):
     * Default value is always ``None``.
     """
 
-    name: Optional[constr(min_length=1)] = None
-    "The name of the menu item"
+    name: Optional[
+        Union[
+            constr(min_length=1),
+            dict[constr(regex=r"^target_environment_is(_not)?_base$"), constr(min_length=1)],
+        ]
+    ] = None
+    """
+    The name of the menu item
+
+    Can be a dictionary to use different names for installations into the base
+    or a non-base environment using the keys `target_environment_is_base` and
+    `target_environment_is_not_base`, respectively.
+    """
     description: Optional[str] = None
     "A longer description of the menu item. Shown on popup messages."
     icon: Optional[constr(min_length=1)] = None
@@ -340,8 +351,17 @@ class Platforms(BaseModel):
 class MenuItem(BaseModel):
     "Instructions to create a menu item across operating systems."
 
-    name: constr(min_length=1) = ...
-    "The name of the menu item."
+    name: Union[
+        constr(min_length=1),
+        dict[constr(regex=r"^target_environment_is_(not_)?base$"), constr(min_length=1)],
+    ] = ...
+    """
+    The name of the menu item.
+
+    Can be a dictionary to use different names for installations into the base
+    or a non-base environment using the keys `target_environment_is_base` and
+    `target_environment_is_not_base`, respectively.
+    """
     description: str = ...
     "A longer description of the menu item. Shown on popup messages."
     command: conlist(str, min_items=1) = ...
