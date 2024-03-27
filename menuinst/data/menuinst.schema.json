@@ -674,7 +674,7 @@
             {
               "type": "object",
               "patternProperties": {
-                "^target_environment_is(_not)?_base$": {
+                "^target_environment_is_(not_)?base$": {
                   "type": "string",
                   "minLength": 1
                 }

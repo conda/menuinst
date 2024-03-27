@@ -26,7 +26,7 @@ log = getLogger(__name__)
 class Menu:
     def __init__(
         self,
-        name: Union[str, dict[str, str]],
+        name: Union[str, Dict[str, str]],
         prefix: str = DEFAULT_PREFIX,
         base_prefix: str = DEFAULT_BASE_PREFIX,
         mode: _UserOrSystem = "user",
