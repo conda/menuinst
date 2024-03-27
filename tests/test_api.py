@@ -286,10 +286,11 @@ def test_name_dictionary(target_env_is_base):
     menu_items = install(abs_json_path, target_prefix=tmp_target_path, base_prefix=tmp_base_path)
     try:
         if PLATFORM == "linux":
+            suffix = "-not-in-base" if target_env_is_base else ""
             expected = {
-                "package_a" if target_env_is_base else "package=not-in-base_a-not-in-base",
-                "package_b",
-                "package" if target_env_is_base else "package-not-in-base",
+                f"package{suffix}_a{suffix}",
+                f"package{suffix}_b{suffix}",
+                f"package{suffix}",
             }
         else:
             expected = {
