@@ -1,10 +1,7 @@
 {
     "$schema": "https://json-schema.org/draft-07/schema",
     "$id": "https://schemas.conda.io/menuinst-1.schema.json",
-    "menu_name": {
-        "target_environment_is_base": "Package",
-	"target_environment_is_not_base": "Package_not_in_base"
-    },
+    "menu_name": "Package",
     "menu_items": [
         {
             "name": {

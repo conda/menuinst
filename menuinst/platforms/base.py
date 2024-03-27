@@ -8,7 +8,7 @@ from logging import getLogger
 from pathlib import Path
 from subprocess import check_output
 from tempfile import NamedTemporaryFile
-from typing import Any, Dict, Iterable, List, Mapping, Optional, Union
+from typing import Any, Dict, Iterable, List, Mapping, Optional
 
 from ..utils import (
     DEFAULT_BASE_PREFIX,
@@ -26,13 +26,14 @@ log = getLogger(__name__)
 class Menu:
     def __init__(
         self,
-        name: Union[str, Dict[str, str]],
+        name: str,
         prefix: str = DEFAULT_PREFIX,
         base_prefix: str = DEFAULT_BASE_PREFIX,
         mode: _UserOrSystem = "user",
     ):
         assert mode in ("user", "system"), f"mode={mode} must be `user` or `system`"
         self.mode = mode
+        self.name = name
         self.prefix = Path(prefix)
         self.base_prefix = Path(base_prefix)
 
@@ -40,18 +41,6 @@ class Menu:
             self.env_name = None
         else:
             self.env_name = self.prefix.name
-
-        if isinstance(name, str):
-            self.name = self.render(name)
-        elif isinstance(name, dict):
-            if self.env_name:
-                self.name = name.get("target_environment_is_not_base", "")
-            else:
-                self.name = name.get("target_environment_is_base", "")
-        else:
-            raise TypeError("`name` must be str or dict.")
-        if not self.name:
-            raise ValueError("Required property `name` is missing for Menu.")
 
     def create(self) -> List[Path]:
         raise NotImplementedError
