@@ -13,7 +13,12 @@
             "command": [
                 "echo",
                 "A"
-            ]
+            ],
+	    "platforms": {
+		"win": {},
+		"linux": {},
+		"osx": {}
+	    }
 	},
         {
             "name": "B",
@@ -22,7 +27,12 @@
             "command": [
                 "echo",
                 "B"
-            ]
+            ],
+	    "platforms": {
+		"win": {},
+		"linux": {},
+		"osx": {}
+	    }
 	}
     ]
 }
