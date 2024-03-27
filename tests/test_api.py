@@ -285,11 +285,19 @@ def test_name_dictionary(target_env_is_base):
     abs_json_path = DATA / "jsons" / "menu-name.json"
     menu_items = install(abs_json_path, target_prefix=tmp_target_path, base_prefix=tmp_base_path)
     try:
-        expected = {
-            "Package" if target_env_is_base else f"Package ({Path(tmp_target_path).name})",
-            "A" if target_env_is_base else f"A ({Path(tmp_target_path).name})",
-            "B",
-        }
+        if PLATFORM == "linux":
+            expected = {
+                "package_a" if target_env_is_base else "package=not-in-base_a-not-in-base",
+                "package_b",
+                "package" if target_env_is_base else "package-not-in-base",
+            }
+        else:
+            expected = {
+                "A" if target_env_is_base else "A_not_in_base",
+                "B",
+            }
+            if PLATFORM == "win":
+                expected.update(["Package" if target_env_is_base else "Package_not_in_base"])
         item_names = {item.stem for item in menu_items}
         assert item_names == expected
     finally:
