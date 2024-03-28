@@ -468,6 +468,10 @@
           "title": "Lsrequiresnativeexecution",
           "type": "boolean"
         },
+        "NSSupportsAutomaticGraphicsSwitching": {
+          "title": "Nssupportsautomaticgraphicsswitching",
+          "type": "boolean"
+        },
         "UTExportedTypeDeclarations": {
           "title": "Utexportedtypedeclarations",
           "type": "array",

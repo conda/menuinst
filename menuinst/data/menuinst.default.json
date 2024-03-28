@@ -47,6 +47,7 @@
           "LSMinimumSystemVersion": null,
           "LSMultipleInstancesProhibited": null,
           "LSRequiresNativeExecution": null,
+          "NSSupportsAutomaticGraphicsSwitching": null,
           "UTExportedTypeDeclarations": null,
           "UTImportedTypeDeclarations": null,
           "entitlements": null,

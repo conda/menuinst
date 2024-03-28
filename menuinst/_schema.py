@@ -295,6 +295,8 @@ class MacOS(BasePlatformSpecific):
     If true, prevent a universal binary from being run under
     Rosetta emulation on an Intel-based Mac.
     """
+    NSSupportsAutomaticGraphicsSwitching: Optional[bool] = None
+    """If true, allows an OpenGL app to utilize the integrated GPU."""
     UTExportedTypeDeclarations: Optional[List[UTTypeDeclarationModel]] = None
     "The uniform type identifiers owned and exported by the app."
     UTImportedTypeDeclarations: Optional[List[UTTypeDeclarationModel]] = None
