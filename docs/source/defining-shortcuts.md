@@ -66,7 +66,7 @@ respectively.
 
 The example below creates a shortcut called with the name "Launch Turtle" if installed into the
 base environment. If installed into an environment called, e.g., `turtle`, the name of the shortcut
-is "Lauch Tutrle (turtle)". This was the default behavior of `menuinst` version 1.
+is "Launch Turtle (turtle)". This was the default behavior of `menuinst` version 1.
 
 ```json
 {
