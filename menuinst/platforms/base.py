@@ -37,7 +37,7 @@ class Menu:
         self.prefix = Path(prefix)
         self.base_prefix = Path(base_prefix)
 
-        if self.prefix.resolve() == self.base_prefix.resolve():
+        if self.prefix.samefile(self.base_prefix):
             self.env_name = None
         else:
             self.env_name = self.prefix.name
