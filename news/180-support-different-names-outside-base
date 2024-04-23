@@ -1,6 +1,6 @@
 ### Enhancements
 
-* Support different name for shortcuts within and outside base environment (support v1 behavior)
+* Support different name for shortcuts within and outside base environment (support v1 behavior). (#180)
 
 ### Bug fixes
 

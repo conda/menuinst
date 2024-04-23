@@ -39,7 +39,7 @@ class BasePlatformSpecific(BaseModel):
     name: Optional[
         Union[
             constr(min_length=1),
-            Dict[constr(regex=r"^target_environment_is(_not)?_base$"), constr(min_length=1)],
+            Dict[Literal["target_environment_is_base", "target_environment_is_not_base"], constr(min_length=1)],
         ]
     ] = None
     """
