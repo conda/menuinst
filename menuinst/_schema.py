@@ -39,7 +39,10 @@ class BasePlatformSpecific(BaseModel):
     name: Optional[
         Union[
             constr(min_length=1),
-            Dict[Literal["target_environment_is_base", "target_environment_is_not_base"], constr(min_length=1)],
+            Dict[
+                Literal["target_environment_is_base", "target_environment_is_not_base"],
+                constr(min_length=1),
+            ],
         ]
     ] = None
     """
@@ -353,7 +356,10 @@ class MenuItem(BaseModel):
 
     name: Union[
         constr(min_length=1),
-        Dict[constr(regex=r"^target_environment_is_(not_)?base$"), constr(min_length=1)],
+        Dict[
+            Literal["target_environment_is_base", "target_environment_is_not_base"],
+            constr(min_length=1),
+        ],
     ] = ...
     """
     The name of the menu item.
