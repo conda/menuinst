@@ -24,7 +24,7 @@ concurrency:
 jobs:
   run_test_suite:
     name: ${{ matrix.os }}-py${{ matrix.python-version }}
-    runs-on: ${{ matrix.os }}-latest
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 60
     env:
       CONDA_NUMBER_CHANNEL_NOTICES: 0
@@ -32,14 +32,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows, ubuntu, macos]
+        os: [windows-latest, ubuntu-latest, macos-13]
         python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
         exclude:
-          - os: macos
+          - os: macos-13
             python-version: "3.11"
-          - os: macos
+          - os: macos-13
             python-version: "3.10"
-          - os: macos
+          - os: macos-13
             python-version: "3.9"
 
     steps:
