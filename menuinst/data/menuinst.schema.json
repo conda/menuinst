@@ -41,6 +41,23 @@
   ],
   "additionalProperties": false,
   "definitions": {
+    "MenuItemNameDict": {
+      "title": "MenuItemNameDict",
+      "type": "object",
+      "properties": {
+        "target_env_is_base": {
+          "title": "Target Env Is Base",
+          "minLength": 1,
+          "type": "string"
+        },
+        "target_env_is_not_base": {
+          "title": "Target Env Is Not Base",
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
     "Linux": {
       "title": "Linux",
       "description": "Linux-specific instructions.\n\nCheck the `Desktop entry specification <desktop-entry-spec>`__ for more details.\n\n.. desktop-entry-spec: https://specifications.freedesktop.org/desktop-entry-spec/desktop-entry-spec-latest.html#recognized-keys",
@@ -54,17 +71,7 @@
               "minLength": 1
             },
             {
-              "type": "object",
-              "patternProperties": {
-                "^target_environment_is(_not)?_base$": {
-                  "type": "string",
-                  "minLength": 1
-                }
-              },
-              "additionalProperties": {
-                "type": "string",
-                "minLength": 1
-              }
+              "$ref": "#/definitions/MenuItemNameDict"
             }
           ]
         },
@@ -382,17 +389,7 @@
               "minLength": 1
             },
             {
-              "type": "object",
-              "patternProperties": {
-                "^target_environment_is(_not)?_base$": {
-                  "type": "string",
-                  "minLength": 1
-                }
-              },
-              "additionalProperties": {
-                "type": "string",
-                "minLength": 1
-              }
+              "$ref": "#/definitions/MenuItemNameDict"
             }
           ]
         },
@@ -553,17 +550,7 @@
               "minLength": 1
             },
             {
-              "type": "object",
-              "patternProperties": {
-                "^target_environment_is(_not)?_base$": {
-                  "type": "string",
-                  "minLength": 1
-                }
-              },
-              "additionalProperties": {
-                "type": "string",
-                "minLength": 1
-              }
+              "$ref": "#/definitions/MenuItemNameDict"
             }
           ]
         },
@@ -672,17 +659,7 @@
               "minLength": 1
             },
             {
-              "type": "object",
-              "patternProperties": {
-                "^target_environment_is_(not_)?base$": {
-                  "type": "string",
-                  "minLength": 1
-                }
-              },
-              "additionalProperties": {
-                "type": "string",
-                "minLength": 1
-              }
+              "$ref": "#/definitions/MenuItemNameDict"
             }
           ]
         },

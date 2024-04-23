@@ -8,7 +8,7 @@ import json
 from logging import getLogger
 from pathlib import Path
 from pprint import pprint
-from typing import Dict, List, Literal, Optional, Union
+from typing import Dict, List, Literal, Optional, TypedDict, Union
 
 try:
     from pydantic.v1 import BaseModel as _BaseModel
@@ -20,6 +20,11 @@ except ImportError:
 
 
 log = getLogger(__name__)
+
+
+class MenuItemNameDict(TypedDict, total=False):
+    target_env_is_base: constr(min_length=1)
+    target_env_is_not_base: constr(min_length=1)
 
 
 class BaseModel(_BaseModel):
@@ -36,15 +41,7 @@ class BasePlatformSpecific(BaseModel):
     * Default value is always ``None``.
     """
 
-    name: Optional[
-        Union[
-            constr(min_length=1),
-            Dict[
-                Literal["target_environment_is_base", "target_environment_is_not_base"],
-                constr(min_length=1),
-            ],
-        ]
-    ] = None
+    name: Optional[Union[constr(min_length=1), MenuItemNameDict]] = None
     """
     The name of the menu item
 
@@ -354,13 +351,7 @@ class Platforms(BaseModel):
 class MenuItem(BaseModel):
     "Instructions to create a menu item across operating systems."
 
-    name: Union[
-        constr(min_length=1),
-        Dict[
-            Literal["target_environment_is_base", "target_environment_is_not_base"],
-            constr(min_length=1),
-        ],
-    ] = ...
+    name: Union[constr(min_length=1), MenuItemNameDict] = ...
     """
     The name of the menu item.
 
