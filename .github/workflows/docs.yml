@@ -47,6 +47,7 @@ jobs:
       
       - name: Check links
         run: |
+          cd docs
           make linkcheck
 
   pages:
