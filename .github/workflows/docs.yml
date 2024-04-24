@@ -44,7 +44,7 @@ jobs:
         with:
           # Upload entire repository
           path: 'docs/_build/dirhtml'
-      
+
       - name: Check links
         run: |
           cd docs
