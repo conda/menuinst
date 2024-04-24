@@ -48,7 +48,7 @@ jobs:
           fetch-depth: 0
 
       - name: Add Linux dependencies
-        if: matrix.os == 'ubuntu'
+        if: startsWith(matrix.os, 'ubuntu')
         run: |
           sudo apt-get install libfile-mimeinfo-perl desktop-file-utils
           echo "XDG_UTILS_DEBUG_LEVEL=2" >> $GITHUB_ENV
