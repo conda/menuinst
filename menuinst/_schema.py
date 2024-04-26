@@ -295,9 +295,9 @@ class MacOS(BasePlatformSpecific):
     See `the entitlements docs <https://developer.apple.com/documentation/bundleresources/entitlements>`__
     for a full list of possible values.
     """
-    link_in_bundle: Optional[
-        Dict[constr(min_length=1), constr(regex=r"^(?!\/)(?!\.\./).*")]
-    ] = None
+    link_in_bundle: Optional[Dict[constr(min_length=1), constr(regex=r"^(?!\/)(?!\.\./).*")]] = (
+        None
+    )
     """
     Paths that should be symlinked into the shortcut app bundle.
     It takes a mapping of source to destination paths. Destination paths must be

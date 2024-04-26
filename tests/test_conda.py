@@ -1,6 +1,7 @@
 """
 Integration tests with conda
 """
+
 import json
 import os
 import sys
