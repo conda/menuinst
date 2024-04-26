@@ -29,8 +29,16 @@ class BaseModel(_BaseModel):
 
 
 class MenuItemNameDict(BaseModel):
-    target_environment_is_base: Optional[constr(min_length=1)]
-    target_environment_is_not_base: Optional[constr(min_length=1)]
+    """
+    Variable menu item name.
+    Use this dictionary if the menu item name depends on installation parameters
+    such as the target environment.
+    """
+
+    target_environment_is_base: Optional[constr(min_length=1)] = None
+    "Name when target environment is the base environment."
+    target_environment_is_not_base: Optional[constr(min_length=1)] = None
+    "Name when target environment is not the base environment."
 
 
 class BasePlatformSpecific(BaseModel):
@@ -44,11 +52,8 @@ class BasePlatformSpecific(BaseModel):
 
     name: Optional[Union[constr(min_length=1), MenuItemNameDict]] = None
     """
-    The name of the menu item
-
-    Can be a dictionary to use different names for installations into the base
-    or a non-base environment using the keys `target_environment_is_base` and
-    `target_environment_is_not_base`, respectively.
+    The name of the menu item. Can be a dictionary if the name depends on
+    installation parameters. See :class:`MenuItemNameDict` for details.
     """
     description: Optional[str] = None
     "A longer description of the menu item. Shown on popup messages."
@@ -354,11 +359,8 @@ class MenuItem(BaseModel):
 
     name: Union[constr(min_length=1), MenuItemNameDict] = ...
     """
-    The name of the menu item.
-
-    Can be a dictionary to use different names for installations into the base
-    or a non-base environment using the keys `target_environment_is_base` and
-    `target_environment_is_not_base`, respectively.
+    The name of the menu item. Can be a dictionary if the name depends on
+    installation parameters. See :class:`MenuItemNameDict` for details.
     """
     description: str = ...
     "A longer description of the menu item. Shown on popup messages."

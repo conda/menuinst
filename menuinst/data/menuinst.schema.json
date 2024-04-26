@@ -43,6 +43,7 @@
   "definitions": {
     "MenuItemNameDict": {
       "title": "MenuItemNameDict",
+      "description": "Variable menu item name.\nUse this dictionary if the menu item name depends on installation parameters\nsuch as the target environment.",
       "type": "object",
       "properties": {
         "target_environment_is_base": {
