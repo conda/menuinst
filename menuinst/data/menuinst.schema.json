@@ -45,13 +45,13 @@
       "title": "MenuItemNameDict",
       "type": "object",
       "properties": {
-        "target_env_is_base": {
-          "title": "Target Env Is Base",
+        "target_environment_is_base": {
+          "title": "Target Environment Is Base",
           "minLength": 1,
           "type": "string"
         },
-        "target_env_is_not_base": {
-          "title": "Target Env Is Not Base",
+        "target_environment_is_not_base": {
+          "title": "Target Environment Is Not Base",
           "minLength": 1,
           "type": "string"
         }

@@ -5,10 +5,11 @@ Generate JSON schemas from pydantic models
 # flake8: noqa
 
 import json
+import sys
 from logging import getLogger
 from pathlib import Path
 from pprint import pprint
-from typing import Dict, List, Literal, Optional, TypedDict, Union
+from typing import Dict, List, Literal, Optional, Union
 
 try:
     from pydantic.v1 import BaseModel as _BaseModel
@@ -22,14 +23,14 @@ except ImportError:
 log = getLogger(__name__)
 
 
-class MenuItemNameDict(TypedDict, total=False):
-    target_env_is_base: constr(min_length=1)
-    target_env_is_not_base: constr(min_length=1)
-
-
 class BaseModel(_BaseModel):
     class Config:
         extra = "forbid"
+
+
+class MenuItemNameDict(BaseModel):
+    target_environment_is_base: Optional[constr(min_length=1)]
+    target_environment_is_not_base: Optional[constr(min_length=1)]
 
 
 class BasePlatformSpecific(BaseModel):
