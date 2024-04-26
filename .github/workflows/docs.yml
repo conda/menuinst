@@ -45,6 +45,11 @@ jobs:
           # Upload entire repository
           path: 'docs/_build/dirhtml'
 
+      - name: Check links
+        run: |
+          cd docs
+          make linkcheck
+
   pages:
     runs-on: ubuntu-latest
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
