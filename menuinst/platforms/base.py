@@ -141,7 +141,7 @@ class MenuItem:
         self._data = self._initialize_on_defaults(metadata)
         self.metadata = self._flatten_for_platform(self._data)
         if isinstance(self.metadata["name"], dict):
-            if self.menu.prefix.samefile(self.base_prefix):
+            if self.menu.prefix.samefile(self.menu.base_prefix):
                 name = self.metadata["name"].get("target_environment_is_base", "")
             else:
                 name = self.metadata["name"].get("target_environment_is_not_base", "")
