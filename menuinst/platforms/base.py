@@ -141,12 +141,12 @@ class MenuItem:
         self._data = self._initialize_on_defaults(metadata)
         self.metadata = self._flatten_for_platform(self._data)
         if isinstance(self.metadata["name"], dict):
-            if self.menu.env_name:
-                name = self.metadata["name"].get("target_environment_is_not_base", "")
-            else:
+            if self.prefix.samefile(self.base_prefix)::
                 name = self.metadata["name"].get("target_environment_is_base", "")
+            else:
+                name = self.metadata["name"].get("target_environment_is_not_base", "")
             if not name:
-                raise KeyError("Cannot parse `name` from dictionary representation.")
+                raise ValueError("Cannot parse `name` from dictionary representation.")
             self.metadata["name"] = name
 
     @property
