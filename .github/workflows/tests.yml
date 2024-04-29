@@ -109,22 +109,24 @@ jobs:
         include:
           - runner: ubuntu-latest
             subdir: linux-64
-          - runner: macos-latest
+          - runner: macos-13
             subdir: osx-64
+          - runner: macos-14
+            subdir: osx-arm64
           - runner: windows-latest
             subdir: win-64
     runs-on: ${{ matrix.runner }}
     steps:
       # Clean checkout of specific git ref needed for package metadata version
       # which needs env vars GIT_DESCRIBE_TAG and GIT_BUILD_STR:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           ref: ${{ github.ref }}
           clean: true
           fetch-depth: 0
 
       # Explicitly use Python 3.11 since each of the OSes has a different default Python
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
