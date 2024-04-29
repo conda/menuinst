@@ -74,7 +74,7 @@ class Menu:
             "DISTRIBUTION_NAME": self.base_prefix.name,
             "BASE_PYTHON": str(self.base_prefix / "bin" / "python"),
             "PREFIX": str(self.prefix),
-            "ENV_NAME": self.prefix.name,
+            "ENV_NAME": self.env_name or "",
             "PYTHON": str(self.prefix / "bin" / "python"),
             "MENU_DIR": str(self.prefix / "Menu"),
             "BIN_DIR": str(self.prefix / "bin"),
@@ -141,7 +141,7 @@ class MenuItem:
         self._data = self._initialize_on_defaults(metadata)
         self.metadata = self._flatten_for_platform(self._data)
         if isinstance(self.metadata["name"], dict):
-            if self.prefix.samefile(self.base_prefix)::
+            if self.prefix.samefile(self.base_prefix):
                 name = self.metadata["name"].get("target_environment_is_base", "")
             else:
                 name = self.metadata["name"].get("target_environment_is_not_base", "")
