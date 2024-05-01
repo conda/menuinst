@@ -72,7 +72,7 @@ In extreme cases, you can edit the Github Actions workflow to add a step for [`m
 - name: Setup tmate session
   uses: mxschmitt/action-tmate@v3
   timeout-minutes: 60
-  if: ${{ failure() && matrix.os == 'macos-latest' && matrix.python-version == '3.9' }}
+  if: ${{ failure() && startsWith(matrix.os, 'macos') && matrix.python-version == '3.9' }}
 ```
 
 ## Windows
