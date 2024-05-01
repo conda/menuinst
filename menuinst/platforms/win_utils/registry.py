@@ -13,6 +13,7 @@ SetValueEx will create a value with name "path\with\keys"
 
 Mnemonic: SetValueEx for "excalars" (scalars, named values)
 """
+
 import winreg
 from logging import getLogger
 
@@ -44,9 +45,9 @@ def register_file_extension(extension, identifier, command, icon=None, mode="use
                 command/: "the command to be executed when opening a file with this extension"
     """
     with winreg.OpenKeyEx(
-        winreg.HKEY_LOCAL_MACHINE  # HKLM
-        if mode == "system"
-        else winreg.HKEY_CURRENT_USER,  # HKCU
+        (
+            winreg.HKEY_LOCAL_MACHINE if mode == "system" else winreg.HKEY_CURRENT_USER  # HKLM
+        ),  # HKCU
         r"Software\Classes",
     ) as key:
         # First we associate an extension with a handler

@@ -1,5 +1,6 @@
 """
 """
+
 import os
 import platform
 import plistlib
@@ -312,15 +313,15 @@ class MacOSMenuItem(MenuItem):
         In macOS, file type and URL protocol associations are handled by the
         Apple Events system. When the user opens on a file or URL, the system
         will send an Apple Event to the application that was registered as a handler.
-        We need a special launcher to handle these events and pass them to the
-        wrapped application in the shortcut.
+        Some apps might not have the needed listener to process the event. In that case,
+        we provide a generic one. This is decided by the presence of "event_handler".
+        If that key is absent or null, we assume the app has its own listener.
 
         See:
         - https://developer.apple.com/library/archive/documentation/Carbon/Conceptual/LaunchServicesConcepts/LSCConcepts/LSCConcepts.html  # noqa
         - The source code at /src/appkit-launcher in this repository
         """
-        needed_keys = ("CFBundleURLTypes", "CFBundleDocumentTypes")
-        return any([self.metadata.get(k) for k in needed_keys])
+        return bool(self.metadata.get("event_handler"))
 
 
 def _lsregister(*args, check=True, **kwargs):
