@@ -1,6 +1,7 @@
 """
 """
 
+import json
 import os
 import shutil
 import warnings
@@ -63,6 +64,22 @@ class WindowsMenu(Menu):
     @property
     def desktop_location(self) -> Path:
         return Path(windows_folder_path(self.mode, False, "desktop"))
+
+    @property
+    def terminal_profile_location(self) -> Path:
+        if self.mode == "system":
+            warnings.warn("Terminal profiles are not available for system level installs")
+            return
+        profile_path = (
+            Path(windows_folder_path(self.mode, False, "localappdata"))
+            / "Packages"
+            / "Microsoft.WindowsTerminal_8wekyb3d8bbwe"
+            / "LocalState"
+            / "settings.json"
+        )
+        if profile_path.exists():
+            return profile_path
+        return
 
     @property
     def placeholders(self) -> Dict[str, str]:
@@ -165,6 +182,7 @@ class WindowsMenuItem(MenuItem):
                 self._app_user_model_id(),
             )
 
+        self._add_remove_windows_terminal_profile(remove=False)
         self._register_file_extensions()
         self._register_url_protocols()
 
@@ -173,6 +191,7 @@ class WindowsMenuItem(MenuItem):
     def remove(self) -> Tuple[Path, ...]:
         self._unregister_file_extensions()
         self._unregister_url_protocols()
+        self._add_remove_windows_terminal_profile(remove=True)
 
         paths = self._paths()
         for path in paths:
@@ -292,6 +311,44 @@ class WindowsMenuItem(MenuItem):
         if with_arg1 and all("%1" not in arg for arg in command):
             command.append("%1")
         return WinLex.quote_args(command)
+
+    def _add_remove_windows_terminal_profile(self, remove=False):
+        if not self.metadata.get("terminal_profile") or not self.menu.terminal_profile_location:
+            return
+        if self.metadata["terminal_profile"] is True:
+            name = self.metadata["name"]
+        else:
+            name = self.metadata["terminal_profile"]
+
+        commandline = " ".join(WinLex.quote_args(self.render_key("command")))
+        settings = json.loads(self.menu.terminal_profile_location.read_text())
+        index = -1
+        for p, profile in enumerate(settings["profiles"]["list"]):
+            # Define a profile as equal if name and command are the same.
+            # Do not use the whole dictionary because Windows may have added
+            # other items such as a GUID.
+            if profile.get("name") == name and profile.get("commandline") == commandline:
+                index = p
+                break
+        if remove:
+            if index < 0:
+                warnings.warn(f"Could not find terminal profile for {name}.")
+                return
+            del settings["profiles"]["list"][index]
+        else:
+            profile_data = {
+                "commandline": commandline,
+                "name": name,
+            }
+            if self.metadata.get("icon"):
+                profile_data["icon"] = self.render_key("icon")
+            if self.metadata.get("working_dir"):
+                profile_data["startingDirectory"] = self.render_key("working_dir")
+            if index < 0:
+                settings["profiles"]["list"].append(profile_data)
+            else:
+                settings["profiles"]["list"][index] = profile_data
+        self.menu.terminal_profile_location.write_text(json.dumps(settings, indent=4))
 
     def _ftype_identifier(self, extension):
         identifier = self.render_key("name", slug=True)

@@ -258,6 +258,7 @@ dirs_src = {
         "quicklaunch": get_folder_path(FOLDERID.QuickLaunch),
         "documents": get_folder_path(FOLDERID.Documents),
         "profile": get_folder_path(FOLDERID.Profile),
+        "localappdata": get_folder_path(FOLDERID.LocalAppData),
     },
 }
 
