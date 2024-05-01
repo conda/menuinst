@@ -43,7 +43,7 @@ jobs:
             python-version: "3.9"
 
     steps:
-      - uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b #v4
+      - uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b #v4.1.4
         with:
           fetch-depth: 0
 
@@ -55,7 +55,7 @@ jobs:
           echo "XDG_CURRENT_DESKTOP=GNOME" >> $GITHUB_ENV
 
       - name: Install miniforge
-        uses: conda-incubator/setup-miniconda@a4260408e20b96e80095f42ff7f1a15b27dd94ca #v3
+        uses: conda-incubator/setup-miniconda@a4260408e20b96e80095f42ff7f1a15b27dd94ca #v3.0.4
         with:
           miniforge-version: latest
 
@@ -83,7 +83,7 @@ jobs:
         run: |
           python -I -m pytest tests/ --cov-append --cov-report=xml --cov=menuinst -vvv
 
-      - uses: codecov/codecov-action@ab904c41d6ece82784817410c45d8b8c02684457 #v3
+      - uses: codecov/codecov-action@ab904c41d6ece82784817410c45d8b8c02684457 #v3.1.6
         with:
           name: ${{ matrix.os }}-py${{ matrix.python-version }}
 
@@ -119,14 +119,14 @@ jobs:
     steps:
       # Clean checkout of specific git ref needed for package metadata version
       # which needs env vars GIT_DESCRIBE_TAG and GIT_BUILD_STR:
-      - uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b #v4
+      - uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b #v4.1.4
         with:
           ref: ${{ github.ref }}
           clean: true
           fetch-depth: 0
 
       # Explicitly use Python 3.11 since each of the OSes has a different default Python
-      - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d #v5
+      - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d #v5.1.0
         with:
           python-version: "3.11"
 
