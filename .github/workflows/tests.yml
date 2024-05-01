@@ -43,7 +43,7 @@ jobs:
             python-version: "3.9"
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -55,7 +55,7 @@ jobs:
           echo "XDG_CURRENT_DESKTOP=GNOME" >> $GITHUB_ENV
 
       - name: Install miniforge
-        uses: conda-incubator/setup-miniconda@v2
+        uses: conda-incubator/setup-miniconda@v3
         with:
           miniforge-version: latest
 
@@ -83,7 +83,7 @@ jobs:
         run: |
           python -I -m pytest tests/ --cov-append --cov-report=xml --cov=menuinst -vvv
 
-      - uses: codecov/codecov-action@v1
+      - uses: codecov/codecov-action@v3
         with:
           name: ${{ matrix.os }}-py${{ matrix.python-version }}
 
