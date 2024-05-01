@@ -103,9 +103,9 @@ class Windows(BasePlatformSpecific):
     particular application. If your shortcut produces duplicated icons, you need to define this
     field. If not set, it will default to ``Menuinst.<name>``.
 
-    See `AppUserModelID docs <aumi-docs>`__ for more information on the required string format.
-
-    .. aumi-docs: https://learn.microsoft.com/en-us/windows/win32/shell/appids#how-to-form-an-application-defined-appusermodelid
+    See `AppUserModelID docs
+    <https://learn.microsoft.com/en-us/windows/win32/shell/appids#how-to-form-an-application-defined-appusermodelid>`__
+    for more information on the required string format.
     """
 
 
@@ -113,17 +113,16 @@ class Linux(BasePlatformSpecific):
     """
     Linux-specific instructions.
 
-    Check the `Desktop entry specification <desktop-entry-spec>`__ for more details.
-
-    .. desktop-entry-spec: https://specifications.freedesktop.org/desktop-entry-spec/desktop-entry-spec-latest.html#recognized-keys
+    Check the `Desktop entry specification
+    <https://specifications.freedesktop.org/desktop-entry-spec/desktop-entry-spec-latest.html#recognized-keys>`__
+    for more details.
     """
 
     Categories: Optional[Union[List[str], constr(regex=r"^.+;$")]] = None
     """
     Categories in which the entry should be shown in a menu.
-    "See 'Registered categories' in the `Menu Spec <menu-spec>`__.
-
-    .. menu-spec: http://www.freedesktop.org/Standards/menu-spec
+    "See 'Registered categories' in the `Menu Spec
+    <http://www.freedesktop.org/Standards/menu-spec>`__.
     """
     DBusActivatable: Optional[bool] = None
     "A boolean value specifying if D-Bus activation is supported for this application."
@@ -136,9 +135,8 @@ class Linux(BasePlatformSpecific):
     "Disable shortcut, signaling a missing resource."
     Implements: Optional[Union[List[str], constr(regex=r"^.+;$")]] = None
     """
-    List of supported interfaces. See 'Interfaces' in `Desktop Entry Spec <desktop-entry-spec>`__.
-
-    .. desktop-entry-spec: https://specifications.freedesktop.org/desktop-entry-spec/desktop-entry-spec-latest.html#interfaces
+    List of supported interfaces. See 'Interfaces' in `Desktop Entry Spec
+    <https://specifications.freedesktop.org/desktop-entry-spec/desktop-entry-spec-latest.html#interfaces>`__.
     """
     Keywords: Optional[Union[List[str], constr(regex=r"^.+;$")]] = None
     "Additional terms to describe this shortcut to aid in searching."
@@ -170,15 +168,13 @@ class Linux(BasePlatformSpecific):
     "Hint that the app prefers to be run on a more powerful discrete GPU if available."
     StartupNotify: Optional[bool] = None
     """
-    Advanced. See `Startup Notification spec <startup-notification-spec>`__.
-
-    .. startup-notification-spec: _https://www.freedesktop.org/wiki/Specifications/startup-notification-spec/
+    Advanced. See `Startup Notification spec
+    <https://www.freedesktop.org/wiki/Specifications/startup-notification-spec/>`__.
     """
     StartupWMClass: Optional[str] = None
     """
-    Advanced. See `Startup Notification spec <startup-notification-spec>`__.
-
-    .. startup-notification-spec: _https://www.freedesktop.org/wiki/Specifications/startup-notification-spec/
+    Advanced. See `Startup Notification spec
+    <https://www.freedesktop.org/wiki/Specifications/startup-notification-spec/>`__.
     """
     TryExec: Optional[str] = None
     """
@@ -197,13 +193,9 @@ class MacOS(BasePlatformSpecific):
     """
     Mac-specific instructions. Check these URLs for more info:
 
-    - ``CF*`` keys: see `Core Foundation Keys <cf-keys>`_
-    - ``LS*`` keys: see `Launch Services Keys <ls-keys>`_
-    - ``entitlements``: see `entitlements docs <entitlements-docs>`_
-
-    .. _cf-keys: https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-    .. _ls-keys: https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/LaunchServicesKeys.html
-    .. _entitlements-docs: https://developer.apple.com/documentation/bundleresources/entitlements.
+    - ``CF*`` keys: see `Core Foundation Keys <https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html>`__
+    - ``LS*`` keys: see `Launch Services Keys <https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/LaunchServicesKeys.html>`__
+    - ``entitlements``: see `Entitlements documentation <https://developer.apple.com/documentation/bundleresources/entitlements>`__
     """
 
     class CFBundleURLTypesModel(BaseModel):
@@ -228,15 +220,13 @@ class MacOS(BasePlatformSpecific):
         LSItemContentTypes: List[str] = ...
         """
         List of UTI strings defining a supported file type; e.g. for
-        PNG files, use 'public.png'. See `UTI Reference <uti-reference>`_
+        PNG files, use 'public.png'. See `UTI Reference
+        <https://developer.apple.com/library/archive/documentation/Miscellaneous/Reference/UTIRef/Articles/System-DeclaredUniformTypeIdentifiers.html>`__
         for more info about the system-defined UTIs. Custom UTIs can be
         defined via 'UTExportedTypeDeclarations'. UTIs defined by other
         apps (not the system) need to be imported via 'UTImportedTypeDeclarations'.
 
-        See `Fun with UTIs <fun-with-utis>`_ for more info.
-
-        .. _uti-reference: https://developer.apple.com/library/archive/documentation/Miscellaneous/Reference/UTIRef/Articles/System-DeclaredUniformTypeIdentifiers.html
-        .. _fun-with-utis: https://www.cocoanetics.com/2012/09/fun-with-uti/
+        See `Fun with UTIs <https://www.cocoanetics.com/2012/09/fun-with-uti/>`__ for more info.
         """
         LSHandlerRank: Literal["Owner", "Default", "Alternate"] = ...
         """
@@ -319,13 +309,12 @@ class MacOS(BasePlatformSpecific):
     entitlements: Optional[List[constr(regex=r"[a-z0-9\.\-]+")]] = None
     """
     List of permissions to request for the launched application.
-    See `the entitlements docs <entitlements>`__ for a full list of possible values.
-
-    .. entitlements: https://developer.apple.com/documentation/bundleresources/entitlements
+    See `the entitlements docs <https://developer.apple.com/documentation/bundleresources/entitlements>`__
+    for a full list of possible values.
     """
-    link_in_bundle: Optional[
-        Dict[constr(min_length=1), constr(regex=r"^(?!\/)(?!\.\./).*")]
-    ] = None
+    link_in_bundle: Optional[Dict[constr(min_length=1), constr(regex=r"^(?!\/)(?!\.\./).*")]] = (
+        None
+    )
     """
     Paths that should be symlinked into the shortcut app bundle.
     It takes a mapping of source to destination paths. Destination paths must be

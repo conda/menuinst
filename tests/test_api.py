@@ -1,4 +1,5 @@
 """"""
+
 import json
 import os
 import plistlib
@@ -43,8 +44,9 @@ def check_output_from_shortcut(
     file_to_open=None,
     url_to_open=None,
 ) -> Tuple[Path, Iterable[Path], str]:
-    assert action in ("run_shortcut", "open_file", "open_url")
+    assert action in ("run_shortcut", "open_file", "open_url", None)
 
+    output = None
     output_file = None
     abs_json_path = DATA / "jsons" / json_path
     contents = abs_json_path.read_text()
@@ -87,7 +89,7 @@ def check_output_from_shortcut(
                     cmd = [str(executable)]
                 process = logged_run(cmd, check=True)
                 output = process.stdout
-        else:
+        elif action is not None:
             if action == "open_file":
                 assert file_to_open is not None
                 with NamedTemporaryFile(suffix=file_to_open, delete=False) as f:
@@ -261,6 +263,25 @@ def test_file_type_association(delete_files):
         file_to_open=test_file,
     )
     assert output.strip().endswith(test_file)
+
+
+@pytest.mark.skipif(sys.platform != "darwin", reason="Only run on macOS")
+@pytest.mark.skipif("CI" not in os.environ, reason="Only run on CI. Export CI=1 to run locally.")
+def test_file_type_association_no_event_handler(delete_files, request):
+    test_file = "test.menuinst-no-event-handler"
+    abs_json_path, paths, tmp_base_path, _ = check_output_from_shortcut(
+        delete_files,
+        "file_types_no_event_handler.json",
+        action=None,
+        file_to_open=test_file,
+        remove_after=False,
+    )
+    request.addfinalizer(lambda: remove(abs_json_path, base_prefix=tmp_base_path))
+    app_dir = next(p for p in paths if p.name.endswith(".app"))
+    info = app_dir / "Contents" / "Info.plist"
+    plist = plistlib.loads(info.read_bytes())
+    cf_bundle_type_name = "org.conda.menuinst.filetype-example-no-event-handler"
+    assert plist["CFBundleDocumentTypes"][0]["CFBundleTypeName"] == cf_bundle_type_name
 
 
 @pytest.mark.skipif("CI" not in os.environ, reason="Only run on CI. Export CI=1 to run locally.")
