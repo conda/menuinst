@@ -566,6 +566,19 @@
           "default": true,
           "type": "boolean"
         },
+        "terminal_profile": {
+          "title": "Terminal Profile",
+          "default": false,
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "string",
+              "minLength": 1
+            }
+          ]
+        },
         "url_protocols": {
           "title": "Url Protocols",
           "type": "array",
