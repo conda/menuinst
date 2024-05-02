@@ -69,7 +69,7 @@ class WindowsMenu(Menu):
     def terminal_profile_location(self) -> Path:
         if self.mode == "system":
             warnings.warn("Terminal profiles are not available for system level installs")
-            return
+            return None
         profile_path = (
             Path(windows_folder_path(self.mode, False, "localappdata"))
             / "Packages"
@@ -79,7 +79,7 @@ class WindowsMenu(Menu):
         )
         if profile_path.exists():
             return profile_path
-        return
+        return None
 
     @property
     def placeholders(self) -> Dict[str, str]:
