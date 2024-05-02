@@ -17,6 +17,7 @@ from conftest import DATA, PLATFORM
 
 from menuinst.api import install, remove
 from menuinst.platforms.osx import _lsregister
+from menuinst.platforms.win_utils.knownfolders import folder_path
 from menuinst.utils import DEFAULT_PREFIX, logged_run
 
 
@@ -294,3 +295,36 @@ def test_url_protocol_association(delete_files):
         url_to_open=url,
         expected_output=url,
     )
+
+
+@pytest.mark.skipif(PLATFORM != "win", reason="Windows only")
+def test_windows_terminal_profiles():
+    def _parse_terminal_profiles(settings_file: Path) -> dict:
+        settings = json.loads(settings_file.read_text())
+        return {
+            profile.get("name", ""): profile.get("commandline", "")
+            for profile in settings["profiles"]["list"]
+        }
+
+    settings_file = (
+        Path(folder_path("user", False, "localappdata"))
+        / "Packages"
+        / "Microsoft.WindowsTerminal_8wekyb3d8bbwe"
+        / "LocalState"
+        / "settings.json"
+    )
+    tmpdir = mkdtemp()
+    (Path(tmpdir) / ".nonadmin").touch()
+    metadata_file = DATA / "jsons" / "windows-terminal.json"
+    install(metadata_file, target_prefix=tmpdir, base_prefix=tmpdir)
+    try:
+        profiles = _parse_terminal_profiles(settings_file)
+        assert "A Terminal" in profiles and profiles["A Terminal"] == "testcommand_a.exe"
+        assert "B" not in profiles
+    except Exception as exc:
+        remove(metadata_file, target_prefix=tmpdir, base_prefix=tmpdir)
+        raise exc
+    else:
+        remove(metadata_file, target_prefix=tmpdir, base_prefix=tmpdir)
+        profiles = _parse_terminal_profiles(settings_file)
+        assert "A Terminal" not in profiles and "B" not in profiles
