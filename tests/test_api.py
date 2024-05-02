@@ -17,8 +17,10 @@ from conftest import DATA, PLATFORM
 
 from menuinst.api import install, remove
 from menuinst.platforms.osx import _lsregister
-from menuinst.platforms.win_utils.knownfolders import folder_path
 from menuinst.utils import DEFAULT_PREFIX, logged_run
+
+if PLATFORM == "win":
+    from menuinst.platforms.win_utils.knownfolders import folder_path
 
 
 def _poll_for_file_contents(path, timeout=10):
