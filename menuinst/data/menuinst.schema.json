@@ -568,16 +568,8 @@
         },
         "terminal_profile": {
           "title": "Terminal Profile",
-          "default": false,
-          "anyOf": [
-            {
-              "type": "boolean"
-            },
-            {
-              "type": "string",
-              "minLength": 1
-            }
-          ]
+          "minLength": 1,
+          "type": "string"
         },
         "url_protocols": {
           "title": "Url Protocols",

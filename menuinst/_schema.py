@@ -76,11 +76,11 @@ class Windows(BasePlatformSpecific):
     "Whether to create a desktop icon in addition to the Start Menu item."
     quicklaunch: Optional[bool] = True
     "Whether to create a quick launch icon in addition to the Start Menu item."
-    terminal_profile: Optional[Union[bool, constr(min_length=1)]] = False
+    terminal_profile: constr(min_length=1) = None
     """
-    Whether to create a Windows Terminal profile.
-    If set to a string, that string will be used as the display name of the profile.
-    Otherwise, it will default to the name of the menu item.
+    Name of the Windows Terminal profile to create.
+    This name must be unique across multiple installations because
+    menuinst will overwrite Terminal profiles with the same name.
     """
     url_protocols: Optional[List[constr(regex=r"\S+")]] = None
     "URL protocols that will be associated with this program."

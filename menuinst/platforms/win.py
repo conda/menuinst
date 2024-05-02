@@ -313,23 +313,23 @@ class WindowsMenuItem(MenuItem):
         return WinLex.quote_args(command)
 
     def _add_remove_windows_terminal_profile(self, remove=False):
+        """Add/remove the Windows Terminal profile.
+
+        Windows Terminal is using the name of the profile to create a GUID,
+        so the name will be used as the unique identifier to find existing profiles.
+        """
         if not self.metadata.get("terminal_profile") or not self.menu.terminal_profile_location:
             return
-        if self.metadata["terminal_profile"] is True:
-            name = self.metadata["name"]
-        else:
-            name = self.metadata["terminal_profile"]
+        name = self.render_key("terminal_profile")
 
-        commandline = " ".join(WinLex.quote_args(self.render_key("command")))
         settings = json.loads(self.menu.terminal_profile_location.read_text())
+
         index = -1
         for p, profile in enumerate(settings["profiles"]["list"]):
-            # Define a profile as equal if name and command are the same.
-            # Do not use the whole dictionary because Windows may have added
-            # other items such as a GUID.
-            if profile.get("name") == name and profile.get("commandline") == commandline:
+            if profile.get("name") == name:
                 index = p
                 break
+
         if remove:
             if index < 0:
                 warnings.warn(f"Could not find terminal profile for {name}.")
@@ -337,7 +337,7 @@ class WindowsMenuItem(MenuItem):
             del settings["profiles"]["list"][index]
         else:
             profile_data = {
-                "commandline": commandline,
+                "commandline": " ".join(WinLex.quote_args(self.render_key("command"))),
                 "name": name,
             }
             if self.metadata.get("icon"):

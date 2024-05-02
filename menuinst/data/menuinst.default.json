@@ -56,7 +56,7 @@
         "win": {
           "desktop": true,
           "quicklaunch": true,
-          "terminal_profile": false,
+          "terminal_profile": null,
           "url_protocols": null,
           "file_extensions": null,
           "app_user_model_id": null
