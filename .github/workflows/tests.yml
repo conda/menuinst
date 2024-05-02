@@ -86,6 +86,7 @@ jobs:
       - uses: codecov/codecov-action@5ecb98a3c6b747ed38dc09f787459979aebb39be #v4.3.1
         with:
           name: ${{ matrix.os }}-py${{ matrix.python-version }}
+          token: ${{ secrets.CODECOV_TOKEN }}  # required
 
   # canary builds
   build:
