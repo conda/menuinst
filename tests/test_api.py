@@ -313,6 +313,8 @@ def test_windows_terminal_profiles():
         / "LocalState"
         / "settings.json"
     )
+    if not settings_file.exists():
+        pytest.skip("Terminal profile settings file not found.")
     tmpdir = mkdtemp()
     (Path(tmpdir) / ".nonadmin").touch()
     metadata_file = DATA / "jsons" / "windows-terminal.json"
