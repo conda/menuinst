@@ -151,6 +151,7 @@ def test_placeholders_in_menu_name(delete_files):
         delete_files,
         "sys-prefix.json",
         expected_output=sys.prefix,
+        remove_after=False,
     )
     if PLATFORM == "win":
         for path in paths:
@@ -177,8 +178,10 @@ def test_placeholders_in_menu_name(delete_files):
         tree = ElementTree.parse(menu_config_location)
         root = tree.getroot()
         assert rendered_name in [elt.text for elt in root.findall("Menu/Name")]
-        assert slugified_name in [elt.text for elt in root.findall("Menu/Directory")]
-        assert rendered_name in [elt.text for elt in root.finalld("Menu/Include/Category")]
+        assert f"{slugified_name}.directory" in [
+            elt.text for elt in root.findall("Menu/Directory")
+        ]
+        assert rendered_name in [elt.text for elt in root.findall("Menu/Include/Category")]
 
 
 def test_precommands(delete_files):
