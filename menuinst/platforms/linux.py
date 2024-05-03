@@ -42,6 +42,10 @@ class LinuxMenu(Menu):
                 os.environ.get("XDG_DATA_HOME", "~/.local/share")
             ).expanduser()
 
+        # The names have to be rendered often, so store them for convenience
+        self._rendered_name = self.render(self.name)
+        self._slugified_name = self.render(self.name, slug=True)
+
         # XML Config paths
         self.system_menu_config_location = (
             self._system_config_directory / "menus" / "applications.menu"
@@ -49,9 +53,7 @@ class LinuxMenu(Menu):
         self.menu_config_location = self.config_directory / "menus" / "applications.menu"
         # .desktop / .directory paths
         self.directory_entry_location = (
-            self.data_directory
-            / "desktop-directories"
-            / f"{self.render(self.name, slug=True)}.directory"
+            self.data_directory / "desktop-directories" / f"{self._slugified_name}.directory"
         )
         self.desktop_entries_location = self.data_directory / "applications"
 
@@ -67,7 +69,7 @@ class LinuxMenu(Menu):
     def remove(self) -> Tuple[os.PathLike]:
         unlink(self.directory_entry_location, missing_ok=True)
         for fn in os.listdir(self.desktop_entries_location):
-            if fn.startswith(f"{self.render(self.name, slug=True)}_"):
+            if fn.startswith(f"{self._slugified_name}_"):
                 # found one shortcut, so don't remove the name from menu
                 return (self.directory_entry_location,)
         self._remove_this_menu()
@@ -98,7 +100,7 @@ class LinuxMenu(Menu):
             "[Desktop Entry]",
             "Type=Directory",
             "Encoding=UTF-8",
-            f"Name={self.render(self.name)}",
+            f"Name={self._rendered_name}",
         ]
         log.debug("Writing directory entry at %s", self.directory_entry_location)
         with open(self.directory_entry_location, "w") as f:
@@ -111,27 +113,27 @@ class LinuxMenu(Menu):
     #
 
     def _remove_this_menu(self):
-        log.debug("Editing %s to remove %s config", self.menu_config_location, self.name)
+        log.debug("Editing %s to remove %s config", self.menu_config_location, self._rendered_name)
         tree = ElementTree.parse(self.menu_config_location)
         root = tree.getroot()
         for elt in root.findall("Menu"):
-            if elt.find("Name").text == self.name:
+            if elt.find("Name").text == self._rendered_name:
                 root.remove(elt)
         self._write_menu_file(tree)
 
     def _has_this_menu(self) -> bool:
         root = ElementTree.parse(self.menu_config_location).getroot()
-        return any(e.text == self.name for e in root.findall("Menu/Name"))
+        return any(e.text == self._rendered_name for e in root.findall("Menu/Name"))
 
     def _add_this_menu(self):
-        log.debug("Editing %s to add %s config", self.menu_config_location, self.name)
+        log.debug("Editing %s to add %s config", self.menu_config_location, self._rendered_name)
         tree = ElementTree.parse(self.menu_config_location)
         root = tree.getroot()
         menu_elt = add_xml_child(root, "Menu")
-        add_xml_child(menu_elt, "Name", self.name)
-        add_xml_child(menu_elt, "Directory", f"{self.render(self.name, slug=True)}.directory")
+        add_xml_child(menu_elt, "Name", self._rendered_name)
+        add_xml_child(menu_elt, "Directory", f"{self._slugified_name}.directory")
         inc_elt = add_xml_child(menu_elt, "Include")
-        add_xml_child(inc_elt, "Category", self.name)
+        add_xml_child(inc_elt, "Category", self._rendered_name)
         self._write_menu_file(tree)
 
     def _is_valid_menu_file(self) -> bool:
