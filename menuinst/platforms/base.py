@@ -75,7 +75,7 @@ class Menu:
             "DISTRIBUTION_NAME": self.base_prefix.name,
             "BASE_PYTHON": str(self.base_prefix / "bin" / "python"),
             "PREFIX": str(self.prefix),
-            "ENV_NAME": self.env_name or "",
+            "ENV_NAME": self.env_name,
             "PYTHON": str(self.prefix / "bin" / "python"),
             "MENU_DIR": str(self.prefix / "Menu"),
             "BIN_DIR": str(self.prefix / "bin"),
