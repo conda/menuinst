@@ -68,14 +68,14 @@ class WindowsMenu(Menu):
     @property
     def terminal_profile_location(self) -> Path:
         if self.mode == "system":
-            warnings.warn("Terminal profiles are not available for system level installs")
+            log.warn("Terminal profiles are not available for system level installs")
             return None
-        profile_path = (
-            Path(windows_folder_path(self.mode, False, "localappdata"))
-            / "Packages"
-            / "Microsoft.WindowsTerminal_8wekyb3d8bbwe"
-            / "LocalState"
-            / "settings.json"
+        profile_path = Path(
+            windows_folder_path(self.mode, False, "localappdata"),
+            "Packages",
+            "Microsoft.WindowsTerminal_8wekyb3d8bbwe",
+            "LocalState",
+            "settings.json",
         )
         if profile_path.exists():
             return profile_path
