@@ -6,7 +6,7 @@
         {
             "name": "FileTypeAssociation",
             "description": "Testing file type association",
-            "icon": null,
+            "icon": "icon.{{ ICON_EXT }}",
             "command": [
                 "{{ PYTHON }}",
                 "-c",
