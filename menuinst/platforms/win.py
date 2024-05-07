@@ -9,7 +9,7 @@ from logging import getLogger
 from pathlib import Path
 from subprocess import CompletedProcess
 from tempfile import NamedTemporaryFile
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 from ..utils import WinLex, logged_run, unlink
 from .base import Menu, MenuItem
@@ -66,7 +66,7 @@ class WindowsMenu(Menu):
         return Path(windows_folder_path(self.mode, False, "desktop"))
 
     @property
-    def terminal_profile_locations(self) -> list[Path]:
+    def terminal_profile_locations(self) -> List[Path]:
         """Location of the Windows terminal profiles.
 
         See the Microsoft documentation for details:
