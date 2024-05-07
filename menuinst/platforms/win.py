@@ -74,7 +74,7 @@ class WindowsMenu(Menu):
         """
         if self.mode == "system":
             log.warn("Terminal profiles are not available for system level installs")
-            return None
+            return []
         profile_locations = [
             # Stable
             Path(
