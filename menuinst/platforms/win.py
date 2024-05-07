@@ -355,7 +355,7 @@ class WindowsMenuItem(MenuItem):
 
         if remove:
             if index < 0:
-                warnings.warn(f"Could not find terminal profile for {name}.")
+                log.warn(f"Could not find terminal profile for {name}.")
                 return
             del settings["profiles"]["list"][index]
         else:
@@ -370,6 +370,7 @@ class WindowsMenuItem(MenuItem):
             if index < 0:
                 settings["profiles"]["list"].append(profile_data)
             else:
+                log.warn(f"Overwriting terminal profile for {name}.")
                 settings["profiles"]["list"][index] = profile_data
         location.write_text(json.dumps(settings, indent=4))
 
