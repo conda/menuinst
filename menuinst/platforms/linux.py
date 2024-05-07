@@ -230,6 +230,9 @@ class LinuxMenuItem(MenuItem):
         return "bash -c " + shlex.quote(" && ".join(parts))
 
     def _write_desktop_file(self):
+        if self.location.exists():
+            log.warn(f"Overwriting existing file at {self.location}.")
+
         lines = [
             "[Desktop Entry]",
             "Type=Application",

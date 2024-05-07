@@ -18,6 +18,11 @@ four keys
         - `osx`- see {class}`MacOS schema <menuinst._schema.MacOS>`
         - `win`- see {class}`Windows schema <menuinst._schema.Windows>`
 
+```{warning}
+`menuinst` will overwrite existing shortcuts, so `menu_name` and `name` must be chosen accordingly.
+Note that MacOS does not use `menu_name`.
+```
+
 ```{seealso}
 If you want to learn more, check the {doc}`reference` for full details on the available fields and settings for each platform.
 The JSON configurations follow a well-defined schema documented at {ref}`schema`.
