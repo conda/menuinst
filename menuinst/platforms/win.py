@@ -66,20 +66,41 @@ class WindowsMenu(Menu):
         return Path(windows_folder_path(self.mode, False, "desktop"))
 
     @property
-    def terminal_profile_location(self) -> Path:
+    def terminal_profile_locations(self) -> list[Path]:
+        """Location of the Windows terminal profiles.
+
+        See the Microsoft documentation for details:
+        https://learn.microsoft.com/en-us/windows/terminal/install#settings-json-file
+        """
         if self.mode == "system":
             log.warn("Terminal profiles are not available for system level installs")
             return None
-        profile_path = Path(
-            windows_folder_path(self.mode, False, "localappdata"),
-            "Packages",
-            "Microsoft.WindowsTerminal_8wekyb3d8bbwe",
-            "LocalState",
-            "settings.json",
-        )
-        if profile_path.exists():
-            return profile_path
-        return None
+        profile_locations = [
+            # Stable
+            Path(
+                windows_folder_path(self.mode, False, "localappdata"),
+                "Packages",
+                "Microsoft.WindowsTerminal_8wekyb3d8bbwe",
+                "LocalState",
+                "settings.json",
+            ),
+            # Preview
+            Path(
+                windows_folder_path(self.mode, False, "localappdata"),
+                "Packages",
+                "Microsoft.WindowsTerminalPreview_8wekyb3d8bbwe",
+                "LocalState",
+                "settings.json",
+            ),
+            # Unpackaged (Scoop, Chocolatey, etc.)
+            Path(
+                windows_folder_path(self.mode, False, "localappdata"),
+                "Microsoft",
+                "Windows Terminal",
+                "settings.json",
+            ),
+        ]
+        return [location for location in profile_locations if location.exists()]
 
     @property
     def placeholders(self) -> Dict[str, str]:
@@ -182,7 +203,8 @@ class WindowsMenuItem(MenuItem):
                 self._app_user_model_id(),
             )
 
-        self._add_remove_windows_terminal_profile(remove=False)
+        for location in self.menu.terminal_profile_locations:
+            self._add_remove_windows_terminal_profile(location, remove=False)
         self._register_file_extensions()
         self._register_url_protocols()
 
@@ -191,7 +213,8 @@ class WindowsMenuItem(MenuItem):
     def remove(self) -> Tuple[Path, ...]:
         self._unregister_file_extensions()
         self._unregister_url_protocols()
-        self._add_remove_windows_terminal_profile(remove=True)
+        for location in self.menu.terminal_profile_locations:
+            self._add_remove_windows_terminal_profile(location, remove=True)
 
         paths = self._paths()
         for path in paths:
@@ -312,17 +335,17 @@ class WindowsMenuItem(MenuItem):
             command.append("%1")
         return WinLex.quote_args(command)
 
-    def _add_remove_windows_terminal_profile(self, remove=False):
+    def _add_remove_windows_terminal_profile(self, location: Path, remove: bool = False):
         """Add/remove the Windows Terminal profile.
 
         Windows Terminal is using the name of the profile to create a GUID,
         so the name will be used as the unique identifier to find existing profiles.
         """
-        if not self.metadata.get("terminal_profile") or not self.menu.terminal_profile_location:
+        if not self.metadata.get("terminal_profile") or not location.exists():
             return
         name = self.render_key("terminal_profile")
 
-        settings = json.loads(self.menu.terminal_profile_location.read_text())
+        settings = json.loads(location.read_text())
 
         index = -1
         for p, profile in enumerate(settings["profiles"]["list"]):
@@ -348,7 +371,7 @@ class WindowsMenuItem(MenuItem):
                 settings["profiles"]["list"].append(profile_data)
             else:
                 settings["profiles"]["list"][index] = profile_data
-        self.menu.terminal_profile_location.write_text(json.dumps(settings, indent=4))
+        location.write_text(json.dumps(settings, indent=4))
 
     def _ftype_identifier(self, extension):
         identifier = self.render_key("name", slug=True)

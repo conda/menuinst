@@ -308,27 +308,50 @@ def test_windows_terminal_profiles():
             for profile in settings["profiles"]["list"]
         }
 
-    settings_file = (
-        Path(folder_path("user", False, "localappdata"))
-        / "Packages"
-        / "Microsoft.WindowsTerminal_8wekyb3d8bbwe"
-        / "LocalState"
-        / "settings.json"
-    )
-    if not settings_file.exists():
-        pytest.skip("Terminal profile settings file not found.")
+    settings_files = [
+        # Stable
+        Path(
+            folder_path("user", False, "localappdata"),
+            "Packages",
+            "Microsoft.WindowsTerminal_8wekyb3d8bbwe",
+            "LocalState",
+            "settings.json",
+        ),
+        # Preview
+        Path(
+            folder_path("user", False, "localappdata"),
+            "Packages",
+            "Microsoft.WindowsTerminalPreview_8wekyb3d8bbwe",
+            "LocalState",
+            "settings.json",
+        ),
+        # Unpackaged (Scoop, Chocolatey, etc.)
+        Path(
+            folder_path("user", False, "localappdata"),
+            "Microsoft",
+            "Windows Terminal",
+            "settings.json",
+        ),
+    ]
+    settings_files = [file for file in settings_files if file.exists()]
+    if not settings_files:
+        pytest.skip("No terminal profile settings file found.")
     tmpdir = mkdtemp()
     (Path(tmpdir) / ".nonadmin").touch()
     metadata_file = DATA / "jsons" / "windows-terminal.json"
     install(metadata_file, target_prefix=tmpdir, base_prefix=tmpdir)
+    a_in_profiles = []
+    b_in_profiles = []
     try:
-        profiles = _parse_terminal_profiles(settings_file)
-        assert "A Terminal" in profiles and profiles["A Terminal"] == "testcommand_a.exe"
-        assert "B" not in profiles
+        for file in settings_files:
+            profiles = _parse_terminal_profiles(file)
+            if "A Terminal" in profiles and profiles["A Terminal"] == "testcommand_a.exe":
+                a_in_profiles.append(file)
+            if "B" in profiles:
+                b_in_profiles.append(file)
+        assert a_in_profiles == settings_files and b_in_profiles == []
     except Exception as exc:
         remove(metadata_file, target_prefix=tmpdir, base_prefix=tmpdir)
         raise exc
     else:
         remove(metadata_file, target_prefix=tmpdir, base_prefix=tmpdir)
-        profiles = _parse_terminal_profiles(settings_file)
-        assert "A Terminal" not in profiles and "B" not in profiles
