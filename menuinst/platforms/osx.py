@@ -75,6 +75,8 @@ class MacOSMenuItem(MenuItem):
 
     def create(self) -> Tuple[Path]:
         log.debug("Creating %s", self.location)
+        if self.location.exists():
+            self.remove()
         self._create_application_tree()
         self._precreate()
         self._copy_icon()
