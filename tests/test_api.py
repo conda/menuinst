@@ -144,6 +144,19 @@ def test_install_prefix(delete_files):
     check_output_from_shortcut(delete_files, "sys-prefix.json", expected_output=sys.prefix)
 
 
+def test_overwrite_existing_shortcuts(delete_files):
+    """Test that overwriting shortcuts works without errors by running installation twice."""
+    check_output_from_shortcut(
+        delete_files,
+        "sys-prefix.json",
+        expected_output=sys.prefix,
+        remove_after=False,
+    )
+    check_output_from_shortcut(
+        delete_files, "sys-prefix.json", expected_output=sys.prefix, remove_after=True
+    )
+
+
 @pytest.mark.skipif(PLATFORM != "win", reason="Windows only")
 def test_placeholders_in_menu_name(delete_files):
     _, paths, tmp_base_path, _ = check_output_from_shortcut(
