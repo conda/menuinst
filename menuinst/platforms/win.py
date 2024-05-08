@@ -155,7 +155,7 @@ class WindowsMenuItem(MenuItem):
             # winshortcut.create_shortcut(path, description, filename, arguments="",
             #                             workdir=None, iconpath=None, iconindex=0, app_id="")
             if Path(path).exists():
-                log.warning(f"Overwriting existing link at {target_path}.")
+                log.warning(f"Overwriting existing link at {path}.")
             create_shortcut(
                 target_path,
                 self._shortcut_filename(ext=""),

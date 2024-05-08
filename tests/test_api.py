@@ -148,15 +148,13 @@ def test_overwrite_existing_shortcuts(delete_files, caplog):
     """Test that overwriting shortcuts works without errors by running installation twice."""
     check_output_from_shortcut(
         delete_files,
-        "sys-prefix.json",
-        expected_output=sys.prefix,
+        "precommands.json",
         remove_after=False,
     )
     caplog.clear()
     check_output_from_shortcut(
         delete_files,
-        "sys-prefix.json",
-        expected_output=sys.prefix,
+        "precommands.json",
         remove_after=True,
     )
     assert any(line.startswith("Overwriting existing") for line in caplog.messages)
