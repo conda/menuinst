@@ -34,6 +34,9 @@ def delete_files():
     yield paths
     for path in paths:
         path = Path(path)
+        # If the list contains duplicates, a path may already have been deleted.
+        if not path.exists():
+            continue
         try:
             if path.is_dir():
                 shutil.rmtree(path)
