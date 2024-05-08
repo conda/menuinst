@@ -55,6 +55,42 @@ The full list of available placeholders is available at {ref}`placeholders`.
 This is not using any customization options or advanced features. It's the bare minimum to make it
 work: a name, the command, and the target platforms.
 
+## Specifying different shortcut names for base and non-base environments
+
+If environments are supported, different naming schemes can be specified for installations into
+the base environment and non-base environments.
+To do this, the `name` property must be a dictionary with the keys `target_environment_is_base`
+and `target_environment_is_not_base` for installations into the base and non-base environment,
+respectively.
+
+
+The example below creates a shortcut called with the name "Launch Turtle" if installed into the
+base environment. If installed into an environment called, e.g., `turtle`, the name of the shortcut
+is "Launch Turtle (turtle)". This was the default behavior of `menuinst` version 1.
+
+```json
+{
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "$id": "https://schemas.conda.io/menuinst-1.schema.json",
+  "menu_name": "Python {{ PY_VER }}",
+  "menu_items": [
+    {
+      "name": {
+        "target_environment_is_base": "Launch Turtle",
+        "target_environment_is_not_base": "Launch Turtle ({{ ENV_NAME }})"
+      }
+      "command": ["python", "-m", "turtle"],
+      "activate": true,
+      "platforms": {
+        "linux": {},
+        "osx": {},
+        "win": {}
+      }
+    }
+  ]
+}
+```
+
 ## Associate your shortcut with file types and URL protocols
 
 ### File types

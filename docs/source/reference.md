@@ -15,6 +15,7 @@ See Schema below for more details.
 ```{eval-rst}
 .. autopydantic_model:: menuinst._schema.MenuInstSchema
 .. autopydantic_model:: menuinst._schema.MenuItem
+.. autopydantic_model:: menuinst._schema.MenuItemNameDict
 .. autopydantic_model:: menuinst._schema.Platforms
 .. autopydantic_model:: menuinst._schema.Linux
 .. autopydantic_model:: menuinst._schema.MacOS

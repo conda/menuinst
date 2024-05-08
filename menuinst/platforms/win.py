@@ -241,9 +241,8 @@ class WindowsMenuItem(MenuItem):
         return tuple(paths)
 
     def _shortcut_filename(self, ext: str = "lnk"):
-        env_suffix = f" ({self.menu.env_name})" if self.menu.env_name else ""
         ext = f".{ext}" if ext else ""
-        return f"{self.render_key('name', extra={})}{env_suffix}{ext}"
+        return f"{self.render_key('name', extra={})}{ext}"
 
     def _path_for_script(self) -> Path:
         return Path(self.menu.placeholders["MENU_DIR"]) / self._shortcut_filename("bat")

@@ -41,6 +41,24 @@
   ],
   "additionalProperties": false,
   "definitions": {
+    "MenuItemNameDict": {
+      "title": "MenuItemNameDict",
+      "description": "Variable menu item name.\nUse this dictionary if the menu item name depends on installation parameters\nsuch as the target environment.",
+      "type": "object",
+      "properties": {
+        "target_environment_is_base": {
+          "title": "Target Environment Is Base",
+          "minLength": 1,
+          "type": "string"
+        },
+        "target_environment_is_not_base": {
+          "title": "Target Environment Is Not Base",
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
     "Linux": {
       "title": "Linux",
       "description": "Linux-specific instructions.\n\nCheck the `Desktop entry specification\n<https://specifications.freedesktop.org/desktop-entry-spec/desktop-entry-spec-latest.html#recognized-keys>`__\nfor more details.",
@@ -48,8 +66,15 @@
       "properties": {
         "name": {
           "title": "Name",
-          "minLength": 1,
-          "type": "string"
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "$ref": "#/definitions/MenuItemNameDict"
+            }
+          ]
         },
         "description": {
           "title": "Description",
@@ -359,8 +384,15 @@
       "properties": {
         "name": {
           "title": "Name",
-          "minLength": 1,
-          "type": "string"
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "$ref": "#/definitions/MenuItemNameDict"
+            }
+          ]
         },
         "description": {
           "title": "Description",
@@ -468,6 +500,10 @@
           "title": "Lsrequiresnativeexecution",
           "type": "boolean"
         },
+        "NSSupportsAutomaticGraphicsSwitching": {
+          "title": "Nssupportsautomaticgraphicsswitching",
+          "type": "boolean"
+        },
         "UTExportedTypeDeclarations": {
           "title": "Utexportedtypedeclarations",
           "type": "array",
@@ -513,8 +549,15 @@
       "properties": {
         "name": {
           "title": "Name",
-          "minLength": 1,
-          "type": "string"
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "$ref": "#/definitions/MenuItemNameDict"
+            }
+          ]
         },
         "description": {
           "title": "Description",
@@ -620,8 +663,15 @@
       "properties": {
         "name": {
           "title": "Name",
-          "minLength": 1,
-          "type": "string"
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "$ref": "#/definitions/MenuItemNameDict"
+            }
+          ]
         },
         "description": {
           "title": "Description",
