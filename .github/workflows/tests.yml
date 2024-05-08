@@ -54,6 +54,12 @@ jobs:
           echo "XDG_UTILS_DEBUG_LEVEL=2" >> $GITHUB_ENV
           echo "XDG_CURRENT_DESKTOP=GNOME" >> $GITHUB_ENV
 
+      - name: Add Windows dependencies
+        if: startswith(matrix.os, 'windows')
+        run: |
+          choco install -y microsoft-windows-terminal
+        shell: pwsh
+
       - name: Install miniforge
         uses: conda-incubator/setup-miniconda@v2
         with:
