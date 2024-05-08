@@ -38,7 +38,10 @@ class Menu:
         self.prefix = Path(prefix)
         self.base_prefix = Path(base_prefix)
 
-        self.env_name = None
+        if self.prefix.samefile(self.base_prefix):
+            self.env_name = "base"
+        else:
+            self.env_name = self.prefix.name
 
     def create(self) -> List[Path]:
         raise NotImplementedError
@@ -72,7 +75,7 @@ class Menu:
             "DISTRIBUTION_NAME": self.base_prefix.name,
             "BASE_PYTHON": str(self.base_prefix / "bin" / "python"),
             "PREFIX": str(self.prefix),
-            "ENV_NAME": self.prefix.name,
+            "ENV_NAME": self.env_name,
             "PYTHON": str(self.prefix / "bin" / "python"),
             "MENU_DIR": str(self.prefix / "Menu"),
             "BIN_DIR": str(self.prefix / "bin"),
@@ -138,6 +141,14 @@ class MenuItem:
         self.menu = menu
         self._data = self._initialize_on_defaults(metadata)
         self.metadata = self._flatten_for_platform(self._data)
+        if isinstance(self.metadata["name"], dict):
+            if self.menu.prefix.samefile(self.menu.base_prefix):
+                name = self.metadata["name"].get("target_environment_is_base", "")
+            else:
+                name = self.metadata["name"].get("target_environment_is_not_base", "")
+            if not name:
+                raise ValueError("Cannot parse `name` from dictionary representation.")
+            self.metadata["name"] = name
 
     @property
     def location(self) -> Path:

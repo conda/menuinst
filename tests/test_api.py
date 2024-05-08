@@ -294,3 +294,32 @@ def test_url_protocol_association(delete_files):
         url_to_open=url,
         expected_output=url,
     )
+
+
+@pytest.mark.parametrize("target_env_is_base", (True, False))
+def test_name_dictionary(target_env_is_base):
+    tmp_base_path = mkdtemp()
+    tmp_target_path = tmp_base_path if target_env_is_base else mkdtemp()
+    (Path(tmp_base_path) / ".nonadmin").touch()
+    if not target_env_is_base:
+        (Path(tmp_target_path) / ".nonadmin").touch()
+    abs_json_path = DATA / "jsons" / "menu-name.json"
+    menu_items = install(abs_json_path, target_prefix=tmp_target_path, base_prefix=tmp_base_path)
+    try:
+        if PLATFORM == "linux":
+            expected = {
+                "package_a" if target_env_is_base else "package_a-not-in-base",
+                "package_b",
+                "package",
+            }
+        else:
+            expected = {
+                "A" if target_env_is_base else "A_not_in_base",
+                "B",
+            }
+            if PLATFORM == "win":
+                expected.update(["Package"])
+        item_names = {item.stem for item in menu_items}
+        assert item_names == expected
+    finally:
+        remove(abs_json_path, target_prefix=tmp_target_path, base_prefix=tmp_base_path)

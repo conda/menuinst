@@ -27,6 +27,19 @@ class BaseModel(_BaseModel):
         extra = "forbid"
 
 
+class MenuItemNameDict(BaseModel):
+    """
+    Variable menu item name.
+    Use this dictionary if the menu item name depends on installation parameters
+    such as the target environment.
+    """
+
+    target_environment_is_base: Optional[constr(min_length=1)] = None
+    "Name when target environment is the base environment."
+    target_environment_is_not_base: Optional[constr(min_length=1)] = None
+    "Name when target environment is not the base environment."
+
+
 class BasePlatformSpecific(BaseModel):
     """
     Same as :class:`MenuItem`, but without ``platforms``, and all is optional.
@@ -36,8 +49,11 @@ class BasePlatformSpecific(BaseModel):
     * Default value is always ``None``.
     """
 
-    name: Optional[constr(min_length=1)] = None
-    "The name of the menu item"
+    name: Optional[Union[constr(min_length=1), MenuItemNameDict]] = None
+    """
+    The name of the menu item. Can be a dictionary if the name depends on
+    installation parameters. See :class:`MenuItemNameDict` for details.
+    """
     description: Optional[str] = None
     "A longer description of the menu item. Shown on popup messages."
     icon: Optional[constr(min_length=1)] = None
@@ -331,8 +347,11 @@ class Platforms(BaseModel):
 class MenuItem(BaseModel):
     "Instructions to create a menu item across operating systems."
 
-    name: constr(min_length=1) = ...
-    "The name of the menu item."
+    name: Union[constr(min_length=1), MenuItemNameDict] = ...
+    """
+    The name of the menu item. Can be a dictionary if the name depends on
+    installation parameters. See :class:`MenuItemNameDict` for details.
+    """
     description: str = ...
     "A longer description of the menu item. Shown on popup messages."
     command: conlist(str, min_items=1) = ...
