@@ -231,7 +231,7 @@ class LinuxMenuItem(MenuItem):
 
     def _write_desktop_file(self):
         if self.location.exists():
-            log.warn(f"Overwriting existing file at {self.location}.")
+            log.warning(f"Overwriting existing file at {self.location}.")
 
         lines = [
             "[Desktop Entry]",

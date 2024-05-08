@@ -76,7 +76,7 @@ class MacOSMenuItem(MenuItem):
     def create(self) -> Tuple[Path]:
         log.debug("Creating %s", self.location)
         if self.location.exists():
-            log.warn(f"Overwriting existing application at {self.location}.")
+            log.warning(f"Overwriting existing application at {self.location}.")
             self.remove()
         self._create_application_tree()
         self._precreate()
