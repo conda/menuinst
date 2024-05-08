@@ -300,7 +300,7 @@ def test_url_protocol_association(delete_files):
 
 
 @pytest.mark.skipif(PLATFORM != "win", reason="Windows only")
-def test_windows_terminal_profiles():
+def test_windows_terminal_profiles(tmp_path):
     def _parse_terminal_profiles(settings_file: Path) -> dict:
         settings = json.loads(settings_file.read_text())
         return {
@@ -336,10 +336,9 @@ def test_windows_terminal_profiles():
     settings_files = [file for file in settings_files if file.exists()]
     if not settings_files:
         pytest.skip("No terminal profile settings file found.")
-    tmpdir = mkdtemp()
-    (Path(tmpdir) / ".nonadmin").touch()
+    (tmp_path / ".nonadmin").touch()
     metadata_file = DATA / "jsons" / "windows-terminal.json"
-    install(metadata_file, target_prefix=tmpdir, base_prefix=tmpdir)
+    install(metadata_file, target_prefix=tmp_path, base_prefix=tmp_path)
     a_in_profiles = []
     b_in_profiles = []
     try:
@@ -351,7 +350,7 @@ def test_windows_terminal_profiles():
                 b_in_profiles.append(file)
         assert a_in_profiles == settings_files and b_in_profiles == []
     except Exception as exc:
-        remove(metadata_file, target_prefix=tmpdir, base_prefix=tmpdir)
+        remove(metadata_file, target_prefix=tmp_path, base_prefix=tmp_path)
         raise exc
     else:
-        remove(metadata_file, target_prefix=tmpdir, base_prefix=tmpdir)
+        remove(metadata_file, target_prefix=tmp_path, base_prefix=tmp_path)
