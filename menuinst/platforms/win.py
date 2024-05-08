@@ -348,7 +348,7 @@ class WindowsMenuItem(MenuItem):
         settings = json.loads(location.read_text())
 
         index = -1
-        for p, profile in enumerate(settings.get("profiles", {}).get("list", []):
+        for p, profile in enumerate(settings.get("profiles", {}).get("list", [])):
             if profile.get("name") == name:
                 index = p
                 break
@@ -368,6 +368,10 @@ class WindowsMenuItem(MenuItem):
             if self.metadata.get("working_dir"):
                 profile_data["startingDirectory"] = self.render_key("working_dir")
             if index < 0:
+                if "profiles" not in settings:
+                    settings["profiles"] = {}
+                if "list" not in settings["profiles"]:
+                    settings["profiles"]["list"] = []
                 settings["profiles"]["list"].append(profile_data)
             else:
                 log.warn(f"Overwriting terminal profile for {name}.")
