@@ -348,7 +348,7 @@ class WindowsMenuItem(MenuItem):
         settings = json.loads(location.read_text())
 
         index = -1
-        for p, profile in enumerate(settings["profiles"]["list"]):
+        for p, profile in enumerate(settings.get("profiles", {}).get("list", []):
             if profile.get("name") == name:
                 index = p
                 break
