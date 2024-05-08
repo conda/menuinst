@@ -154,7 +154,7 @@ class WindowsMenuItem(MenuItem):
             # Notice args must be passed as positional, no keywords allowed!
             # winshortcut.create_shortcut(path, description, filename, arguments="",
             #                             workdir=None, iconpath=None, iconindex=0, app_id="")
-            if Path(target_path).exists():
+            if Path(path).exists():
                 log.warn(f"Overwriting existing link at {target_path}.")
             create_shortcut(
                 target_path,
