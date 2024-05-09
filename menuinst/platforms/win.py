@@ -75,7 +75,7 @@ class WindowsMenu(Menu):
         not when it is installed.
         """
         if self.mode == "system":
-            log.warn("Terminal profiles are not available for system level installs")
+            log.warning("Terminal profiles are not available for system level installs")
             return []
         profile_locations = windows_terminal_settings_files(self.mode)
         return [location for location in profile_locations if location.parent.exists()]
@@ -356,7 +356,7 @@ class WindowsMenuItem(MenuItem):
                     settings["profiles"]["list"] = []
                 settings["profiles"]["list"].append(profile_data)
             else:
-                log.warn(f"Overwriting terminal profile for {name}.")
+                log.warning(f"Overwriting terminal profile for {name}.")
                 settings["profiles"]["list"][index] = profile_data
         location.write_text(json.dumps(settings, indent=4))
 
