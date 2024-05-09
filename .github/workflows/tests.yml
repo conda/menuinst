@@ -58,6 +58,7 @@ jobs:
         if: startswith(matrix.os, 'windows')
         run: |
           choco install -y microsoft-windows-terminal
+          dir "${Env:LocalAppData}/Packages"
         shell: pwsh
 
       - name: Install miniforge
