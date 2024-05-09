@@ -338,9 +338,10 @@ def test_windows_terminal_profiles(tmp_path):
     if "CI" not in os.environ:
         for file in settings_files:
             file.parent.mkdir(parents=True, exist_ok=True)
-    settings_files = [file for file in settings_files if file.parent.exists()]
-    if not settings_files:
-        pytest.skip("No terminal profile settings file found.")
+    else:
+        settings_files = [file for file in settings_files if file.parent.exists()]
+        if not settings_files:
+            pytest.skip("No terminal profile settings file found.")
     (tmp_path / ".nonadmin").touch()
     metadata_file = DATA / "jsons" / "windows-terminal.json"
     install(metadata_file, target_prefix=tmp_path, base_prefix=tmp_path)

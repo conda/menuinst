@@ -327,23 +327,18 @@ def windows_terminal_settings_files(mode: str) -> List[Path]:
     if mode != "user":
         return []
     localappdata = folder_path(mode, False, "localappdata")
+    packages = Path(localappdata) / "Packages"
     profile_locations = [
         # Stable
-        Path(
-            localappdata,
-            "Packages",
-            "Microsoft.WindowsTerminal_8wekyb3d8bbwe",
-            "LocalState",
-            "settings.json",
-        ),
+        *[
+            Path(terminal, "LocalState", "settings.json")
+            for terminal in packages.glob("Microsoft.WindowsTerminal_*")
+        ],
         # Preview
-        Path(
-            localappdata,
-            "Packages",
-            "Microsoft.WindowsTerminalPreview_8wekyb3d8bbwe",
-            "LocalState",
-            "settings.json",
-        ),
+        *[
+            Path(terminal, "LocalState", "settings.json")
+            for terminal in packages.glob("Microsoft.WindowsTerminalPreview_*")
+        ],
         # Unpackaged (Scoop, Chocolatey, etc.)
         Path(
             localappdata,
