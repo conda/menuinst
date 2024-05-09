@@ -68,12 +68,17 @@ class WindowsMenu(Menu):
 
     @property
     def terminal_profile_locations(self) -> List[Path]:
-        """Location of the Windows terminal profiles."""
+        """Location of the Windows terminal profiles.
+
+        The parent directory is used to check if Terminal is installed
+        because the settings file is generated when Terminal is opened,
+        not when it is installed.
+        """
         if self.mode == "system":
             log.warn("Terminal profiles are not available for system level installs")
             return []
         profile_locations = windows_terminal_settings_files(self.mode)
-        return [location for location in profile_locations if location.exists()]
+        return [location for location in profile_locations if location.parent.exists()]
 
     @property
     def placeholders(self) -> Dict[str, str]:
@@ -312,12 +317,17 @@ class WindowsMenuItem(MenuItem):
 
         Windows Terminal is using the name of the profile to create a GUID,
         so the name will be used as the unique identifier to find existing profiles.
+
+        If the Terminal app has never been opened, the settings file may not exist yet.
+        Writing a minimal profile file will not break the application - Terminal will
+        automatically generate the missing options and profiles without overwriting
+        the profiles menuinst has created.
         """
-        if not self.metadata.get("terminal_profile") or not location.exists():
+        if not self.metadata.get("terminal_profile") or not location.parent.exists():
             return
         name = self.render_key("terminal_profile")
 
-        settings = json.loads(location.read_text())
+        settings = json.loads(location.read_text()) if location.exists() else {}
 
         index = -1
         for p, profile in enumerate(settings.get("profiles", {}).get("list", [])):
