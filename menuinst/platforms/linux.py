@@ -111,27 +111,29 @@ class LinuxMenu(Menu):
     #
 
     def _remove_this_menu(self):
-        log.debug("Editing %s to remove %s config", self.menu_config_location, self.name)
+        log.debug(
+            "Editing %s to remove %s config", self.menu_config_location, self.render(self.name)
+        )
         tree = ElementTree.parse(self.menu_config_location)
         root = tree.getroot()
         for elt in root.findall("Menu"):
-            if elt.find("Name").text == self.name:
+            if elt.find("Name").text == self.render(self.name):
                 root.remove(elt)
         self._write_menu_file(tree)
 
     def _has_this_menu(self) -> bool:
         root = ElementTree.parse(self.menu_config_location).getroot()
-        return any(e.text == self.name for e in root.findall("Menu/Name"))
+        return any(e.text == self.render(self.name) for e in root.findall("Menu/Name"))
 
     def _add_this_menu(self):
-        log.debug("Editing %s to add %s config", self.menu_config_location, self.name)
+        log.debug("Editing %s to add %s config", self.menu_config_location, self.render(self.name))
         tree = ElementTree.parse(self.menu_config_location)
         root = tree.getroot()
         menu_elt = add_xml_child(root, "Menu")
-        add_xml_child(menu_elt, "Name", self.name)
+        add_xml_child(menu_elt, "Name", self.render(self.name))
         add_xml_child(menu_elt, "Directory", f"{self.render(self.name, slug=True)}.directory")
         inc_elt = add_xml_child(menu_elt, "Include")
-        add_xml_child(inc_elt, "Category", self.name)
+        add_xml_child(inc_elt, "Category", self.render(self.name))
         self._write_menu_file(tree)
 
     def _is_valid_menu_file(self) -> bool:

@@ -11,13 +11,14 @@ from pathlib import Path
 from tempfile import NamedTemporaryFile, mkdtemp
 from time import sleep, time
 from typing import Iterable, Tuple
+from xml.etree import ElementTree
 
 import pytest
 from conftest import DATA, PLATFORM
 
 from menuinst.api import install, remove
 from menuinst.platforms.osx import _lsregister
-from menuinst.utils import DEFAULT_PREFIX, logged_run
+from menuinst.utils import DEFAULT_PREFIX, logged_run, slugify
 
 if PLATFORM == "win":
     from menuinst.platforms.win_utils.knownfolders import windows_terminal_settings_files
@@ -147,19 +148,43 @@ def test_install_prefix(delete_files):
     check_output_from_shortcut(delete_files, "sys-prefix.json", expected_output=sys.prefix)
 
 
-@pytest.mark.skipif(PLATFORM != "win", reason="Windows only")
+@pytest.mark.skipif(PLATFORM == "osx", reason="No menu names on MacOS")
 def test_placeholders_in_menu_name(delete_files):
     _, paths, tmp_base_path, _ = check_output_from_shortcut(
         delete_files,
         "sys-prefix.json",
         expected_output=sys.prefix,
+        remove_after=False,
     )
-    for path in paths:
-        if path.suffix == ".lnk" and "Start Menu" in path.parts:
-            assert path.parent.name == f"Sys.Prefix {Path(tmp_base_path).name}"
-            break
-    else:
-        raise AssertionError("Didn't find Start Menu")
+    if PLATFORM == "win":
+        for path in paths:
+            if path.suffix == ".lnk" and "Start Menu" in path.parts:
+                assert path.parent.name == f"Sys.Prefix {Path(tmp_base_path).name}"
+                break
+        else:
+            raise AssertionError("Didn't find Start Menu")
+    elif PLATFORM == "linux":
+        config_directory = Path(os.environ.get("XDG_CONFIG_HOME", "~/.config")).expanduser()
+        desktop_directory = (
+            Path(os.environ.get("XDG_DATA_HOME", "~/.local/share")).expanduser()
+            / "desktop-directories"
+        )
+        menu_config_location = config_directory / "menus" / "applications.menu"
+        rendered_name = f"Sys.Prefix {Path(tmp_base_path).name}"
+        slugified_name = slugify(rendered_name)
+
+        entry_file = desktop_directory / f"{slugified_name}.directory"
+        assert entry_file.exists()
+        entry = entry_file.read_text().splitlines()
+        assert f"Name={rendered_name}" in entry
+
+        tree = ElementTree.parse(menu_config_location)
+        root = tree.getroot()
+        assert rendered_name in [elt.text for elt in root.findall("Menu/Name")]
+        assert f"{slugified_name}.directory" in [
+            elt.text for elt in root.findall("Menu/Directory")
+        ]
+        assert rendered_name in [elt.text for elt in root.findall("Menu/Include/Category")]
 
 
 def test_precommands(delete_files):
