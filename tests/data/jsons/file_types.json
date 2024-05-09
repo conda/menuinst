@@ -14,7 +14,7 @@
             ],
             "platforms": {
                 "win": {
-                    "icon": "icon.{{ ICON_EXT }}",
+                    "icon": "doesnotexistbutitsok.{{ ICON_EXT }}",
                     "command": [
                         "{{ PYTHON }}",
                         "-c",
