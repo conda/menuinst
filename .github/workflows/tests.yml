@@ -59,6 +59,7 @@ jobs:
         run: |
           choco install -y microsoft-windows-terminal
           dir "${Env:LocalAppData}/Packages"
+          dir "${Env:LocalAppData}/Microsoft"
         shell: pwsh
 
       - name: Install miniforge
