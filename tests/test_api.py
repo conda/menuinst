@@ -300,6 +300,7 @@ def test_url_protocol_association(delete_files):
 
 
 @pytest.mark.skipif(PLATFORM != "win", reason="Windows only")
+@pytest.mark.no_mocking_on_ci
 def test_windows_terminal_profiles(tmp_path):
     def _parse_terminal_profiles(settings_file: Path) -> dict:
         settings = json.loads(settings_file.read_text())
@@ -308,7 +309,11 @@ def test_windows_terminal_profiles(tmp_path):
             for profile in settings["profiles"]["list"]
         }
 
-    settings_files = [file for file in windows_terminal_settings_files("user") if file.exists()]
+    settings_files = windows_terminal_settings_files("user")
+    if "CI" not in os.environ:
+        for file in settings_files:
+            file.parent.mkdir(parents=True, exist_ok=True)
+    settings_files = [file for file in settings_files if file.parent.exists()]
     if not settings_files:
         pytest.skip("No terminal profile settings file found.")
     (tmp_path / ".nonadmin").touch()
