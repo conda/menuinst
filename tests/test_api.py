@@ -20,7 +20,7 @@ from menuinst.platforms.osx import _lsregister
 from menuinst.utils import DEFAULT_PREFIX, logged_run
 
 if PLATFORM == "win":
-    from menuinst.platforms.win_utils.knownfolders import folder_path
+    from menuinst.platforms.win_utils.knownfolders import windows_terminal_settings_files
 
 
 def _poll_for_file_contents(path, timeout=10):
@@ -308,32 +308,7 @@ def test_windows_terminal_profiles(tmp_path):
             for profile in settings["profiles"]["list"]
         }
 
-    settings_files = [
-        # Stable
-        Path(
-            folder_path("user", False, "localappdata"),
-            "Packages",
-            "Microsoft.WindowsTerminal_8wekyb3d8bbwe",
-            "LocalState",
-            "settings.json",
-        ),
-        # Preview
-        Path(
-            folder_path("user", False, "localappdata"),
-            "Packages",
-            "Microsoft.WindowsTerminalPreview_8wekyb3d8bbwe",
-            "LocalState",
-            "settings.json",
-        ),
-        # Unpackaged (Scoop, Chocolatey, etc.)
-        Path(
-            folder_path("user", False, "localappdata"),
-            "Microsoft",
-            "Windows Terminal",
-            "settings.json",
-        ),
-    ]
-    settings_files = [file for file in settings_files if file.exists()]
+    settings_files = [file for file in windows_terminal_settings_files("user") if file.exists()]
     if not settings_files:
         pytest.skip("No terminal profile settings file found.")
     (tmp_path / ".nonadmin").touch()

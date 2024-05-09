@@ -14,6 +14,7 @@ from typing import Any, Dict, List, Optional, Tuple
 from ..utils import WinLex, logged_run, unlink
 from .base import Menu, MenuItem
 from .win_utils.knownfolders import folder_path as windows_folder_path
+from .win_utils.knownfolders import windows_terminal_settings_files
 from .win_utils.registry import (
     register_file_extension,
     register_url_protocol,
@@ -67,39 +68,11 @@ class WindowsMenu(Menu):
 
     @property
     def terminal_profile_locations(self) -> List[Path]:
-        """Location of the Windows terminal profiles.
-
-        See the Microsoft documentation for details:
-        https://learn.microsoft.com/en-us/windows/terminal/install#settings-json-file
-        """
+        """Location of the Windows terminal profiles."""
         if self.mode == "system":
             log.warn("Terminal profiles are not available for system level installs")
             return []
-        profile_locations = [
-            # Stable
-            Path(
-                windows_folder_path(self.mode, False, "localappdata"),
-                "Packages",
-                "Microsoft.WindowsTerminal_8wekyb3d8bbwe",
-                "LocalState",
-                "settings.json",
-            ),
-            # Preview
-            Path(
-                windows_folder_path(self.mode, False, "localappdata"),
-                "Packages",
-                "Microsoft.WindowsTerminalPreview_8wekyb3d8bbwe",
-                "LocalState",
-                "settings.json",
-            ),
-            # Unpackaged (Scoop, Chocolatey, etc.)
-            Path(
-                windows_folder_path(self.mode, False, "localappdata"),
-                "Microsoft",
-                "Windows Terminal",
-                "settings.json",
-            ),
-        ]
+        profile_locations = windows_terminal_settings_files(self.mode)
         return [location for location in profile_locations if location.exists()]
 
     @property

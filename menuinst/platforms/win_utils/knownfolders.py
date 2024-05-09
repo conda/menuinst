@@ -29,6 +29,8 @@ import ctypes
 import os
 from ctypes import windll, wintypes
 from logging import getLogger
+from pathlib import Path
+from typing import List
 from uuid import UUID
 
 logger = getLogger(__name__)
@@ -314,3 +316,39 @@ def folder_path(preferred_mode, check_other_mode, key):
         )
         return None
     return path
+
+
+def windows_terminal_settings_files(mode: str) -> List[Path]:
+    """Return all possible locations of the settings.json files for the Windows Terminal.
+
+    See the Microsoft documentation for details:
+    https://learn.microsoft.com/en-us/windows/terminal/install#settings-json-file
+    """
+    if mode != "user":
+        return []
+    profile_locations = [
+        # Stable
+        Path(
+            folder_path(mode, False, "localappdata"),
+            "Packages",
+            "Microsoft.WindowsTerminal_8wekyb3d8bbwe",
+            "LocalState",
+            "settings.json",
+        ),
+        # Preview
+        Path(
+            folder_path(mode, False, "localappdata"),
+            "Packages",
+            "Microsoft.WindowsTerminalPreview_8wekyb3d8bbwe",
+            "LocalState",
+            "settings.json",
+        ),
+        # Unpackaged (Scoop, Chocolatey, etc.)
+        Path(
+            folder_path(mode, False, "localappdata"),
+            "Microsoft",
+            "Windows Terminal",
+            "settings.json",
+        ),
+    ]
+    return profile_locations
