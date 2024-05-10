@@ -72,7 +72,7 @@ def register_file_extension(extension, identifier, command, icon=None, mode="use
         log.debug("Created registry entry for command '%s'", command)
 
         if icon:
-            subkey = winreg.OpenKey(key, identifier)
+            subkey = winreg.OpenKey(key, identifier, access=winreg.KEY_SET_VALUE)
             winreg.SetValueEx(subkey, "DefaultIcon", 0, winreg.REG_SZ, icon)
             log.debug("Created registry entry for icon '%s'", icon)
 
