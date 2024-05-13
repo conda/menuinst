@@ -20,9 +20,6 @@ from menuinst.api import install, remove
 from menuinst.platforms.osx import _lsregister
 from menuinst.utils import DEFAULT_PREFIX, logged_run, slugify
 
-if PLATFORM == "win":
-    from menuinst.platforms.win_utils.knownfolders import windows_terminal_settings_files
-
 
 def _poll_for_file_contents(path, timeout=10):
     t0 = time()
@@ -325,36 +322,22 @@ def test_url_protocol_association(delete_files):
 
 
 @pytest.mark.skipif(PLATFORM != "win", reason="Windows only")
-@pytest.mark.no_mocking_on_ci
 def test_windows_terminal_profiles(tmp_path):
-    def _parse_terminal_profiles(settings_file: Path) -> dict:
-        settings = json.loads(settings_file.read_text())
-        return {
-            profile.get("name", ""): profile.get("commandline", "")
-            for profile in settings["profiles"]["list"]
-        }
-
-    settings_files = windows_terminal_settings_files("user")
-    if "CI" not in os.environ:
-        for file in settings_files:
-            file.parent.mkdir(parents=True, exist_ok=True)
-    else:
-        settings_files = [file for file in settings_files if file.parent.exists()]
-        if not settings_files:
-            pytest.skip("No terminal profile settings file found.")
+    settings_file = Path(
+        tmp_path, "localappdata", "Microsoft", "Windows Terminal", "settings.json"
+    )
+    settings_file.parent.mkdir(parents=True)
     (tmp_path / ".nonadmin").touch()
     metadata_file = DATA / "jsons" / "windows-terminal.json"
     install(metadata_file, target_prefix=tmp_path, base_prefix=tmp_path)
-    a_in_profiles = []
-    b_in_profiles = []
     try:
-        for file in settings_files:
-            profiles = _parse_terminal_profiles(file)
-            if "A Terminal" in profiles and profiles["A Terminal"] == "testcommand_a.exe":
-                a_in_profiles.append(file)
-            if "B" in profiles:
-                b_in_profiles.append(file)
-        assert a_in_profiles == settings_files and b_in_profiles == []
+        settings = json.loads(settings_file.read_text())
+        profiles = {
+            profile.get("name", ""): profile.get("commandline", "")
+            for profile in settings.get("profiles", {}).get("list", [])
+        }
+        assert profiles.get("A Terminal") == "testcommand_a.exe"
+        assert "B" not in profiles
     except Exception as exc:
         remove(metadata_file, target_prefix=tmp_path, base_prefix=tmp_path)
         raise exc

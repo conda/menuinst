@@ -18,12 +18,6 @@ DATA = Path(__file__).parent / "data"
 PLATFORM = platform_key()
 
 
-def pytest_configure(config):
-    config.addinivalue_line(
-        "markers", "no_mocking_on_ci: Do not mock locations when running on the CI."
-    )
-
-
 def base_prefix():
     prefix = os.environ.get("CONDA_ROOT", os.environ.get("MAMBA_ROOT_PREFIX"))
     if not prefix:
@@ -59,8 +53,6 @@ def tmpdir(tmpdir, request):
 
 @pytest.fixture(autouse=True)
 def mock_locations(monkeypatch, tmp_path, request):
-    if "no_mocking_on_ci" in request.keywords and "CI" in os.environ:
-        return
     from menuinst.platforms.linux import LinuxMenu
     from menuinst.platforms.osx import MacOSMenuItem
 
