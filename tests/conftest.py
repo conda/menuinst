@@ -76,3 +76,10 @@ def mock_locations(monkeypatch, tmp_path, request):
         monkeypatch.setattr(LinuxMenu, "_system_data_directory", tmp_path / "data")
         monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path / "config"))
         monkeypatch.setenv("XDG_DATA_HOME", str(tmp_path / "data"))
+
+
+@pytest.fixture()
+def run_as_user(monkeypatch):
+    from menuinst import utils as menuinst_utils
+
+    monkeypatch.setattr(menuinst_utils, "user_is_admin", lambda: False)
