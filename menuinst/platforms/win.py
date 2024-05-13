@@ -77,8 +77,7 @@ class WindowsMenu(Menu):
         if self.mode == "system":
             log.warning("Terminal profiles are not available for system level installs")
             return []
-        profile_locations = windows_terminal_settings_files(self.mode)
-        return [location for location in profile_locations if location.parent.exists()]
+        return windows_terminal_settings_files(self.mode)
 
     @property
     def placeholders(self) -> Dict[str, str]:

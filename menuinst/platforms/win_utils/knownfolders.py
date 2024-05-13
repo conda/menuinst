@@ -339,12 +339,9 @@ def windows_terminal_settings_files(mode: str) -> List[Path]:
             Path(terminal, "LocalState", "settings.json")
             for terminal in packages.glob("Microsoft.WindowsTerminalPreview_*")
         ],
-        # Unpackaged (Scoop, Chocolatey, etc.)
-        Path(
-            localappdata,
-            "Microsoft",
-            "Windows Terminal",
-            "settings.json",
-        ),
     ]
+    # Unpackaged (Scoop, Chocolatey, etc.)
+    unpackaged_path = Path(localappdata, "Microsoft", "Windows Terminal", "settings.json")
+    if unpackaged_path.parent.exists():
+        profile_locations.append(unpackaged_path)
     return profile_locations
