@@ -152,13 +152,21 @@ def test_overwrite_existing_shortcuts(delete_files, caplog):
         "precommands.json",
         remove_after=False,
     )
-    caplog.clear()
-    check_output_from_shortcut(
-        delete_files,
-        "precommands.json",
-        remove_after=True,
-    )
-    assert any(line.startswith("Overwriting existing") for line in caplog.messages)
+    if PLATFORM == "osx":
+        with pytest.raises(RuntimeError):
+            check_output_from_shortcut(
+                delete_files,
+                "precommands.json",
+                remove_after=True,
+            )
+    else:
+        caplog.clear()
+        check_output_from_shortcut(
+            delete_files,
+            "precommands.json",
+            remove_after=True,
+        )
+        assert any(line.startswith("Overwriting existing") for line in caplog.messages)
 
 
 @pytest.mark.skipif(PLATFORM == "osx", reason="No menu names on MacOS")

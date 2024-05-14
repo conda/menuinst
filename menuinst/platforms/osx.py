@@ -74,10 +74,15 @@ class MacOSMenuItem(MenuItem):
             os.symlink(self.render(src), rendered_dest)
 
     def create(self) -> Tuple[Path]:
-        log.debug("Creating %s", self.location)
         if self.location.exists():
-            log.warning(f"Overwriting existing application at {self.location}.")
-            self.remove()
+            message = (
+                f"App already exista at {self.location}. "
+                "Please remove the existing shortcut before installing. "
+                "If you used conda to install this package, "
+                "re-run the installation with --no-shortcuts."
+            )
+            raise RuntimeError(message)
+        log.debug("Creating %s", self.location)
         self._create_application_tree()
         self._precreate()
         self._copy_icon()
