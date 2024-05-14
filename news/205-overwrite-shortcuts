@@ -4,7 +4,7 @@
 
 ### Bug fixes
 
-* Overwrite MacOS applications if they already exist and warn about overwriting shortcuts on other platforms. (#203 via #205)
+* Improve error handling for installing identical MacOS apps and warn about overwriting shortcuts on other platforms. (#203 via #205)
 
 ### Deprecations
 
