@@ -1,6 +1,7 @@
 """
 """
 
+import json
 import os
 import shutil
 import warnings
@@ -8,11 +9,12 @@ from logging import getLogger
 from pathlib import Path
 from subprocess import CompletedProcess
 from tempfile import NamedTemporaryFile
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 from ..utils import WinLex, logged_run, unlink
 from .base import Menu, MenuItem
 from .win_utils.knownfolders import folder_path as windows_folder_path
+from .win_utils.knownfolders import windows_terminal_settings_files
 from .win_utils.registry import (
     register_file_extension,
     register_url_protocol,
@@ -63,6 +65,19 @@ class WindowsMenu(Menu):
     @property
     def desktop_location(self) -> Path:
         return Path(windows_folder_path(self.mode, False, "desktop"))
+
+    @property
+    def terminal_profile_locations(self) -> List[Path]:
+        """Location of the Windows terminal profiles.
+
+        The parent directory is used to check if Terminal is installed
+        because the settings file is generated when Terminal is opened,
+        not when it is installed.
+        """
+        if self.mode == "system":
+            log.warning("Terminal profiles are not available for system level installs")
+            return []
+        return windows_terminal_settings_files(self.mode)
 
     @property
     def placeholders(self) -> Dict[str, str]:
@@ -165,6 +180,8 @@ class WindowsMenuItem(MenuItem):
                 self._app_user_model_id(),
             )
 
+        for location in self.menu.terminal_profile_locations:
+            self._add_remove_windows_terminal_profile(location, remove=False)
         self._register_file_extensions()
         self._register_url_protocols()
 
@@ -173,6 +190,8 @@ class WindowsMenuItem(MenuItem):
     def remove(self) -> Tuple[Path, ...]:
         self._unregister_file_extensions()
         self._unregister_url_protocols()
+        for location in self.menu.terminal_profile_locations:
+            self._add_remove_windows_terminal_profile(location, remove=True)
 
         paths = self._paths()
         for path in paths:
@@ -291,6 +310,54 @@ class WindowsMenuItem(MenuItem):
         if with_arg1 and all("%1" not in arg for arg in command):
             command.append("%1")
         return WinLex.quote_args(command)
+
+    def _add_remove_windows_terminal_profile(self, location: Path, remove: bool = False):
+        """Add/remove the Windows Terminal profile.
+
+        Windows Terminal is using the name of the profile to create a GUID,
+        so the name will be used as the unique identifier to find existing profiles.
+
+        If the Terminal app has never been opened, the settings file may not exist yet.
+        Writing a minimal profile file will not break the application - Terminal will
+        automatically generate the missing options and profiles without overwriting
+        the profiles menuinst has created.
+        """
+        if not self.metadata.get("terminal_profile") or not location.parent.exists():
+            return
+        name = self.render_key("terminal_profile")
+
+        settings = json.loads(location.read_text()) if location.exists() else {}
+
+        index = -1
+        for p, profile in enumerate(settings.get("profiles", {}).get("list", [])):
+            if profile.get("name") == name:
+                index = p
+                break
+
+        if remove:
+            if index < 0:
+                log.warning(f"Could not find terminal profile for {name}.")
+                return
+            del settings["profiles"]["list"][index]
+        else:
+            profile_data = {
+                "commandline": " ".join(WinLex.quote_args(self.render_key("command"))),
+                "name": name,
+            }
+            if self.metadata.get("icon"):
+                profile_data["icon"] = self.render_key("icon")
+            if self.metadata.get("working_dir"):
+                profile_data["startingDirectory"] = self.render_key("working_dir")
+            if index < 0:
+                if "profiles" not in settings:
+                    settings["profiles"] = {}
+                if "list" not in settings["profiles"]:
+                    settings["profiles"]["list"] = []
+                settings["profiles"]["list"].append(profile_data)
+            else:
+                log.warning(f"Overwriting terminal profile for {name}.")
+                settings["profiles"]["list"][index] = profile_data
+        location.write_text(json.dumps(settings, indent=4))
 
     def _ftype_identifier(self, extension):
         identifier = self.render_key("name", slug=True)

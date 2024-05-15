@@ -321,6 +321,30 @@ def test_url_protocol_association(delete_files):
     )
 
 
+@pytest.mark.skipif(PLATFORM != "win", reason="Windows only")
+def test_windows_terminal_profiles(tmp_path, run_as_user):
+    settings_file = Path(
+        tmp_path, "localappdata", "Microsoft", "Windows Terminal", "settings.json"
+    )
+    settings_file.parent.mkdir(parents=True)
+    (tmp_path / ".nonadmin").touch()
+    metadata_file = DATA / "jsons" / "windows-terminal.json"
+    install(metadata_file, target_prefix=tmp_path, base_prefix=tmp_path)
+    try:
+        settings = json.loads(settings_file.read_text())
+        profiles = {
+            profile.get("name", ""): profile.get("commandline", "")
+            for profile in settings.get("profiles", {}).get("list", [])
+        }
+        assert profiles.get("A Terminal") == "testcommand_a.exe"
+        assert "B" not in profiles
+    except Exception as exc:
+        remove(metadata_file, target_prefix=tmp_path, base_prefix=tmp_path)
+        raise exc
+    else:
+        remove(metadata_file, target_prefix=tmp_path, base_prefix=tmp_path)
+
+
 @pytest.mark.parametrize("target_env_is_base", (True, False))
 def test_name_dictionary(target_env_is_base):
     tmp_base_path = mkdtemp()
