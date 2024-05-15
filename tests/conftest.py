@@ -52,7 +52,7 @@ def tmpdir(tmpdir, request):
 
 
 @pytest.fixture(autouse=True)
-def mock_locations(monkeypatch, tmp_path, request):
+def mock_locations(monkeypatch, tmp_path):
     from menuinst.platforms.linux import LinuxMenu
     from menuinst.platforms.osx import MacOSMenuItem
 
