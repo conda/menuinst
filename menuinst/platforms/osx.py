@@ -76,10 +76,11 @@ class MacOSMenuItem(MenuItem):
     def create(self) -> Tuple[Path]:
         if self.location.exists():
             message = (
-                f"App already exista at {self.location}. "
+                f"App already exists at {self.location}. "
                 "Please remove the existing shortcut before installing. "
                 "If you used conda to install this package, "
-                "re-run the installation with --no-shortcuts."
+                "reinstall the package with --force-reinstall to "
+                "create the shortcut once the location is cleared."
             )
             raise RuntimeError(message)
         log.debug("Creating %s", self.location)
