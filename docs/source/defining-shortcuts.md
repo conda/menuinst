@@ -19,8 +19,9 @@ four keys
         - `win`- see {class}`Windows schema <menuinst._schema.Windows>`
 
 ```{warning}
-`menuinst` will overwrite existing shortcuts, so `menu_name` and `name` must be chosen accordingly.
-Note that MacOS does not use `menu_name`.
+`menuinst` will overwrite existing shortcuts on Linux and Windows, so `menu_name` and `name` must be chosen accordingly.
+
+MacOS apps, however, will not be overwritten. Instead, `menuinst` will abort when an app with the same name exists.
 ```
 
 ```{seealso}
