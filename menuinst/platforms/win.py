@@ -159,7 +159,7 @@ class WindowsMenuItem(MenuItem):
             target_path, *arguments = self._process_command()
             working_dir = self.render_key("working_dir")
             if working_dir:
-                Path(working_dir).mkdir(parents=True, exist_ok=True)
+                Path(os.path.expandvars(working_dir)).mkdir(parents=True, exist_ok=True)
             else:
                 working_dir = "%HOMEPATH%"
 

@@ -251,7 +251,7 @@ class LinuxMenuItem(MenuItem):
 
         working_dir = self.render_key("working_dir")
         if working_dir:
-            Path(working_dir).mkdir(parents=True, exist_ok=True)
+            Path(os.path.expandvars(working_dir)).mkdir(parents=True, exist_ok=True)
             lines.append(f"Path={working_dir}")
 
         for key in menuitem_defaults["platforms"]["linux"]:
