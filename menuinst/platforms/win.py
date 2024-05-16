@@ -160,8 +160,14 @@ class WindowsMenuItem(MenuItem):
             working_dir = self.render_key("working_dir")
             if working_dir:
                 Path(os.path.expandvars(working_dir)).mkdir(parents=True, exist_ok=True)
+            # There are two possible interpretations of HOME on Windows:
+            # `%USERPROFILE%` and `%HOMEDRIVE%%HOMEPATH%`.
+            # Follow os.path.expanduser logic here, but keep the variables
+            # so that Windows can resolve them at runtime in case the drives change.
+            elif "USERPROFILE" in os.environ:
+                working_dir = "%USERPROFILE%"
             else:
-                working_dir = "%HOMEPATH%"
+                working_dir = "%HOMEDRIVE%%HOMEPATH%"
 
             icon = self.render_key("icon") or ""
 
