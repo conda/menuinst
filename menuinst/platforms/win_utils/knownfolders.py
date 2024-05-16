@@ -29,6 +29,8 @@ import ctypes
 import os
 from ctypes import windll, wintypes
 from logging import getLogger
+from pathlib import Path
+from typing import List
 from uuid import UUID
 
 logger = getLogger(__name__)
@@ -258,6 +260,7 @@ dirs_src = {
         "quicklaunch": get_folder_path(FOLDERID.QuickLaunch),
         "documents": get_folder_path(FOLDERID.Documents),
         "profile": get_folder_path(FOLDERID.Profile),
+        "localappdata": get_folder_path(FOLDERID.LocalAppData),
     },
 }
 
@@ -313,3 +316,32 @@ def folder_path(preferred_mode, check_other_mode, key):
         )
         return None
     return path
+
+
+def windows_terminal_settings_files(mode: str) -> List[Path]:
+    """Return all possible locations of the settings.json files for the Windows Terminal.
+
+    See the Microsoft documentation for details:
+    https://learn.microsoft.com/en-us/windows/terminal/install#settings-json-file
+    """
+    if mode != "user":
+        return []
+    localappdata = folder_path(mode, False, "localappdata")
+    packages = Path(localappdata) / "Packages"
+    profile_locations = [
+        # Stable
+        *[
+            Path(terminal, "LocalState", "settings.json")
+            for terminal in packages.glob("Microsoft.WindowsTerminal_*")
+        ],
+        # Preview
+        *[
+            Path(terminal, "LocalState", "settings.json")
+            for terminal in packages.glob("Microsoft.WindowsTerminalPreview_*")
+        ],
+    ]
+    # Unpackaged (Scoop, Chocolatey, etc.)
+    unpackaged_path = Path(localappdata, "Microsoft", "Windows Terminal", "settings.json")
+    if unpackaged_path.parent.exists():
+        profile_locations.append(unpackaged_path)
+    return profile_locations

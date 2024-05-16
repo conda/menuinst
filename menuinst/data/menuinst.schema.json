@@ -609,6 +609,11 @@
           "default": true,
           "type": "boolean"
         },
+        "terminal_profile": {
+          "title": "Terminal Profile",
+          "minLength": 1,
+          "type": "string"
+        },
         "url_protocols": {
           "title": "Url Protocols",
           "type": "array",
