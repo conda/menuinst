@@ -380,7 +380,7 @@ def test_vars_in_working_dir(tmp_path, delete_files):
     elif PLATFORM == "osx":
         expected_directory = Path(os.environ["TMPDIR"], "working_dir_test")
     else:
-        expected_directory = Path(os.environ["TMP"], "working_dir_test")
+        expected_directory = Path("/tmp/working_dir_test")
     delete_files.append(expected_directory)
     datafile = str(DATA / "jsons" / "sys-prefix.json")
     try:
