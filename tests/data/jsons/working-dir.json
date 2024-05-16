@@ -19,11 +19,15 @@
                         "-c",
                         "import sys; f = open(r'__OUTPUT_FILE__', 'w'); f.write(sys.prefix); f.close()"
                     ],
-                    "description": "Note how __OUTPUT_FILE__ is using raw-strings. Otherwise the backslashes are not properly escaped."
+                    "description": "Note how __OUTPUT_FILE__ is using raw-strings. Otherwise the backslashes are not properly escaped.",
+		    "working_dir": "%TEMP%/working_dir_test"
                 },
-                "linux": {},
+                "linux": {
+		    "working_dir": "${TMP}/working_dir_test"
+		},
                 "osx": {
-                    "CFBundleName": "Sys Prefix"
+                    "CFBundleName": "Sys Prefix",
+		    "working_dir": "${TMPDIR}/working_dir_test"
                 }
             }
         }
