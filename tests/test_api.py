@@ -145,6 +145,30 @@ def test_install_prefix(delete_files):
     check_output_from_shortcut(delete_files, "sys-prefix.json", expected_output=sys.prefix)
 
 
+def test_overwrite_existing_shortcuts(delete_files, caplog):
+    """Test that overwriting shortcuts works without errors by running installation twice."""
+    check_output_from_shortcut(
+        delete_files,
+        "precommands.json",
+        remove_after=False,
+    )
+    if PLATFORM == "osx":
+        with pytest.raises(RuntimeError):
+            check_output_from_shortcut(
+                delete_files,
+                "precommands.json",
+                remove_after=True,
+            )
+    else:
+        caplog.clear()
+        check_output_from_shortcut(
+            delete_files,
+            "precommands.json",
+            remove_after=True,
+        )
+        assert any(line.startswith("Overwriting existing") for line in caplog.messages)
+
+
 @pytest.mark.skipif(PLATFORM == "osx", reason="No menu names on MacOS")
 def test_placeholders_in_menu_name(delete_files):
     _, paths, tmp_base_path, _ = check_output_from_shortcut(
