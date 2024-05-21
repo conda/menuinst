@@ -396,3 +396,21 @@ def test_name_dictionary(target_env_is_base):
         assert item_names == expected
     finally:
         remove(abs_json_path, target_prefix=tmp_target_path, base_prefix=tmp_base_path)
+
+
+def test_vars_in_working_dir(tmp_path, monkeypatch, delete_files):
+    if PLATFORM == "win":
+        expected_directory = Path(os.environ["TEMP"], "working_dir_test")
+    elif PLATFORM == "osx":
+        expected_directory = Path(os.environ["TMPDIR"], "working_dir_test")
+    else:
+        # Linux often does not have an environment variable for the tmp directory
+        monkeypatch.setenv("TMP", "/tmp")
+        expected_directory = Path("/tmp/working_dir_test")
+    delete_files.append(expected_directory)
+    datafile = str(DATA / "jsons" / "working-dir.json")
+    try:
+        install(datafile, base_prefix=tmp_path, target_prefix=tmp_path)
+        assert expected_directory.exists()
+    finally:
+        remove(datafile, base_prefix=tmp_path, target_prefix=tmp_path)

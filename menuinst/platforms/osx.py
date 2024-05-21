@@ -194,7 +194,7 @@ class MacOSMenuItem(MenuItem):
 
         working_dir = self.render_key("working_dir")
         if working_dir:
-            Path(working_dir).mkdir(parents=True, exist_ok=True)
+            Path(os.path.expandvars(working_dir)).mkdir(parents=True, exist_ok=True)
             lines.append(f'cd "{working_dir}"')
 
         precommand = self.render_key("precommand")
