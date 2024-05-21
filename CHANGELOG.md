@@ -2,6 +2,28 @@
 
 ## 2.1.0 (2024-05-21)
 
+### Bug fixes
+
+* Improve error handling for installing identical MacOS apps and warn about overwriting shortcuts on other platforms. (#203 via #205)
+* Expand variables when creating `working_dir` and use `os.path.expanduser` logic for default `working_dir` on Windows. (#211 via #212)
+
+### Other
+
+* Pin Visual Studio version to 2022 for canary builds to account for changes to GitHub runners. (#215)
+
+### Contributors
+
+* @JTignor-Raltron
+* @jaimergp
+* @marcoesters
+* @conda-bot
+* @dependabot[bot]
+* @pre-commit-ci[bot]
+
+
+
+## 2.1.0 (2024-05-21)
+
 ### Enhancements
 
 * Support different name for shortcuts within and outside base environment (support v1 behavior). (#180)
