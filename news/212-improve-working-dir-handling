@@ -4,7 +4,7 @@
 
 ### Bug fixes
 
-* Expand variables when `creating working_dir` and use `os.path.expanduser` logic for default `working_dir` on Windows. (#211 via #212)
+* Expand variables when creating `working_dir` and use `os.path.expanduser` logic for default `working_dir` on Windows. (#211 via #212)
 
 ### Deprecations
 
