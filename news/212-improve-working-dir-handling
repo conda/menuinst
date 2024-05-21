@@ -1,0 +1,19 @@
+### Enhancements
+
+* <news item>
+
+### Bug fixes
+
+* Expand variables when creating `working_dir` and use `os.path.expanduser` logic for default `working_dir` on Windows. (#211 via #212)
+
+### Deprecations
+
+* <news item>
+
+### Docs
+
+* <news item>
+
+### Other
+
+* <news item>

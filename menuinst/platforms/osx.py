@@ -74,6 +74,15 @@ class MacOSMenuItem(MenuItem):
             os.symlink(self.render(src), rendered_dest)
 
     def create(self) -> Tuple[Path]:
+        if self.location.exists():
+            message = (
+                f"App already exists at {self.location}. "
+                "Please remove the existing shortcut before installing. "
+                "If you used conda to install this package, "
+                "reinstall the package with --force-reinstall to "
+                "create the shortcut once the location is cleared."
+            )
+            raise RuntimeError(message)
         log.debug("Creating %s", self.location)
         self._create_application_tree()
         self._precreate()
@@ -185,7 +194,7 @@ class MacOSMenuItem(MenuItem):
 
         working_dir = self.render_key("working_dir")
         if working_dir:
-            Path(working_dir).mkdir(parents=True, exist_ok=True)
+            Path(os.path.expandvars(working_dir)).mkdir(parents=True, exist_ok=True)
             lines.append(f'cd "{working_dir}"')
 
         precommand = self.render_key("precommand")

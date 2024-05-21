@@ -145,6 +145,30 @@ def test_install_prefix(delete_files):
     check_output_from_shortcut(delete_files, "sys-prefix.json", expected_output=sys.prefix)
 
 
+def test_overwrite_existing_shortcuts(delete_files, caplog):
+    """Test that overwriting shortcuts works without errors by running installation twice."""
+    check_output_from_shortcut(
+        delete_files,
+        "precommands.json",
+        remove_after=False,
+    )
+    if PLATFORM == "osx":
+        with pytest.raises(RuntimeError):
+            check_output_from_shortcut(
+                delete_files,
+                "precommands.json",
+                remove_after=True,
+            )
+    else:
+        caplog.clear()
+        check_output_from_shortcut(
+            delete_files,
+            "precommands.json",
+            remove_after=True,
+        )
+        assert any(line.startswith("Overwriting existing") for line in caplog.messages)
+
+
 @pytest.mark.skipif(PLATFORM == "osx", reason="No menu names on MacOS")
 def test_placeholders_in_menu_name(delete_files):
     _, paths, tmp_base_path, _ = check_output_from_shortcut(
@@ -372,3 +396,21 @@ def test_name_dictionary(target_env_is_base):
         assert item_names == expected
     finally:
         remove(abs_json_path, target_prefix=tmp_target_path, base_prefix=tmp_base_path)
+
+
+def test_vars_in_working_dir(tmp_path, monkeypatch, delete_files):
+    if PLATFORM == "win":
+        expected_directory = Path(os.environ["TEMP"], "working_dir_test")
+    elif PLATFORM == "osx":
+        expected_directory = Path(os.environ["TMPDIR"], "working_dir_test")
+    else:
+        # Linux often does not have an environment variable for the tmp directory
+        monkeypatch.setenv("TMP", "/tmp")
+        expected_directory = Path("/tmp/working_dir_test")
+    delete_files.append(expected_directory)
+    datafile = str(DATA / "jsons" / "working-dir.json")
+    try:
+        install(datafile, base_prefix=tmp_path, target_prefix=tmp_path)
+        assert expected_directory.exists()
+    finally:
+        remove(datafile, base_prefix=tmp_path, target_prefix=tmp_path)

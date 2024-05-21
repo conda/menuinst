@@ -232,6 +232,9 @@ class LinuxMenuItem(MenuItem):
         return "bash -c " + shlex.quote(" && ".join(parts))
 
     def _write_desktop_file(self):
+        if self.location.exists():
+            log.warning("Overwriting existing file at %s.", self.location)
+
         lines = [
             "[Desktop Entry]",
             "Type=Application",
@@ -251,7 +254,7 @@ class LinuxMenuItem(MenuItem):
 
         working_dir = self.render_key("working_dir")
         if working_dir:
-            Path(working_dir).mkdir(parents=True, exist_ok=True)
+            Path(os.path.expandvars(working_dir)).mkdir(parents=True, exist_ok=True)
             lines.append(f"Path={working_dir}")
 
         for key in menuitem_defaults["platforms"]["linux"]:
