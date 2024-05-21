@@ -163,7 +163,7 @@
   github: katietz
 - name: dependabot[bot]
   email: 49699333+dependabot[bot]@users.noreply.github.com
-  num_commits: 3
+  num_commits: 5
   first_commit: 2024-05-06 08:12:56
   github: dependabot[bot]
 - name: JTignor-Raltron
@@ -173,6 +173,6 @@
   github: JTignor-Raltron
 - name: Marco Esters
   email: mesters@anaconda.com
-  num_commits: 6
+  num_commits: 12
   first_commit: 2024-01-26 08:11:25
   github: marcoesters
