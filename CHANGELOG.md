@@ -1,5 +1,38 @@
 [//]: # (current developments)
 
+## 2.1.0 (2024-05-21)
+
+### Enhancements
+
+* Support different name for shortcuts within and outside base environment (support v1 behavior). (#180)
+* Support the `NSSupportsAutomaticGraphicsSwitching` flag for MacOS apps. (#194)
+* Add option to create a Windows Terminal profile. (#196 via #200)
+* Improve error handling for installing identical MacOS apps and warn about overwriting shortcuts on other platforms. (#203 via #205)
+* Expand variables when creating `working_dir` and use `os.path.expanduser` logic for default `working_dir` on Windows. (#211 via #212)
+
+### Bug fixes
+
+* Do not inject the AppKit launcher unless `event_handler` has been set. Only affects macOS. (#179 via #183)
+* Render all menu name instances for Linux. (#201)
+* Fix Windows registry key access mode when adding icon file to file type association. (#191 via #206)
+
+### Docs
+
+* Add notes on "missing" Start Menu directories on Windows and on how to migrate `pywscript` and `pyscript` to menuinst v2 (#181)
+* Fix API Reference hyperlinks. (#190)
+
+### Other
+
+* Pin Visual Studio version to 2022 for canary builds to account for changes to GitHub runners. (#215)
+
+### Contributors
+
+* @JTignor-Raltron
+* @jaimergp
+* @marcoesters
+
+
+
 ## 2.0.2 (2024-01-11)
 
 ### Bug fixes

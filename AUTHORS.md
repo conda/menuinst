@@ -10,12 +10,14 @@ Authors are sorted alphabetically.
 * Eric Prestat
 * Ilan Schnell
 * Isuru Fernando
+* JTignor-Raltron
 * Jaime Rodríguez-Guerra
 * Jannis Leidel
 * Jason McCampbell
 * Kai Tietz
 * Kale Franz
 * Ken Odegard
+* Marco Esters
 * Mark Wiebe
 * Martin Chilvers
 * Mike Sarahan
@@ -27,6 +29,7 @@ Authors are sorted alphabetically.
 * Trent Nelson
 * ccasey
 * conda-bot
+* dependabot[bot]
 * dmartin
 * dpeterson
 * pre-commit-ci[bot]
