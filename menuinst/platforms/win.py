@@ -348,7 +348,6 @@ class WindowsMenuItem(MenuItem):
 
         if remove:
             if index < 0:
-                log.warning(f"Could not find terminal profile for {name}.")
                 return
             del settings["profiles"]["list"][index]
         else:
