@@ -145,6 +145,30 @@ def test_install_prefix(delete_files):
     check_output_from_shortcut(delete_files, "sys-prefix.json", expected_output=sys.prefix)
 
 
+def test_install_remove(tmp_path, delete_files):
+    metadata = DATA / "jsons" / "sys-prefix.json"
+    (tmp_path / ".nonadmin").touch()
+    paths = set(install(metadata, target_prefix=tmp_path, base_prefix=tmp_path, _mode="user"))
+    delete_files.extend(paths)
+    files_found = set(filter(lambda x: x.exists(), paths))
+    assert files_found == paths
+    if PLATFORM != "osx":
+        metadata_2 = json.loads(metadata.read_text())
+        metadata_2["menu_items"][0]["name"] = "Sys.Prefix.2"
+        paths_2 = set(
+            install(metadata_2, target_prefix=tmp_path, base_prefix=tmp_path, _mode="user")
+        )
+        delete_files.extend(paths_2)
+        files_found = set(filter(lambda x: x.exists(), paths_2.union(paths)))
+        assert files_found == paths_2.union(paths)
+        remove(metadata_2, target_prefix=tmp_path, base_prefix=tmp_path, _mode="user")
+        files_found = set(filter(lambda x: x.exists(), paths_2.union(paths)))
+        assert files_found == paths
+    remove(metadata, target_prefix=tmp_path, base_prefix=tmp_path, _mode="user")
+    files_found = set(filter(lambda x: x.exists(), paths))
+    assert files_found == set()
+
+
 def test_overwrite_existing_shortcuts(delete_files, caplog):
     """Test that overwriting shortcuts works without errors by running installation twice."""
     check_output_from_shortcut(
