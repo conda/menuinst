@@ -38,7 +38,9 @@ class WindowsMenu(Menu):
     def remove(self) -> Tuple[os.PathLike]:
         # Only remove if the Start Menu directory is empty in case applications share a folder.
         try:
-            next(Path(self.start_menu_location).iterdir())
+            menu_location = Path(self.start_menu_location)
+            if menu_location.exists():
+                next(menu_location.iterdir())
         except StopIteration:
             log.debug("Removing %s", self.start_menu_location)
             shutil.rmtree(self.start_menu_location, ignore_errors=True)
