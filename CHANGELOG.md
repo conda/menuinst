@@ -9,7 +9,6 @@
 ### Contributors
 
 * @marcoesters
-* @dependabot[bot]
 
 
 
