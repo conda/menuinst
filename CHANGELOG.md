@@ -1,5 +1,17 @@
 [//]: # (current developments)
 
+## 2.1.1 (2024-06-07)
+
+### Bug fixes
+
+* Only delete menus when they do not contain any items. (#218)
+
+### Contributors
+
+* @marcoesters
+
+
+
 ## 2.1.0 (2024-05-21)
 
 ### Enhancements
