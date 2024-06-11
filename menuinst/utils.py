@@ -408,7 +408,7 @@ def elevate_as_needed(func: Callable) -> Callable:
                 logger.debug("Elevating command: %s", cmd)
                 return_code = run_as_admin(cmd)
             except Exception as exc:
-                logger.warn("Elevation failed! Falling back to user mode.", exc_info=exc)
+                logger.warning("Elevation failed! Falling back to user mode.", exc_info=exc)
             else:
                 os.environ.pop("_MENUINST_RECURSING", None)
                 if return_code == 0:  # success, we are done

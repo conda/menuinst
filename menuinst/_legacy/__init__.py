@@ -80,7 +80,7 @@ def install(path, remove=False, prefix=None, recursing=False, root_prefix=None):
                 pass
 
             if retcode != 0:
-                logging.warn(
+                logging.warning(
                     "Insufficient permissions to write menu folder.  "
                     "Falling back to user location"
                 )

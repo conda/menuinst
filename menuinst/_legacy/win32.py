@@ -152,7 +152,7 @@ class Menu(object):
             #   required.  If the process isn't elevated, we get the
             #   WindowsError
             if 'user' in dirs_src and used_mode == 'system':
-                logger.warn(
+                logger.warning(
                     "Insufficient permissions to write menu folder.  "
                     "Falling back to user location"
                 )
