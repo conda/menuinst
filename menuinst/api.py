@@ -154,7 +154,7 @@ def _install_adapter(
                 kwargs["root_prefix"] = DEFAULT_BASE_PREFIX
             _legacy_install(json_path, remove=remove, prefix=prefix, **kwargs)
         else:
-            log.warn(
+            log.warning(
                 "menuinst._legacy is only supported on Windows. "
                 "Switch to the new-style menu definitions "
                 "for cross-platform compatibility."
