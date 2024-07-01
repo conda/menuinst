@@ -72,7 +72,7 @@ def register_file_extension(extension, identifier, command, icon=None, name=None
 
         if icon:
             with winreg.OpenKey(key, identifier, access=winreg.KEY_SET_VALUE) as subkey:
-                winreg.SetValueEx(subkey, "DefaultIcon", 0, winreg.REG_SZ, icon)
+                winreg.SetValueEx(subkey, "DefaultIcon", 0, winreg.REG_SZ, f"@{icon},0")
                 log.debug("Created registry entry for icon '%s'", icon)
 
         if name:
@@ -126,7 +126,7 @@ def register_url_protocol(protocol, command, identifier=None, icon=None, name=No
         # SetValueEx creates a value with backslashes - we don't want that here
         winreg.SetValue(key, r"shell\open\command", winreg.REG_SZ, command)
         if icon:
-            winreg.SetValueEx(key, "DefaultIcon", 0, winreg.REG_SZ, icon)
+            winreg.SetValueEx(key, "DefaultIcon", 0, winreg.REG_SZ, f"@{icon},0")
         if name:
             winreg.SetValueEx(key, "FriendlyTypeName", 0, winreg.REG_SZ, name)
         if identifier:
