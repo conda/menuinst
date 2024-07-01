@@ -23,7 +23,7 @@ log = getLogger(__name__)
 
 
 def _reg_exe(*args, check=True):
-    return logged_run(["reg.exe", *args, "/f"], check=True)
+    return logged_run(["reg.exe", *args, "/f"], check=check)
 
 
 def register_file_extension(extension, identifier, command, icon=None, name=None, mode="user"):
@@ -95,7 +95,7 @@ def unregister_file_extension(extension, identifier, mode="user"):
         if mode == "system"
         else (winreg.HKEY_CURRENT_USER, "HKCU")
     )
-    _reg_exe("delete", fr"{root_str}\Software\Classes\{identifier}")
+    _reg_exe("delete", fr"{root_str}\Software\Classes\{identifier}", check=False)
 
     try:
         with winreg.OpenKey(
@@ -111,7 +111,7 @@ def unregister_file_extension(extension, identifier, mode="user"):
                 winreg.DeleteValue(key, identifier)
     except Exception as exc:
         log.exception("Could not check key '%s' for deletion", extension, exc_info=exc)
-        raise
+        return
 
 
 def register_url_protocol(protocol, command, identifier=None, icon=None, name=None, mode="user"):
