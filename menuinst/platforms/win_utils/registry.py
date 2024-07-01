@@ -45,9 +45,9 @@ def register_file_extension(extension, identifier, command, icon=None, name=None
                 command/: "the command to be executed when opening a file with this extension"
     """
     if mode == "system":
-        root_key = winreg.HKEY_LOCAL_MACHINE # HKLM
+        root_key = winreg.HKEY_LOCAL_MACHINE  # HKLM
     else:
-        root_key = winreg.HKEY_CURRENT_USER # HKCU
+        root_key = winreg.HKEY_CURRENT_USER  # HKCU
     with winreg.OpenKeyEx(root_key, r"Software\Classes") as key:
         # First we associate an extension with a handler
         winreg.SetValueEx(
