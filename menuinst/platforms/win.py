@@ -444,7 +444,14 @@ class WindowsMenuItem(MenuItem):
         exts = list(dict.fromkeys([ext.lower() for ext in extensions]))
         for ext in exts:
             identifier = self._ftype_identifier(ext)
-            register_file_extension(ext, identifier, command, icon=icon, mode=self.menu.mode)
+            register_file_extension(
+                ext,
+                identifier,
+                command,
+                icon=icon,
+                name=self.render_key("name"),
+                mode=self.menu.mode,
+            )
 
     def _unregister_file_extensions(self):
         extensions = self.metadata["file_extensions"]
@@ -465,7 +472,14 @@ class WindowsMenuItem(MenuItem):
         icon = self.render_key("icon")
         for protocol in protocols:
             identifier = self._ftype_identifier(protocol)
-            register_url_protocol(protocol, command, identifier, icon=icon, mode=self.menu.mode)
+            register_url_protocol(
+                protocol,
+                command,
+                identifier,
+                icon=icon,
+                name=self.render_key("name"),
+                mode=self.menu.mode,
+            )
 
     def _unregister_url_protocols(self):
         protocols = self.metadata["url_protocols"]

@@ -26,7 +26,7 @@ def _reg_exe(*args, check=True):
     return logged_run(["reg.exe", *args, "/f"], check=True)
 
 
-def register_file_extension(extension, identifier, command, icon=None, mode="user"):
+def register_file_extension(extension, identifier, command, icon=None, name=None, mode="user"):
     """
     We want to achieve this. Entries ending in / denote keys; no trailing / means named value.
     If the item has a value attached to it, it's written after the : symbol.
@@ -44,12 +44,11 @@ def register_file_extension(extension, identifier, command, icon=None, mode="use
               open/
                 command/: "the command to be executed when opening a file with this extension"
     """
-    with winreg.OpenKeyEx(
-        (
-            winreg.HKEY_LOCAL_MACHINE if mode == "system" else winreg.HKEY_CURRENT_USER  # HKLM
-        ),  # HKCU
-        r"Software\Classes",
-    ) as key:
+    if mode == "system":
+        root_key = winreg.HKEY_LOCAL_MACHINE # HKLM
+    else:
+        root_key = winreg.HKEY_CURRENT_USER # HKCU
+    with winreg.OpenKeyEx(root_key, r"Software\Classes") as key:
         # First we associate an extension with a handler
         winreg.SetValueEx(
             winreg.CreateKey(key, fr"{extension}\OpenWithProgids"),
@@ -72,9 +71,19 @@ def register_file_extension(extension, identifier, command, icon=None, mode="use
         log.debug("Created registry entry for command '%s'", command)
 
         if icon:
-            subkey = winreg.OpenKey(key, identifier, access=winreg.KEY_SET_VALUE)
-            winreg.SetValueEx(subkey, "DefaultIcon", 0, winreg.REG_SZ, icon)
-            log.debug("Created registry entry for icon '%s'", icon)
+            with winreg.OpenKey(key, identifier, access=winreg.KEY_SET_VALUE) as subkey:
+                winreg.SetValueEx(subkey, "DefaultIcon", 0, winreg.REG_SZ, icon)
+                log.debug("Created registry entry for icon '%s'", icon)
+
+        if name:
+            # If not provided, Windows will take the name of the EXE in command
+            # This way we can override e.g. Python for a custom PyQt App name
+            with winreg.OpenKey(key, identifier, access=winreg.KEY_SET_VALUE) as subkey:
+                # NOTE: Windows <10 requires the string in a PE file, but that's too
+                # much work. We can just put the raw string here even if the docs say
+                # otherwise.
+                winreg.SetValueEx(subkey, "FriendlyTypeName", 0, winreg.REG_SZ, name)
+                log.debug("Created registry entry for friendly name '%s'", name)
 
         # TODO: We can add contextual menu items too
         # via f"{handler_key}\shell\<Command Title>\command"
@@ -105,7 +114,7 @@ def unregister_file_extension(extension, identifier, mode="user"):
         raise
 
 
-def register_url_protocol(protocol, command, identifier=None, icon=None, mode="user"):
+def register_url_protocol(protocol, command, identifier=None, icon=None, name=None, mode="user"):
     if mode == "system":
         key = winreg.CreateKey(winreg.HKEY_CLASSES_ROOT, protocol)
     else:
@@ -118,6 +127,8 @@ def register_url_protocol(protocol, command, identifier=None, icon=None, mode="u
         winreg.SetValue(key, r"shell\open\command", winreg.REG_SZ, command)
         if icon:
             winreg.SetValueEx(key, "DefaultIcon", 0, winreg.REG_SZ, icon)
+        if name:
+            winreg.SetValueEx(key, "FriendlyTypeName", 0, winreg.REG_SZ, name)
         if identifier:
             # We add this one value for traceability; not required
             winreg.SetValueEx(key, "_menuinst", 0, winreg.REG_SZ, identifier)
