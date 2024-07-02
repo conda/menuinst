@@ -14,6 +14,7 @@ SetValueEx will create a value with name "path\with\keys"
 Mnemonic: SetValueEx for "excalars" (scalars, named values)
 """
 
+import ctypes
 import winreg
 from logging import getLogger
 
@@ -60,22 +61,26 @@ def register_file_extension(
         key = "HKEY_CURRENT_USER/Software/Classes"  # HKCU
 
     # First we associate an extension with a handler (presence of key is enough)
-    regvalue(f"{key}/{extension}/OpenWithProgids/{identifier}/@", "")
+    regvalue(f"{key}/{extension}/OpenWithProgids/{identifier}", "")
 
     # Now we register the handler
-    regvalue(f"{key}/{identifier}/@", f"{extension} {identifier} handler")
+    regvalue(f"{key}/{identifier}/@", f"{extension} {identifier} file")
 
     # Set the 'open' command
     regvalue(f"{key}/{identifier}/shell/open/command/@", command)
     if app_name:
         regvalue(f"{key}/{identifier}/shell/open/@", app_name)
+        regvalue(f"{key}/{identifier}/FriendlyAppName/@", app_name)
+        regvalue(f"{key}/{identifier}/shell/open/FriendlyAppName", app_name)
 
     if app_user_model_id:
         regvalue(f"{key}/{identifier}/AppUserModelID", app_user_model_id)
 
     if icon:
-        regvalue(f"{key}/{identifier}/DefaultIcon/@", icon)
-        regvalue(f"{key}/{identifier}/shell/open/Icon", icon)
+        # NOTE: This doesn't change the icon next in the Open With menu
+        # This defaults to whatever the command executable is shipping
+        regvalue(f"{key}/{identifier}/DefaultIcon/@", f'{icon},0')
+        regvalue(f"{key}/{identifier}/shell/open/Icon", f'{icon},0')
 
     if friendly_type_name:
         # NOTE: Windows <10 requires the string in a PE file, but that's too
@@ -130,9 +135,11 @@ def register_url_protocol(
     regvalue(f"{key}/shell/open/command/@", command)
     if app_name:
         regvalue(f"{key}/shell/open/@", app_name)
+        regvalue(f"{key}/FriendlyAppName/@", app_name)
+        regvalue(f"{key}/shell/open/FriendlyAppName", app_name)
     if icon:
-        regvalue(f"{key}/DefaultIcon/@", icon)
-        regvalue(f"{key}/shell/open/Icon", icon)
+        regvalue(f"{key}/DefaultIcon/@", f'"{icon}"')
+        regvalue(f"{key}/shell/open/Icon", f'"{icon}"')
     if app_user_model_id:
         regvalue(f"{key}/AppUserModelId", app_user_model_id)
     if identifier:
@@ -195,3 +202,11 @@ def regvalue(key, value, value_type=winreg.REG_SZ, raise_on_errors=True):
         if raise_on_errors:
             raise
         log.warning("Could not set %s to %s", original_key, value, exc_info=exc)
+
+
+def notify_shell_changes():
+    shell32 = ctypes.OleDLL('shell32')
+    shell32.SHChangeNotify.restype = None
+    event = 0x08000000 # SHCNE_ASSOCCHANGED
+    flags = 0x0000 # SHCNF_IDLIST
+    shell32.SHChangeNotify(event, flags, None, None)
