@@ -55,60 +55,36 @@ def register_file_extension(
                 command/: "the command to be executed when opening a file with this extension"
     """
     if mode == "system":
-        root_key = winreg.HKEY_LOCAL_MACHINE  # HKLM
+        key = "HKEY_LOCAL_MACHINE/Software/Classes"  # HKLM
     else:
-        root_key = winreg.HKEY_CURRENT_USER  # HKCU
-    with winreg.OpenKeyEx(root_key, r"Software\Classes") as key:
-        # First we associate an extension with a handler
-        winreg.SetValueEx(
-            winreg.CreateKey(key, rf"{extension}\OpenWithProgids"),
-            identifier,
-            0,
-            winreg.REG_SZ,
-            "",  # presence of the key is enough
-        )
-        log.debug("Created registry entry for extension '%s'", extension)
+        key = "HKEY_CURRENT_USER/Software/Classes"  # HKCU
 
-        # Now we register the handler
-        handler_desc = f"{extension} {identifier} handler"
-        winreg.SetValue(key, identifier, winreg.REG_SZ, handler_desc)
-        log.debug("Created registry entry for handler '%s'", identifier)
+    # First we associate an extension with a handler (presence of key is enough)
+    regvalue(f"{key}/{extension}/OpenWithProgids/{identifier}/@", "")
 
-        # and set the 'open' command
-        subkey = rf"{identifier}\shell\open\command"
-        # Use SetValue to create subkeys as necessary
-        winreg.SetValue(key, subkey, winreg.REG_SZ, command)
-        if app_name:
-            with winreg.OpenKey(
-                key, rf"{identifier}\shell\open", access=winreg.KEY_SET_VALUE
-            ) as subkey:
-                winreg.SetValueEx(subkey, "", 0, winreg.REG_SZ, app_name)
-            log.debug("Created registry entry for command name '%s'", app_name)
+    # Now we register the handler
+    regvalue(f"{key}/{identifier}/@", f"{extension} {identifier} handler")
 
-        if app_user_model_id:
-            with winreg.OpenKey(key, identifier, access=winreg.KEY_SET_VALUE) as subkey:
-                winreg.SetValueEx(subkey, "AppUserModelID", 0, winreg.REG_SZ, app_user_model_id)
-                log.debug("Created registry entry for AUMI '%s'", icon)
+    # Set the 'open' command
+    regvalue(f"{key}/{identifier}/shell/open/command/@", command)
+    if app_name:
+        regvalue(f"{key}/{identifier}/shell/open/@", app_name)
 
-        if icon:
-            with winreg.OpenKey(key, identifier, access=winreg.KEY_SET_VALUE) as subkey:
-                winreg.SetValueEx(subkey, "DefaultIcon", 0, winreg.REG_SZ, icon)
-            with winreg.OpenKey(
-                key, rf"{identifier}\shell\open", access=winreg.KEY_SET_VALUE
-            ) as subkey:
-                winreg.SetValueEx(subkey, "Icon", 0, winreg.REG_SZ, icon)
-            log.debug("Created registry entries for icon '%s'", icon)
+    if app_user_model_id:
+        regvalue(f"{key}/{identifier}/AppUserModelID", app_user_model_id)
 
-        if friendly_type_name:
-            with winreg.OpenKey(key, identifier, access=winreg.KEY_SET_VALUE) as subkey:
-                # NOTE: Windows <10 requires the string in a PE file, but that's too
-                # much work. We can just put the raw string here even if the docs say
-                # otherwise.
-                winreg.SetValueEx(subkey, "FriendlyTypeName", 0, winreg.REG_SZ, friendly_type_name)
-                log.debug("Created registry entry for friendly type name '%s'", friendly_type_name)
+    if icon:
+        regvalue(f"{key}/{identifier}/DefaultIcon/@", icon)
+        regvalue(f"{key}/{identifier}/shell/open/Icon", icon)
 
-        # TODO: We can add contextual menu items too
-        # via f"{handler_key}\shell\<Command Title>\command"
+    if friendly_type_name:
+        # NOTE: Windows <10 requires the string in a PE file, but that's too
+        # much work. We can just put the raw string here even if the docs say
+        # otherwise.
+        regvalue(f"{key}/{identifier}/FriendlyTypeName", friendly_type_name)
+
+    # TODO: We can add contextual menu items too
+    # via f"{handler_key}\shell\<Command Title>\command"
 
 
 def unregister_file_extension(extension, identifier, mode="user"):
@@ -146,30 +122,22 @@ def register_url_protocol(
     mode="user",
 ):
     if mode == "system":
-        key = winreg.CreateKey(winreg.HKEY_CLASSES_ROOT, protocol)
+        key = f"HKEY_CLASSES_ROOT/{protocol}"
     else:
-        key = winreg.CreateKey(winreg.HKEY_CURRENT_USER, rf"Software\Classes\{protocol}")
-    with key:
-        winreg.SetValueEx(key, "", 0, winreg.REG_SZ, f"URL:{protocol.title()}")
-        winreg.SetValueEx(key, "URL Protocol", 0, winreg.REG_SZ, "")
-        # SetValue creates sub keys when slashes are present;
-        # SetValueEx creates a value with backslashes - we don't want that here
-        winreg.SetValue(key, r"shell\open\command", winreg.REG_SZ, command)
-        if app_name:
-            with winreg.OpenKey(key, r"shell\open", access=winreg.KEY_SET_VALUE) as subkey:
-                winreg.SetValueEx(subkey, "", 0, winreg.REG_SZ, app_name)
-            log.debug("Created registry entry for command name '%s'", app_name)
-        if icon:
-            winreg.SetValueEx(key, "DefaultIcon", 0, winreg.REG_SZ, icon)
-            with winreg.OpenKey(key, r"shell\open", access=winreg.KEY_SET_VALUE) as subkey:
-                winreg.SetValueEx(subkey, "Icon", 0, winreg.REG_SZ, icon)
-            log.debug("Created registry entries for command icon '%s'", icon)
-        if app_user_model_id:
-            winreg.SetValueEx(key, "AppUserModelID", 0, winreg.REG_SZ, app_user_model_id)
-            log.debug("Created registry entries for AUMI '%s'", app_user_model_id)
-        if identifier:
-            # We add this one value for traceability; not required
-            winreg.SetValueEx(key, "_menuinst", 0, winreg.REG_SZ, identifier)
+        key = f"HKEY_CURRENT_USER/Software/Classes/{protocol}"
+    regvalue(f"{key}/@", f"URL:{protocol.title()}")
+    regvalue(f"{key}/URL Protocol", "")
+    regvalue(f"{key}/shell/open/command/@", command)
+    if app_name:
+        regvalue(f"{key}/shell/open/@", app_name)
+    if icon:
+        regvalue(f"{key}/DefaultIcon/@", icon)
+        regvalue(f"{key}/shell/open/Icon", icon)
+    if app_user_model_id:
+        regvalue(f"{key}/AppUserModelId", app_user_model_id)
+    if identifier:
+        # We add this one value for traceability; not required
+        regvalue(f"{key}/_menuinst", identifier)
 
 
 def unregister_url_protocol(protocol, identifier=None, mode="user"):
@@ -189,3 +157,41 @@ def unregister_url_protocol(protocol, identifier=None, mode="user"):
 
     if delete:
         _reg_exe("delete", key_str, check=False)
+
+
+def regvalue(key, value, value_type=winreg.REG_SZ, raise_on_errors=True):
+    """
+    Convenience wrapper to set different types of registry values.
+
+    For practical purposes we distinguish between three cases:
+
+    - A key with no value (think of a directory with no contents).
+      Use value = "".
+    - A key with an unnamed value (think of a directory with a file 'index.html')
+      Use a key with '@' as the last component.
+    - A key with named values (think of non-index.html files in the directory)
+
+    The first component of the key is the root, and must be one of the winreg.HKEY_*
+    variable _names_ (their actual value will be fetched from winreg).
+
+    Key must be at least three components long.
+    """
+    log.debug("Setting registry value %s = '%s'", key, value)
+    key = original_key = key.replace("\\", "/").strip("/")
+    root, *midkey, subkey, named_value = key.split("/")
+    rootkey = getattr(winreg, root)
+    access = winreg.KEY_SET_VALUE
+    try:
+        if named_value == "@":
+            if midkey:
+                winreg.CreateKey(rootkey, "\\".join(midkey))  # ensure it exists
+            with winreg.OpenKey(rootkey, "\\".join(midkey), access=access) as key:
+                winreg.SetValue(key, subkey, value_type, value)
+        else:
+            winreg.CreateKey(rootkey, "\\".join([*midkey, subkey]))  # ensure it exists
+            with winreg.OpenKey(rootkey, "\\".join([*midkey, subkey]), access=access) as key:
+                winreg.SetValueEx(key, named_value, 0, value_type, value)
+    except OSError as exc:
+        if raise_on_errors:
+            raise
+        log.warning("Could not set %s to %s", original_key, value, exc_info=exc)
