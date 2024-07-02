@@ -79,8 +79,8 @@ def register_file_extension(
     if icon:
         # NOTE: This doesn't change the icon next in the Open With menu
         # This defaults to whatever the command executable is shipping
-        regvalue(f"{key}/{identifier}/DefaultIcon/@", f'{icon},0')
-        regvalue(f"{key}/{identifier}/shell/open/Icon", f'{icon},0')
+        regvalue(f"{key}/{identifier}/DefaultIcon/@", icon)
+        regvalue(f"{key}/{identifier}/shell/open/Icon", icon)
 
     if friendly_type_name:
         # NOTE: Windows <10 requires the string in a PE file, but that's too
@@ -138,8 +138,8 @@ def register_url_protocol(
         regvalue(f"{key}/FriendlyAppName/@", app_name)
         regvalue(f"{key}/shell/open/FriendlyAppName", app_name)
     if icon:
-        regvalue(f"{key}/DefaultIcon/@", f'"{icon}"')
-        regvalue(f"{key}/shell/open/Icon", f'"{icon}"')
+        regvalue(f"{key}/DefaultIcon/@", icon)
+        regvalue(f"{key}/shell/open/Icon", icon)
     if app_user_model_id:
         regvalue(f"{key}/AppUserModelId", app_user_model_id)
     if identifier:
