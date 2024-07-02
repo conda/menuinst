@@ -449,7 +449,8 @@ class WindowsMenuItem(MenuItem):
                 identifier,
                 command,
                 icon=icon,
-                name=self.render_key("name"),
+                app_name=self.render_key("name"),
+                app_user_model_id=self._app_user_model_id(),
                 mode=self.menu.mode,
             )
 
@@ -477,7 +478,8 @@ class WindowsMenuItem(MenuItem):
                 command,
                 identifier,
                 icon=icon,
-                name=self.render_key("name"),
+                app_name=self.render_key("name"),
+                app_user_model_id=self._app_user_model_id(),
                 mode=self.menu.mode,
             )
 

@@ -26,7 +26,16 @@ def _reg_exe(*args, check=True):
     return logged_run(["reg.exe", *args, "/f"], check=check)
 
 
-def register_file_extension(extension, identifier, command, icon=None, name=None, mode="user"):
+def register_file_extension(
+    extension,
+    identifier,
+    command,
+    icon=None,
+    app_name=None,
+    friendly_type_name=None,
+    app_user_model_id=None,
+    mode="user",
+):
     """
     We want to achieve this. Entries ending in / denote keys; no trailing / means named value.
     If the item has a value attached to it, it's written after the : symbol.
@@ -41,7 +50,8 @@ def register_file_extension(extension, identifier, command, icon=None, name=None
           <extension-handler>/: "a description of the file being handled"
             DefaultIcon: "path to the app icon"
             shell/
-              open/
+              open/: "Name of the program"
+                icon: "path to the app icon"
                 command/: "the command to be executed when opening a file with this extension"
     """
     if mode == "system":
@@ -51,7 +61,7 @@ def register_file_extension(extension, identifier, command, icon=None, name=None
     with winreg.OpenKeyEx(root_key, r"Software\Classes") as key:
         # First we associate an extension with a handler
         winreg.SetValueEx(
-            winreg.CreateKey(key, fr"{extension}\OpenWithProgids"),
+            winreg.CreateKey(key, rf"{extension}\OpenWithProgids"),
             identifier,
             0,
             winreg.REG_SZ,
@@ -68,22 +78,34 @@ def register_file_extension(extension, identifier, command, icon=None, name=None
         subkey = rf"{identifier}\shell\open\command"
         # Use SetValue to create subkeys as necessary
         winreg.SetValue(key, subkey, winreg.REG_SZ, command)
-        log.debug("Created registry entry for command '%s'", command)
+        if app_name:
+            with winreg.OpenKey(
+                key, rf"{identifier}\shell\open", access=winreg.KEY_SET_VALUE
+            ) as subkey:
+                winreg.SetValueEx(subkey, "", 0, winreg.REG_SZ, app_name)
+            log.debug("Created registry entry for command name '%s'", app_name)
+
+        if app_user_model_id:
+            with winreg.OpenKey(key, identifier, access=winreg.KEY_SET_VALUE) as subkey:
+                winreg.SetValueEx(subkey, "AppUserModelID", 0, winreg.REG_SZ, app_user_model_id)
+                log.debug("Created registry entry for AUMI '%s'", icon)
 
         if icon:
             with winreg.OpenKey(key, identifier, access=winreg.KEY_SET_VALUE) as subkey:
-                winreg.SetValueEx(subkey, "DefaultIcon", 0, winreg.REG_SZ, f"@{icon},0")
-                log.debug("Created registry entry for icon '%s'", icon)
+                winreg.SetValueEx(subkey, "DefaultIcon", 0, winreg.REG_SZ, icon)
+            with winreg.OpenKey(
+                key, rf"{identifier}\shell\open", access=winreg.KEY_SET_VALUE
+            ) as subkey:
+                winreg.SetValueEx(subkey, "Icon", 0, winreg.REG_SZ, icon)
+            log.debug("Created registry entries for icon '%s'", icon)
 
-        if name:
-            # If not provided, Windows will take the name of the EXE in command
-            # This way we can override e.g. Python for a custom PyQt App name
+        if friendly_type_name:
             with winreg.OpenKey(key, identifier, access=winreg.KEY_SET_VALUE) as subkey:
                 # NOTE: Windows <10 requires the string in a PE file, but that's too
                 # much work. We can just put the raw string here even if the docs say
                 # otherwise.
-                winreg.SetValueEx(subkey, "FriendlyTypeName", 0, winreg.REG_SZ, name)
-                log.debug("Created registry entry for friendly name '%s'", name)
+                winreg.SetValueEx(subkey, "FriendlyTypeName", 0, winreg.REG_SZ, friendly_type_name)
+                log.debug("Created registry entry for friendly type name '%s'", friendly_type_name)
 
         # TODO: We can add contextual menu items too
         # via f"{handler_key}\shell\<Command Title>\command"
@@ -95,11 +117,11 @@ def unregister_file_extension(extension, identifier, mode="user"):
         if mode == "system"
         else (winreg.HKEY_CURRENT_USER, "HKCU")
     )
-    _reg_exe("delete", fr"{root_str}\Software\Classes\{identifier}", check=False)
+    _reg_exe("delete", rf"{root_str}\Software\Classes\{identifier}", check=False)
 
     try:
         with winreg.OpenKey(
-            root, fr"Software\Classes\{extension}\OpenWithProgids", 0, winreg.KEY_ALL_ACCESS
+            root, rf"Software\Classes\{extension}\OpenWithProgids", 0, winreg.KEY_ALL_ACCESS
         ) as key:
             try:
                 winreg.QueryValueEx(key, identifier)
@@ -114,21 +136,37 @@ def unregister_file_extension(extension, identifier, mode="user"):
         return
 
 
-def register_url_protocol(protocol, command, identifier=None, icon=None, name=None, mode="user"):
+def register_url_protocol(
+    protocol,
+    command,
+    identifier=None,
+    icon=None,
+    app_name=None,
+    app_user_model_id=None,
+    mode="user",
+):
     if mode == "system":
         key = winreg.CreateKey(winreg.HKEY_CLASSES_ROOT, protocol)
     else:
-        key = winreg.CreateKey(winreg.HKEY_CURRENT_USER, fr"Software\Classes\{protocol}")
+        key = winreg.CreateKey(winreg.HKEY_CURRENT_USER, rf"Software\Classes\{protocol}")
     with key:
         winreg.SetValueEx(key, "", 0, winreg.REG_SZ, f"URL:{protocol.title()}")
         winreg.SetValueEx(key, "URL Protocol", 0, winreg.REG_SZ, "")
         # SetValue creates sub keys when slashes are present;
         # SetValueEx creates a value with backslashes - we don't want that here
         winreg.SetValue(key, r"shell\open\command", winreg.REG_SZ, command)
+        if app_name:
+            with winreg.OpenKey(key, r"shell\open", access=winreg.KEY_SET_VALUE) as subkey:
+                winreg.SetValueEx(subkey, "", 0, winreg.REG_SZ, app_name)
+            log.debug("Created registry entry for command name '%s'", app_name)
         if icon:
-            winreg.SetValueEx(key, "DefaultIcon", 0, winreg.REG_SZ, f"@{icon},0")
-        if name:
-            winreg.SetValueEx(key, "FriendlyTypeName", 0, winreg.REG_SZ, name)
+            winreg.SetValueEx(key, "DefaultIcon", 0, winreg.REG_SZ, icon)
+            with winreg.OpenKey(key, r"shell\open", access=winreg.KEY_SET_VALUE) as subkey:
+                winreg.SetValueEx(subkey, "Icon", 0, winreg.REG_SZ, icon)
+            log.debug("Created registry entries for command icon '%s'", icon)
+        if app_user_model_id:
+            winreg.SetValueEx(key, "AppUserModelID", 0, winreg.REG_SZ, app_user_model_id)
+            log.debug("Created registry entries for AUMI '%s'", app_user_model_id)
         if identifier:
             # We add this one value for traceability; not required
             winreg.SetValueEx(key, "_menuinst", 0, winreg.REG_SZ, identifier)
@@ -137,10 +175,10 @@ def register_url_protocol(protocol, command, identifier=None, icon=None, name=No
 def unregister_url_protocol(protocol, identifier=None, mode="user"):
     if mode == "system":
         key_tuple = winreg.HKEY_CLASSES_ROOT, protocol
-        key_str = fr"HKCR\{protocol}"
+        key_str = rf"HKCR\{protocol}"
     else:
-        key_tuple = winreg.HKEY_CURRENT_USER, fr"Software\Classes\{protocol}"
-        key_str = fr"HKCU\Software\Classes\{protocol}"
+        key_tuple = winreg.HKEY_CURRENT_USER, rf"Software\Classes\{protocol}"
+        key_str = rf"HKCU\Software\Classes\{protocol}"
     try:
         with winreg.OpenKey(*key_tuple) as key:
             value, _ = winreg.QueryValueEx(key, "_menuinst")
