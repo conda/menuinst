@@ -207,6 +207,6 @@ def regvalue(key, value, value_type=winreg.REG_SZ, raise_on_errors=True):
 def notify_shell_changes():
     shell32 = ctypes.OleDLL('shell32')
     shell32.SHChangeNotify.restype = None
-    event = 0x08000000 # SHCNE_ASSOCCHANGED
-    flags = 0x0000 # SHCNF_IDLIST
+    event = 0x08000000  # SHCNE_ASSOCCHANGED
+    flags = 0x0000  # SHCNF_IDLIST
     shell32.SHChangeNotify(event, flags, None, None)
