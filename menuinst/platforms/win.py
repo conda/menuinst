@@ -443,7 +443,7 @@ class WindowsMenuItem(MenuItem):
         """WIP"""
         extensions = self.metadata["file_extensions"]
         if not extensions:
-            return
+            return False
 
         command = " ".join(self._process_command(with_arg1=True))
         icon = self.render_key("icon")
@@ -461,10 +461,10 @@ class WindowsMenuItem(MenuItem):
             )
         return True
 
-    def _unregister_file_extensions(self):
+    def _unregister_file_extensions(self) -> bool:
         extensions = self.metadata["file_extensions"]
         if not extensions:
-            return
+            return False
 
         exts = list(dict.fromkeys([ext.lower() for ext in extensions]))
         for ext in exts:
@@ -472,11 +472,11 @@ class WindowsMenuItem(MenuItem):
             unregister_file_extension(ext, identifier, mode=self.menu.mode)
         return True
 
-    def _register_url_protocols(self):
+    def _register_url_protocols(self) -> bool:
         "See https://learn.microsoft.com/en-us/previous-versions/windows/internet-explorer/ie-developer/platform-apis/aa767914(v=vs.85)"  # noqa
         protocols = self.metadata["url_protocols"]
         if not protocols:
-            return
+            return False
         command = " ".join(self._process_command(with_arg1=True))
         icon = self.render_key("icon")
         for protocol in protocols:
@@ -492,10 +492,10 @@ class WindowsMenuItem(MenuItem):
             )
         return True
 
-    def _unregister_url_protocols(self):
+    def _unregister_url_protocols(self) -> bool:
         protocols = self.metadata["url_protocols"]
         if not protocols:
-            return
+            return False
         for protocol in protocols:
             identifier = self._ftype_identifier(protocol)
             unregister_url_protocol(protocol, identifier, mode=self.menu.mode)

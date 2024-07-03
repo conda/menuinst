@@ -117,7 +117,7 @@ def unregister_file_extension(extension, identifier, mode="user"):
                 winreg.DeleteValue(key, identifier)
     except Exception as exc:
         log.exception("Could not check key '%s' for deletion", extension, exc_info=exc)
-        return
+        return False
 
 
 def register_url_protocol(
