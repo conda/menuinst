@@ -49,10 +49,13 @@ def register_file_extension(
               <extension-handler>
           ...
           <extension-handler>/: "a description of the file being handled"
-            DefaultIcon: "path to the app icon"
+            DefaultIcon/: "path to the app icon"
+            FriendlyAppName/: "Name of the program"
+            AppUserModelID: "AUMI string"
             shell/
               open/: "Name of the program"
                 icon: "path to the app icon"
+                FriendlyAppName: "name of the program"
                 command/: "the command to be executed when opening a file with this extension"
     """
     if mode == "system":
@@ -181,7 +184,7 @@ def regvalue(key, value, value_type=winreg.REG_SZ, raise_on_errors=True):
     The first component of the key is the root, and must be one of the winreg.HKEY_*
     variable _names_ (their actual value will be fetched from winreg).
 
-    Key must be at least three components long.
+    Key must be at least three components long (root key, *key, @ or named value).
     """
     log.debug("Setting registry value %s = '%s'", key, value)
     key = original_key = key.replace("\\", "/").strip("/")
@@ -205,6 +208,11 @@ def regvalue(key, value, value_type=winreg.REG_SZ, raise_on_errors=True):
 
 
 def notify_shell_changes():
+    """
+    Needed to propagate registry changes without having to reboot.
+
+    https://discuss.python.org/t/is-there-a-library-to-change-windows-10-default-program-icon/5846/2
+    """
     shell32 = ctypes.OleDLL('shell32')
     shell32.SHChangeNotify.restype = None
     event = 0x08000000  # SHCNE_ASSOCCHANGED
