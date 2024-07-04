@@ -16,6 +16,7 @@ from .base import Menu, MenuItem
 from .win_utils.knownfolders import folder_path as windows_folder_path
 from .win_utils.knownfolders import windows_terminal_settings_files
 from .win_utils.registry import (
+    notify_shell_changes,
     register_file_extension,
     register_url_protocol,
     unregister_file_extension,
@@ -198,14 +199,19 @@ class WindowsMenuItem(MenuItem):
 
         for location in self.menu.terminal_profile_locations:
             self._add_remove_windows_terminal_profile(location, remove=False)
-        self._register_file_extensions()
-        self._register_url_protocols()
+        changed_extensions = self._register_file_extensions()
+        changed_protocols = self._register_url_protocols()
+        if changed_extensions or changed_protocols:
+            notify_shell_changes()
 
         return paths
 
     def remove(self) -> Tuple[Path, ...]:
-        self._unregister_file_extensions()
-        self._unregister_url_protocols()
+        changed_extensions = self._unregister_file_extensions()
+        changed_protocols = self._unregister_url_protocols()
+        if changed_extensions or changed_protocols:
+            notify_shell_changes()
+
         for location in self.menu.terminal_profile_locations:
             self._add_remove_windows_terminal_profile(location, remove=True)
 
@@ -433,47 +439,67 @@ class WindowsMenuItem(MenuItem):
             arg = f"{identifier}="
         return logged_run(["cmd", "/D", "/C", f"assoc {arg}"], check=True)
 
-    def _register_file_extensions(self):
+    def _register_file_extensions(self) -> bool:
         """WIP"""
         extensions = self.metadata["file_extensions"]
         if not extensions:
-            return
+            return False
 
         command = " ".join(self._process_command(with_arg1=True))
         icon = self.render_key("icon")
         exts = list(dict.fromkeys([ext.lower() for ext in extensions]))
         for ext in exts:
             identifier = self._ftype_identifier(ext)
-            register_file_extension(ext, identifier, command, icon=icon, mode=self.menu.mode)
+            register_file_extension(
+                ext,
+                identifier,
+                command,
+                icon=icon,
+                app_name=self.render_key("name"),
+                app_user_model_id=self._app_user_model_id(),
+                mode=self.menu.mode,
+            )
+        return True
 
-    def _unregister_file_extensions(self):
+    def _unregister_file_extensions(self) -> bool:
         extensions = self.metadata["file_extensions"]
         if not extensions:
-            return
+            return False
 
         exts = list(dict.fromkeys([ext.lower() for ext in extensions]))
         for ext in exts:
             identifier = self._ftype_identifier(ext)
             unregister_file_extension(ext, identifier, mode=self.menu.mode)
+        return True
 
-    def _register_url_protocols(self):
+    def _register_url_protocols(self) -> bool:
         "See https://learn.microsoft.com/en-us/previous-versions/windows/internet-explorer/ie-developer/platform-apis/aa767914(v=vs.85)"  # noqa
         protocols = self.metadata["url_protocols"]
         if not protocols:
-            return
+            return False
         command = " ".join(self._process_command(with_arg1=True))
         icon = self.render_key("icon")
         for protocol in protocols:
             identifier = self._ftype_identifier(protocol)
-            register_url_protocol(protocol, command, identifier, icon=icon, mode=self.menu.mode)
+            register_url_protocol(
+                protocol,
+                command,
+                identifier,
+                icon=icon,
+                app_name=self.render_key("name"),
+                app_user_model_id=self._app_user_model_id(),
+                mode=self.menu.mode,
+            )
+        return True
 
-    def _unregister_url_protocols(self):
+    def _unregister_url_protocols(self) -> bool:
         protocols = self.metadata["url_protocols"]
         if not protocols:
-            return
+            return False
         for protocol in protocols:
             identifier = self._ftype_identifier(protocol)
             unregister_url_protocol(protocol, identifier, mode=self.menu.mode)
+        return True
 
     def _app_user_model_id(self):
         aumi = self.render_key("app_user_model_id")
