@@ -290,7 +290,7 @@ class LinuxMenuItem(MenuItem):
             xdg_mime = shutil.which("xdg-mime")
             if not xdg_mime:
                 log.debug("xdg-mime not found, not registering mime types as default.")
-            logged_run([xdg_mime, "default", self.location, *mime_types])
+            logged_run([xdg_mime, "default", self.location.name, *mime_types])
 
         update_mime_database = shutil.which("update-mime-database")
         if update_mime_database:
