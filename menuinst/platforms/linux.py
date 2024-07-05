@@ -1,10 +1,10 @@
-"""
-"""
+""" """
 
 import os
 import shlex
 import shutil
 import time
+from configparser import ConfigParser
 from logging import getLogger
 from pathlib import Path
 from subprocess import CalledProcessError
@@ -286,11 +286,49 @@ class LinuxMenuItem(MenuItem):
             if glob_pattern:
                 self._glob_pattern_for_mime_type(mime_type, glob_pattern, install=register)
 
+        mimeapps = self.menu.config_directory / "mimeapps.list"
         if register:
-            xdg_mime = shutil.which("xdg-mime")
-            if not xdg_mime:
-                log.debug("xdg-mime not found, not registering mime types as default.")
-            logged_run([xdg_mime, "default", self.location.name, *mime_types])
+            config = ConfigParser(default_section=None)
+            if mimeapps.is_file():
+                config.read(mimeapps)
+            log.debug("Registering %s to %s...", mime_types, mimeapps)
+            if "Default Applications" not in config.sections():
+                config.add_section("Default Applications")
+            if "Added Associations" not in config.sections():
+                config.add_section("Added Associations")
+            defaults = config["Default Applications"]
+            added = config["Added Associations"]
+            for mime_type in mime_types:
+                if mime_type not in defaults:
+                    # Do not override existing defaults
+                    defaults[mime_type] = self.location.name
+                added = config["Added Associations"]
+                if mime_type in added and self.location.name not in added[mime_type]:
+                    added[mime_type] = f"{added[mime_type]};{self.location.name}"
+                else:
+                    added[mime_type] = self.location.name
+            with open(mimeapps, "w") as f:
+                config.write(f, space_around_delimiters=False)
+        elif mimeapps.is_file():
+            # Remove entries
+            config = ConfigParser(default_section=None)
+            config.read(mimeapps)
+            log.debug("Deregistering %s from %s...", mime_types, mimeapps)
+            for section_name in "Default Applications", "Added Associations":
+                if section_name not in config.sections():
+                    continue
+                section = config[section_name]
+                for mimetype, desktop_files in section.items():
+                    if self.location.name == desktop_files:
+                        section.pop(mimetype)
+                    elif self.location.name in desktop_files.split(";"):
+                        section[mimetype] = ";".join(
+                            [x for x in desktop_files.split(";") if x != self.location.name]
+                        )
+                if not section.keys():
+                    config.remove_section(section_name)
+            with open(mimeapps, "w") as f:
+                config.write(f, space_around_delimiters=False)
 
         update_mime_database = shutil.which("update-mime-database")
         if update_mime_database:
