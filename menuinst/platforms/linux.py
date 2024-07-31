@@ -302,7 +302,6 @@ class LinuxMenuItem(MenuItem):
                 if mime_type not in defaults:
                     # Do not override existing defaults
                     defaults[mime_type] = self.location.name
-                added = config["Added Associations"]
                 if mime_type in added and self.location.name not in added[mime_type]:
                     added[mime_type] = f"{added[mime_type]};{self.location.name}"
                 else:
