@@ -105,9 +105,10 @@ Each operating system has a slightly different way of associating a file type to
 Unix systems have the notion of MIME types, while Windows relies more on file name extensions.
 
 - On Linux, use the `MimeType` option. Remember to add the `%f` (single file) or `%F` (several
-  files) placeholders to your command so the paths are passed adequately. If you are defining a new
-  MIME type, you must fill the `glob_patterns` field by mapping the new MIME type to the file
-  extensions you want to associate with it.
+  files) placeholders to your command so the paths are passed adequately. Otherwise, your shortcut
+  might be deemed invalid and won't show up in "Open With" menus or similar UI elements of your
+  desktop. If you are defining a new MIME type, you must fill the `glob_patterns` field by mapping
+  the new MIME type to the file extensions you want to associate with it.
 - On Windows, use `file_extensions`. Remember to add the `%1` or `%*` placeholders to your command
   so the path of the opened file(s) is passed adequately.
 - On macOS, use `CFBundleDocumentTypes`. Requires no placeholder. The opened document will be
