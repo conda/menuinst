@@ -61,7 +61,7 @@
     },
     "Linux": {
       "title": "Linux",
-      "description": "Linux-specific instructions.\n\nCheck the `Desktop entry specification\n<https://specifications.freedesktop.org/desktop-entry-spec/desktop-entry-spec-latest.html#recognized-keys>`__\nfor more details.",
+      "description": "Linux-specific instructions.\n\nCheck the `Desktop entry specification\n<https://specifications.freedesktop.org/desktop-entry-spec/latest/recognized-keys.html>`__\nfor more details.",
       "type": "object",
       "properties": {
         "name": {
