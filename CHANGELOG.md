@@ -8,6 +8,12 @@
 * Fix default MIME type registration on Linux. (#226 via #227)
 * Add setuptools to recipe host requirements. (#237)
 
+### Contributors
+
+* @jaimergp
+* @marcoesters
+* @zklaus
+
 
 
 ## 2.1.1 (2024-06-07)
