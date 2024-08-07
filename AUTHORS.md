@@ -17,6 +17,7 @@ Authors are sorted alphabetically.
 * Kai Tietz
 * Kale Franz
 * Ken Odegard
+* Klaus Zimmermann
 * Marco Esters
 * Mark Wiebe
 * Martin Chilvers

@@ -28,7 +28,7 @@
   email: jaimergp@users.noreply.github.com
   aliases:
   - jaimergp
-  num_commits: 35
+  num_commits: 37
   first_commit: 2022-08-17 17:00:32
   github: jaimergp
 - name: Trent Nelson
@@ -87,7 +87,7 @@
   aliases:
   - Conda Bot
   - conda bot
-  num_commits: 30
+  num_commits: 33
   first_commit: 2022-01-25 22:53:19
   github: conda-bot
 - name: Aaron Meurer
@@ -112,7 +112,7 @@
   github: isuruf
 - name: pre-commit-ci[bot]
   email: 66853113+pre-commit-ci[bot]@users.noreply.github.com
-  num_commits: 7
+  num_commits: 9
   first_commit: 2023-08-21 19:22:51
   github: pre-commit-ci[bot]
 - name: Martin Chilvers
@@ -163,7 +163,7 @@
   github: katietz
 - name: dependabot[bot]
   email: 49699333+dependabot[bot]@users.noreply.github.com
-  num_commits: 6
+  num_commits: 11
   first_commit: 2024-05-06 08:12:56
   github: dependabot[bot]
 - name: JTignor-Raltron
@@ -173,6 +173,10 @@
   github: JTignor-Raltron
 - name: Marco Esters
   email: mesters@anaconda.com
-  num_commits: 11
+  num_commits: 13
   first_commit: 2024-01-26 08:11:25
   github: marcoesters
+- name: Klaus Zimmermann
+  email: klaus.zimmermann@quansight.com
+  num_commits: 1
+  first_commit: 2024-06-11 12:01:54

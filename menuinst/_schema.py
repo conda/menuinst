@@ -119,7 +119,7 @@ class Linux(BasePlatformSpecific):
     Linux-specific instructions.
 
     Check the `Desktop entry specification
-    <https://specifications.freedesktop.org/desktop-entry-spec/desktop-entry-spec-latest.html#recognized-keys>`__
+    <https://specifications.freedesktop.org/desktop-entry-spec/latest/recognized-keys.html>`__
     for more details.
     """
 
@@ -141,7 +141,7 @@ class Linux(BasePlatformSpecific):
     Implements: Optional[Union[List[str], constr(regex=r"^.+;$")]] = None
     """
     List of supported interfaces. See 'Interfaces' in `Desktop Entry Spec
-    <https://specifications.freedesktop.org/desktop-entry-spec/desktop-entry-spec-latest.html#interfaces>`__.
+    <https://specifications.freedesktop.org/desktop-entry-spec/latest/interfaces.html>`__.
     """
     Keywords: Optional[Union[List[str], constr(regex=r"^.+;$")]] = None
     "Additional terms to describe this shortcut to aid in searching."
