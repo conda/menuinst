@@ -1,5 +1,15 @@
 [//]: # (current developments)
 
+## 2.1.2 (2024-08-07)
+
+### Bug fixes
+
+* Display shortcut name in Windows' "Open with" menu entries. (#225)
+* Fix default MIME type registration on Linux. (#226 via #227)
+* Add setuptools to recipe host requirements. (#237)
+
+
+
 ## 2.1.1 (2024-06-07)
 
 ### Bug fixes
