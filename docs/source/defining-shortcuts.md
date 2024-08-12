@@ -84,7 +84,7 @@ is "Launch Turtle (turtle)". This was the default behavior of `menuinst` version
       "name": {
         "target_environment_is_base": "Launch Turtle",
         "target_environment_is_not_base": "Launch Turtle ({{ ENV_NAME }})"
-      }
+      },
       "command": ["python", "-m", "turtle"],
       "activate": true,
       "platforms": {
