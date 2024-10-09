@@ -7,14 +7,14 @@ from __future__ import absolute_import
 import json
 import logging
 import sys
-from os.path import abspath, basename, exists, join
+from os.path import abspath, basename
 
 try:
     from .._version import __version__
 except ImportError:
     __version__ = "dev"
 
-from ..utils import DEFAULT_BASE_PREFIX, DEFAULT_PREFIX
+from ..utils import DEFAULT_BASE_PREFIX, DEFAULT_PREFIX, needs_admin, python_executable
 
 if sys.platform == 'win32':
     from ..platforms.win_utils.win_elevate import isUserAdmin, runAsAdmin
@@ -59,9 +59,7 @@ def install(path, remove=False, prefix=None, recursing=False, root_prefix=None):
     if not sys.platform == 'win32':
         raise RuntimeError("menuinst._legacy is only supported on Windows.")
 
-    # this root_prefix is intentional.  We want to reflect the state of the root installation.
-
-    if not exists(join(root_prefix, '.nonadmin')):
+    if needs_admin(prefix, root_prefix):
         if isUserAdmin():
             _install(path, remove, prefix, mode='system', root_prefix=root_prefix)
         else:
@@ -70,7 +68,7 @@ def install(path, remove=False, prefix=None, recursing=False, root_prefix=None):
                 if not recursing:
                     retcode = runAsAdmin(
                         [
-                            join(root_prefix, 'python'),
+                            *python_executable(),
                             '-c',
                             "import menuinst; menuinst.install(%r, %r, %r, %r, %r)"
                             % (path, bool(remove), prefix, True, root_prefix),
