@@ -1,6 +1,6 @@
 ### Enhancements
 
-* Backport privilege elevation logic from v2 to v1. (#260)
+* Partially backport privilege elevation logic from v2 to v1. (#260)
 
 ### Bug fixes
 
