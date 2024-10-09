@@ -59,7 +59,7 @@ def install(path, remove=False, prefix=None, recursing=False, root_prefix=None):
     if not sys.platform == 'win32':
         raise RuntimeError("menuinst._legacy is only supported on Windows.")
 
-    if exists(join(prefix, ".nonadmin")) or exists(join(root_prefix, ".nonadmin")):
+    if not exists(join(prefix, ".nonadmin")) and not exists(join(root_prefix, ".nonadmin")):
         if isUserAdmin():
             _install(path, remove, prefix, mode='system', root_prefix=root_prefix)
         else:
