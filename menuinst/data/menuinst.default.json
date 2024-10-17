@@ -28,6 +28,7 @@
           "NotShowIn": null,
           "OnlyShowIn": null,
           "PrefersNonDefaultGPU": null,
+          "SingleMainWindow": null,
           "StartupNotify": null,
           "StartupWMClass": null,
           "TryExec": null,
