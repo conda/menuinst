@@ -1,6 +1,6 @@
 ### Enhancements
 
-* Add support for `SingleMainWindow` in the Linux platform-specific options to allow disabling the `New Window` option in the app's context menu.
+* Add support for `SingleMainWindow` in the Linux platform-specific options to allow disabling the `New Window` option in the app's context menu. (#264 via #265)
 
 ### Bug fixes
 
