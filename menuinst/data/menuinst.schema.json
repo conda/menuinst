@@ -610,7 +610,7 @@
         },
         "quicklaunch": {
           "title": "Quicklaunch",
-          "default": true,
+          "default": false,
           "type": "boolean"
         },
         "terminal_profile": {
