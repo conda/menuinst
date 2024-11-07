@@ -1,0 +1,19 @@
+### Enhancements
+
+* <news item>
+
+### Bug fixes
+
+* <news item>
+
+### Deprecations
+
+* In v2-style schemas, Windows setting `quicklaunch` default value is now `false` and using it is considered deprecated. (#244 via #272)
+
+### Docs
+
+* <news item>
+
+### Other
+
+* <news item>
