@@ -226,6 +226,10 @@
           "title": "Prefersnondefaultgpu",
           "type": "boolean"
         },
+        "SingleMainWindow": {
+          "title": "Singlemainwindow",
+          "type": "boolean"
+        },
         "StartupNotify": {
           "title": "Startupnotify",
           "type": "boolean"

@@ -171,6 +171,10 @@ class Linux(BasePlatformSpecific):
     """
     PrefersNonDefaultGPU: Optional[bool] = None
     "Hint that the app prefers to be run on a more powerful discrete GPU if available."
+    SingleMainWindow: Optional[bool] = None
+    """
+    Do not show the 'New Window' option in the app's context menu.
+    """
     StartupNotify: Optional[bool] = None
     """
     Advanced. See `Startup Notification spec
