@@ -91,7 +91,7 @@ class Windows(BasePlatformSpecific):
     desktop: Optional[bool] = True
     "Whether to create a desktop icon in addition to the Start Menu item."
     quicklaunch: Optional[bool] = False
-    "Whether to create a quick launch icon in addition to the Start Menu item."
+    "DEPRECATED. Whether to create a quick launch icon in addition to the Start Menu item."
     terminal_profile: constr(min_length=1) = None
     """
     Name of the Windows Terminal profile to create.

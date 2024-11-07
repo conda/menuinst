@@ -228,6 +228,7 @@ class WindowsMenuItem(MenuItem):
         if self.metadata["desktop"]:
             extra_dirs.append(self.menu.desktop_location)
         if self.metadata["quicklaunch"] and self.menu.quick_launch_location:
+            warnings.warn("Quick launch menus are deprecated.")
             extra_dirs.append(self.menu.quick_launch_location)
 
         if extra_dirs:
