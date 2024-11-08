@@ -7,6 +7,7 @@ Authors are sorted alphabetically.
 * Connor Martin
 * Daniel Bast
 * David Li
+* Eric Larson
 * Eric Prestat
 * Ilan Schnell
 * Isuru Fernando
