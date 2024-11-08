@@ -1,5 +1,27 @@
 [//]: # (current developments)
 
+## 2.2.0 (2024-11-08)
+
+### Enhancements
+
+* Partially backport privilege elevation logic from v2 to v1. (#260)
+* Add support for `SingleMainWindow` in the Linux platform-specific options to allow disabling the `New Window` option in the app's context menu. (#264 via #265)
+
+### Deprecations
+
+* In v2-style schemas, Windows setting `quicklaunch` default value is now `false` and using it is considered deprecated. (#244 via #272)
+
+### Docs
+
+* Add missing comma to base/non-base example. (#248)
+
+### Other
+
+* Update Python versions in canary builds: remove version 3.8 and add 3.12. (#266)
+* Drop Python 3.8 from the CI test matrix. (#263)
+
+
+
 ## 2.1.2 (2024-08-07)
 
 ### Bug fixes
