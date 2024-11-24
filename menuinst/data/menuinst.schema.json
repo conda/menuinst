@@ -109,7 +109,7 @@
         },
         "precommand": {
           "title": "Precommand",
-          "description": "(Simple, preferrably single-line) logic to run before the command is run.\nRuns before the env is activated, if that applies.",
+          "description": "(Simple, preferrably single-line) logic to run before the command is run.\nRuns before the environment is activated, if that applies.",
           "minLength": 1,
           "type": "string"
         },
@@ -147,7 +147,7 @@
         },
         "DBusActivatable": {
           "title": "Dbusactivatable",
-          "description": "A boolean value specifying if D-Bus activation is supported for this application.\n        ",
+          "description": "A boolean value specifying if D-Bus activation is supported for this application.",
           "type": "boolean"
         },
         "GenericName": {
@@ -350,7 +350,7 @@
         },
         "LSItemContentTypes": {
           "title": "Lsitemcontenttypes",
-          "description": "List of UTI strings defining a supported file type; e.g. for\nPNG files, use 'public.png'. See `UTI Reference\n<https://developer.apple.com/library/archive/documentation/Miscellaneous/Reference/UTIRef/Articles/System-DeclaredUniformTypeIdentifiers.html>`__\nfor more info about the system-defined UTIs. Custom UTIs can be\ndefined via 'UTExportedTypeDeclarations'. UTIs defined by other\napps (not the system) need to be imported via 'UTImportedTypeDeclarations'.\n\nSee `Fun with UTIs <https://www.cocoanetics.com/2012/09/fun-with-uti/>`__ for more info.",
+          "description": "List of UTI strings defining a supported file type; e.g. for PNG files, use\n'public.png'. See `UTI Reference\n<https://developer.apple.com/library/archive/documentation/Miscellaneous/Reference/UTIRef/Articles/System-DeclaredUniformTypeIdentifiers.html>`__\nfor more info about the system-defined UTIs. Custom UTIs can be defined via\n'UTExportedTypeDeclarations'. UTIs defined by other apps (not the system) need to\nbe imported via 'UTImportedTypeDeclarations'.\n\nSee `Fun with UTIs <https://www.cocoanetics.com/2012/09/fun-with-uti/>`__ for more\ninfo.",
           "type": "array",
           "items": {
             "type": "string"
@@ -471,7 +471,7 @@
         },
         "precommand": {
           "title": "Precommand",
-          "description": "(Simple, preferrably single-line) logic to run before the command is run.\nRuns before the env is activated, if that applies.",
+          "description": "(Simple, preferrably single-line) logic to run before the command is run.\nRuns before the environment is activated, if that applies.",
           "minLength": 1,
           "type": "string"
         },
@@ -593,7 +593,7 @@
         },
         "entitlements": {
           "title": "Entitlements",
-          "description": "List of permissions to request for the launched application.\nSee `the entitlements docs <https://developer.apple.com/documentation/bundleresources/entitlements>`__\nfor a full list of possible values.",
+          "description": "List of permissions to request for the launched application. See `the entitlements docs\n<https://developer.apple.com/documentation/bundleresources/entitlements>`__ for a full\nlist of possible values.",
           "type": "array",
           "items": {
             "type": "string",
@@ -664,7 +664,7 @@
         },
         "precommand": {
           "title": "Precommand",
-          "description": "(Simple, preferrably single-line) logic to run before the command is run.\nRuns before the env is activated, if that applies.",
+          "description": "(Simple, preferrably single-line) logic to run before the command is run.\nRuns before the environment is activated, if that applies.",
           "minLength": 1,
           "type": "string"
         },
@@ -723,7 +723,7 @@
         },
         "app_user_model_id": {
           "title": "App User Model Id",
-          "description": "Identifier used in Windows 7 and above to associate processes, files and windows with a\nparticular application. If your shortcut produces duplicated icons, you need to define this\nfield. If not set, it will default to ``Menuinst.<name>``.\n\nSee `AppUserModelID docs\n<https://learn.microsoft.com/en-us/windows/win32/shell/appids#how-to-form-an-application-defined-appusermodelid>`__\nfor more information on the required string format.",
+          "description": "Identifier used in Windows 7 and above to associate processes, files and windows with a\nparticular application. If your shortcut produces duplicated icons, you need to define\nthis field. If not set, it will default to ``Menuinst.<name>``.\n\nSee `AppUserModelID docs\n<https://learn.microsoft.com/en-us/windows/win32/shell/appids#how-to-form-an-application-defined-appusermodelid>`__\nfor more information on the required string format.",
           "maxLength": 128,
           "pattern": "\\S+\\.\\S+",
           "type": "string"
