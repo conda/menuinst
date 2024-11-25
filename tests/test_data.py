@@ -2,7 +2,7 @@
 
 import json
 
-from menuinst._schema import dump_default_to_json, dump_schema_to_json, SCHEMA_VERSION
+from menuinst._schema import SCHEMA_VERSION, dump_default_to_json, dump_schema_to_json
 from menuinst.utils import data_path
 
 
