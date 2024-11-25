@@ -20,6 +20,9 @@ except ImportError:
 
 
 log = getLogger(__name__)
+SCHEMA_DIALECT = "http://json-schema.org/draft-07/schema#"
+SCHEMA_VERSION = "1"
+SCHEMA_URL = f"https://schemas.conda.org/menuinst-{SCHEMA_VERSION}.schema.json"
 
 
 class BaseModel(_BaseModel):
@@ -398,14 +401,21 @@ class MenuItem(BaseModel):
 class MenuInstSchema(BaseModel):
     "Metadata required to create menu items across operating systems with ``menuinst``."
 
-    id_: Literal["https://schemas.conda.io/menuinst-1.schema.json"] = Field(
-        ...,
-        description="Version of the menuinst schema.",
+    class Config(BaseModel.Config):
+        schema_extra = {
+            "$schema": SCHEMA_DIALECT,
+            "$id": SCHEMA_URL,
+        }
+
+    id_: constr(min_length=1) = Field(
+        SCHEMA_URL,
+        description="DEPRECATED. Use ``$schema``.",
         alias="$id",
+        deprecated=True,
     )
-    schema_: Literal["https://json-schema.org/draft-07/schema"] = Field(
-        ...,
-        description="Standard of the JSON schema we adhere to.",
+    schema_: constr(min_length=1) = Field(
+        SCHEMA_URL,
+        description="Version of the menuinst schema.",
         alias="$schema",
     )
     menu_name: constr(min_length=1) = ...
@@ -415,14 +425,15 @@ class MenuInstSchema(BaseModel):
 
 
 def dump_schema_to_json(write=True):
+    schema = MenuInstSchema.schema()
     if write:
         here = Path(__file__).parent
-        schema = MenuInstSchema.schema_json(indent=2)
-        print(schema)
-        with open(here / "data" / "menuinst.schema.json", "w") as f:
-            f.write(schema)
+        schema_str = json.dumps(schema, indent=2)
+        print(schema_str)
+        with open(here / "data" / f"menuinst-{SCHEMA_VERSION}.schema.json", "w") as f:
+            f.write(schema_str)
             f.write("\n")
-    return MenuInstSchema.schema()
+    return schema
 
 
 def dump_default_to_json(write=True):
@@ -435,21 +446,17 @@ def dump_default_to_json(write=True):
         "osx": MacOS().dict(),
         "linux": Linux().dict(),
     }
-    default = MenuInstSchema(
-        menu_name="REQUIRED",
-        menu_items=[default_item],
-        **{
-            "$id": "https://schemas.conda.io/menuinst-1.schema.json",
-            "$schema": "https://json-schema.org/draft-07/schema",
-        },
-    ).dict()
+    default = MenuInstSchema(menu_name="REQUIRED", menu_items=[default_item]).dict()
+    default["$schema"] = SCHEMA_URL
+    default.pop("id_", None)
+    default.pop("schema_", None)
     for platform_value in default["menu_items"][0]["platforms"].values():
         for key in list(platform_value.keys()):
             if key in MenuItem.__fields__:
                 platform_value.pop(key)
     if write:
         pprint(default)
-        with open(here / "data" / "menuinst.default.json", "w") as f:
+        with open(here / "data" / f"menuinst-{SCHEMA_VERSION}.default.json", "w") as f:
             json.dump(default, f, indent=2)
             f.write("\n")
     return default
