@@ -652,7 +652,7 @@ class MenuItem(BaseModel):
         description=cleandoc(
             """
             Platform-specific options. Presence of a platform field enables
-            menu items in that platform."
+            menu items in that platform.
             """
         ),
     )

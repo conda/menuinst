@@ -836,7 +836,7 @@
         },
         "platforms": {
           "title": "Platforms",
-          "description": "Platform-specific options. Presence of a platform field enables\nmenu items in that platform.\"",
+          "description": "Platform-specific options. Presence of a platform field enables\nmenu items in that platform.",
           "allOf": [
             {
               "$ref": "#/definitions/Platforms"
