@@ -6,6 +6,7 @@ Generate JSON schemas from pydantic models
 # pyright: reportInvalidTypeForm=false, reportCallIssue=false, reportGeneralTypeIssues=false
 
 import json
+import re
 from inspect import cleandoc
 from logging import getLogger
 from pathlib import Path
@@ -22,6 +23,11 @@ except ImportError:
 
 
 log = getLogger(__name__)
+
+
+def _clean_description(description: str) -> str:
+    # The regex below only replaces newlines surrounded by non-newlines
+    return re.sub(r'(?<!\n)\n(?=\S)', ' ', cleandoc(description))
 
 
 class BaseModel(_BaseModel):
@@ -57,7 +63,7 @@ class BasePlatformSpecific(BaseModel):
 
     name: Optional[Union[constr(min_length=1), MenuItemNameDict]] = Field(
         None,
-        description=cleandoc(
+        description=_clean_description(
             """
             The name of the menu item. Can be a dictionary if the name depends on
             installation parameters. See :class:`MenuItemNameDict` for details.
@@ -74,7 +80,7 @@ class BasePlatformSpecific(BaseModel):
     )
     command: Optional[conlist(str, min_items=1)] = Field(
         None,
-        description=cleandoc(
+        description=_clean_description(
             """
             Command to run with the menu item, expressed as a
             list of strings where each string is an argument.
@@ -83,7 +89,7 @@ class BasePlatformSpecific(BaseModel):
     )
     working_dir: Optional[constr(min_length=1)] = Field(
         None,
-        description=cleandoc(
+        description=_clean_description(
             """
             Working directory for the running process.
             Defaults to user directory on each platform.
@@ -92,7 +98,7 @@ class BasePlatformSpecific(BaseModel):
     )
     precommand: Optional[constr(min_length=1)] = Field(
         None,
-        description=cleandoc(
+        description=_clean_description(
             """
             (Simple, preferrably single-line) logic to run before the command is run.
             Runs before the environment is activated, if that applies.
@@ -101,7 +107,7 @@ class BasePlatformSpecific(BaseModel):
     )
     precreate: Optional[constr(min_length=1)] = Field(
         None,
-        description=cleandoc(
+        description=_clean_description(
             """(Simple, preferrably single-line) logic to run before the shortcut is created."""
         ),
     )
@@ -111,7 +117,7 @@ class BasePlatformSpecific(BaseModel):
     )
     terminal: Optional[bool] = Field(
         None,
-        description=cleandoc(
+        description=_clean_description(
             """
             Whether run the program in a terminal/console or not.
             On Windows, it only has an effect if ``activate`` is true.
@@ -130,7 +136,7 @@ class Windows(BasePlatformSpecific):
     )
     quicklaunch: Optional[bool] = Field(
         False,
-        description=cleandoc(
+        description=_clean_description(
             """
             DEPRECATED. Whether to create a quick launch icon in addition to the Start Menu item.
             """
@@ -139,7 +145,7 @@ class Windows(BasePlatformSpecific):
     )
     terminal_profile: constr(min_length=1) = Field(
         None,
-        description=cleandoc(
+        description=_clean_description(
             """
             Name of the Windows Terminal profile to create.
             This name must be unique across multiple installations because
@@ -157,7 +163,7 @@ class Windows(BasePlatformSpecific):
     )
     app_user_model_id: Optional[constr(regex=r"\S+\.\S+", max_length=128)] = Field(
         None,
-        description=cleandoc(
+        description=_clean_description(
             """
             Identifier used in Windows 7 and above to associate processes, files and windows with a
             particular application. If your shortcut produces duplicated icons, you need to define
@@ -182,7 +188,7 @@ class Linux(BasePlatformSpecific):
 
     Categories: Optional[Union[List[str], constr(regex=r"^.+;$")]] = Field(
         None,
-        description=cleandoc(
+        description=_clean_description(
             """
             Categories in which the entry should be shown in a menu.
             "See 'Registered categories' in the `Menu Spec
@@ -192,7 +198,7 @@ class Linux(BasePlatformSpecific):
     )
     DBusActivatable: Optional[bool] = Field(
         None,
-        description=cleandoc(
+        description=_clean_description(
             """
             A boolean value specifying if D-Bus activation is supported for this application.
             """
@@ -200,7 +206,7 @@ class Linux(BasePlatformSpecific):
     )
     GenericName: Optional[str] = Field(
         None,
-        description=cleandoc(
+        description=_clean_description(
             """
             Generic name of the application; e.g. if the name is 'conda',
             this would be 'Package Manager'.
@@ -213,7 +219,7 @@ class Linux(BasePlatformSpecific):
     )
     Implements: Optional[Union[List[str], constr(regex=r"^.+;$")]] = Field(
         None,
-        description=cleandoc(
+        description=_clean_description(
             """
             List of supported interfaces. See 'Interfaces' in `Desktop Entry Spec
             <https://specifications.freedesktop.org/desktop-entry-spec/latest/interfaces.html>`__.
@@ -226,7 +232,7 @@ class Linux(BasePlatformSpecific):
     )
     MimeType: Optional[Union[List[str], constr(regex=r"^.+;$")]] = Field(
         None,
-        description=cleandoc(
+        description=_clean_description(
             """
             The MIME type(s) supported by this application.
             Note this includes file types and URL protocols.
@@ -238,7 +244,7 @@ class Linux(BasePlatformSpecific):
     )
     NoDisplay: Optional[bool] = Field(
         None,
-        description=cleandoc(
+        description=_clean_description(
             """
             Do not show this item in the menu. Useful to associate MIME types
             and other registrations, without having an actual clickable item.
@@ -248,7 +254,7 @@ class Linux(BasePlatformSpecific):
     )
     NotShowIn: Optional[Union[List[str], constr(regex=r"^.+;$")]] = Field(
         None,
-        description=cleandoc(
+        description=_clean_description(
             """
             Desktop environments that should NOT display this item.
             It'll check against ``$XDG_CURRENT_DESKTOP``."
@@ -257,7 +263,7 @@ class Linux(BasePlatformSpecific):
     )
     OnlyShowIn: Optional[Union[List[str], constr(regex=r"^.+;$")]] = Field(
         None,
-        description=cleandoc(
+        description=_clean_description(
             """
             Desktop environments that should display this item.
             It'll check against ``$XDG_CURRENT_DESKTOP``.
@@ -266,7 +272,7 @@ class Linux(BasePlatformSpecific):
     )
     PrefersNonDefaultGPU: Optional[bool] = Field(
         None,
-        description=cleandoc(
+        description=_clean_description(
             """
             Hint that the app prefers to be run on a more powerful discrete GPU if available.
             """
@@ -274,7 +280,7 @@ class Linux(BasePlatformSpecific):
     )
     SingleMainWindow: Optional[bool] = Field(
         None,
-        description=cleandoc(
+        description=_clean_description(
             """
             Do not show the 'New Window' option in the app's context menu.
             """
@@ -282,7 +288,7 @@ class Linux(BasePlatformSpecific):
     )
     StartupNotify: Optional[bool] = Field(
         None,
-        description=cleandoc(
+        description=_clean_description(
             """
             Advanced. See `Startup Notification spec
             <https://www.freedesktop.org/wiki/Specifications/startup-notification-spec/>`__.
@@ -291,7 +297,7 @@ class Linux(BasePlatformSpecific):
     )
     StartupWMClass: Optional[str] = Field(
         None,
-        description=cleandoc(
+        description=_clean_description(
             """
             Advanced. See `Startup Notification spec
             <https://www.freedesktop.org/wiki/Specifications/startup-notification-spec/>`__.
@@ -300,7 +306,7 @@ class Linux(BasePlatformSpecific):
     )
     TryExec: Optional[str] = Field(
         None,
-        description=cleandoc(
+        description=_clean_description(
             """
             Filename or absolute path to an executable file on disk used to
             determine if the program is actually installed and can be run. If the test
@@ -310,7 +316,7 @@ class Linux(BasePlatformSpecific):
     )
     glob_patterns: Optional[Dict[str, constr(regex=r".*\*.*")]] = Field(
         None,
-        description=cleandoc(
+        description=_clean_description(
             """
             Map of custom MIME types to their corresponding glob patterns (e.g. ``*.txt``).
             Only needed if you define custom MIME types in ``MimeType``.
@@ -364,7 +370,7 @@ class MacOS(BasePlatformSpecific):
         )
         LSItemContentTypes: List[str] = Field(
             ...,
-            description=cleandoc(
+            description=_clean_description(
                 """
                 List of UTI strings defining a supported file type; e.g. for PNG files, use
                 'public.png'. See `UTI Reference
@@ -380,7 +386,7 @@ class MacOS(BasePlatformSpecific):
         )
         LSHandlerRank: Literal["Owner", "Default", "Alternate"] = Field(
             ...,
-            description=cleandoc(
+            description=_clean_description(
                 """
                 Determines how Launch Services ranks this app among the apps
                 that declare themselves editors or viewers of files of this type.
@@ -416,7 +422,7 @@ class MacOS(BasePlatformSpecific):
 
     CFBundleDisplayName: Optional[str] = Field(
         None,
-        description=cleandoc(
+        description=_clean_description(
             """
             Display name of the bundle, visible to users and used by Siri. If
             not provided, 'menuinst' will use the 'name' field.
@@ -425,7 +431,7 @@ class MacOS(BasePlatformSpecific):
     )
     CFBundleIdentifier: Optional[constr(regex=r"^[A-z0-9\-\.]+$")] = Field(
         None,
-        description=cleandoc(
+        description=_clean_description(
             """
             Unique identifier for the shortcut. Typically uses a reverse-DNS format.
             If not provided, 'menuinst' will generate one from the 'name' field.
@@ -434,7 +440,7 @@ class MacOS(BasePlatformSpecific):
     )
     CFBundleName: Optional[constr(max_length=16)] = Field(
         None,
-        description=cleandoc(
+        description=_clean_description(
             """
             Short name of the bundle. May be used if ``CFBundleDisplayName`` is
             absent. If not provided, 'menuinst' will generate one from the 'name' field.
@@ -443,7 +449,7 @@ class MacOS(BasePlatformSpecific):
     )
     CFBundleSpokenName: Optional[str] = Field(
         None,
-        description=cleandoc(
+        description=_clean_description(
             """
             Suitable replacement for text-to-speech operations on the app.
             For example, 'my app one two three' instead of 'MyApp123'.
@@ -452,7 +458,7 @@ class MacOS(BasePlatformSpecific):
     )
     CFBundleVersion: Optional[constr(regex=r"^\S+$")] = Field(
         None,
-        description=cleandoc(
+        description=_clean_description(
             """
             Build version number for the bundle. In the context of 'menuinst'
             this can be used to signal a new version of the menu item for the same
@@ -462,7 +468,7 @@ class MacOS(BasePlatformSpecific):
     )
     CFBundleURLTypes: Optional[List[CFBundleURLTypesModel]] = Field(
         None,
-        description=cleandoc(
+        description=_clean_description(
             """
             URL types supported by this app. Requires setting `event_handler` too.
             Note this feature requires macOS 10.14.4 or above.
@@ -471,7 +477,7 @@ class MacOS(BasePlatformSpecific):
     )
     CFBundleDocumentTypes: Optional[List[CFBundleDocumentTypesModel]] = Field(
         None,
-        description=cleandoc(
+        description=_clean_description(
             """
             Document types supported by this app. Requires setting `event_handler` too.
             Requires macOS 10.14.4 or above.
@@ -492,7 +498,7 @@ class MacOS(BasePlatformSpecific):
     )
     LSMinimumSystemVersion: Optional[constr(regex=r"^\d+\.\d+\.\d+$")] = Field(
         None,
-        description=cleandoc(
+        description=_clean_description(
             """
             Minimum version of macOS required for this app to run, as ``x.y.z``.
             For example, for macOS v10.4 and later, use ``10.4.0``.
@@ -501,7 +507,7 @@ class MacOS(BasePlatformSpecific):
     )
     LSMultipleInstancesProhibited: Optional[bool] = Field(
         None,
-        description=cleandoc(
+        description=_clean_description(
             """
             Whether an app is prohibited from running simultaneously in multiple user sessions."
             """
@@ -509,7 +515,7 @@ class MacOS(BasePlatformSpecific):
     )
     LSRequiresNativeExecution: Optional[bool] = Field(
         None,
-        description=cleandoc(
+        description=_clean_description(
             """
             If true, prevent a universal binary from being run under
             Rosetta emulation on an Intel-based Mac.
@@ -529,7 +535,7 @@ class MacOS(BasePlatformSpecific):
     )
     entitlements: Optional[List[constr(regex=r"[a-z0-9\.\-]+")]] = Field(
         None,
-        description=cleandoc(
+        description=_clean_description(
             """
             List of permissions to request for the launched application. See `the entitlements docs
             <https://developer.apple.com/documentation/bundleresources/entitlements>`__ for a full
@@ -540,7 +546,7 @@ class MacOS(BasePlatformSpecific):
     link_in_bundle: Optional[Dict[constr(min_length=1), constr(regex=r"^(?!\/)(?!\.\./).*")]] = (
         Field(
             None,
-            description=cleandoc(
+            description=_clean_description(
                 """
                 Paths that should be symlinked into the shortcut app bundle.
                 It takes a mapping of source to destination paths. Destination paths must be
@@ -551,7 +557,7 @@ class MacOS(BasePlatformSpecific):
     )
     event_handler: Optional[constr(min_length=1)] = Field(
         None,
-        description=cleandoc(
+        description=_clean_description(
             """
             Required shell script logic to handle opened URL payloads.
             Note this feature requires macOS 10.14.4 or above.
@@ -584,7 +590,7 @@ class MenuItem(BaseModel):
 
     name: Union[constr(min_length=1), MenuItemNameDict] = Field(
         ...,
-        description=cleandoc(
+        description=_clean_description(
             """
             The name of the menu item. Can be a dictionary if the name depends on
             installation parameters. See :class:`MenuItemNameDict` for details.
@@ -597,7 +603,7 @@ class MenuItem(BaseModel):
     )
     command: conlist(str, min_items=1) = Field(
         ...,
-        description=cleandoc(
+        description=_clean_description(
             """
             Command to run with the menu item, expressed as a
             list of strings where each string is an argument.
@@ -610,7 +616,7 @@ class MenuItem(BaseModel):
     )
     precommand: Optional[constr(min_length=1)] = Field(
         None,
-        description=cleandoc(
+        description=_clean_description(
             """
             (Simple, preferrably single-line) logic to run before the command is run.
             Runs before the environment is activated, if that applies.
@@ -619,7 +625,7 @@ class MenuItem(BaseModel):
     )
     precreate: Optional[constr(min_length=1)] = Field(
         None,
-        description=cleandoc(
+        description=_clean_description(
             """
             (Simple, preferrably single-line) logic to run before the shortcut is created.
             """
@@ -627,7 +633,7 @@ class MenuItem(BaseModel):
     )
     working_dir: Optional[constr(min_length=1)] = Field(
         None,
-        description=cleandoc(
+        description=_clean_description(
             """
             Working directory for the running process.
             Defaults to user directory on each platform.
@@ -640,7 +646,7 @@ class MenuItem(BaseModel):
     )
     terminal: Optional[bool] = Field(
         False,
-        description=cleandoc(
+        description=_clean_description(
             """
             Whether run the program in a terminal/console or not.
             On Windows, it only has an effect if ``activate`` is true.
@@ -649,7 +655,7 @@ class MenuItem(BaseModel):
         ),
     )
     platforms: Platforms = Field(
-        description=cleandoc(
+        description=_clean_description(
             """
             Platform-specific options. Presence of a platform field enables
             menu items in that platform.

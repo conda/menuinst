@@ -70,7 +70,7 @@
       "properties": {
         "name": {
           "title": "Name",
-          "description": "The name of the menu item. Can be a dictionary if the name depends on\ninstallation parameters. See :class:`MenuItemNameDict` for details.",
+          "description": "The name of the menu item. Can be a dictionary if the name depends on installation parameters. See :class:`MenuItemNameDict` for details.",
           "anyOf": [
             {
               "type": "string",
@@ -94,7 +94,7 @@
         },
         "command": {
           "title": "Command",
-          "description": "Command to run with the menu item, expressed as a\nlist of strings where each string is an argument.",
+          "description": "Command to run with the menu item, expressed as a list of strings where each string is an argument.",
           "minItems": 1,
           "type": "array",
           "items": {
@@ -103,13 +103,13 @@
         },
         "working_dir": {
           "title": "Working Dir",
-          "description": "Working directory for the running process.\nDefaults to user directory on each platform.",
+          "description": "Working directory for the running process. Defaults to user directory on each platform.",
           "minLength": 1,
           "type": "string"
         },
         "precommand": {
           "title": "Precommand",
-          "description": "(Simple, preferrably single-line) logic to run before the command is run.\nRuns before the environment is activated, if that applies.",
+          "description": "(Simple, preferrably single-line) logic to run before the command is run. Runs before the environment is activated, if that applies.",
           "minLength": 1,
           "type": "string"
         },
@@ -126,12 +126,12 @@
         },
         "terminal": {
           "title": "Terminal",
-          "description": "Whether run the program in a terminal/console or not.\nOn Windows, it only has an effect if ``activate`` is true.\nOn MacOS, the application will ignore command-line arguments.",
+          "description": "Whether run the program in a terminal/console or not. On Windows, it only has an effect if ``activate`` is true. On MacOS, the application will ignore command-line arguments.",
           "type": "boolean"
         },
         "Categories": {
           "title": "Categories",
-          "description": "Categories in which the entry should be shown in a menu.\n\"See 'Registered categories' in the `Menu Spec\n<http://www.freedesktop.org/Standards/menu-spec>`__.",
+          "description": "Categories in which the entry should be shown in a menu. \"See 'Registered categories' in the `Menu Spec <http://www.freedesktop.org/Standards/menu-spec>`__.",
           "anyOf": [
             {
               "type": "array",
@@ -152,7 +152,7 @@
         },
         "GenericName": {
           "title": "Genericname",
-          "description": "Generic name of the application; e.g. if the name is 'conda',\nthis would be 'Package Manager'.",
+          "description": "Generic name of the application; e.g. if the name is 'conda', this would be 'Package Manager'.",
           "type": "string"
         },
         "Hidden": {
@@ -162,7 +162,7 @@
         },
         "Implements": {
           "title": "Implements",
-          "description": "List of supported interfaces. See 'Interfaces' in `Desktop Entry Spec\n<https://specifications.freedesktop.org/desktop-entry-spec/latest/interfaces.html>`__.",
+          "description": "List of supported interfaces. See 'Interfaces' in `Desktop Entry Spec <https://specifications.freedesktop.org/desktop-entry-spec/latest/interfaces.html>`__.",
           "anyOf": [
             {
               "type": "array",
@@ -194,7 +194,7 @@
         },
         "MimeType": {
           "title": "Mimetype",
-          "description": "The MIME type(s) supported by this application.\nNote this includes file types and URL protocols.\nFor URL protocols, use ``x-scheme-handler/your-protocol-here``.\nFor example, if you want to register ``menuinst:``, you would\ninclude ``x-scheme-handler/menuinst``.",
+          "description": "The MIME type(s) supported by this application. Note this includes file types and URL protocols. For URL protocols, use ``x-scheme-handler/your-protocol-here``. For example, if you want to register ``menuinst:``, you would include ``x-scheme-handler/menuinst``.",
           "anyOf": [
             {
               "type": "array",
@@ -210,12 +210,12 @@
         },
         "NoDisplay": {
           "title": "Nodisplay",
-          "description": "Do not show this item in the menu. Useful to associate MIME types\nand other registrations, without having an actual clickable item.\nNot to be confused with 'Hidden'.",
+          "description": "Do not show this item in the menu. Useful to associate MIME types and other registrations, without having an actual clickable item. Not to be confused with 'Hidden'.",
           "type": "boolean"
         },
         "NotShowIn": {
           "title": "Notshowin",
-          "description": "Desktop environments that should NOT display this item.\nIt'll check against ``$XDG_CURRENT_DESKTOP``.\"",
+          "description": "Desktop environments that should NOT display this item. It'll check against ``$XDG_CURRENT_DESKTOP``.\"",
           "anyOf": [
             {
               "type": "array",
@@ -231,7 +231,7 @@
         },
         "OnlyShowIn": {
           "title": "Onlyshowin",
-          "description": "Desktop environments that should display this item.\nIt'll check against ``$XDG_CURRENT_DESKTOP``.",
+          "description": "Desktop environments that should display this item. It'll check against ``$XDG_CURRENT_DESKTOP``.",
           "anyOf": [
             {
               "type": "array",
@@ -257,22 +257,22 @@
         },
         "StartupNotify": {
           "title": "Startupnotify",
-          "description": "Advanced. See `Startup Notification spec\n<https://www.freedesktop.org/wiki/Specifications/startup-notification-spec/>`__.",
+          "description": "Advanced. See `Startup Notification spec <https://www.freedesktop.org/wiki/Specifications/startup-notification-spec/>`__.",
           "type": "boolean"
         },
         "StartupWMClass": {
           "title": "Startupwmclass",
-          "description": "Advanced. See `Startup Notification spec\n<https://www.freedesktop.org/wiki/Specifications/startup-notification-spec/>`__.",
+          "description": "Advanced. See `Startup Notification spec <https://www.freedesktop.org/wiki/Specifications/startup-notification-spec/>`__.",
           "type": "string"
         },
         "TryExec": {
           "title": "Tryexec",
-          "description": "Filename or absolute path to an executable file on disk used to\ndetermine if the program is actually installed and can be run. If the test\nfails, the shortcut might be ignored / hidden.",
+          "description": "Filename or absolute path to an executable file on disk used to determine if the program is actually installed and can be run. If the test fails, the shortcut might be ignored / hidden.",
           "type": "string"
         },
         "glob_patterns": {
           "title": "Glob Patterns",
-          "description": "Map of custom MIME types to their corresponding glob patterns (e.g. ``*.txt``).\nOnly needed if you define custom MIME types in ``MimeType``.",
+          "description": "Map of custom MIME types to their corresponding glob patterns (e.g. ``*.txt``). Only needed if you define custom MIME types in ``MimeType``.",
           "type": "object",
           "additionalProperties": {
             "type": "string",
@@ -350,7 +350,7 @@
         },
         "LSItemContentTypes": {
           "title": "Lsitemcontenttypes",
-          "description": "List of UTI strings defining a supported file type; e.g. for PNG files, use\n'public.png'. See `UTI Reference\n<https://developer.apple.com/library/archive/documentation/Miscellaneous/Reference/UTIRef/Articles/System-DeclaredUniformTypeIdentifiers.html>`__\nfor more info about the system-defined UTIs. Custom UTIs can be defined via\n'UTExportedTypeDeclarations'. UTIs defined by other apps (not the system) need to\nbe imported via 'UTImportedTypeDeclarations'.\n\nSee `Fun with UTIs <https://www.cocoanetics.com/2012/09/fun-with-uti/>`__ for more\ninfo.",
+          "description": "List of UTI strings defining a supported file type; e.g. for PNG files, use 'public.png'. See `UTI Reference <https://developer.apple.com/library/archive/documentation/Miscellaneous/Reference/UTIRef/Articles/System-DeclaredUniformTypeIdentifiers.html>`__ for more info about the system-defined UTIs. Custom UTIs can be defined via 'UTExportedTypeDeclarations'. UTIs defined by other apps (not the system) need to be imported via 'UTImportedTypeDeclarations'.\n\nSee `Fun with UTIs <https://www.cocoanetics.com/2012/09/fun-with-uti/>`__ for more info.",
           "type": "array",
           "items": {
             "type": "string"
@@ -358,7 +358,7 @@
         },
         "LSHandlerRank": {
           "title": "Lshandlerrank",
-          "description": "Determines how Launch Services ranks this app among the apps\nthat declare themselves editors or viewers of files of this type.",
+          "description": "Determines how Launch Services ranks this app among the apps that declare themselves editors or viewers of files of this type.",
           "enum": [
             "Owner",
             "Default",
@@ -432,7 +432,7 @@
       "properties": {
         "name": {
           "title": "Name",
-          "description": "The name of the menu item. Can be a dictionary if the name depends on\ninstallation parameters. See :class:`MenuItemNameDict` for details.",
+          "description": "The name of the menu item. Can be a dictionary if the name depends on installation parameters. See :class:`MenuItemNameDict` for details.",
           "anyOf": [
             {
               "type": "string",
@@ -456,7 +456,7 @@
         },
         "command": {
           "title": "Command",
-          "description": "Command to run with the menu item, expressed as a\nlist of strings where each string is an argument.",
+          "description": "Command to run with the menu item, expressed as a list of strings where each string is an argument.",
           "minItems": 1,
           "type": "array",
           "items": {
@@ -465,13 +465,13 @@
         },
         "working_dir": {
           "title": "Working Dir",
-          "description": "Working directory for the running process.\nDefaults to user directory on each platform.",
+          "description": "Working directory for the running process. Defaults to user directory on each platform.",
           "minLength": 1,
           "type": "string"
         },
         "precommand": {
           "title": "Precommand",
-          "description": "(Simple, preferrably single-line) logic to run before the command is run.\nRuns before the environment is activated, if that applies.",
+          "description": "(Simple, preferrably single-line) logic to run before the command is run. Runs before the environment is activated, if that applies.",
           "minLength": 1,
           "type": "string"
         },
@@ -488,40 +488,40 @@
         },
         "terminal": {
           "title": "Terminal",
-          "description": "Whether run the program in a terminal/console or not.\nOn Windows, it only has an effect if ``activate`` is true.\nOn MacOS, the application will ignore command-line arguments.",
+          "description": "Whether run the program in a terminal/console or not. On Windows, it only has an effect if ``activate`` is true. On MacOS, the application will ignore command-line arguments.",
           "type": "boolean"
         },
         "CFBundleDisplayName": {
           "title": "Cfbundledisplayname",
-          "description": "Display name of the bundle, visible to users and used by Siri. If\nnot provided, 'menuinst' will use the 'name' field.",
+          "description": "Display name of the bundle, visible to users and used by Siri. If not provided, 'menuinst' will use the 'name' field.",
           "type": "string"
         },
         "CFBundleIdentifier": {
           "title": "Cfbundleidentifier",
-          "description": "Unique identifier for the shortcut. Typically uses a reverse-DNS format.\nIf not provided, 'menuinst' will generate one from the 'name' field.",
+          "description": "Unique identifier for the shortcut. Typically uses a reverse-DNS format. If not provided, 'menuinst' will generate one from the 'name' field.",
           "pattern": "^[A-z0-9\\-\\.]+$",
           "type": "string"
         },
         "CFBundleName": {
           "title": "Cfbundlename",
-          "description": "Short name of the bundle. May be used if ``CFBundleDisplayName`` is\nabsent. If not provided, 'menuinst' will generate one from the 'name' field.",
+          "description": "Short name of the bundle. May be used if ``CFBundleDisplayName`` is absent. If not provided, 'menuinst' will generate one from the 'name' field.",
           "maxLength": 16,
           "type": "string"
         },
         "CFBundleSpokenName": {
           "title": "Cfbundlespokenname",
-          "description": "Suitable replacement for text-to-speech operations on the app.\nFor example, 'my app one two three' instead of 'MyApp123'.",
+          "description": "Suitable replacement for text-to-speech operations on the app. For example, 'my app one two three' instead of 'MyApp123'.",
           "type": "string"
         },
         "CFBundleVersion": {
           "title": "Cfbundleversion",
-          "description": "Build version number for the bundle. In the context of 'menuinst'\nthis can be used to signal a new version of the menu item for the same\napplication version.",
+          "description": "Build version number for the bundle. In the context of 'menuinst' this can be used to signal a new version of the menu item for the same application version.",
           "pattern": "^\\S+$",
           "type": "string"
         },
         "CFBundleURLTypes": {
           "title": "Cfbundleurltypes",
-          "description": "URL types supported by this app. Requires setting `event_handler` too.\nNote this feature requires macOS 10.14.4 or above.",
+          "description": "URL types supported by this app. Requires setting `event_handler` too. Note this feature requires macOS 10.14.4 or above.",
           "type": "array",
           "items": {
             "$ref": "#/definitions/CFBundleURLTypesModel"
@@ -529,7 +529,7 @@
         },
         "CFBundleDocumentTypes": {
           "title": "Cfbundledocumenttypes",
-          "description": "Document types supported by this app. Requires setting `event_handler` too.\nRequires macOS 10.14.4 or above.",
+          "description": "Document types supported by this app. Requires setting `event_handler` too. Requires macOS 10.14.4 or above.",
           "type": "array",
           "items": {
             "$ref": "#/definitions/CFBundleDocumentTypesModel"
@@ -556,7 +556,7 @@
         },
         "LSMinimumSystemVersion": {
           "title": "Lsminimumsystemversion",
-          "description": "Minimum version of macOS required for this app to run, as ``x.y.z``.\nFor example, for macOS v10.4 and later, use ``10.4.0``.",
+          "description": "Minimum version of macOS required for this app to run, as ``x.y.z``. For example, for macOS v10.4 and later, use ``10.4.0``.",
           "pattern": "^\\d+\\.\\d+\\.\\d+$",
           "type": "string"
         },
@@ -567,7 +567,7 @@
         },
         "LSRequiresNativeExecution": {
           "title": "Lsrequiresnativeexecution",
-          "description": "If true, prevent a universal binary from being run under\nRosetta emulation on an Intel-based Mac.",
+          "description": "If true, prevent a universal binary from being run under Rosetta emulation on an Intel-based Mac.",
           "type": "boolean"
         },
         "NSSupportsAutomaticGraphicsSwitching": {
@@ -593,7 +593,7 @@
         },
         "entitlements": {
           "title": "Entitlements",
-          "description": "List of permissions to request for the launched application. See `the entitlements docs\n<https://developer.apple.com/documentation/bundleresources/entitlements>`__ for a full\nlist of possible values.",
+          "description": "List of permissions to request for the launched application. See `the entitlements docs <https://developer.apple.com/documentation/bundleresources/entitlements>`__ for a full list of possible values.",
           "type": "array",
           "items": {
             "type": "string",
@@ -602,7 +602,7 @@
         },
         "link_in_bundle": {
           "title": "Link In Bundle",
-          "description": "Paths that should be symlinked into the shortcut app bundle.\nIt takes a mapping of source to destination paths. Destination paths must be\nrelative. Placeholder ``{{ MENU_ITEM_LOCATION }}`` can be useful.",
+          "description": "Paths that should be symlinked into the shortcut app bundle. It takes a mapping of source to destination paths. Destination paths must be relative. Placeholder ``{{ MENU_ITEM_LOCATION }}`` can be useful.",
           "type": "object",
           "additionalProperties": {
             "type": "string",
@@ -611,7 +611,7 @@
         },
         "event_handler": {
           "title": "Event Handler",
-          "description": "Required shell script logic to handle opened URL payloads.\nNote this feature requires macOS 10.14.4 or above.",
+          "description": "Required shell script logic to handle opened URL payloads. Note this feature requires macOS 10.14.4 or above.",
           "minLength": 1,
           "type": "string"
         }
@@ -625,7 +625,7 @@
       "properties": {
         "name": {
           "title": "Name",
-          "description": "The name of the menu item. Can be a dictionary if the name depends on\ninstallation parameters. See :class:`MenuItemNameDict` for details.",
+          "description": "The name of the menu item. Can be a dictionary if the name depends on installation parameters. See :class:`MenuItemNameDict` for details.",
           "anyOf": [
             {
               "type": "string",
@@ -649,7 +649,7 @@
         },
         "command": {
           "title": "Command",
-          "description": "Command to run with the menu item, expressed as a\nlist of strings where each string is an argument.",
+          "description": "Command to run with the menu item, expressed as a list of strings where each string is an argument.",
           "minItems": 1,
           "type": "array",
           "items": {
@@ -658,13 +658,13 @@
         },
         "working_dir": {
           "title": "Working Dir",
-          "description": "Working directory for the running process.\nDefaults to user directory on each platform.",
+          "description": "Working directory for the running process. Defaults to user directory on each platform.",
           "minLength": 1,
           "type": "string"
         },
         "precommand": {
           "title": "Precommand",
-          "description": "(Simple, preferrably single-line) logic to run before the command is run.\nRuns before the environment is activated, if that applies.",
+          "description": "(Simple, preferrably single-line) logic to run before the command is run. Runs before the environment is activated, if that applies.",
           "minLength": 1,
           "type": "string"
         },
@@ -681,7 +681,7 @@
         },
         "terminal": {
           "title": "Terminal",
-          "description": "Whether run the program in a terminal/console or not.\nOn Windows, it only has an effect if ``activate`` is true.\nOn MacOS, the application will ignore command-line arguments.",
+          "description": "Whether run the program in a terminal/console or not. On Windows, it only has an effect if ``activate`` is true. On MacOS, the application will ignore command-line arguments.",
           "type": "boolean"
         },
         "desktop": {
@@ -699,7 +699,7 @@
         },
         "terminal_profile": {
           "title": "Terminal Profile",
-          "description": "Name of the Windows Terminal profile to create.\nThis name must be unique across multiple installations because\nmenuinst will overwrite Terminal profiles with the same name.",
+          "description": "Name of the Windows Terminal profile to create. This name must be unique across multiple installations because menuinst will overwrite Terminal profiles with the same name.",
           "minLength": 1,
           "type": "string"
         },
@@ -723,7 +723,7 @@
         },
         "app_user_model_id": {
           "title": "App User Model Id",
-          "description": "Identifier used in Windows 7 and above to associate processes, files and windows with a\nparticular application. If your shortcut produces duplicated icons, you need to define\nthis field. If not set, it will default to ``Menuinst.<name>``.\n\nSee `AppUserModelID docs\n<https://learn.microsoft.com/en-us/windows/win32/shell/appids#how-to-form-an-application-defined-appusermodelid>`__\nfor more information on the required string format.",
+          "description": "Identifier used in Windows 7 and above to associate processes, files and windows with a particular application. If your shortcut produces duplicated icons, you need to define this field. If not set, it will default to ``Menuinst.<name>``.\n\nSee `AppUserModelID docs <https://learn.microsoft.com/en-us/windows/win32/shell/appids#how-to-form-an-application-defined-appusermodelid>`__ for more information on the required string format.",
           "maxLength": 128,
           "pattern": "\\S+\\.\\S+",
           "type": "string"
@@ -773,7 +773,7 @@
       "properties": {
         "name": {
           "title": "Name",
-          "description": "The name of the menu item. Can be a dictionary if the name depends on\ninstallation parameters. See :class:`MenuItemNameDict` for details.",
+          "description": "The name of the menu item. Can be a dictionary if the name depends on installation parameters. See :class:`MenuItemNameDict` for details.",
           "anyOf": [
             {
               "type": "string",
@@ -791,7 +791,7 @@
         },
         "command": {
           "title": "Command",
-          "description": "Command to run with the menu item, expressed as a\nlist of strings where each string is an argument.",
+          "description": "Command to run with the menu item, expressed as a list of strings where each string is an argument.",
           "minItems": 1,
           "type": "array",
           "items": {
@@ -806,7 +806,7 @@
         },
         "precommand": {
           "title": "Precommand",
-          "description": "(Simple, preferrably single-line) logic to run before the command is run.\nRuns before the environment is activated, if that applies.",
+          "description": "(Simple, preferrably single-line) logic to run before the command is run. Runs before the environment is activated, if that applies.",
           "minLength": 1,
           "type": "string"
         },
@@ -818,7 +818,7 @@
         },
         "working_dir": {
           "title": "Working Dir",
-          "description": "Working directory for the running process.\nDefaults to user directory on each platform.",
+          "description": "Working directory for the running process. Defaults to user directory on each platform.",
           "minLength": 1,
           "type": "string"
         },
@@ -830,13 +830,13 @@
         },
         "terminal": {
           "title": "Terminal",
-          "description": "Whether run the program in a terminal/console or not.\nOn Windows, it only has an effect if ``activate`` is true.\nOn MacOS, the application will ignore command-line arguments.",
+          "description": "Whether run the program in a terminal/console or not. On Windows, it only has an effect if ``activate`` is true. On MacOS, the application will ignore command-line arguments.",
           "default": false,
           "type": "boolean"
         },
         "platforms": {
           "title": "Platforms",
-          "description": "Platform-specific options. Presence of a platform field enables\nmenu items in that platform.",
+          "description": "Platform-specific options. Presence of a platform field enables menu items in that platform.",
           "allOf": [
             {
               "$ref": "#/definitions/Platforms"
