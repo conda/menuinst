@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import os
 import re
 import shlex
@@ -196,7 +198,7 @@ class UnixLex:
         return quoted
 
 
-def unlink(path: os.PathLike, missing_ok: bool = False):
+def unlink(path: str | os.PathLike, missing_ok: bool = False):
     try:
         os.unlink(path)
     except FileNotFoundError as exc:
@@ -204,7 +206,7 @@ def unlink(path: os.PathLike, missing_ok: bool = False):
             raise exc
 
 
-def data_path(path: os.PathLike) -> Path:
+def data_path(path: str | os.PathLike) -> Path:
     here = Path(__file__).parent
     return here / "data" / path
 
