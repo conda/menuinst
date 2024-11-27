@@ -125,13 +125,15 @@ sitemap_url_scheme = "{link}"
 # Custom hooks
 os.environ["SPHINX_RUNNING"] = "1"
 
+
 def docstring(app, what, name, obj, options, lines):
     """Transform MD to RST for autodoc"""
-    md  = '\n'.join(lines)
+    md = '\n'.join(lines)
     ast = commonmark.Parser().parse(md)
     rst = commonmark.ReStructuredTextRenderer().render(ast)
     lines.clear()
     lines += rst.splitlines()
+
 
 def setup(app):
     app.connect('autodoc-process-docstring', docstring)

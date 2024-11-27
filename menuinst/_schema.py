@@ -16,11 +16,13 @@ from typing import Dict, List, Literal, Optional, Union
 
 try:
     from pydantic.v1 import BaseModel as _BaseModel
-    from pydantic.v1 import Field as _Field, conlist, constr
+    from pydantic.v1 import Field as _Field
+    from pydantic.v1 import conlist, constr
 except ImportError:
     # pydantic v1
     from pydantic import BaseModel as _BaseModel
-    from pydantic import Field as _Field, conlist, constr
+    from pydantic import Field as _Field
+    from pydantic import conlist, constr
 
 
 log = getLogger(__name__)
@@ -505,7 +507,9 @@ class MacOS(BasePlatformSpecific):
     )
     LSApplicationCategoryType: Optional[constr(regex=r"^public\.app-category\.\S+$")] = Field(
         None,
-        description=("The App Store uses this string to determine the appropriate categorization."),
+        description=(
+            "The App Store uses this string to determine the appropriate categorization."
+        ),
     )
     LSBackgroundOnly: Optional[bool] = Field(
         None,
@@ -546,7 +550,8 @@ class MacOS(BasePlatformSpecific):
         description=("If true, allows an OpenGL app to utilize the integrated GPU."),
     )
     UTExportedTypeDeclarations: Optional[List[UTTypeDeclarationModel]] = Field(
-        None, description=("The uniform type identifiers owned and exported by the app."),
+        None,
+        description=("The uniform type identifiers owned and exported by the app."),
     )
     UTImportedTypeDeclarations: Optional[List[UTTypeDeclarationModel]] = Field(
         None,
