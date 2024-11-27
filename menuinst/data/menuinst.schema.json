@@ -50,7 +50,7 @@
   "definitions": {
     "MenuItemNameDict": {
       "title": "MenuItemNameDict",
-      "description": "Variable menu item name.\nUse this dictionary if the menu item name depends on installation parameters\nsuch as the target environment.",
+      "description": "Variable menu item name. Use this dictionary if the menu item name depends on installation parameters such as the target environment.",
       "type": "object",
       "properties": {
         "target_environment_is_base": {
@@ -69,11 +69,11 @@
         }
       },
       "additionalProperties": false,
-      "markdownDescription": "Variable menu item name.\nUse this dictionary if the menu item name depends on installation parameters\nsuch as the target environment."
+      "markdownDescription": "Variable menu item name. Use this dictionary if the menu item name depends on installation parameters such as the target environment."
     },
     "Linux": {
       "title": "Linux",
-      "description": "Linux-specific instructions.\n\nCheck the [Desktop entry specification](\nhttps://specifications.freedesktop.org/desktop-entry-spec/latest/recognized-keys.html)\nfor more details.",
+      "description": "Linux-specific instructions.\n\nCheck the [Desktop entry specification]( https://specifications.freedesktop.org/desktop-entry-spec/latest/recognized-keys.html) for more details.",
       "type": "object",
       "properties": {
         "name": {
@@ -314,7 +314,7 @@
         }
       },
       "additionalProperties": false,
-      "markdownDescription": "Linux-specific instructions.\n\nCheck the [Desktop entry specification](\nhttps://specifications.freedesktop.org/desktop-entry-spec/latest/recognized-keys.html)\nfor more details."
+      "markdownDescription": "Linux-specific instructions.\n\nCheck the [Desktop entry specification]( https://specifications.freedesktop.org/desktop-entry-spec/latest/recognized-keys.html) for more details."
     },
     "CFBundleURLTypesModel": {
       "title": "CFBundleURLTypesModel",
@@ -478,7 +478,7 @@
     },
     "MacOS": {
       "title": "MacOS",
-      "description": "Mac-specific instructions. Check these URLs for more info:\n\n- `CF*` keys: see [Core Foundation Keys](https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html)\n- `LS*` keys: see [Launch Services Keys](https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/LaunchServicesKeys.html)\n- `entitlements`: see [Entitlements documentation](https://developer.apple.com/documentation/bundleresources/entitlements)",
+      "description": "Mac-specific instructions. Check these URLs for more info:\n\n- `CF*` keys: see [Core Foundation Keys](https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html) - `LS*` keys: see [Launch Services Keys](https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/LaunchServicesKeys.html) - `entitlements`: see [Entitlements documentation](https://developer.apple.com/documentation/bundleresources/entitlements)",
       "type": "object",
       "properties": {
         "name": {
@@ -696,7 +696,7 @@
         }
       },
       "additionalProperties": false,
-      "markdownDescription": "Mac-specific instructions. Check these URLs for more info:\n\n- `CF*` keys: see [Core Foundation Keys](https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html)\n- `LS*` keys: see [Launch Services Keys](https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/LaunchServicesKeys.html)\n- `entitlements`: see [Entitlements documentation](https://developer.apple.com/documentation/bundleresources/entitlements)"
+      "markdownDescription": "Mac-specific instructions. Check these URLs for more info:\n\n- `CF*` keys: see [Core Foundation Keys](https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html) - `LS*` keys: see [Launch Services Keys](https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/LaunchServicesKeys.html) - `entitlements`: see [Entitlements documentation](https://developer.apple.com/documentation/bundleresources/entitlements)"
     },
     "Windows": {
       "title": "Windows",
@@ -829,7 +829,7 @@
     },
     "Platforms": {
       "title": "Platforms",
-      "description": "Platform specific options.\n\nNote each of these fields supports the same keys as the top-level `MenuItem`\n(sans `platforms` itself), in case overrides are needed.",
+      "description": "Platform specific options.\n\nNote each of these fields supports the same keys as the top-level `MenuItem` (sans `platforms` itself), in case overrides are needed.",
       "type": "object",
       "properties": {
         "linux": {
@@ -864,7 +864,7 @@
         }
       },
       "additionalProperties": false,
-      "markdownDescription": "Platform specific options.\n\nNote each of these fields supports the same keys as the top-level `MenuItem`\n(sans `platforms` itself), in case overrides are needed."
+      "markdownDescription": "Platform specific options.\n\nNote each of these fields supports the same keys as the top-level `MenuItem` (sans `platforms` itself), in case overrides are needed."
     },
     "MenuItem": {
       "title": "MenuItem",

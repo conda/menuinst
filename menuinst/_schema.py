@@ -47,7 +47,9 @@ class BaseModel(_BaseModel):
         @staticmethod
         def schema_extra(schema, model):
             if description := schema.get("description"):
-                schema.setdefault("markdownDescription", description)
+                description = _clean_description(description)
+                schema["description"] = description
+                schema["markdownDescription"] = description
 
 
 def Field(*args, **kwargs):
