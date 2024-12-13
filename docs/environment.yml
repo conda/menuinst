@@ -13,6 +13,7 @@ dependencies:
   - cffi=1.15.1
   - charset-normalizer=2.1.1
   - colorama=0.4.6
+  - commonmark=0.9.1
   - cryptography=38.0.3
   - docutils=0.19
   - idna=3.4
