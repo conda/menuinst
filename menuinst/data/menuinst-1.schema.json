@@ -8,7 +8,7 @@
       "description": "DEPRECATED. Use ``$schema``.",
       "default": "https://schemas.conda.org/menuinst-1.schema.json",
       "deprecated": true,
-      "markdownDescription": "DEPRECATED. Use `$schema`.",
+      "markdownDescription": "DEPRECATED. Use ``$schema``.",
       "minLength": 1,
       "type": "string"
     },
