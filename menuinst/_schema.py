@@ -27,7 +27,8 @@ except ImportError:
 
 log = getLogger(__name__)
 SCHEMA_DIALECT = "http://json-schema.org/draft-07/schema#"
-SCHEMA_VERSION = "1"
+# We follow schemaver
+SCHEMA_VERSION = "1-1-0"
 SCHEMA_URL = f"https://schemas.conda.org/menuinst-{SCHEMA_VERSION}.schema.json"
 
 
@@ -702,6 +703,7 @@ class MenuInstSchema(BaseModel):
         schema_extra = {
             "$schema": SCHEMA_DIALECT,
             "$id": SCHEMA_URL,
+            "$version": SCHEMA_VERSION,
         }
 
     id_: constr(min_length=1) = Field(
@@ -712,7 +714,7 @@ class MenuInstSchema(BaseModel):
     )
     schema_: constr(min_length=1) = Field(
         SCHEMA_URL,
-        description="Version of the menuinst schema.",
+        description="Version of the menuinst schema to validate against.",
         alias="$schema",
     )
     menu_name: constr(min_length=1) = Field(

@@ -52,12 +52,11 @@ myst_enable_extensions = [
     "tasklist",
 ]
 myst_linkify_fuzzy_links = False
-default_config_payload = json.dumps(
-    json.loads(
-        (Path(__file__).parents[2] / "menuinst" / "data" / "menuinst.default.json").read_text()
-    ),
-    indent=2,
-)
+latest_default = sorted(
+    (Path(__file__).parents[2] / "menuinst" / "data").glob("*-*.default.json"),
+    key=lambda path: [int(x) for x in path.name.split(".")[0].rsplit("-", 3)[-3:]],
+)[-1]
+default_config_payload = json.dumps(json.loads(latest_default.read_text()), indent=2)
 myst_substitutions = {
     "default_schema_json": f"```json\n{default_config_payload}\n```",
 }

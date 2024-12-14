@@ -6,7 +6,7 @@
     "$id": {
       "title": "$Id",
       "description": "DEPRECATED. Use ``$schema``.",
-      "default": "https://schemas.conda.org/menuinst-1.schema.json",
+      "default": "https://schemas.conda.org/menuinst-1-1-0.schema.json",
       "deprecated": true,
       "markdownDescription": "DEPRECATED. Use ``$schema``.",
       "minLength": 1,
@@ -14,9 +14,9 @@
     },
     "$schema": {
       "title": "$Schema",
-      "description": "Version of the menuinst schema.",
-      "default": "https://schemas.conda.org/menuinst-1.schema.json",
-      "markdownDescription": "Version of the menuinst schema.",
+      "description": "Version of the menuinst schema to validate against.",
+      "default": "https://schemas.conda.org/menuinst-1-1-0.schema.json",
+      "markdownDescription": "Version of the menuinst schema to validate against.",
       "minLength": 1,
       "type": "string"
     },
@@ -44,7 +44,8 @@
   ],
   "additionalProperties": false,
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://schemas.conda.org/menuinst-1.schema.json",
+  "$id": "https://schemas.conda.org/menuinst-1-1-0.schema.json",
+  "$version": "1-1-0",
   "definitions": {
     "MenuItemNameDict": {
       "title": "MenuItemNameDict",
