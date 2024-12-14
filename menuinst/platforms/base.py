@@ -218,7 +218,7 @@ class MenuItem:
 
     @staticmethod
     def _initialize_on_defaults(data) -> Dict:
-        with open(data_path("menuinst.default.json")) as f:
+        with open(data_path(f"menuinst-{SCHEMA_VERSION}.default.json")) as f:
             defaults = json.load(f)["menu_items"][0]
 
         return deep_update(defaults, data)
