@@ -1,0 +1,19 @@
+### Enhancements
+
+* Version the JSON schema using SchemaVer. Current version is `1-1-0`. Previous versions are still available as `1-0-0` (as published in menuinst v2.0.0), `1-0-1` (as published in menuinst v2.1.0),  and `1-0-2` (as published in menuinst v2.2.0) (#288)
+
+### Bug fixes
+
+* <news item>
+
+### Deprecations
+
+* <news item>
+
+### Docs
+
+* <news item>
+
+### Other
+
+* <news item>
