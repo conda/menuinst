@@ -22,6 +22,7 @@ from ..utils import (
 )
 
 log = getLogger(__name__)
+SCHEMA_VERSION = "1-1-0"
 
 
 class Menu:
@@ -217,7 +218,7 @@ class MenuItem:
 
     @staticmethod
     def _initialize_on_defaults(data) -> Dict:
-        with open(data_path("menuinst.default.json")) as f:
+        with open(data_path(f"menuinst-{SCHEMA_VERSION}.default.json")) as f:
             defaults = json.load(f)["menu_items"][0]
 
         return deep_update(defaults, data)
@@ -266,5 +267,5 @@ def platform_key(platform: str = sys.platform) -> str:
 
 
 menuitem_defaults = json.loads(
-    (Path(__file__).parents[1] / "data" / "menuinst.default.json").read_text()
+    (Path(__file__).parents[1] / "data" / f"menuinst-{SCHEMA_VERSION}.default.json").read_text()
 )["menu_items"][0]
