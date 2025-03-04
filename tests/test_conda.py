@@ -12,7 +12,7 @@ from tempfile import NamedTemporaryFile
 
 import pytest
 from conda.models.version import VersionOrder
-from conda.testing.fixtures import conda_cli
+from conda.testing import conda_cli
 from conftest import BASE_PREFIX, DATA, PLATFORM
 
 from menuinst._schema import validate
