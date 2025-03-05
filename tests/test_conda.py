@@ -12,7 +12,6 @@ from tempfile import NamedTemporaryFile
 
 import pytest
 from conda.models.version import VersionOrder
-from conda.testing.integration import run_command
 from conftest import BASE_PREFIX, DATA, PLATFORM
 
 from menuinst._schema import validate
@@ -25,14 +24,16 @@ ENV_VARS = {
 }
 ENV_VARS["CONDA_VERBOSITY"] = "3"
 
+pytest_plugins = ["conda.testing.fixtures"]
+
 
 @contextmanager
-def new_environment(tmpdir, *packages):
+def new_environment(tmpdir, conda_cli, *packages):
     try:
         prefix = str(tmpdir / "prefix")
         print("--- CREATING", prefix, "---")
-        stdout, stderr, retcode = run_command(
-            "create", prefix, "-y", "--offline", *[str(p) for p in packages]
+        stdout, stderr, retcode = conda_cli(
+            "create", "-p", prefix, "-y", "--offline", *[str(p) for p in packages]
         )
         assert not retcode
         for stream in (stdout, stderr):
@@ -44,7 +45,7 @@ def new_environment(tmpdir, *packages):
         yield prefix
     finally:
         print("--- REMOVING", prefix, "---")
-        stdout, stderr, retcode = run_command("remove", prefix, "--offline", "--all")
+        stdout, stderr, retcode = conda_cli("remove", "-p", prefix, "--offline", "--all", "-y")
         assert not retcode
         for stream in (stdout, stderr):
             if "menuinst Exception" in stream:
@@ -54,7 +55,7 @@ def new_environment(tmpdir, *packages):
 
 
 @contextmanager
-def install_package_1(tmpdir):
+def install_package_1(tmpdir, conda_cli):
     """
     This package is shipped with the test data and contains two menu items.
 
@@ -63,7 +64,9 @@ def install_package_1(tmpdir):
     means that the first shortcut will successfully echo the prefix path,
     while the second one will be empty (Windows) or "N/A" (Unix).
     """
-    with new_environment(tmpdir, DATA / "pkgs" / "noarch" / "package_1-0.1-0.tar.bz2") as prefix:
+    with new_environment(
+        tmpdir, conda_cli, DATA / "pkgs" / "noarch" / "package_1-0.1-0.tar.bz2"
+    ) as prefix:
         menu_file = Path(prefix) / "Menu" / "package_1.json"
         with open(menu_file) as f:
             meta = json.load(f)
@@ -79,13 +82,13 @@ def test_conda_recent_enough():
 
 
 @pytest.mark.skipif(PLATFORM != "linux", reason="Linux only")
-def test_package_1_linux(tmpdir):
+def test_package_1_linux(tmpdir, conda_cli):
     applications_menu = Path(tmpdir) / "config" / "menus" / "applications.menu"
     if applications_menu.is_file():
         original_xml = applications_menu.read_text()
     else:
         original_xml = None
-    with install_package_1(tmpdir) as (prefix, menu_file):
+    with install_package_1(tmpdir, conda_cli) as (prefix, menu_file):
         meta = validate(menu_file)
         menu = Menu(meta.menu_name, str(prefix), BASE_PREFIX)
         menu_items = [item.dict() for item in meta.menu_items]
@@ -112,8 +115,8 @@ def test_package_1_linux(tmpdir):
 
 
 @pytest.mark.skipif(PLATFORM != "osx", reason="MacOS only")
-def test_package_1_osx(tmpdir):
-    with install_package_1(tmpdir) as (prefix, menu_file):
+def test_package_1_osx(tmpdir, conda_cli):
+    with install_package_1(tmpdir, conda_cli) as (prefix, menu_file):
         meta = validate(menu_file)
         menu_items = [item.dict() for item in meta.menu_items]
         menu = Menu(meta.menu_name, str(prefix), BASE_PREFIX)
@@ -139,8 +142,8 @@ def test_package_1_osx(tmpdir):
 
 
 @pytest.mark.skipif(PLATFORM != "win", reason="Windows only")
-def test_package_1_windows(tmpdir):
-    with install_package_1(tmpdir) as (prefix, menu_file):
+def test_package_1_windows(tmpdir, conda_cli):
+    with install_package_1(tmpdir, conda_cli) as (prefix, menu_file):
         meta = validate(menu_file)
         menu = Menu(meta.menu_name, str(prefix), BASE_PREFIX)
         menu_items = [item.dict() for item in meta.menu_items]
