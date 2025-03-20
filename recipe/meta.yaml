@@ -30,7 +30,8 @@ requirements:
   host:
     - python
     - pip
-    - setuptools
+    - setuptools >=45
+    - setuptools_scm >=6.2
   run:
     - python
 
