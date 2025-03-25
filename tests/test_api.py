@@ -147,7 +147,7 @@ def test_install_prefix(delete_files):
 
 
 @pytest.mark.skipif(PLATFORM != "Windows", reason="Only relevant on Windows")
-@pytest.mark.parameterize(
+@pytest.mark.parametrize(
     "json_path",
     [
         "sys-prefix.json",
