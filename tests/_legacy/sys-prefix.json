@@ -1,0 +1,15 @@
+{
+    "menu_name": "Sys Prefix",
+    "menu_items":
+    [
+    {
+        "name": "Sys Prefix",
+        "script": "${PREFIX}/python.exe",
+        "scriptarguments": [
+            "-c",
+            "import sys; f = open(r'__OUTPUT_FILE__', 'w'); f.write(sys.prefix); f.close()"
+        ],
+        "workdir": "${PERSONALDIR}"
+    }
+    ]
+}

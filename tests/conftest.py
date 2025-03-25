@@ -15,6 +15,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 os.environ["PYTEST_IN_USE"] = "1"
 DATA = Path(__file__).parent / "data"
+LEGACY = Path(__file__).parent / "_legacy"
 PLATFORM = platform_key()
 
 

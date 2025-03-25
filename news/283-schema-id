@@ -5,7 +5,7 @@
 ### Bug fixes
 
 * Use `$schema` to indicate which schema will validate the menuinst shortcut.
-  This means that menuinst shortcuts must now include a `$schema` key pointing to a URL containing the relevant menuinst JSON schema version. (#282 via #283)
+  This means that menuinst shortcuts must now include a `$schema` key pointing to a URL containing the relevant menuinst JSON schema version. (#282 via #283, #313)
 
 ### Deprecations
 
