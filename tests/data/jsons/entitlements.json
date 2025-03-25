@@ -1,27 +1,27 @@
 {
-    "$schema": "https://raw.githubusercontent.com/conda/menuinst/refs/heads/main/menuinst/data/menuinst.schema.json",
-    "menu_name": "Example with entitlements",
-    "menu_items": [
-        {
-            "name": "Example with entitlements on macOS",
-            "description": "This examples include entitlements on macOS, which require code signing.",
-            "icon": null,
-            "command": [
-                "echo",
-                "entitlements"
-            ],
-            "platforms": {
-                "osx": {
-                    "CFBundleName": "Entitlements",
-                    "CFBundleDisplayName": "My Example with entitlements on macOS",
-                    "entitlements": [
-                        "com.apple.security.files.user-selected.read-write"
-                    ],
-                    "LSEnvironment": {
-                        "example_var": "example_value"
-                    }
-                }
-            }
+  "$schema": "https://raw.githubusercontent.com/conda/menuinst/refs/heads/main/menuinst/data/menuinst.schema.json",
+  "menu_name": "Example with entitlements",
+  "menu_items": [
+    {
+      "name": "Example with entitlements on macOS",
+      "description": "This examples include entitlements on macOS, which require code signing.",
+      "icon": null,
+      "command": [
+        "echo",
+        "entitlements"
+      ],
+      "platforms": {
+        "osx": {
+          "CFBundleName": "Entitlements",
+          "CFBundleDisplayName": "My Example with entitlements on macOS",
+          "entitlements": [
+            "com.apple.security.files.user-selected.read-write"
+          ],
+          "LSEnvironment": {
+            "example_var": "example_value"
+          }
         }
-    ]
+      }
+    }
+  ]
 }

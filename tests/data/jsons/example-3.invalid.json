@@ -1,19 +1,19 @@
 {
-    "$schema": "https://raw.githubusercontent.com/conda/menuinst/refs/heads/main/menuinst/data/menuinst.schema.json",
-    "menu_name": "Example 2",
-    "menu_items": [
-        {
-            "name": "Example",
-            "description": "This is invalid because platforms.<os> cannot be a boolean",
-            "icon": null,
-            "command": [
-                "python",
-                "-m",
-                "this"
-            ],
-            "platforms": {
-                "win": false
-            }
-        }
-    ]
+  "$schema": "https://raw.githubusercontent.com/conda/menuinst/refs/heads/main/menuinst/data/menuinst.schema.json",
+  "menu_name": "Example 2",
+  "menu_items": [
+    {
+      "name": "Example",
+      "description": "This is invalid because platforms.<os> cannot be a boolean",
+      "icon": null,
+      "command": [
+        "python",
+        "-m",
+        "this"
+      ],
+      "platforms": {
+        "win": false
+      }
+    }
+  ]
 }

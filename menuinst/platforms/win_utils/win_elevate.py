@@ -17,7 +17,7 @@ from subprocess import list2cmdline
 
 
 def isUserAdmin():
-    if os.name != 'nt':
+    if os.name != "nt":
         raise RuntimeError("This function is only implemented on Windows.")
 
     import ctypes
@@ -32,11 +32,11 @@ def isUserAdmin():
 
 
 # Taken from conda/common/_os/windows.py
-if os.name == 'nt':
+if os.name == "nt":
 
     def ensure_binary(value):
         try:
-            return value.encode('utf-8')
+            return value.encode("utf-8")
         except AttributeError:  # pragma: no cover
             # AttributeError: '<>' object has no attribute 'encode'
             # In this case assume already binary type and do nothing
@@ -76,21 +76,21 @@ if os.name == 'nt':
         """
 
         _fields_ = [
-            ('cbSize', DWORD),
-            ('fMask', c_ulong),
-            ('hwnd', HWND),
-            ('lpVerb', c_char_p),
-            ('lpFile', c_char_p),
-            ('lpParameters', c_char_p),
-            ('lpDirectory', c_char_p),
-            ('nShow', c_int),
-            ('hInstApp', HINSTANCE),
-            ('lpIDList', c_void_p),
-            ('lpClass', c_char_p),
-            ('hKeyClass', HKEY),
-            ('dwHotKey', DWORD),
-            ('hIcon', HANDLE),
-            ('hProcess', HANDLE),
+            ("cbSize", DWORD),
+            ("fMask", c_ulong),
+            ("hwnd", HWND),
+            ("lpVerb", c_char_p),
+            ("lpFile", c_char_p),
+            ("lpParameters", c_char_p),
+            ("lpDirectory", c_char_p),
+            ("nShow", c_int),
+            ("hInstApp", HINSTANCE),
+            ("lpIDList", c_void_p),
+            ("lpClass", c_char_p),
+            ("hKeyClass", HKEY),
+            ("dwHotKey", DWORD),
+            ("hIcon", HANDLE),
+            ("hProcess", HANDLE),
         ]
 
         def __init__(self, **kwargs):
@@ -123,7 +123,7 @@ class SW(IntEnum):
 
 
 def runAsAdmin(cmdLine=None, wait=True):
-    if os.name != 'nt':
+    if os.name != "nt":
         raise RuntimeError("This function is only implemented on Windows.")
 
     python_exe = sys.executable
@@ -136,7 +136,7 @@ def runAsAdmin(cmdLine=None, wait=True):
     cmd = '"%s"' % (cmdLine[0],)
     params = list2cmdline(cmdLine[1:])
     showCmd = SW.HIDE
-    lpVerb = 'runas'  # causes UAC elevation prompt.
+    lpVerb = "runas"  # causes UAC elevation prompt.
 
     # ShellExecute() doesn't seem to allow us to fetch the PID or handle
     # of the process, so we can't get anything useful from it. Therefore
@@ -170,9 +170,9 @@ def runAsAdmin(cmdLine=None, wait=True):
     return rc
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     userIsAdmin = isUserAdmin()
     with open("output.txt", "a") as f:
-        print('userIsAdmin = %d' % (userIsAdmin), file=f)
+        print("userIsAdmin = %d" % (userIsAdmin), file=f)
     if not userIsAdmin:
         runAsAdmin([sys.executable] + sys.argv, wait=True)

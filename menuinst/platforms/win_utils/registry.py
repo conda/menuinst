@@ -213,7 +213,7 @@ def notify_shell_changes():
 
     https://discuss.python.org/t/is-there-a-library-to-change-windows-10-default-program-icon/5846/2
     """
-    shell32 = ctypes.OleDLL('shell32')
+    shell32 = ctypes.OleDLL("shell32")
     shell32.SHChangeNotify.restype = None
     event = 0x08000000  # SHCNE_ASSOCCHANGED
     flags = 0x0000  # SHCNF_IDLIST

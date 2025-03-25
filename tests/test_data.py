@@ -23,5 +23,5 @@ def test_defaults_are_up_to_date():
 
 def test_schema_versions_in_sync():
     assert SCHEMA_VERSION_BASE == SCHEMA_VERSION, (
-        "meninst._schema and menuinst.platforms.base must " "have the same 'SCHEMA_VERSION' value"
+        "meninst._schema and menuinst.platforms.base must have the same 'SCHEMA_VERSION' value"
     )

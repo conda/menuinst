@@ -186,8 +186,8 @@ class MacOSMenuItem(MenuItem):
                 [
                     'if [ "${__CFBundleIdentifier:-}" != "com.apple.Terminal" ]; then',
                     '    open -b com.apple.terminal "$0"',
-                    '    exit $?',
-                    'fi',
+                    "    exit $?",
+                    "fi",
                 ]
             )
 
@@ -268,13 +268,13 @@ class MacOSMenuItem(MenuItem):
 
     def _default_appkit_launcher_path(self, suffix: str = "") -> Path:
         name = self.render_key("name", slug=True)
-        return self.location / "Contents" / "MacOS" / f'{name}{suffix}'
+        return self.location / "Contents" / "MacOS" / f"{name}{suffix}"
 
     def _default_launcher_path(self, suffix: str = "") -> Path:
         name = self.render_key("name", slug=True)
         if self._needs_appkit_launcher:
-            return self._nested_location / "Contents" / "MacOS" / f'{name}{suffix}'
-        return self.location / "Contents" / "MacOS" / f'{name}{suffix}'
+            return self._nested_location / "Contents" / "MacOS" / f"{name}{suffix}"
+        return self.location / "Contents" / "MacOS" / f"{name}{suffix}"
 
     def _maybe_register_with_launchservices(self, register=True):
         if not self._needs_appkit_launcher:
