@@ -16,12 +16,7 @@ from menuinst._schema import BasePlatformSpecific, MenuItem, validate
 
 
 @pytest.mark.parametrize(
-    "path",
-    [
-        pytest.param(path, id=path.name)
-        for path in sorted((DATA / "jsons").glob("*.json"))
-        if "oldstyle" not in path.name
-    ],
+    "path", [pytest.param(path, id=path.name) for path in sorted((DATA / "jsons").glob("*.json"))]
 )
 def test_examples(path):
     if "invalid" in path.name:
