@@ -1,7 +1,6 @@
 import os
 
 import pytest
-
 from conftest import DATA, LEGACY
 
 if os.name != "nt":
