@@ -144,7 +144,7 @@ def _install_adapter(
     json_path = os.path.join(prefix, path)
     with open(json_path) as f:
         metadata = json.load(f)
-    if "$schema" not in metadata or "$id" not in metadata:  # old style JSON
+    if "$schema" not in metadata and "$id" not in metadata:  # old style JSON
         from ._legacy import install as _legacy_install
 
         if os.name == "nt":
