@@ -16,8 +16,7 @@ from xml.etree import ElementTree
 import pytest
 from conftest import DATA, PLATFORM
 
-from menuinst.api import _install_adapter
-from menuinst.api import install, remove
+from menuinst.api import _install_adapter, install, remove
 from menuinst.platforms.osx import _lsregister
 from menuinst.utils import DEFAULT_PREFIX, logged_run, slugify
 
@@ -45,7 +44,7 @@ def check_output_from_shortcut(
     action="run_shortcut",
     file_to_open=None,
     url_to_open=None,
-    install_func=install
+    install_func=install,
 ) -> Tuple[Path, Iterable[Path], str]:
     assert action in ("run_shortcut", "open_file", "open_url", None)
 
@@ -148,14 +147,17 @@ def test_install_prefix(delete_files):
 
 
 @pytest.mark.skipif(PLATFORM != "Windows", reason="Only relevant on Windows")
-@pytest.mark.parameterize("json_path", [
-    "sys-prefix.json",
-    "sys-prefix-oldstyle.json",
-])
+@pytest.mark.parameterize(
+    "json_path",
+    [
+        "sys-prefix.json",
+        "sys-prefix-oldstyle.json",
+    ],
+)
 def test_install_prefix_compat(delete_files, json_path):
     check_output_from_shortcut(
         delete_files, json_path, expected_output=sys.prefix, install_func=_install_adapter
-)
+    )
 
 
 def test_install_remove(tmp_path, delete_files):
