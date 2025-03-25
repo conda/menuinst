@@ -146,7 +146,7 @@ def test_install_prefix(delete_files):
     check_output_from_shortcut(delete_files, "sys-prefix.json", expected_output=sys.prefix)
 
 
-@pytest.mark.skipif(PLATFORM != "Windows", reason="Only relevant on Windows")
+@pytest.mark.skipif(PLATFORM != "win", reason="Only relevant on Windows")
 @pytest.mark.parametrize(
     "json_path",
     [
