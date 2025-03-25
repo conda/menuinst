@@ -2,6 +2,8 @@ import os
 
 import pytest
 
+from conftest import DATA, LEGACY
+
 if os.name != "nt":
     pytest.skip("Windows only", allow_module_level=True)
 
@@ -23,8 +25,8 @@ def test_import_paths():
 @pytest.mark.parametrize(
     "json_path",
     [
-        "sys-prefix.json",
-        "sys-prefix-oldstyle.json",
+        pytest.param(str(DATA / "jsons" / "sys-prefix.json"), id="v2"),
+        pytest.param(str(LEGACY / "sys-prefix.json"), id="v1"),
     ],
 )
 def test_install_prefix_compat(tmp_path, json_path):
