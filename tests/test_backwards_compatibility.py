@@ -32,5 +32,5 @@ def test_install_prefix_compat(tmp_path, json_path):
     from menuinst.api import _install_adapter
 
     (tmp_path / ".nonadmin").touch()
-    _install_adapter(json_path, prefix=tmp_path)
-    _install_adapter(json_path, remove=True, prefix=tmp_path)
+    _install_adapter(json_path, prefix=str(tmp_path))
+    _install_adapter(json_path, remove=True, prefix=str(tmp_path))
