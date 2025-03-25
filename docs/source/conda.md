@@ -74,7 +74,7 @@ With this JSON file:
 ```json
 {
     "$schema": "https://json-schema.org/draft-07/schema",
-    "$id": "https://schemas.conda.io/menuinst-1.schema.json",
+    "$id": "https://schemas.conda.org/menuinst/menuinst-1-1-0.schema.json",
     "menu_name": "my_application (__PKG_VERSION__)",
     "menu_items": ["..."]
 }

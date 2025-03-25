@@ -36,7 +36,7 @@ A minimal example to launch Python's `turtle` module would be:
 ```json
 {
   "$schema": "https://json-schema.org/draft-07/schema",
-  "$id": "https://schemas.conda.io/menuinst-1.schema.json",
+  "$id": "https://schemas.conda.org/menuinst/menuinst-1-1-0.schema.json",
   "menu_name": "Python {{ PY_VER }}",
   "menu_items": [
     {
@@ -77,7 +77,7 @@ is "Launch Turtle (turtle)". This was the default behavior of `menuinst` version
 ```json
 {
   "$schema": "https://json-schema.org/draft-07/schema",
-  "$id": "https://schemas.conda.io/menuinst-1.schema.json",
+  "$id": "https://schemas.conda.org/menuinst/menuinst-1-1-0.schema.json",
   "menu_name": "Python {{ PY_VER }}",
   "menu_items": [
     {
@@ -195,7 +195,7 @@ and the script executed directly.
 ```json
 {
   "$schema": "https://json-schema.org/draft-07/schema",
-  "$id": "https://schemas.conda.io/menuinst-1.schema.json",
+  "$id": "https://schemas.conda.org/menuinst/menuinst-1-1-0.schema.json",
   "name": "App",
   "menu_items": [
     "name": "Launch App"
@@ -220,7 +220,7 @@ by explicitly calling the wrapper:
 ```json
 {
   "$schema": "https://json-schema.org/draft-07/schema",
-  "$id": "https://schemas.conda.io/menuinst-1.schema.json",
+  "$id": "https://schemas.conda.org/menuinst/menuinst-1-1-0.schema.json",
   "name": "App",
   "menu_items": [
     "name": "Launch App"
