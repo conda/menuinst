@@ -1,29 +1,29 @@
 {
-    "$schema": "https://raw.githubusercontent.com/conda/menuinst/refs/heads/main/menuinst/data/menuinst.schema.json",
-    "menu_name": "Example with precommands",
-    "menu_items": [
-        {
-            "name": "Precommands",
-            "description": "This examples run some logic before activation.",
-            "icon": null,
-            "precommand": "export TEST_VAR=\"rhododendron and bees\"",
-            "command": [
-                "echo",
-                "$TEST_VAR"
-            ],
-            "platforms": {
-                "win": {
-                    "precommand": "set \"TEST_VAR=rhododendron and bees\"",
-                    "command": [
-                        "echo",
-                        "%TEST_VAR%>",
-                        "__OUTPUT_FILE__"
-                    ],
-                    "description": "A space is needed after the > redirection, but if it's added in the same argument, it will trigger extra quoting that will break the syntax."
-                },
-                "linux": {},
-                "osx": {}
-            }
-        }
-    ]
+  "$schema": "https://raw.githubusercontent.com/conda/menuinst/refs/heads/main/menuinst/data/menuinst.schema.json",
+  "menu_name": "Example with precommands",
+  "menu_items": [
+    {
+      "name": "Precommands",
+      "description": "This examples run some logic before activation.",
+      "icon": null,
+      "precommand": "export TEST_VAR=\"rhododendron and bees\"",
+      "command": [
+        "echo",
+        "$TEST_VAR"
+      ],
+      "platforms": {
+        "win": {
+          "precommand": "set \"TEST_VAR=rhododendron and bees\"",
+          "command": [
+            "echo",
+            "%TEST_VAR%>",
+            "__OUTPUT_FILE__"
+          ],
+          "description": "A space is needed after the > redirection, but if it's added in the same argument, it will trigger extra quoting that will break the syntax."
+        },
+        "linux": {},
+        "osx": {}
+      }
+    }
+  ]
 }

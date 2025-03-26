@@ -239,18 +239,18 @@ class LinuxMenuItem(MenuItem):
             "[Desktop Entry]",
             "Type=Application",
             "Encoding=UTF-8",
-            f'Name={self.render_key("name")}',
+            f"Name={self.render_key('name')}",
             f"Exec={self._command()}",
-            f'Terminal={str(self.render_key("terminal")).lower()}',
+            f"Terminal={str(self.render_key('terminal')).lower()}",
         ]
 
         icon = self.render_key("icon")
         if icon:
-            lines.append(f'Icon={self.render_key("icon")}')
+            lines.append(f"Icon={self.render_key('icon')}")
 
         description = self.render_key("description")
         if description:
-            lines.append(f'Comment={self.render_key("description")}')
+            lines.append(f"Comment={self.render_key('description')}")
 
         working_dir = self.render_key("working_dir")
         if working_dir:

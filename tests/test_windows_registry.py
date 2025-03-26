@@ -25,14 +25,14 @@ def test_file_extensions(tmp_path: Path, request):
         # This key is not normally cleaned up because another programs might
         # be using it, but since we know these are synthetic and made up,
         # we try not to pollute the registry too much
-        registry._reg_exe("delete", fr"HKCU\Software\Classes\.menuinst-{name}")
+        registry._reg_exe("delete", rf"HKCU\Software\Classes\.menuinst-{name}")
 
     request.addfinalizer(cleanup)
 
     registry.register_file_extension(
         extension=extension,
         identifier=identifier,
-        command=fr'cmd.exe /Q /D /V:ON /C "echo %1>{tmp_path}\output.txt"',
+        command=rf'cmd.exe /Q /D /V:ON /C "echo %1>{tmp_path}\output.txt"',
         mode="user",
     )
     input_file = tmp_path / f"input.menuinst-{name}"
@@ -72,7 +72,7 @@ def test_protocols(tmp_path):
     name = str(hash(str(tmp_path)))[:6]
     registry.register_url_protocol(
         protocol=f"menuinst-{name}",
-        command=fr'cmd.exe /Q /D /V:ON /C "echo %1>{tmp_path}\output.txt"',
+        command=rf'cmd.exe /Q /D /V:ON /C "echo %1>{tmp_path}\output.txt"',
         identifier=f"menuinst.protocol.menuinst-{name}",
         mode="user",
     )
