@@ -16,5 +16,5 @@
 
 ### Other
 
-* Use `ruff` for linting and formatting. (#315)
+* Use `ruff` for linting and formatting. (#315, #318)
 * Check and pretty-format JSON files. (#315)

@@ -26,23 +26,6 @@ where = ["."]
 include = ["menuinst*"]
 namespaces = true
 
-[tool.black]
-line-length = 99
-target-version = ['py38', 'py39', 'py310', 'py311']
-include = '\.pyi?$'
-exclude = '''
-^/(
-    (
-        menuinst/_legacy
-      | tests/_legacy
-    )/
-)
-'''
-
-[tool.isort]
-profile = "black"
-line_length = 99
-
 [tool.pyright]
 pythonPlatform = "All"
 
@@ -50,6 +33,15 @@ pythonPlatform = "All"
 line-length = 99
 exclude = [
   "_schema.py"
+]
+
+[tool.ruff.lint]
+# see https://docs.astral.sh/ruff/rules/
+select = [
+  "E",  # pycodestyle errors (part of flake8)
+  "F",  # pyflakes (part of flake8)
+  "I",  # isort
+  "W",  # pycodestyle warnings (part of flake8)
 ]
 
 [tool.vendoring]

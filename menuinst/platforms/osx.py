@@ -326,9 +326,9 @@ class MacOSMenuItem(MenuItem):
         If that key is absent or null, we assume the app has its own listener.
 
         See:
-        - https://developer.apple.com/library/archive/documentation/Carbon/Conceptual/LaunchServicesConcepts/LSCConcepts/LSCConcepts.html  # noqa
+        - https://developer.apple.com/library/archive/documentation/Carbon/Conceptual/LaunchServicesConcepts/LSCConcepts/LSCConcepts.html
         - The source code at /src/appkit-launcher in this repository
-        """
+        """  # noqa
         return bool(self.metadata.get("event_handler"))
 
 
