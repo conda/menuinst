@@ -21,7 +21,7 @@ from menuinst.platforms.osx import _lsregister
 from menuinst.utils import DEFAULT_PREFIX, logged_run, slugify
 
 
-def _poll_for_file_contents(path, timeout=10):
+def _poll_for_file_contents(path, timeout=30):
     t0 = time()
     while not os.path.isfile(path):
         sleep(1)
