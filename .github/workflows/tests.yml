@@ -73,7 +73,6 @@ jobs:
         run: |
           conda info
           conda list
-          env | sort
 
       - shell: bash -el {0}
         name: Install menuinst
