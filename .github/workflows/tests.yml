@@ -57,7 +57,9 @@ jobs:
         uses: conda-incubator/setup-miniconda@505e6394dae86d6a5c7fbb6e3fb8938e3e863830 #v3.1.1
         with:
           miniforge-version: latest
-          auto-activate-base: "false"
+          # Use base environment
+          auto-activate-base: "true"
+          activate-environment: ""
 
       - name: Add dependencies
         shell: bash -el {0}
@@ -71,6 +73,7 @@ jobs:
         run: |
           conda info
           conda list
+          env | sort
 
       - shell: bash -el {0}
         name: Install menuinst
@@ -81,7 +84,6 @@ jobs:
       - shell: bash -el {0}
         name: Run test suite
         run: |
-          env | sort
           python -I -m pytest tests/ --cov-append --cov-report=xml --cov=menuinst -vvv
 
       - uses: codecov/codecov-action@0565863a31f2c772f9f0395002a31e3f06189574 #v5.4.0
