@@ -57,10 +57,15 @@ jobs:
         uses: conda-incubator/setup-miniconda@505e6394dae86d6a5c7fbb6e3fb8938e3e863830 #v3.1.1
         with:
           miniforge-version: latest
+          # Use base environment
+          auto-activate-base: "true"
+          activate-environment: ""
 
       - name: Add dependencies
         shell: bash -el {0}
         run: |
+          # Clear history in base env so there are no pins
+          echo > "$CONDA_PREFIX/conda-meta/history"
           conda install -yq --solver libmamba \
             --file tests/requirements.txt \
             python=${{ matrix.python-version }}
