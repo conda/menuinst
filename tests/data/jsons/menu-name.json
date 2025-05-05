@@ -13,7 +13,7 @@
         "echo",
         "A"
       ],
-      "activate": true,
+      "activate": false,
       "platforms": {
         "win": {},
         "linux": {},
@@ -28,7 +28,7 @@
         "echo",
         "B"
       ],
-      "activate": true,
+      "activate": false,
       "platforms": {
         "win": {},
         "linux": {},
