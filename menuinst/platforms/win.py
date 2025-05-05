@@ -301,7 +301,7 @@ class WindowsMenuItem(MenuItem):
                     ]
                 elif filetype == ".env":
                     activation_script = activation_file.read_text().splitlines()
-                    activation_lines = ["@ECHO OFF"]
+                    activation_lines = []
                     for line in activation_script:
                         keyword, value = line.split("=", 1)
                         if keyword == "_CONDA_SCRIPT":
