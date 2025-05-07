@@ -115,7 +115,7 @@ def unregister_file_extension(extension, identifier, mode="user"):
                 )
             else:
                 winreg.DeleteValue(key, identifier)
-    except Exception as exc:
+    except Exception:
         log.debug("Could not check key '%s' for deletion", extension)
         return False
 
