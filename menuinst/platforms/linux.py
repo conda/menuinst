@@ -237,6 +237,11 @@ class LinuxMenuItem(MenuItem):
     def _command(self) -> str:
         parts = []
         precommand = self.render_key("precommand")
+        if isinstance(precommand, dict):
+            if self.menu.prefix.samefile(self.menu.base_prefix):
+                precommand = precommand.get("target_environment_is_base", "")
+            else:
+                precommand = precommand.get("target_environment_is_not_base", "")
         if precommand:
             parts.append(precommand)
         if self.metadata["activate"]:
@@ -246,8 +251,22 @@ class LinuxMenuItem(MenuItem):
             else:
                 activate = "shell.bash activate"
             parts.append(f'eval "$("{conda_exe}" {activate} "{self.menu.prefix}")"')
-        parts.append(" ".join(UnixLex.quote_args(self.render_key("command"))))
-        return "bash -c " + shlex.quote(" && ".join(parts))
+        command = self.render_key("command")
+        if isinstance(command, dict):
+            if self.menu.prefix.samefile(self.menu.base_prefix):
+                command = command.get("target_environment_is_base", "")
+            else:
+                command = command.get("target_environment_is_not_base", "")
+        parts.append(" ".join(UnixLex.quote_args(command)))
+        # `run_in_bash` is a linux-only key, so it is absent whenever the menu item
+        # carries no `platforms.linux` block at all.
+        run_in_bash = self.metadata.get("run_in_bash")
+        if run_in_bash is None:
+            run_in_bash = True
+        if run_in_bash:
+            return "bash -c " + shlex.quote(" && ".join(parts))
+        else:
+            return " && ".join(parts)
 
     def _write_desktop_file(self):
         if self.location.exists():
@@ -281,6 +300,15 @@ class LinuxMenuItem(MenuItem):
             value = self.render_key(key)
             if value is None:
                 continue
+            if isinstance(value, dict):
+                if self.menu.prefix.samefile(self.menu.base_prefix):
+                    value = value.get("target_environment_is_base", "")
+                else:
+                    value = value.get("target_environment_is_not_base", "")
+                if not value:
+                    raise ValueError(f"Cannot parse `{key}` from dictionary representation.")
+
+            # Now parse as bool/list/str
             if isinstance(value, bool):
                 value = str(value).lower()
             elif isinstance(value, (list, tuple)):

@@ -23,7 +23,7 @@ from pydantic.types import conlist
 log = getLogger(__name__)
 SCHEMA_DIALECT = "http://json-schema.org/draft-07/schema#"
 # We follow schemaver
-SCHEMA_VERSION = "1-1-3"
+SCHEMA_VERSION = "1-1-4"
 SCHEMA_URL = f"https://schemas.conda.org/menuinst-{SCHEMA_VERSION}.schema.json"
 
 
@@ -59,11 +59,11 @@ def Field(*args, **kwargs):
 NonEmptyString = Annotated[str, Field(min_length=1)]
 
 
-class MenuItemNameDict(BaseModel):
+class TargetIsBaseConStr(BaseModel):
     """
-    Variable menu item name.
-    Use this dictionary if the menu item name depends on installation parameters
-    such as the target environment.
+    Variable that depends on whether or not the the installation is in the base env.
+
+    This can help configure the menu item on if the system is in a base environment.
     """
 
     target_environment_is_base: Optional[NonEmptyString] = Field(
@@ -71,6 +71,23 @@ class MenuItemNameDict(BaseModel):
         description=("Name when target environment is the base environment."),
     )
     target_environment_is_not_base: Optional[NonEmptyString] = Field(
+        None,
+        description=("Name when target environment is not the base environment."),
+    )
+
+
+class TargetIsBaseConList(BaseModel):
+    """
+    Variable that depends on whether or not the the installation is in the base env.
+
+    This can help configure the menu item on if the system is in a base environment.
+    """
+
+    target_environment_is_base: Optional[conlist(str, min_length=1)] = Field(
+        None,
+        description=("Name when target environment is the base environment."),
+    )
+    target_environment_is_not_base: Optional[conlist(str, min_length=1)] = Field(
         None,
         description=("Name when target environment is not the base environment."),
     )
@@ -85,12 +102,12 @@ class BasePlatformSpecific(BaseModel):
     * Default value is always `None`.
     """
 
-    name: Optional[Union[NonEmptyString, MenuItemNameDict]] = Field(
+    name: Optional[Union[NonEmptyString, TargetIsBaseConStr]] = Field(
         None,
         description=(
             """
             The name of the menu item. Can be a dictionary if the name depends on
-            installation parameters. See `MenuItemNameDict` for details.
+            installation parameters. See `TargetIsBaseConStr` for details.
             """
         ),
     )
@@ -102,7 +119,7 @@ class BasePlatformSpecific(BaseModel):
         None,
         description=("Path to the file representing or containing the icon."),
     )
-    command: Optional[conlist(str, min_length=1)] = Field(
+    command: Optional[Union[conlist(str, min_length=1), TargetIsBaseConList]] = Field(
         None,
         description=(
             """
@@ -319,7 +336,7 @@ class Linux(BasePlatformSpecific):
             """
         ),
     )
-    StartupWMClass: Optional[str] = Field(
+    StartupWMClass: Optional[Union[str, TargetIsBaseConStr]] = Field(
         None,
         description=(
             """
@@ -328,7 +345,7 @@ class Linux(BasePlatformSpecific):
             """
         ),
     )
-    TryExec: Optional[str] = Field(
+    TryExec: Optional[Union[str, TargetIsBaseConStr]] = Field(
         None,
         description=(
             """
@@ -346,6 +363,10 @@ class Linux(BasePlatformSpecific):
             Only needed if you define custom MIME types in `MimeType`.
             """
         ),
+    )
+    run_in_bash: Optional[bool] = Field(
+        True,
+        description=("Whether to wrap `command` in a `bash -c` invocation."),
     )
 
 
@@ -661,12 +682,12 @@ class Platforms(BaseModel):
 class MenuItem(BaseModel):
     "Instructions to create a menu item across operating systems."
 
-    name: Union[NonEmptyString, MenuItemNameDict] = Field(
+    name: Union[NonEmptyString, TargetIsBaseConStr] = Field(
         ...,
         description=(
             """
             The name of the menu item. Can be a dictionary if the name depends on
-            installation parameters. See `MenuItemNameDict` for details.
+            installation parameters. See `TargetIsBaseConStr` for details.
             """
         ),
     )
@@ -674,7 +695,7 @@ class MenuItem(BaseModel):
         ...,
         description=("A longer description of the menu item. Shown on popup messages."),
     )
-    command: conlist(str, min_length=1) = Field(
+    command: Union[conlist(str, min_length=1), TargetIsBaseConList] = Field(
         ...,
         description=(
             """
