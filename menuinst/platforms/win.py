@@ -293,16 +293,15 @@ class WindowsMenuItem(MenuItem):
                 filetype = activation_file.suffix
                 if filetype == ".bat":
                     activator = (
-                        f'{self.menu.conda_exe} shell.cmd.exe activate "{self.menu.prefix}"'
+                        f'"{self.menu.conda_exe}" shell.cmd.exe activate "{self.menu.prefix}"'
                     )
                     activation_lines = [
                         f'@FOR /F "usebackq tokens=*" %%i IN (`{activator}`) do set "ACTIVATOR=%%i"',  # noqa
                         "@CALL %ACTIVATOR%",
                     ]
                 elif filetype == ".env":
-                    activation_script = activation_file.read_text().splitlines()
                     activation_lines = []
-                    for line in activation_script:
+                    for line in activation_file.read_text().splitlines():
                         keyword, value = line.split("=", 1)
                         if keyword == "_CONDA_SCRIPT":
                             activation_lines.append(f"@CALL {value}")
@@ -310,7 +309,7 @@ class WindowsMenuItem(MenuItem):
                             activation_lines.append(f'@SET "{keyword}={value}"')
                 else:
                     raise NotImplementedError(
-                        f"Menuinst cannot parse activation scripts of type {filetype}."
+                        f"Menuinst cannot parse activation scripts of type '{filetype}': '{activation_file}'"
                     )
                 activation_file.unlink()
             lines += [
