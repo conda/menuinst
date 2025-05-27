@@ -302,7 +302,7 @@ class WindowsMenuItem(MenuItem):
                 elif filetype == ".env":
                     activation_lines = []
                     for line in activation_file.read_text().splitlines():
-                        keyword, value = line.split("=", 1)
+                        keyword, value = line.strip().split("=", 1)
                         if keyword == "_CONDA_SCRIPT":
                             activation_lines.append(f"@CALL {value}")
                         else:
