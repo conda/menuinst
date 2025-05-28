@@ -269,8 +269,7 @@ class WindowsMenuItem(MenuItem):
         if precommand:
             lines.append(precommand)
         if self.metadata["activate"]:
-            conda_exe = self.menu.conda_exe
-            if self.menu._is_micromamba(conda_exe):
+            if self.menu._is_micromamba(self.menu.conda_exe):
                 activator = f'{self.menu.conda_exe} shell activate "{self.menu.prefix}"'
                 activation_lines = [
                     f'@FOR /F "usebackq tokens=*" %%i IN (`{activator}`) do set "ACTIVATOR=%%i"',
@@ -309,7 +308,7 @@ class WindowsMenuItem(MenuItem):
                             activation_lines.append(f'@SET "{keyword}={value}"')
                 else:
                     raise NotImplementedError(
-                        f"Menuinst cannot parse activation scripts of type '{filetype}': '{activation_file}'"
+                        f"Menuinst cannot parse activation scripts of type '{filetype}': '{activation_file}'"  # noqa
                     )
                 activation_file.unlink()
             lines += [
