@@ -23,7 +23,7 @@ concurrency:
 
 jobs:
   run_test_suite:
-    name: ${{ matrix.os }}-py${{ matrix.python-version }}${{ matrix.conda-version && format(-conda{0}, matrix.conda-version) }}
+    name: ${{ matrix.os }}-py${{ matrix.python-version }}${{ matrix.conda-version && format('-conda{0}', matrix.conda-version) }}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 60
     env:
