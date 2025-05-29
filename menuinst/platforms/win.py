@@ -281,13 +281,14 @@ class WindowsMenuItem(MenuItem):
                 # conda/shell/condabin/_conda_activate.bat. There is no direct activator for this
                 # filetype, so menuinst has to parse the file and add the activator to the
                 # activation script directly.
+                logged_run([self.menu.conda_exe, "--version"], check=True, log=True)
                 activator_cmd = [
                     str(self.menu.conda_exe),
                     "shell.cmd.exe",
                     "activate",
                     str(self.menu.prefix),
                 ]
-                activator_run = logged_run(activator_cmd, check=True, log=False)
+                activator_run = logged_run(activator_cmd, check=True, log=True)
                 activation_file = Path(activator_run.stdout.strip())
                 filetype = activation_file.suffix
                 if filetype == ".bat":
