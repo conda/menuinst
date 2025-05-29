@@ -106,11 +106,11 @@ class WindowsMenu(Menu):
 
     def _conda_exe_path_candidates(self):
         return (
-            self.base_prefix / "_conda.exe",
             Path(os.environ.get("CONDA_EXE", r"C:\oops\a_file_that_does_not_exist")),
+            Path(os.environ.get("MAMBA_EXE", r"C:\oops\a_file_that_does_not_exist")),
             self.base_prefix / "condabin" / "conda.bat",
             self.base_prefix / "bin" / "conda.bat",
-            Path(os.environ.get("MAMBA_EXE", r"C:\oops\a_file_that_does_not_exist")),
+            self.base_prefix / "_conda.exe",
             self.base_prefix / "condabin" / "micromamba.exe",
             self.base_prefix / "bin" / "micromamba.exe",
         )
