@@ -61,10 +61,15 @@ jobs:
         uses: conda-incubator/setup-miniconda@505e6394dae86d6a5c7fbb6e3fb8938e3e863830 #v3.1.1
         with:
           miniforge-version: latest
+          # Use base environment
+          auto-activate-base: "true"
+          activate-environment: ""
 
       - name: Add dependencies
         shell: bash -el {0}
         run: |
+          # Clear history in base env so there are no pins
+          echo > "$CONDA_PREFIX/conda-meta/history"
           conda install -yq --solver libmamba \
             --file tests/requirements.txt \
             ${{ matrix.conda-version && format('conda={0}', matrix.conda-version) }} \
@@ -87,7 +92,7 @@ jobs:
         run: |
           python -I -m pytest tests/ --cov-append --cov-report=xml --cov=menuinst -vvv
 
-      - uses: codecov/codecov-action@0565863a31f2c772f9f0395002a31e3f06189574 #v5.4.0
+      - uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 #v5.4.3
         with:
           name: ${{ matrix.os }}-py${{ matrix.python-version }}
           token: ${{ secrets.CODECOV_TOKEN }}  # required
@@ -131,7 +136,7 @@ jobs:
           fetch-depth: 0
 
       # Explicitly use Python 3.11 since each of the OSes has a different default Python
-      - uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38 #v5.4.0
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 #v5.6.0
         with:
           python-version: "3.11"
 
