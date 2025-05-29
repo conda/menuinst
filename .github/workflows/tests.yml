@@ -73,7 +73,7 @@ jobs:
           echo > "$CONDA_PREFIX/conda-meta/history"
           conda install -yq --solver libmamba \
             --file tests/requirements.txt \
-            ${{ matrix.conda-version != 'latest' && format('conda={0}', matrix.conda-version) }} \
+            ${{ matrix.conda-version != 'latest' && format('conda={0}', matrix.conda-version) || '' }} \
             python=${{ matrix.python-version }}
 
       - shell: bash -el {0}
