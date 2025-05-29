@@ -23,7 +23,7 @@ concurrency:
 
 jobs:
   run_test_suite:
-    name: ${{ matrix.os }}-py${{ matrix.python-version }}${{ matrix.conda-version && format('-conda{0}', matrix.conda-version) || '' }}
+    name: ${{ matrix.os }}-py${{ matrix.python-version }}${{ matrix.conda-version != 'latest' && format('-conda{0}', matrix.conda-version) || '' }}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 60
     env:
@@ -34,6 +34,7 @@ jobs:
       matrix:
         os: [windows-latest, ubuntu-latest, macos-13]
         python-version: ["3.9", "3.10", "3.11", "3.12"]
+        conda-version: [latest]
         include:
           - os: windows-latest
             python-version: "3.9"
@@ -72,7 +73,7 @@ jobs:
           echo > "$CONDA_PREFIX/conda-meta/history"
           conda install -yq --solver libmamba \
             --file tests/requirements.txt \
-            ${{ matrix.conda-version && format('conda={0}', matrix.conda-version) }} \
+            ${{ matrix.conda-version != 'latest' && format('conda={0}', matrix.conda-version) }} \
             python=${{ matrix.python-version }}
 
       - shell: bash -el {0}
