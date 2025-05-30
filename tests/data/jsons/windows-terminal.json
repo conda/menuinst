@@ -6,6 +6,7 @@
       "name": "A",
       "description": "Package A",
       "icon": null,
+      "activate": false,
       "command": [
         "testcommand_a.exe"
       ],
@@ -21,6 +22,7 @@
       "name": "B",
       "description": "Package B",
       "icon": null,
+      "activate": false,
       "command": [
         "testcommand_b.exe"
       ],
