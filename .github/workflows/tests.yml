@@ -23,7 +23,7 @@ concurrency:
 
 jobs:
   run_test_suite:
-    name: ${{ matrix.os }}-py${{ matrix.python-version }}${{ matrix.conda-version != 'latest' && format('-conda{0}', matrix.conda-version) || '' }}
+    name: ${{ matrix.os }}-py${{ matrix.python-version }}${{ matrix.miniforge-version != 'latest' && format('-miniforge-{0}', matrix.miniforge-version) || '' }}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 60
     env:
@@ -34,11 +34,12 @@ jobs:
       matrix:
         os: [windows-latest, ubuntu-latest, macos-13]
         python-version: ["3.9", "3.10", "3.11", "3.12"]
-        conda-version: [latest]
+        miniforge-version: [latest]
         include:
           - os: windows-latest
-            python-version: "3.9"
-            conda-version: "25.1.1"
+            python-version: "3.12"
+            # contains conda-standalone < 25.3.0
+            miniforge-version: "25.3.0-3"
         exclude:
           - os: macos-13
             python-version: "3.11"
@@ -73,7 +74,6 @@ jobs:
           echo > "$CONDA_PREFIX/conda-meta/history"
           conda install -yq --solver libmamba \
             --file tests/requirements.txt \
-            ${{ matrix.conda-version != 'latest' && format('conda={0}', matrix.conda-version) || '' }} \
             python=${{ matrix.python-version }}
 
       - shell: bash -el {0}
