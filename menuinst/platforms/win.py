@@ -269,16 +269,51 @@ class WindowsMenuItem(MenuItem):
         if precommand:
             lines.append(precommand)
         if self.metadata["activate"]:
-            conda_exe = self.menu.conda_exe
-            if self.menu._is_micromamba(conda_exe):
-                activate = "shell activate"
+            if self.menu._is_micromamba(self.menu.conda_exe):
+                activator = f'{self.menu.conda_exe} shell activate "{self.menu.prefix}"'
+                activation_lines = [
+                    f'@FOR /F "usebackq tokens=*" %%i IN (`{activator}`) do set "ACTIVATOR=%%i"',
+                    "@CALL %ACTIVATOR%",
+                ]
             else:
-                activate = "shell.cmd.exe activate"
-            activator = f'{self.menu.conda_exe} {activate} "{self.menu.prefix}"'
+                # conda >= 25.3.0 does not use .bat files to activate environments anymore.
+                # Instead, it produces .env files that are consumed inside
+                # conda/shell/condabin/_conda_activate.bat. There is no direct activator for this
+                # filetype, so menuinst has to parse the file and add the activator to the
+                # activation script directly.
+                activator_cmd = [
+                    str(self.menu.conda_exe),
+                    "shell.cmd.exe",
+                    "activate",
+                    str(self.menu.prefix),
+                ]
+                activator_run = logged_run(activator_cmd, check=True, log=False)
+                activation_file = Path(activator_run.stdout.strip())
+                filetype = activation_file.suffix
+                if filetype == ".bat":
+                    activator = (
+                        f'{self.menu.conda_exe} shell.cmd.exe activate "{self.menu.prefix}"'
+                    )
+                    activation_lines = [
+                        f'@FOR /F "usebackq tokens=*" %%i IN (`{activator}`) do set "ACTIVATOR=%%i"',  # noqa
+                        "@CALL %ACTIVATOR%",
+                    ]
+                elif filetype == ".env":
+                    activation_lines = []
+                    for line in activation_file.read_text().splitlines():
+                        keyword, value = line.strip().split("=", 1)
+                        if keyword == "_CONDA_SCRIPT":
+                            activation_lines.append(f"@CALL {value}")
+                        else:
+                            activation_lines.append(f'@SET "{keyword}={value}"')
+                else:
+                    raise NotImplementedError(
+                        f"Menuinst cannot parse activation scripts of type '{filetype}': '{activation_file}'"  # noqa
+                    )
+                activation_file.unlink()
             lines += [
                 "@SETLOCAL ENABLEDELAYEDEXPANSION",
-                f'@FOR /F "usebackq tokens=*" %%i IN (`{activator}`) do set "ACTIVATOR=%%i"',
-                "@CALL %ACTIVATOR%",
+                *activation_lines,
                 ":: This below is the user command",
             ]
 
