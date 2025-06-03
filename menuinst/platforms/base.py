@@ -8,7 +8,7 @@ from logging import getLogger
 from pathlib import Path
 from subprocess import check_output
 from tempfile import NamedTemporaryFile
-from typing import Any, Dict, Iterable, List, Mapping, Optional, Tuple
+from typing import Any, Dict, Iterable, List, Mapping, Optional
 
 from ..utils import (
     DEFAULT_BASE_PREFIX,
@@ -84,14 +84,14 @@ class Menu:
             "ICON_EXT": "png",
         }
 
-    def _conda_exe_path_candidates(self) -> Tuple[Path, ...]:
+    def _conda_exe_path_candidates(self) -> Dict[str, str]:
         return (
-            Path(os.environ.get("CONDA_EXE", "/oops/a_file_that_does_not_exist")),
-            Path(os.environ.get("MAMBA_EXE", "/oops/a_file_that_does_not_exist")),
-            self.base_prefix / "condabin" / "conda",
-            self.base_prefix / "bin" / "conda",
             self.base_prefix / "_conda.exe",
             self.base_prefix / "conda.exe",
+            Path(os.environ.get("CONDA_EXE", "/oops/a_file_that_does_not_exist")),
+            self.base_prefix / "condabin" / "conda",
+            self.base_prefix / "bin" / "conda",
+            Path(os.environ.get("MAMBA_EXE", "/oops/a_file_that_does_not_exist")),
             self.base_prefix / "condabin" / "micromamba",
             self.base_prefix / "bin" / "micromamba",
         )
