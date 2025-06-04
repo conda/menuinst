@@ -43,10 +43,9 @@ class LinuxMenu(Menu):
             ).expanduser()
 
         # XML Config paths
-        self.system_menu_config_location = (
-            self._system_config_directory / "menus" / "applications.menu"
-        )
-        self.menu_config_location = self.config_directory / "menus" / "applications.menu"
+        menu_fname = f"{os.environ.get('XDG_MENU_PREFIX', '')}applications.menu"
+        self.system_menu_config_location = self._system_config_directory / "menus" / menu_fname
+        self.menu_config_location = self.config_directory / "menus" / menu_fname
         # .desktop / .directory paths
         self.directory_entry_location = (
             self.data_directory
