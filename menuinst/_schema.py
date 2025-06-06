@@ -62,11 +62,11 @@ def Field(*args, **kwargs):
     return _Field(*args, **kwargs)
 
 
-class MenuItemNameDict(BaseModel):
+class TargetIsBaseConStr(BaseModel):
     """
-    Variable menu item name.
-    Use this dictionary if the menu item name depends on installation parameters
-    such as the target environment.
+    Variable that depends on whether or not the the installation is in the base env.
+
+    This can help configure the menu item on if the system is in a base environment.
     """
 
     target_environment_is_base: Optional[constr(min_length=1)] = Field(
@@ -78,6 +78,21 @@ class MenuItemNameDict(BaseModel):
         description=("Name when target environment is not the base environment."),
     )
 
+class TargetIsBaseConList(BaseModel):
+    """
+    Variable that depends on whether or not the the installation is in the base env.
+
+    This can help configure the menu item on if the system is in a base environment.
+    """
+
+    target_environment_is_base: Optional[conlist(str, min_items=1)] = Field(
+        None,
+        description=("Name when target environment is the base environment."),
+    )
+    target_environment_is_not_base: Optional[conlist(str, min_items=1)] = Field(
+        None,
+        description=("Name when target environment is not the base environment."),
+    )
 
 class BasePlatformSpecific(BaseModel):
     """
@@ -88,12 +103,12 @@ class BasePlatformSpecific(BaseModel):
     * Default value is always `None`.
     """
 
-    name: Optional[Union[constr(min_length=1), MenuItemNameDict]] = Field(
+    name: Optional[Union[constr(min_length=1), TargetIsBaseConStr]] = Field(
         None,
         description=(
             """
             The name of the menu item. Can be a dictionary if the name depends on
-            installation parameters. See `MenuItemNameDict` for details.
+            installation parameters. See `TargetIsBaseConStr` for details.
             """
         ),
     )
@@ -105,7 +120,7 @@ class BasePlatformSpecific(BaseModel):
         None,
         description=("Path to the file representing or containing the icon."),
     )
-    command: Optional[conlist(str, min_items=1)] = Field(
+    command: Optional[conlist(str, min_items=1), TargetIsBaseConList] = Field(
         None,
         description=(
             """
@@ -119,7 +134,7 @@ class BasePlatformSpecific(BaseModel):
         description=(
             """
             Working directory for the running process.
-            Defaults to user directory on each platform.
+            Defaults to user recipe/owl-mcam_viewer-menu-unix.jsondirectory on each platform.
             """
         ),
     )
@@ -322,7 +337,7 @@ class Linux(BasePlatformSpecific):
             """
         ),
     )
-    StartupWMClass: Optional[str] = Field(
+    StartupWMClass: Optional[str, TargetIsBaseConStr] = Field(
         None,
         description=(
             """
@@ -331,7 +346,7 @@ class Linux(BasePlatformSpecific):
             """
         ),
     )
-    TryExec: Optional[str] = Field(
+    TryExec: Optional[str, TargetIsBaseConStr] = Field(
         None,
         description=(
             """
@@ -349,6 +364,10 @@ class Linux(BasePlatformSpecific):
             Only needed if you define custom MIME types in `MimeType`.
             """
         ),
+    )
+    run_in_bash: Optional[bool] = Field(
+        True,
+        description=("Whether to activate the target environment before running `command`."),
     )
 
 
@@ -620,7 +639,7 @@ class Platforms(BaseModel):
 class MenuItem(BaseModel):
     "Instructions to create a menu item across operating systems."
 
-    name: Union[constr(min_length=1), MenuItemNameDict] = Field(
+    name: Union[constr(min_length=1), TargetIsBaseConStr] = Field(
         ...,
         description=(
             """
@@ -633,7 +652,7 @@ class MenuItem(BaseModel):
         ...,
         description=("A longer description of the menu item. Shown on popup messages."),
     )
-    command: conlist(str, min_items=1) = Field(
+    command: Union[conlist(str, min_items=1), TargetIsBaseConList] = Field(
         ...,
         description=(
             """
