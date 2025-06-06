@@ -50,17 +50,26 @@ class Menu:
         raise NotImplementedError
 
     def render(self, value: Any, slug: bool = False, extra: Dict = None) -> Any:
-        if not hasattr(value, "replace"):
-            return value
+        is_list = isinstance(value, list)
+        if not is_list:
+            value = [value]
         if extra:
             placeholders = {**self.placeholders, **extra}
         else:
             placeholders = self.placeholders
-        for placeholder, replacement in placeholders.items():
-            value = value.replace("{{ " + placeholder + " }}", replacement)
-        if slug:
-            value = slugify(value)
-        return value
+
+        final_values = []
+        for v in value:
+            if hasattr(v, "replace"):
+                for placeholder, replacement in placeholders.items():
+                    v = v.replace("{{ " + placeholder + " }}", replacement)
+                if slug:
+                    v = slugify(v)
+            final_values.append(v)
+        if not is_list:
+            return final_values[0]
+        else:
+            return final_values
 
     @property
     def placeholders(self) -> Dict[str, str]:
