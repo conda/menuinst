@@ -11,6 +11,7 @@
         "-c",
         "import sys; print(sys.prefix)"
       ],
+      "activate": false,
       "platforms": {
         "win": {
           "command": [
