@@ -3,7 +3,7 @@ channels:
   - conda-forge
 dependencies:
   - alabaster=0.7.12
-  - autodoc-pydantic=1.8.0
+  - autodoc-pydantic=2.1.0
   - babel=2.11.0
   - beautifulsoup4=4.11.1
   - brotlipy=0.7.0
@@ -35,7 +35,7 @@ dependencies:
   - packaging=21.3
   - pip=22.3.1
   - pycparser=2.21
-  - pydantic=1.10.4
+  - pydantic=2.11.7
   - pydata-sphinx-theme=0.12.0
   - pygments=2.13.0
   - pyopenssl=22.1.0
@@ -66,8 +66,8 @@ dependencies:
   - sphinxcontrib-serializinghtml=1.1.5
   - tk=8.6.12
   - tornado=6.2
-  - typing-extensions=4.4.0
-  - typing_extensions=4.4.0
+  - typing-extensions=4.14.0
+  - typing_extensions=4.14.0
   - tzdata=2022f
   - uc-micro-py=1.0.1
   - urllib3=1.26.13
