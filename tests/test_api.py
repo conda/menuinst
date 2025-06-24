@@ -17,6 +17,7 @@ import pytest
 from conftest import DATA, PLATFORM
 
 from menuinst.api import install, remove
+from menuinst.platforms import MenuItem
 from menuinst.platforms.osx import _lsregister
 from menuinst.utils import DEFAULT_PREFIX, logged_run, slugify
 
@@ -438,3 +439,17 @@ def test_vars_in_working_dir(tmp_path, monkeypatch, delete_files):
         assert expected_directory.exists()
     finally:
         remove(datafile, base_prefix=tmp_path, target_prefix=tmp_path)
+
+
+def test_platforms():
+    menu_item = MenuItem(
+        None,
+        {
+            "name": "",
+            "command": [],
+            "platforms": {"win": {}, "linux": None},
+        },
+    )
+    assert menu_item.enabled_for_platform("win32")
+    assert not menu_item.enabled_for_platform("linux")
+    assert not menu_item.enabled_for_platform("darwin")
