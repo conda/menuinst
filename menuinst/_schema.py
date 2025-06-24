@@ -52,7 +52,8 @@ class BaseModel(_BaseModel):
 
 def Field(*args, **kwargs):
     if description := kwargs.get("description"):
-        kwargs["description"] = kwargs["markdownDescription"] = _clean_description(description)
+        kwargs["description"] = _clean_description(description)
+        kwargs.setdefault("json_schema_extra", {})["markdownDescription"] = kwargs["description"]
     return _Field(*args, **kwargs)
 
 NonEmptyString = Annotated[str, Field(min_length=1)]
@@ -603,12 +604,15 @@ class Platforms(BaseModel):
     """
 
     linux: Optional[Linux] = Field(
+        None,
         description=("Options for Linux. See `Linux` model for details."),
     )
     osx: Optional[MacOS] = Field(
+        None,
         description=("Options for macOS. See `MacOS` model for details."),
     )
     win: Optional[Windows] = Field(
+        None,
         description=("Options for Windows. See `Windows` model for details."),
     )
 
@@ -725,7 +729,7 @@ class MenuInstSchema(BaseModel):
 
 
 def dump_schema_to_json(write=True):
-    schema = MenuInstSchema.schema()
+    schema = MenuInstSchema.model_json_schema()
     if write:
         here = Path(__file__).parent
         schema_str = json.dumps(schema, indent=2)
@@ -739,11 +743,15 @@ def dump_schema_to_json(write=True):
 def dump_default_to_json(write=True):
     here = Path(__file__).parent
     default_item = MenuItem(
-        name="REQUIRED", description="REQUIRED", command=["REQUIRED"], platforms={
-        "win": Windows().model_dump(),
-        "osx": MacOS().model_dump(),
-        "linux": Linux().model_dump(),
-    })
+        name="REQUIRED",
+        description="REQUIRED",
+        command=["REQUIRED"],
+        platforms={
+            "win": Windows().model_dump(),
+            "osx": MacOS().model_dump(),
+            "linux": Linux().model_dump(),
+        },
+    )
     default = MenuInstSchema(menu_name="REQUIRED", menu_items=[default_item]).model_dump()
     default["$schema"] = SCHEMA_URL
     default.pop("id_", None)

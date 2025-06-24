@@ -1196,6 +1196,7 @@
               "type": "null"
             }
           ],
+          "default": null,
           "description": "Options for Linux. See `Linux` model for details.",
           "markdownDescription": "Options for Linux. See `Linux` model for details."
         },
@@ -1208,6 +1209,7 @@
               "type": "null"
             }
           ],
+          "default": null,
           "description": "Options for macOS. See `MacOS` model for details.",
           "markdownDescription": "Options for macOS. See `MacOS` model for details."
         },
@@ -1220,15 +1222,11 @@
               "type": "null"
             }
           ],
+          "default": null,
           "description": "Options for Windows. See `Windows` model for details.",
           "markdownDescription": "Options for Windows. See `Windows` model for details."
         }
       },
-      "required": [
-        "linux",
-        "osx",
-        "win"
-      ],
       "title": "Platforms",
       "type": "object"
     },
