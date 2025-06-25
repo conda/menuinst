@@ -225,8 +225,7 @@ class MenuItem:
         data["platforms"] = {
             platform: value
             for platform, value in data.get("platforms", {}).items()
-            if platform in original.get("platforms", {})
-            and original.get("platforms", {}).get(platform) not in (None, False)
+            if original.get("platforms", {}).get(platform) not in (None, False)
         }
         return data
 
