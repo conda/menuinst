@@ -53,7 +53,7 @@ class Menu:
         raise NotImplementedError
 
     def render(self, value: Any, slug: bool = False, extra: dict | None = None) -> Any:
-        is_list = isinstance(value, list)
+        is_list = isinstance(value, (list, tuple))
         if not is_list:
             value = [value]
         if extra:
