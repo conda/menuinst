@@ -1,5 +1,7 @@
 """ """
 
+from __future__ import annotations
+
 import os
 import platform
 import plistlib
@@ -7,7 +9,6 @@ import shutil
 from hashlib import sha1
 from logging import getLogger
 from pathlib import Path
-from typing import Dict, Optional, Tuple
 
 from .. import data as _menuinst_data
 from ..utils import UnixLex, logged_run
@@ -17,14 +18,14 @@ log = getLogger(__name__)
 
 
 class MacOSMenu(Menu):
-    def create(self) -> Tuple:
+    def create(self) -> tuple[os.PathLike]:
         return self._paths()
 
-    def remove(self) -> Tuple:
+    def remove(self) -> tuple[os.PathLike]:
         return self._paths()
 
     @property
-    def placeholders(self) -> Dict[str, str]:
+    def placeholders(self) -> dict[str, str]:
         placeholders = super().placeholders
         placeholders.update(
             {
@@ -35,7 +36,7 @@ class MacOSMenu(Menu):
         )
         return placeholders
 
-    def _paths(self) -> Tuple:
+    def _paths(self) -> tuple:
         return ()
 
 
@@ -72,7 +73,7 @@ class MacOSMenuItem(MenuItem):
             rendered_dest.parent.mkdir(parents=True, exist_ok=True)
             os.symlink(self.render(src), rendered_dest)
 
-    def create(self) -> Tuple[Path]:
+    def create(self) -> tuple[Path]:
         if self.location.exists():
             message = (
                 f"App already exists at {self.location}. "
@@ -96,13 +97,13 @@ class MacOSMenuItem(MenuItem):
         self._sign_with_entitlements()
         return (self.location,)
 
-    def remove(self) -> Tuple[Path]:
+    def remove(self) -> tuple[Path]:
         log.debug("Removing %s", self.location)
         self._maybe_register_with_launchservices(register=False)
         shutil.rmtree(self.location, ignore_errors=True)
         return (self.location,)
 
-    def _create_application_tree(self) -> Tuple[Path]:
+    def _create_application_tree(self) -> tuple[Path]:
         paths = [
             self.location / "Contents" / "Resources",
             self.location / "Contents" / "MacOS",
@@ -212,21 +213,21 @@ class MacOSMenuItem(MenuItem):
 
         return "\n".join(lines)
 
-    def _write_appkit_launcher(self, launcher_path: Optional[os.PathLike] = None) -> os.PathLike:
+    def _write_appkit_launcher(self, launcher_path: os.PathLike | None = None) -> os.PathLike:
         if launcher_path is None:
             launcher_path = self._default_appkit_launcher_path()
         shutil.copy(self._find_appkit_launcher(), launcher_path)
         os.chmod(launcher_path, 0o755)
         return launcher_path
 
-    def _write_launcher(self, launcher_path: Optional[os.PathLike] = None) -> os.PathLike:
+    def _write_launcher(self, launcher_path: os.PathLike | None = None) -> os.PathLike:
         if launcher_path is None:
             launcher_path = self._default_launcher_path()
         shutil.copy(self._find_launcher(), launcher_path)
         os.chmod(launcher_path, 0o755)
         return launcher_path
 
-    def _write_script(self, script_path: Optional[os.PathLike] = None) -> os.PathLike:
+    def _write_script(self, script_path: os.PathLike | None = None) -> os.PathLike:
         if script_path is None:
             script_path = self._default_launcher_path(suffix="-script")
         with open(script_path, "w") as f:
@@ -234,7 +235,7 @@ class MacOSMenuItem(MenuItem):
         os.chmod(script_path, 0o755)
         return script_path
 
-    def _write_event_handler(self, script_path: Optional[os.PathLike] = None) -> os.PathLike:
+    def _write_event_handler(self, script_path: os.PathLike | None = None) -> os.PathLike:
         if not self._needs_appkit_launcher:
             return
         event_handler_logic = self.render_key("event_handler")
@@ -247,7 +248,7 @@ class MacOSMenuItem(MenuItem):
         os.chmod(script_path, 0o755)
         return script_path
 
-    def _paths(self) -> Tuple[os.PathLike]:
+    def _paths(self) -> tuple[os.PathLike]:
         return (self.location,)
 
     def _find_appkit_launcher(self) -> Path:
