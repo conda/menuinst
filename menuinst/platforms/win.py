@@ -117,9 +117,7 @@ class WindowsMenu(Menu):
             self.base_prefix / "bin" / "micromamba.exe",
         )
 
-    def render(
-        self, value: Any, slug: bool = False, extra: dict[str, str] | None = None
-    ) -> Any:
+    def render(self, value: Any, slug: bool = False, extra: dict[str, str] | None = None) -> Any:
         """
         We extend the render method here to replace forward slashes with backslashes.
         We ONLY do it if the string does not start with /, because it might
@@ -449,7 +447,9 @@ class WindowsMenuItem(MenuItem):
             # TODO: Do we need to clean up the `assoc` mappings too?
 
     @staticmethod
-    def _cmd_assoc(extension: str, associate_to: str | None = None, query: bool = False, remove: bool = False) -> CompletedProcess:
+    def _cmd_assoc(
+        extension: str, associate_to: str | None = None, query: bool = False, remove: bool = False
+    ) -> CompletedProcess:
         "https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/assoc"
         if sum([associate_to, query, remove]) != 1:
             raise ValueError("Only one of {associate_to, query, remove} must be set.")
@@ -464,7 +464,9 @@ class WindowsMenuItem(MenuItem):
         return logged_run(["cmd", "/D", "/C", f"assoc {arg}"], check=True)
 
     @staticmethod
-    def _cmd_ftype(identifier, command: str | None =None, query: bool = False, remove: bool = False) -> CompletedProcess:
+    def _cmd_ftype(
+        identifier, command: str | None = None, query: bool = False, remove: bool = False
+    ) -> CompletedProcess:
         "https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/ftype"
         if sum([command, query, remove]) != 1:
             raise ValueError("Only one of {command, query, remove} must be set.")

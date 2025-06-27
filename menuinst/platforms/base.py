@@ -169,15 +169,11 @@ class MenuItem:
             "MENU_ITEM_LOCATION": str(self.location),
         }
 
-    def render_key(
-        self, key: str, slug: bool = False, extra: dict[str, str] | None = None
-    ) -> Any:
+    def render_key(self, key: str, slug: bool = False, extra: dict[str, str] | None = None) -> Any:
         value = self.metadata.get(key)
         return self.render(value, slug=slug, extra=extra)
 
-    def render(
-        self, value: Any, slug: bool = False, extra: dict[str, str] | None = None
-    ) -> Any:
+    def render(self, value: Any, slug: bool = False, extra: dict[str, str] | None = None) -> Any:
         if value in (None, True, False):
             return value
         kwargs = {
