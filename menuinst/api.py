@@ -8,7 +8,7 @@ import sys
 import warnings
 from logging import getLogger
 from pathlib import Path
-from typing import Any, Callable, Iterable, Optional, Union
+from typing import Callable, Union
 
 from .platforms import Menu, MenuItem
 from .utils import DEFAULT_BASE_PREFIX, DEFAULT_PREFIX, _UserOrSystem, elevate_as_needed

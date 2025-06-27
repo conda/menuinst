@@ -10,7 +10,7 @@ from logging import getLogger
 from pathlib import Path
 from subprocess import check_output
 from tempfile import NamedTemporaryFile
-from typing import Any, Dict, Iterable, List, Mapping, Optional
+from typing import Any, Iterable, Mapping
 
 from ..utils import (
     DEFAULT_BASE_PREFIX,
