@@ -95,7 +95,7 @@ def install_all(
     base_prefix: str | None = None,
     filter: Callable | None = None,
     _mode: _UserOrSystem = "user",
-) -> list[list[os.PathLike]]:
+) -> list[tuple[os.PathLike]]:
     target_prefix = target_prefix or DEFAULT_PREFIX
     base_prefix = base_prefix or DEFAULT_BASE_PREFIX
     return _process_all(install, target_prefix, base_prefix, filter, _mode)
@@ -108,7 +108,7 @@ def remove_all(
     base_prefix: str | None = None,
     filter: Callable | None = None,
     _mode: _UserOrSystem = "user",
-) -> list[list[os.PathLike]]:
+) -> list[tuple[os.PathLike]]:
     target_prefix = target_prefix or DEFAULT_PREFIX
     base_prefix = base_prefix or DEFAULT_BASE_PREFIX
     return _process_all(remove, target_prefix, base_prefix, filter, _mode)
@@ -122,7 +122,7 @@ def _process_all(
     base_prefix: str | None = None,
     filter: Callable | None = None,
     _mode: _UserOrSystem = "user",
-) -> list[list[os.PathLike]]:
+) -> list[tuple[os.PathLike]]:
     target_prefix = target_prefix or DEFAULT_PREFIX
     base_prefix = base_prefix or DEFAULT_BASE_PREFIX
     jsons = (Path(target_prefix) / "Menu").glob("*.json")

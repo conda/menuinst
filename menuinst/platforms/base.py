@@ -45,10 +45,10 @@ class Menu:
         else:
             self.env_name = self.prefix.name
 
-    def create(self) -> Iterable[os.PathLike]:
+    def create(self) -> tuple[os.PathLike]:
         raise NotImplementedError
 
-    def remove(self) -> Iterable[os.PathLike]:
+    def remove(self) -> tuple[os.PathLike]:
         raise NotImplementedError
 
     def render(self, value: Any, slug: bool = False, extra: dict | None = None) -> Any:
