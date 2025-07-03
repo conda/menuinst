@@ -211,7 +211,9 @@ def data_path(path: str | os.PathLike) -> Path:
     return here / "data" / path
 
 
-def deep_update(mapping: Mapping[str, Any], *updating_mappings: Iterable[Mapping]) -> Mapping[str, Any]:
+def deep_update(
+    mapping: Mapping[str, Any], *updating_mappings: Iterable[Mapping]
+) -> Mapping[str, Any]:
     # Brought from pydantic.utils
     # https://github.com/samuelcolvin/pydantic/blob/9d631a3429a66f30742c1a52c94ac18ec6ba848d/pydantic/utils.py#L198
 
