@@ -1,12 +1,14 @@
 """ """
 
+from __future__ import annotations
+
 import json
 import os
 import sys
 import warnings
 from logging import getLogger
 from pathlib import Path
-from typing import Any, Callable, List, Optional, Tuple, Union
+from typing import Callable, Union
 
 from .platforms import Menu, MenuItem
 from .utils import DEFAULT_BASE_PREFIX, DEFAULT_PREFIX, _UserOrSystem, elevate_as_needed
@@ -24,10 +26,10 @@ __all__ = [
 
 def _load(
     metadata_or_path: Union[os.PathLike, dict],
-    target_prefix: Optional[os.PathLike] = None,
-    base_prefix: Optional[os.PathLike] = None,
+    target_prefix: str | None = None,
+    base_prefix: str | None = None,
     _mode: _UserOrSystem = "user",
-) -> Tuple[Menu, List[MenuItem]]:
+) -> tuple[Menu, list[MenuItem]]:
     target_prefix = target_prefix or DEFAULT_PREFIX
     base_prefix = base_prefix or DEFAULT_BASE_PREFIX
     if isinstance(metadata_or_path, (str, Path)):
@@ -44,16 +46,16 @@ def _load(
 def install(
     metadata_or_path: Union[os.PathLike, dict],
     *,
-    target_prefix: Optional[os.PathLike] = None,
-    base_prefix: Optional[os.PathLike] = None,
+    target_prefix: str | None = None,
+    base_prefix: str | None = None,
     _mode: _UserOrSystem = "user",
-) -> List[os.PathLike]:
+) -> list[os.PathLike]:
     target_prefix = target_prefix or DEFAULT_PREFIX
     base_prefix = base_prefix or DEFAULT_BASE_PREFIX
     menu, menu_items = _load(metadata_or_path, target_prefix, base_prefix, _mode)
     if not any(item.enabled_for_platform() for item in menu_items):
         warnings.warn(f"Metadata for {menu.name} is not enabled for {sys.platform}")
-        return ()
+        return []
 
     paths = []
     paths += menu.create()
@@ -67,16 +69,16 @@ def install(
 def remove(
     metadata_or_path: Union[os.PathLike, dict],
     *,
-    target_prefix: Optional[os.PathLike] = None,
-    base_prefix: Optional[os.PathLike] = None,
+    target_prefix: str | None = None,
+    base_prefix: str | None = None,
     _mode: _UserOrSystem = "user",
-) -> List[os.PathLike]:
+) -> list[os.PathLike]:
     target_prefix = target_prefix or DEFAULT_PREFIX
     base_prefix = base_prefix or DEFAULT_BASE_PREFIX
     menu, menu_items = _load(metadata_or_path, target_prefix, base_prefix, _mode)
     if not any(item.enabled_for_platform() for item in menu_items):
         warnings.warn(f"Metadata for {menu.name} is not enabled for {sys.platform}")
-        return ()
+        return []
 
     paths = []
     for menu_item in menu_items:
@@ -89,11 +91,11 @@ def remove(
 @elevate_as_needed
 def install_all(
     *,
-    target_prefix: Optional[os.PathLike] = None,
-    base_prefix: Optional[os.PathLike] = None,
-    filter: Union[Callable, None] = None,
+    target_prefix: str | None = None,
+    base_prefix: str | None = None,
+    filter: Callable | None = None,
     _mode: _UserOrSystem = "user",
-) -> List[List[os.PathLike]]:
+) -> list[tuple[os.PathLike]]:
     target_prefix = target_prefix or DEFAULT_PREFIX
     base_prefix = base_prefix or DEFAULT_BASE_PREFIX
     return _process_all(install, target_prefix, base_prefix, filter, _mode)
@@ -102,23 +104,25 @@ def install_all(
 @elevate_as_needed
 def remove_all(
     *,
-    target_prefix: Optional[os.PathLike] = None,
-    base_prefix: Optional[os.PathLike] = None,
-    filter: Union[Callable, None] = None,
+    target_prefix: str | None = None,
+    base_prefix: str | None = None,
+    filter: Callable | None = None,
     _mode: _UserOrSystem = "user",
-) -> List[List[Union[str, os.PathLike]]]:
+) -> list[tuple[os.PathLike]]:
     target_prefix = target_prefix or DEFAULT_PREFIX
     base_prefix = base_prefix or DEFAULT_BASE_PREFIX
     return _process_all(remove, target_prefix, base_prefix, filter, _mode)
 
 
 def _process_all(
-    function: Callable,
-    target_prefix: Optional[os.PathLike] = None,
-    base_prefix: Optional[os.PathLike] = None,
-    filter: Union[Callable, None] = None,
+    function: Callable[
+        [Union[os.PathLike, dict], str | None, str | None, _UserOrSystem], list[os.PathLike]
+    ],
+    target_prefix: str | None = None,
+    base_prefix: str | None = None,
+    filter: Callable | None = None,
     _mode: _UserOrSystem = "user",
-) -> List[Any]:
+) -> list[tuple[os.PathLike]]:
     target_prefix = target_prefix or DEFAULT_PREFIX
     base_prefix = base_prefix or DEFAULT_BASE_PREFIX
     jsons = (Path(target_prefix) / "Menu").glob("*.json")
@@ -132,9 +136,7 @@ def _process_all(
 _api_remove = remove  # alias to prevent shadowing in the function below
 
 
-def _install_adapter(
-    path: os.PathLike, remove: bool = False, prefix: os.PathLike = DEFAULT_PREFIX, **kwargs
-):
+def _install_adapter(path: Path, remove: bool = False, prefix: str = DEFAULT_PREFIX, **kwargs):
     """
     This function is only here as a legacy adapter for menuinst v1.x.
     Please use `menuinst.api` functions instead.

@@ -25,6 +25,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 """
 
+from __future__ import annotations
+
 import ctypes
 import os
 from ctypes import windll, wintypes
@@ -265,7 +267,7 @@ dirs_src = {
 }
 
 
-def folder_path(preferred_mode, check_other_mode, key):
+def folder_path(preferred_mode, check_other_mode, key) -> str | None:
     """This function implements all heuristics and workarounds for messed up
     KNOWNFOLDERID registry values. It's also verbose (OutputDebugStringW)
     about whether fallbacks worked or whether they would have worked if

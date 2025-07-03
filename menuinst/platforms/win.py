@@ -1,5 +1,7 @@
 """ """
 
+from __future__ import annotations
+
 import json
 import os
 import shutil
@@ -8,7 +10,7 @@ from logging import getLogger
 from pathlib import Path
 from subprocess import CompletedProcess
 from tempfile import NamedTemporaryFile
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 from ..utils import WinLex, logged_run, unlink
 from .base import Menu, MenuItem
@@ -26,7 +28,7 @@ log = getLogger(__name__)
 
 
 class WindowsMenu(Menu):
-    def create(self) -> Tuple[os.PathLike]:
+    def create(self) -> tuple[Path]:
         log.debug("Creating %s", self.start_menu_location)
         self.start_menu_location.mkdir(parents=True, exist_ok=True)
         if self.quick_launch_location:
@@ -35,7 +37,7 @@ class WindowsMenu(Menu):
             self.desktop_location.mkdir(parents=True, exist_ok=True)
         return (self.start_menu_location,)
 
-    def remove(self) -> Tuple[os.PathLike]:
+    def remove(self) -> tuple[Path]:
         # Only remove if the Start Menu directory is empty in case applications share a folder.
         menu_location = Path(self.start_menu_location)
         if menu_location.exists():
@@ -75,7 +77,7 @@ class WindowsMenu(Menu):
         return Path(windows_folder_path(self.mode, False, "desktop"))
 
     @property
-    def terminal_profile_locations(self) -> List[Path]:
+    def terminal_profile_locations(self) -> list[Path]:
         """Location of the Windows terminal profiles.
 
         The parent directory is used to check if Terminal is installed
@@ -88,7 +90,7 @@ class WindowsMenu(Menu):
         return windows_terminal_settings_files(self.mode)
 
     @property
-    def placeholders(self) -> Dict[str, str]:
+    def placeholders(self) -> dict[str, str]:
         placeholders = super().placeholders
         placeholders.update(
             {
@@ -104,7 +106,7 @@ class WindowsMenu(Menu):
         )
         return placeholders
 
-    def _conda_exe_path_candidates(self):
+    def _conda_exe_path_candidates(self) -> tuple[Path]:
         return (
             self.base_prefix / "_conda.exe",
             Path(os.environ.get("CONDA_EXE", r"C:\oops\a_file_that_does_not_exist")),
@@ -115,9 +117,7 @@ class WindowsMenu(Menu):
             self.base_prefix / "bin" / "micromamba.exe",
         )
 
-    def render(
-        self, value: Any, slug: bool = False, extra: Optional[Dict[str, str]] = None
-    ) -> Any:
+    def render(self, value: Any, slug: bool = False, extra: dict[str, str] | None = None) -> Any:
         """
         We extend the render method here to replace forward slashes with backslashes.
         We ONLY do it if the string does not start with /, because it might
@@ -135,12 +135,12 @@ class WindowsMenu(Menu):
             value = value.replace("/", "\\")
         return value
 
-    def _site_packages(self, prefix=None) -> Path:
+    def _site_packages(self, prefix: Path | None = None) -> Path:
         if prefix is None:
             prefix = self.prefix
         return self.prefix / "Lib" / "site-packages"
 
-    def _paths(self) -> Tuple[Path]:
+    def _paths(self) -> tuple[Path]:
         return (self.start_menu_location,)
 
 
@@ -154,7 +154,7 @@ class WindowsMenuItem(MenuItem):
         """
         return self.menu.start_menu_location / self._shortcut_filename()
 
-    def create(self) -> Tuple[Path, ...]:
+    def create(self) -> tuple[Path, ...]:
         from .win_utils.winshortcut import create_shortcut
 
         self._precreate()
@@ -205,7 +205,7 @@ class WindowsMenuItem(MenuItem):
 
         return paths
 
-    def remove(self) -> Tuple[Path, ...]:
+    def remove(self) -> tuple[Path, ...]:
         changed_extensions = self._unregister_file_extensions()
         changed_protocols = self._unregister_url_protocols()
         if changed_extensions or changed_protocols:
@@ -221,7 +221,7 @@ class WindowsMenuItem(MenuItem):
 
         return paths
 
-    def _paths(self) -> Tuple[Path, ...]:
+    def _paths(self) -> tuple[Path, ...]:
         paths = [self.location]
         extra_dirs = []
         if self.metadata["desktop"]:
@@ -321,7 +321,7 @@ class WindowsMenuItem(MenuItem):
 
         return "\r\n".join(lines)
 
-    def _write_script(self, script_path: Optional[os.PathLike] = None) -> Path:
+    def _write_script(self, script_path: os.PathLike | None = None) -> Path:
         """
         This method generates the batch script that will be called by the shortcut
         """
@@ -336,7 +336,7 @@ class WindowsMenuItem(MenuItem):
 
         return script_path
 
-    def _process_command(self, with_arg1=False) -> Tuple[str]:
+    def _process_command(self, with_arg1: bool = False) -> tuple[str]:
         if self.metadata["activate"]:
             script = self._write_script()
             if self.metadata["terminal"]:
@@ -447,7 +447,9 @@ class WindowsMenuItem(MenuItem):
             # TODO: Do we need to clean up the `assoc` mappings too?
 
     @staticmethod
-    def _cmd_assoc(extension, associate_to=None, query=False, remove=False) -> CompletedProcess:
+    def _cmd_assoc(
+        extension: str, associate_to: str | None = None, query: bool = False, remove: bool = False
+    ) -> CompletedProcess:
         "https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/assoc"
         if sum([associate_to, query, remove]) != 1:
             raise ValueError("Only one of {associate_to, query, remove} must be set.")
@@ -462,7 +464,9 @@ class WindowsMenuItem(MenuItem):
         return logged_run(["cmd", "/D", "/C", f"assoc {arg}"], check=True)
 
     @staticmethod
-    def _cmd_ftype(identifier, command=None, query=False, remove=False) -> CompletedProcess:
+    def _cmd_ftype(
+        identifier, command: str | None = None, query: bool = False, remove: bool = False
+    ) -> CompletedProcess:
         "https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/ftype"
         if sum([command, query, remove]) != 1:
             raise ValueError("Only one of {command, query, remove} must be set.")

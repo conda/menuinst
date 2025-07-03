@@ -10,7 +10,7 @@ from contextlib import suppress
 from functools import lru_cache, wraps
 from logging import getLogger
 from pathlib import Path
-from typing import Callable, Iterable, Literal, Mapping, Optional, Sequence, Union
+from typing import Any, Callable, Iterable, Literal, Mapping, Optional, Sequence, Union
 from unicodedata import normalize
 
 logger = getLogger(__name__)
@@ -18,7 +18,7 @@ _TargetOrBase = Union[Literal["target"], Literal["base"]]
 _UserOrSystem = Union[Literal["user"], Literal["system"]]
 
 
-def _default_prefix(which: _TargetOrBase = "target"):
+def _default_prefix(which: _TargetOrBase = "target") -> str:
     """
     The prefixes in menuinst need to be handled with care.
 
@@ -211,7 +211,9 @@ def data_path(path: str | os.PathLike) -> Path:
     return here / "data" / path
 
 
-def deep_update(mapping: Mapping, *updating_mappings: Iterable[Mapping]) -> Mapping:
+def deep_update(
+    mapping: Mapping[str, Any], *updating_mappings: Iterable[Mapping]
+) -> Mapping[str, Any]:
     # Brought from pydantic.utils
     # https://github.com/samuelcolvin/pydantic/blob/9d631a3429a66f30742c1a52c94ac18ec6ba848d/pydantic/utils.py#L198
 

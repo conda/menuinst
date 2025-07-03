@@ -1,5 +1,7 @@
 """ """
 
+from __future__ import annotations
+
 import os
 import shlex
 import shutil
@@ -9,7 +11,7 @@ from logging import getLogger
 from pathlib import Path
 from subprocess import CalledProcessError
 from tempfile import TemporaryDirectory
-from typing import Dict, Iterable, Tuple
+from typing import Iterable
 from xml.etree import ElementTree
 
 from ..utils import UnixLex, add_xml_child, indent_xml_tree, logged_run, unlink
@@ -55,7 +57,7 @@ class LinuxMenu(Menu):
         )
         self.desktop_entries_location = self.data_directory / "applications"
 
-    def create(self) -> Tuple[os.PathLike]:
+    def create(self) -> tuple[os.PathLike]:
         self._ensure_directories_exist()
         path = self._write_directory_entry()
         if self._is_valid_menu_file() and self._has_this_menu():
@@ -64,7 +66,7 @@ class LinuxMenu(Menu):
         self._add_this_menu()
         return (path,)
 
-    def remove(self) -> Tuple[os.PathLike]:
+    def remove(self) -> tuple[os.PathLike]:
         for fn in os.listdir(self.desktop_entries_location):
             if fn.startswith(f"{self.render(self.name, slug=True)}_"):
                 # found one shortcut, so don't remove the name from menu
@@ -74,7 +76,7 @@ class LinuxMenu(Menu):
         return (self.directory_entry_location,)
 
     @property
-    def placeholders(self) -> Dict[str, str]:
+    def placeholders(self) -> dict[str, str]:
         placeholders = super().placeholders
         placeholders["SP_DIR"] = str(self._site_packages())
         return placeholders
@@ -93,7 +95,7 @@ class LinuxMenu(Menu):
     # .directory stuff methods
     #
 
-    def _write_directory_entry(self) -> str:
+    def _write_directory_entry(self) -> Path:
         lines = [
             "[Desktop Entry]",
             "Type=Directory",
@@ -143,7 +145,7 @@ class LinuxMenu(Menu):
         except Exception:
             return False
 
-    def _write_menu_file(self, tree: ElementTree):
+    def _write_menu_file(self, tree: ElementTree.ElementTree):
         log.debug("Writing %s", self.menu_config_location)
         indent_xml_tree(tree.getroot())  # inplace!
         with open(self.menu_config_location, "wb") as f:
@@ -178,7 +180,7 @@ class LinuxMenu(Menu):
                 f.write(f'<MergeFile type="parent">{self.system_menu_config_location}</MergeFile>')
             f.write("</Menu>\n")
 
-    def _paths(self) -> Tuple[str]:
+    def _paths(self) -> tuple[Path]:
         return (self.directory_entry_location,)
 
 
@@ -273,7 +275,7 @@ class LinuxMenuItem(MenuItem):
             f.write("\n".join(lines))
             f.write("\n")
 
-    def _maybe_register_mime_types(self, register=True):
+    def _maybe_register_mime_types(self, register: bool = True):
         mime_types = self.render_key("MimeType")
         if not mime_types:
             return
@@ -336,7 +338,7 @@ class LinuxMenuItem(MenuItem):
                 check=False,
             )
 
-    def _xml_path_for_mime_type(self, mime_type: str) -> Tuple[Path, bool]:
+    def _xml_path_for_mime_type(self, mime_type: str) -> tuple[Path, bool]:
         basename = mime_type.replace("/", "-")
         xml_files = list(
             (self.menu.data_directory / "mime" / "applications").glob(f"*{basename}*.xml")
@@ -353,7 +355,7 @@ class LinuxMenuItem(MenuItem):
         mime_type: str,
         glob_pattern: str,
         install: bool = True,
-    ) -> Path:
+    ) -> Path | None:
         """
         See https://specifications.freedesktop.org/mime-apps-spec/mime-apps-spec-latest.html
         for more information on the default locations.

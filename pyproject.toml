@@ -7,7 +7,7 @@ name = "menuinst"
 description = "cross platform install of menu items"
 readme = "README.md"
 license = {file = "LICENSE.txt"}
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 dynamic = [
   "version"
 ]
@@ -34,6 +34,9 @@ line-length = 99
 exclude = [
   "_schema.py"
 ]
+
+[tool.ruff.lint.pyupgrade]
+keep-runtime-typing = true
 
 [tool.ruff.lint]
 # see https://docs.astral.sh/ruff/rules/

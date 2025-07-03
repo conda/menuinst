@@ -1,5 +1,7 @@
 """ """
 
+from __future__ import annotations
+
 import json
 import os
 import sys
@@ -8,7 +10,7 @@ from logging import getLogger
 from pathlib import Path
 from subprocess import check_output
 from tempfile import NamedTemporaryFile
-from typing import Any, Dict, Iterable, List, Mapping, Optional
+from typing import Any, Iterable, Mapping
 
 from ..utils import (
     DEFAULT_BASE_PREFIX,
@@ -43,13 +45,13 @@ class Menu:
         else:
             self.env_name = self.prefix.name
 
-    def create(self) -> List[Path]:
+    def create(self) -> tuple[os.PathLike]:
         raise NotImplementedError
 
-    def remove(self) -> List[Path]:
+    def remove(self) -> tuple[os.PathLike]:
         raise NotImplementedError
 
-    def render(self, value: Any, slug: bool = False, extra: Dict = None) -> Any:
+    def render(self, value: Any, slug: bool = False, extra: dict | None = None) -> Any:
         if not hasattr(value, "replace"):
             return value
         if extra:
@@ -63,7 +65,7 @@ class Menu:
         return value
 
     @property
-    def placeholders(self) -> Dict[str, str]:
+    def placeholders(self) -> dict[str, str]:
         """
         Additional placeholders added at runtime:
         - MENU_ITEM_LOCATION -> *MenuItem().location
@@ -84,7 +86,7 @@ class Menu:
             "ICON_EXT": "png",
         }
 
-    def _conda_exe_path_candidates(self) -> Dict[str, str]:
+    def _conda_exe_path_candidates(self) -> tuple[Path, ...]:
         return (
             self.base_prefix / "_conda.exe",
             self.base_prefix / "conda.exe",
@@ -116,7 +118,7 @@ class Menu:
             return "micromamba version" in out
         return False
 
-    def _site_packages(self, prefix=None) -> Path:
+    def _site_packages(self, prefix: Path | str | None = None) -> Path:
         """
         Locate the python site-packages location on unix systems
         """
@@ -137,7 +139,7 @@ class Menu:
 
 
 class MenuItem:
-    def __init__(self, menu: Menu, metadata: dict):
+    def __init__(self, menu: Menu, metadata: Mapping[str, Any]):
         self.menu = menu
         self._data = self._initialize_on_defaults(metadata)
         self.metadata = self._flatten_for_platform(self._data)
@@ -155,27 +157,23 @@ class MenuItem:
         "Path to the main menu item artifact (file or directory, depends on the platform)"
         raise NotImplementedError
 
-    def create(self) -> List[Path]:
+    def create(self) -> Iterable[os.PathLike]:
         raise NotImplementedError
 
-    def remove(self) -> List[Path]:
+    def remove(self) -> Iterable[os.PathLike]:
         raise NotImplementedError
 
     @property
-    def placeholders(self) -> Dict[str, str]:
+    def placeholders(self) -> dict[str, str]:
         return {
             "MENU_ITEM_LOCATION": str(self.location),
         }
 
-    def render_key(
-        self, key: str, slug: bool = False, extra: Optional[Dict[str, str]] = None
-    ) -> Any:
+    def render_key(self, key: str, slug: bool = False, extra: dict[str, str] | None = None) -> Any:
         value = self.metadata.get(key)
         return self.render(value, slug=slug, extra=extra)
 
-    def render(
-        self, value: Any, slug: bool = False, extra: Optional[Dict[str, str]] = None
-    ) -> Any:
+    def render(self, value: Any, slug: bool = False, extra: dict[str, str] | None = None) -> Any:
         if value in (None, True, False):
             return value
         kwargs = {
@@ -216,14 +214,16 @@ class MenuItem:
         raise NotImplementedError
 
     @staticmethod
-    def _initialize_on_defaults(data) -> Dict:
+    def _initialize_on_defaults(data) -> Mapping[str, Any]:
         with open(data_path(f"menuinst-{SCHEMA_VERSION}.default.json")) as f:
             defaults = json.load(f)["menu_items"][0]
 
         return deep_update(defaults, data)
 
     @staticmethod
-    def _flatten_for_platform(data: Mapping, platform: str = sys.platform) -> Mapping:
+    def _flatten_for_platform(
+        data: Mapping[str, Any], platform: str = sys.platform
+    ) -> Mapping[str, Any]:
         """
         Merge platform keys with global keys, overwriting if needed.
         """
