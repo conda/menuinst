@@ -217,8 +217,15 @@ class MenuItem:
     def _initialize_on_defaults(data) -> Mapping[str, Any]:
         with open(data_path(f"menuinst-{SCHEMA_VERSION}.default.json")) as f:
             defaults = json.load(f)["menu_items"][0]
-
-        return deep_update(defaults, data)
+        original = deepcopy(data.copy())
+        data = deep_update(defaults, data)
+        # remove platforms that were not originally in 'data'
+        data["platforms"] = {
+            platform: value
+            for platform, value in data.get("platforms", {}).items()
+            if original.get("platforms", {}).get(platform) not in (None, False)
+        }
+        return data
 
     @staticmethod
     def _flatten_for_platform(
