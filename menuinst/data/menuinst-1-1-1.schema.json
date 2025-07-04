@@ -1,0 +1,1605 @@
+{
+  "$defs": {
+    "CFBundleDocumentTypesModel": {
+      "additionalProperties": false,
+      "description": "Describes a document type associated with the app.",
+      "markdownDescription": "Describes a document type associated with the app.",
+      "properties": {
+        "CFBundleTypeIconFile": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Name of the icon image file (minus the .icns extension).",
+          "markdownDescription": "Name of the icon image file (minus the .icns extension).",
+          "title": "Cfbundletypeiconfile"
+        },
+        "CFBundleTypeName": {
+          "description": "Abstract name for this document type. Uniqueness recommended.",
+          "markdownDescription": "Abstract name for this document type. Uniqueness recommended.",
+          "title": "Cfbundletypename",
+          "type": "string"
+        },
+        "CFBundleTypeRole": {
+          "anyOf": [
+            {
+              "enum": [
+                "Editor",
+                "Viewer",
+                "Shell",
+                "None"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "This key specifies the app's role with respect to the type.",
+          "markdownDescription": "This key specifies the app's role with respect to the type.",
+          "title": "Cfbundletyperole"
+        },
+        "LSItemContentTypes": {
+          "description": "List of UTI strings defining a supported file type; e.g. for PNG files, use 'public.png'. See [UTI Reference]( https://developer.apple.com/library/archive/documentation/Miscellaneous/Reference/UTIRef/Articles/System-DeclaredUniformTypeIdentifiers.html) for more info about the system-defined UTIs. Custom UTIs can be defined via 'UTExportedTypeDeclarations'. UTIs defined by other apps (not the system) need to be imported via 'UTImportedTypeDeclarations'.\n\nSee [Fun with UTIs](https://www.cocoanetics.com/2012/09/fun-with-uti/) for more info.",
+          "items": {
+            "type": "string"
+          },
+          "markdownDescription": "List of UTI strings defining a supported file type; e.g. for PNG files, use 'public.png'. See [UTI Reference]( https://developer.apple.com/library/archive/documentation/Miscellaneous/Reference/UTIRef/Articles/System-DeclaredUniformTypeIdentifiers.html) for more info about the system-defined UTIs. Custom UTIs can be defined via 'UTExportedTypeDeclarations'. UTIs defined by other apps (not the system) need to be imported via 'UTImportedTypeDeclarations'.\n\nSee [Fun with UTIs](https://www.cocoanetics.com/2012/09/fun-with-uti/) for more info.",
+          "title": "Lsitemcontenttypes",
+          "type": "array"
+        },
+        "LSHandlerRank": {
+          "description": "Determines how Launch Services ranks this app among the apps that declare themselves editors or viewers of files of this type.",
+          "enum": [
+            "Owner",
+            "Default",
+            "Alternate"
+          ],
+          "markdownDescription": "Determines how Launch Services ranks this app among the apps that declare themselves editors or viewers of files of this type.",
+          "title": "Lshandlerrank",
+          "type": "string"
+        }
+      },
+      "required": [
+        "CFBundleTypeName",
+        "LSItemContentTypes",
+        "LSHandlerRank"
+      ],
+      "title": "CFBundleDocumentTypesModel",
+      "type": "object"
+    },
+    "CFBundleURLTypesModel": {
+      "additionalProperties": false,
+      "description": "Describes a URL scheme associated with the app.",
+      "markdownDescription": "Describes a URL scheme associated with the app.",
+      "properties": {
+        "CFBundleTypeRole": {
+          "anyOf": [
+            {
+              "enum": [
+                "Editor",
+                "Viewer",
+                "Shell",
+                "None"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "This key specifies the app's role with respect to the URL.",
+          "markdownDescription": "This key specifies the app's role with respect to the URL.",
+          "title": "Cfbundletyperole"
+        },
+        "CFBundleURLSchemes": {
+          "description": "URL schemes / protocols handled by this type (e.g. 'mailto').",
+          "items": {
+            "type": "string"
+          },
+          "markdownDescription": "URL schemes / protocols handled by this type (e.g. 'mailto').",
+          "title": "Cfbundleurlschemes",
+          "type": "array"
+        },
+        "CFBundleURLName": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Abstract name for this URL type. Uniqueness recommended.",
+          "markdownDescription": "Abstract name for this URL type. Uniqueness recommended.",
+          "title": "Cfbundleurlname"
+        },
+        "CFBundleURLIconFile": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Name of the icon image file (minus the .icns extension).",
+          "markdownDescription": "Name of the icon image file (minus the .icns extension).",
+          "title": "Cfbundleurliconfile"
+        }
+      },
+      "required": [
+        "CFBundleURLSchemes"
+      ],
+      "title": "CFBundleURLTypesModel",
+      "type": "object"
+    },
+    "Linux": {
+      "additionalProperties": false,
+      "description": "Linux-specific instructions.\n\nCheck the [Desktop entry specification]( https://specifications.freedesktop.org/desktop-entry-spec/latest/recognized-keys.html) for more details.",
+      "markdownDescription": "Linux-specific instructions.\n\nCheck the [Desktop entry specification]( https://specifications.freedesktop.org/desktop-entry-spec/latest/recognized-keys.html) for more details.",
+      "properties": {
+        "name": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "$ref": "#/$defs/MenuItemNameDict"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The name of the menu item. Can be a dictionary if the name depends on installation parameters. See `MenuItemNameDict` for details.",
+          "markdownDescription": "The name of the menu item. Can be a dictionary if the name depends on installation parameters. See `MenuItemNameDict` for details.",
+          "title": "Name"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A longer description of the menu item. Shown on popup messages.",
+          "markdownDescription": "A longer description of the menu item. Shown on popup messages.",
+          "title": "Description"
+        },
+        "icon": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Path to the file representing or containing the icon.",
+          "markdownDescription": "Path to the file representing or containing the icon.",
+          "title": "Icon"
+        },
+        "command": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "minItems": 1,
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Command to run with the menu item, expressed as a list of strings where each string is an argument.",
+          "markdownDescription": "Command to run with the menu item, expressed as a list of strings where each string is an argument.",
+          "title": "Command"
+        },
+        "working_dir": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Working directory for the running process. Defaults to user directory on each platform.",
+          "markdownDescription": "Working directory for the running process. Defaults to user directory on each platform.",
+          "title": "Working Dir"
+        },
+        "precommand": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "(Simple, preferrably single-line) logic to run before the command is run. Runs before the environment is activated, if that applies.",
+          "markdownDescription": "(Simple, preferrably single-line) logic to run before the command is run. Runs before the environment is activated, if that applies.",
+          "title": "Precommand"
+        },
+        "precreate": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "(Simple, preferrably single-line) logic to run before the shortcut is created.",
+          "markdownDescription": "(Simple, preferrably single-line) logic to run before the shortcut is created.",
+          "title": "Precreate"
+        },
+        "activate": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Whether to activate the target environment before running `command`.",
+          "markdownDescription": "Whether to activate the target environment before running `command`.",
+          "title": "Activate"
+        },
+        "terminal": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Whether run the program in a terminal/console or not. On Windows, it only has an effect if `activate` is true. On MacOS, the application will ignore command-line arguments.",
+          "markdownDescription": "Whether run the program in a terminal/console or not. On Windows, it only has an effect if `activate` is true. On MacOS, the application will ignore command-line arguments.",
+          "title": "Terminal"
+        },
+        "Categories": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "pattern": "^.+;$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Categories in which the entry should be shown in a menu. See 'Registered categories' in the [Menu Spec]( http://www.freedesktop.org/Standards/menu-spec).",
+          "markdownDescription": "Categories in which the entry should be shown in a menu. See 'Registered categories' in the [Menu Spec]( http://www.freedesktop.org/Standards/menu-spec).",
+          "title": "Categories"
+        },
+        "DBusActivatable": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A boolean value specifying if D-Bus activation is supported for this application.",
+          "markdownDescription": "A boolean value specifying if D-Bus activation is supported for this application.",
+          "title": "Dbusactivatable"
+        },
+        "GenericName": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Generic name of the application; e.g. if the name is 'conda', this would be 'Package Manager'.",
+          "markdownDescription": "Generic name of the application; e.g. if the name is 'conda', this would be 'Package Manager'.",
+          "title": "Genericname"
+        },
+        "Hidden": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Disable shortcut, signaling a missing resource.",
+          "markdownDescription": "Disable shortcut, signaling a missing resource.",
+          "title": "Hidden"
+        },
+        "Implements": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "pattern": "^.+;$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "List of supported interfaces. See 'Interfaces' in [Desktop Entry Spec]( https://specifications.freedesktop.org/desktop-entry-spec/latest/interfaces.html).",
+          "markdownDescription": "List of supported interfaces. See 'Interfaces' in [Desktop Entry Spec]( https://specifications.freedesktop.org/desktop-entry-spec/latest/interfaces.html).",
+          "title": "Implements"
+        },
+        "Keywords": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "pattern": "^.+;$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Additional terms to describe this shortcut to aid in searching.",
+          "markdownDescription": "Additional terms to describe this shortcut to aid in searching.",
+          "title": "Keywords"
+        },
+        "MimeType": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "pattern": "^.+;$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The MIME type(s) supported by this application. Note this includes file types and URL protocols. For URL protocols, use `x-scheme-handler/your-protocol-here`. For example, if you want to register `menuinst:`, you would include `x-scheme-handler/menuinst`.",
+          "markdownDescription": "The MIME type(s) supported by this application. Note this includes file types and URL protocols. For URL protocols, use `x-scheme-handler/your-protocol-here`. For example, if you want to register `menuinst:`, you would include `x-scheme-handler/menuinst`.",
+          "title": "Mimetype"
+        },
+        "NoDisplay": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Do not show this item in the menu. Useful to associate MIME types and other registrations, without having an actual clickable item. Not to be confused with 'Hidden'.",
+          "markdownDescription": "Do not show this item in the menu. Useful to associate MIME types and other registrations, without having an actual clickable item. Not to be confused with 'Hidden'.",
+          "title": "Nodisplay"
+        },
+        "NotShowIn": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "pattern": "^.+;$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Desktop environments that should NOT display this item. It'll check against `$XDG_CURRENT_DESKTOP`.",
+          "markdownDescription": "Desktop environments that should NOT display this item. It'll check against `$XDG_CURRENT_DESKTOP`.",
+          "title": "Notshowin"
+        },
+        "OnlyShowIn": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "pattern": "^.+;$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Desktop environments that should display this item. It'll check against `$XDG_CURRENT_DESKTOP`.",
+          "markdownDescription": "Desktop environments that should display this item. It'll check against `$XDG_CURRENT_DESKTOP`.",
+          "title": "Onlyshowin"
+        },
+        "PrefersNonDefaultGPU": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Hint that the app prefers to be run on a more powerful discrete GPU if available.",
+          "markdownDescription": "Hint that the app prefers to be run on a more powerful discrete GPU if available.",
+          "title": "Prefersnondefaultgpu"
+        },
+        "SingleMainWindow": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Do not show the 'New Window' option in the app's context menu.",
+          "markdownDescription": "Do not show the 'New Window' option in the app's context menu.",
+          "title": "Singlemainwindow"
+        },
+        "StartupNotify": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Advanced. See [Startup Notification spec]( https://www.freedesktop.org/wiki/Specifications/startup-notification-spec/).",
+          "markdownDescription": "Advanced. See [Startup Notification spec]( https://www.freedesktop.org/wiki/Specifications/startup-notification-spec/).",
+          "title": "Startupnotify"
+        },
+        "StartupWMClass": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Advanced. See [Startup Notification spec]( https://www.freedesktop.org/wiki/Specifications/startup-notification-spec/).",
+          "markdownDescription": "Advanced. See [Startup Notification spec]( https://www.freedesktop.org/wiki/Specifications/startup-notification-spec/).",
+          "title": "Startupwmclass"
+        },
+        "TryExec": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Filename or absolute path to an executable file on disk used to determine if the program is actually installed and can be run. If the test fails, the shortcut might be ignored / hidden.",
+          "markdownDescription": "Filename or absolute path to an executable file on disk used to determine if the program is actually installed and can be run. If the test fails, the shortcut might be ignored / hidden.",
+          "title": "Tryexec"
+        },
+        "glob_patterns": {
+          "anyOf": [
+            {
+              "additionalProperties": {
+                "pattern": ".*\\*.*",
+                "type": "string"
+              },
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Map of custom MIME types to their corresponding glob patterns (e.g. `*.txt`). Only needed if you define custom MIME types in `MimeType`.",
+          "markdownDescription": "Map of custom MIME types to their corresponding glob patterns (e.g. `*.txt`). Only needed if you define custom MIME types in `MimeType`.",
+          "title": "Glob Patterns"
+        }
+      },
+      "title": "Linux",
+      "type": "object"
+    },
+    "MacOS": {
+      "additionalProperties": false,
+      "description": "Mac-specific instructions. Check these URLs for more info:\n\n- `CF*` keys: see [Core Foundation Keys](https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html) - `LS*` keys: see [Launch Services Keys](https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/LaunchServicesKeys.html) - `entitlements`: see [Entitlements documentation](https://developer.apple.com/documentation/bundleresources/entitlements)",
+      "markdownDescription": "Mac-specific instructions. Check these URLs for more info:\n\n- `CF*` keys: see [Core Foundation Keys](https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html) - `LS*` keys: see [Launch Services Keys](https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/LaunchServicesKeys.html) - `entitlements`: see [Entitlements documentation](https://developer.apple.com/documentation/bundleresources/entitlements)",
+      "properties": {
+        "name": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "$ref": "#/$defs/MenuItemNameDict"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The name of the menu item. Can be a dictionary if the name depends on installation parameters. See `MenuItemNameDict` for details.",
+          "markdownDescription": "The name of the menu item. Can be a dictionary if the name depends on installation parameters. See `MenuItemNameDict` for details.",
+          "title": "Name"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A longer description of the menu item. Shown on popup messages.",
+          "markdownDescription": "A longer description of the menu item. Shown on popup messages.",
+          "title": "Description"
+        },
+        "icon": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Path to the file representing or containing the icon.",
+          "markdownDescription": "Path to the file representing or containing the icon.",
+          "title": "Icon"
+        },
+        "command": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "minItems": 1,
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Command to run with the menu item, expressed as a list of strings where each string is an argument.",
+          "markdownDescription": "Command to run with the menu item, expressed as a list of strings where each string is an argument.",
+          "title": "Command"
+        },
+        "working_dir": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Working directory for the running process. Defaults to user directory on each platform.",
+          "markdownDescription": "Working directory for the running process. Defaults to user directory on each platform.",
+          "title": "Working Dir"
+        },
+        "precommand": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "(Simple, preferrably single-line) logic to run before the command is run. Runs before the environment is activated, if that applies.",
+          "markdownDescription": "(Simple, preferrably single-line) logic to run before the command is run. Runs before the environment is activated, if that applies.",
+          "title": "Precommand"
+        },
+        "precreate": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "(Simple, preferrably single-line) logic to run before the shortcut is created.",
+          "markdownDescription": "(Simple, preferrably single-line) logic to run before the shortcut is created.",
+          "title": "Precreate"
+        },
+        "activate": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Whether to activate the target environment before running `command`.",
+          "markdownDescription": "Whether to activate the target environment before running `command`.",
+          "title": "Activate"
+        },
+        "terminal": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Whether run the program in a terminal/console or not. On Windows, it only has an effect if `activate` is true. On MacOS, the application will ignore command-line arguments.",
+          "markdownDescription": "Whether run the program in a terminal/console or not. On Windows, it only has an effect if `activate` is true. On MacOS, the application will ignore command-line arguments.",
+          "title": "Terminal"
+        },
+        "CFBundleDisplayName": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Display name of the bundle, visible to users and used by Siri. If not provided, 'menuinst' will use the 'name' field.",
+          "markdownDescription": "Display name of the bundle, visible to users and used by Siri. If not provided, 'menuinst' will use the 'name' field.",
+          "title": "Cfbundledisplayname"
+        },
+        "CFBundleIdentifier": {
+          "anyOf": [
+            {
+              "pattern": "^[A-z0-9\\-\\.]+$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Unique identifier for the shortcut. Typically uses a reverse-DNS format. If not provided, 'menuinst' will generate one from the 'name' field.",
+          "markdownDescription": "Unique identifier for the shortcut. Typically uses a reverse-DNS format. If not provided, 'menuinst' will generate one from the 'name' field.",
+          "title": "Cfbundleidentifier"
+        },
+        "CFBundleName": {
+          "anyOf": [
+            {
+              "maxLength": 16,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Short name of the bundle. May be used if `CFBundleDisplayName` is absent. If not provided, 'menuinst' will generate one from the 'name' field.",
+          "markdownDescription": "Short name of the bundle. May be used if `CFBundleDisplayName` is absent. If not provided, 'menuinst' will generate one from the 'name' field.",
+          "title": "Cfbundlename"
+        },
+        "CFBundleSpokenName": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Suitable replacement for text-to-speech operations on the app. For example, 'my app one two three' instead of 'MyApp123'.",
+          "markdownDescription": "Suitable replacement for text-to-speech operations on the app. For example, 'my app one two three' instead of 'MyApp123'.",
+          "title": "Cfbundlespokenname"
+        },
+        "CFBundleVersion": {
+          "anyOf": [
+            {
+              "pattern": "^\\S+$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Build version number for the bundle. In the context of 'menuinst' this can be used to signal a new version of the menu item for the same application version.",
+          "markdownDescription": "Build version number for the bundle. In the context of 'menuinst' this can be used to signal a new version of the menu item for the same application version.",
+          "title": "Cfbundleversion"
+        },
+        "CFBundleURLTypes": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/CFBundleURLTypesModel"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "URL types supported by this app. Requires setting `event_handler` too. Note this feature requires macOS 10.14.4 or above.",
+          "markdownDescription": "URL types supported by this app. Requires setting `event_handler` too. Note this feature requires macOS 10.14.4 or above.",
+          "title": "Cfbundleurltypes"
+        },
+        "CFBundleDocumentTypes": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/CFBundleDocumentTypesModel"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Document types supported by this app. Requires setting `event_handler` too. Requires macOS 10.14.4 or above.",
+          "markdownDescription": "Document types supported by this app. Requires setting `event_handler` too. Requires macOS 10.14.4 or above.",
+          "title": "Cfbundledocumenttypes"
+        },
+        "LSApplicationCategoryType": {
+          "anyOf": [
+            {
+              "pattern": "^public\\.app-category\\.\\S+$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The App Store uses this string to determine the appropriate categorization.",
+          "markdownDescription": "The App Store uses this string to determine the appropriate categorization.",
+          "title": "Lsapplicationcategorytype"
+        },
+        "LSBackgroundOnly": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Specifies whether this app runs only in the background.",
+          "markdownDescription": "Specifies whether this app runs only in the background.",
+          "title": "Lsbackgroundonly"
+        },
+        "LSEnvironment": {
+          "anyOf": [
+            {
+              "additionalProperties": {
+                "type": "string"
+              },
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "List of key-value pairs used to define environment variables.",
+          "markdownDescription": "List of key-value pairs used to define environment variables.",
+          "title": "Lsenvironment"
+        },
+        "LSMinimumSystemVersion": {
+          "anyOf": [
+            {
+              "pattern": "^\\d+\\.\\d+\\.\\d+$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Minimum version of macOS required for this app to run, as `x.y.z`. For example, for macOS v10.4 and later, use `10.4.0`.",
+          "markdownDescription": "Minimum version of macOS required for this app to run, as `x.y.z`. For example, for macOS v10.4 and later, use `10.4.0`.",
+          "title": "Lsminimumsystemversion"
+        },
+        "LSMultipleInstancesProhibited": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Whether an app is prohibited from running simultaneously in multiple user sessions.",
+          "markdownDescription": "Whether an app is prohibited from running simultaneously in multiple user sessions.",
+          "title": "Lsmultipleinstancesprohibited"
+        },
+        "LSRequiresNativeExecution": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "If true, prevent a universal binary from being run under Rosetta emulation on an Intel-based Mac.",
+          "markdownDescription": "If true, prevent a universal binary from being run under Rosetta emulation on an Intel-based Mac.",
+          "title": "Lsrequiresnativeexecution"
+        },
+        "NSSupportsAutomaticGraphicsSwitching": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "If true, allows an OpenGL app to utilize the integrated GPU.",
+          "markdownDescription": "If true, allows an OpenGL app to utilize the integrated GPU.",
+          "title": "Nssupportsautomaticgraphicsswitching"
+        },
+        "UTExportedTypeDeclarations": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/UTTypeDeclarationModel"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The uniform type identifiers owned and exported by the app.",
+          "markdownDescription": "The uniform type identifiers owned and exported by the app.",
+          "title": "Utexportedtypedeclarations"
+        },
+        "UTImportedTypeDeclarations": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/UTTypeDeclarationModel"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The uniform type identifiers inherently supported, but not owned, by the app.",
+          "markdownDescription": "The uniform type identifiers inherently supported, but not owned, by the app.",
+          "title": "Utimportedtypedeclarations"
+        },
+        "entitlements": {
+          "anyOf": [
+            {
+              "items": {
+                "pattern": "[a-z0-9\\.\\-]+",
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "List of permissions to request for the launched application. See [the entitlements docs]( https://developer.apple.com/documentation/bundleresources/entitlements) for a full list of possible values.",
+          "markdownDescription": "List of permissions to request for the launched application. See [the entitlements docs]( https://developer.apple.com/documentation/bundleresources/entitlements) for a full list of possible values.",
+          "title": "Entitlements"
+        },
+        "link_in_bundle": {
+          "anyOf": [
+            {
+              "additionalProperties": {
+                "pattern": "^[^/]+.*",
+                "type": "string"
+              },
+              "propertyNames": {
+                "minLength": 1
+              },
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Paths that should be symlinked into the shortcut app bundle. It takes a mapping of source to destination paths. Destination paths must be relative. Placeholder `{{ MENU_ITEM_LOCATION }}` can be useful.",
+          "markdownDescription": "Paths that should be symlinked into the shortcut app bundle. It takes a mapping of source to destination paths. Destination paths must be relative. Placeholder `{{ MENU_ITEM_LOCATION }}` can be useful.",
+          "title": "Link In Bundle"
+        },
+        "event_handler": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Required shell script logic to handle opened URL payloads. Note this feature requires macOS 10.14.4 or above.",
+          "markdownDescription": "Required shell script logic to handle opened URL payloads. Note this feature requires macOS 10.14.4 or above.",
+          "title": "Event Handler"
+        }
+      },
+      "title": "MacOS",
+      "type": "object"
+    },
+    "MenuItem": {
+      "additionalProperties": false,
+      "description": "Instructions to create a menu item across operating systems.",
+      "markdownDescription": "Instructions to create a menu item across operating systems.",
+      "properties": {
+        "name": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "$ref": "#/$defs/MenuItemNameDict"
+            }
+          ],
+          "description": "The name of the menu item. Can be a dictionary if the name depends on installation parameters. See `MenuItemNameDict` for details.",
+          "markdownDescription": "The name of the menu item. Can be a dictionary if the name depends on installation parameters. See `MenuItemNameDict` for details.",
+          "title": "Name"
+        },
+        "description": {
+          "description": "A longer description of the menu item. Shown on popup messages.",
+          "markdownDescription": "A longer description of the menu item. Shown on popup messages.",
+          "title": "Description",
+          "type": "string"
+        },
+        "command": {
+          "description": "Command to run with the menu item, expressed as a list of strings where each string is an argument.",
+          "items": {
+            "type": "string"
+          },
+          "markdownDescription": "Command to run with the menu item, expressed as a list of strings where each string is an argument.",
+          "minItems": 1,
+          "title": "Command",
+          "type": "array"
+        },
+        "icon": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Path to the file representing or containing the icon.",
+          "markdownDescription": "Path to the file representing or containing the icon.",
+          "title": "Icon"
+        },
+        "precommand": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "(Simple, preferrably single-line) logic to run before the command is run. Runs before the environment is activated, if that applies.",
+          "markdownDescription": "(Simple, preferrably single-line) logic to run before the command is run. Runs before the environment is activated, if that applies.",
+          "title": "Precommand"
+        },
+        "precreate": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "(Simple, preferrably single-line) logic to run before the shortcut is created.",
+          "markdownDescription": "(Simple, preferrably single-line) logic to run before the shortcut is created.",
+          "title": "Precreate"
+        },
+        "working_dir": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Working directory for the running process. Defaults to user directory on each platform.",
+          "markdownDescription": "Working directory for the running process. Defaults to user directory on each platform.",
+          "title": "Working Dir"
+        },
+        "activate": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": true,
+          "description": "Whether to activate the target environment before running `command`.",
+          "markdownDescription": "Whether to activate the target environment before running `command`.",
+          "title": "Activate"
+        },
+        "terminal": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": false,
+          "description": "Whether run the program in a terminal/console or not. On Windows, it only has an effect if `activate` is true. On MacOS, the application will ignore command-line arguments.",
+          "markdownDescription": "Whether run the program in a terminal/console or not. On Windows, it only has an effect if `activate` is true. On MacOS, the application will ignore command-line arguments.",
+          "title": "Terminal"
+        },
+        "platforms": {
+          "$ref": "#/$defs/Platforms",
+          "description": "Platform-specific options. Presence of a platform field enables menu items in that platform.",
+          "markdownDescription": "Platform-specific options. Presence of a platform field enables menu items in that platform."
+        }
+      },
+      "required": [
+        "name",
+        "description",
+        "command",
+        "platforms"
+      ],
+      "title": "MenuItem",
+      "type": "object"
+    },
+    "MenuItemNameDict": {
+      "additionalProperties": false,
+      "description": "Variable menu item name. Use this dictionary if the menu item name depends on installation parameters such as the target environment.",
+      "markdownDescription": "Variable menu item name. Use this dictionary if the menu item name depends on installation parameters such as the target environment.",
+      "properties": {
+        "target_environment_is_base": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Name when target environment is the base environment.",
+          "markdownDescription": "Name when target environment is the base environment.",
+          "title": "Target Environment Is Base"
+        },
+        "target_environment_is_not_base": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Name when target environment is not the base environment.",
+          "markdownDescription": "Name when target environment is not the base environment.",
+          "title": "Target Environment Is Not Base"
+        }
+      },
+      "title": "MenuItemNameDict",
+      "type": "object"
+    },
+    "Platforms": {
+      "additionalProperties": false,
+      "description": "Platform specific options.\n\nNote each of these fields supports the same keys as the top-level `MenuItem` (sans `platforms` itself), in case overrides are needed.",
+      "markdownDescription": "Platform specific options.\n\nNote each of these fields supports the same keys as the top-level `MenuItem` (sans `platforms` itself), in case overrides are needed.",
+      "properties": {
+        "linux": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Linux"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Options for Linux. See `Linux` model for details.",
+          "markdownDescription": "Options for Linux. See `Linux` model for details."
+        },
+        "osx": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/MacOS"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Options for macOS. See `MacOS` model for details.",
+          "markdownDescription": "Options for macOS. See `MacOS` model for details."
+        },
+        "win": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Windows"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Options for Windows. See `Windows` model for details.",
+          "markdownDescription": "Options for Windows. See `Windows` model for details."
+        }
+      },
+      "title": "Platforms",
+      "type": "object"
+    },
+    "UTTypeDeclarationModel": {
+      "additionalProperties": false,
+      "properties": {
+        "UTTypeConformsTo": {
+          "description": "The Uniform Type Identifier types that this type conforms to.",
+          "items": {
+            "type": "string"
+          },
+          "markdownDescription": "The Uniform Type Identifier types that this type conforms to.",
+          "title": "Uttypeconformsto",
+          "type": "array"
+        },
+        "UTTypeDescription": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A description for this type.",
+          "markdownDescription": "A description for this type.",
+          "title": "Uttypedescription"
+        },
+        "UTTypeIconFile": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The bundle icon resource to associate with this type.",
+          "markdownDescription": "The bundle icon resource to associate with this type.",
+          "title": "Uttypeiconfile"
+        },
+        "UTTypeIdentifier": {
+          "description": "The Uniform Type Identifier to assign to this type.",
+          "markdownDescription": "The Uniform Type Identifier to assign to this type.",
+          "title": "Uttypeidentifier",
+          "type": "string"
+        },
+        "UTTypeReferenceURL": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The webpage for a reference document that describes this type.",
+          "markdownDescription": "The webpage for a reference document that describes this type.",
+          "title": "Uttypereferenceurl"
+        },
+        "UTTypeTagSpecification": {
+          "additionalProperties": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "description": "A dictionary defining one or more equivalent type identifiers.",
+          "markdownDescription": "A dictionary defining one or more equivalent type identifiers.",
+          "title": "Uttypetagspecification",
+          "type": "object"
+        }
+      },
+      "required": [
+        "UTTypeConformsTo",
+        "UTTypeIdentifier",
+        "UTTypeTagSpecification"
+      ],
+      "title": "UTTypeDeclarationModel",
+      "type": "object"
+    },
+    "Windows": {
+      "additionalProperties": false,
+      "description": "Windows-specific instructions. You can override global keys here if needed",
+      "markdownDescription": "Windows-specific instructions. You can override global keys here if needed",
+      "properties": {
+        "name": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "$ref": "#/$defs/MenuItemNameDict"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The name of the menu item. Can be a dictionary if the name depends on installation parameters. See `MenuItemNameDict` for details.",
+          "markdownDescription": "The name of the menu item. Can be a dictionary if the name depends on installation parameters. See `MenuItemNameDict` for details.",
+          "title": "Name"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A longer description of the menu item. Shown on popup messages.",
+          "markdownDescription": "A longer description of the menu item. Shown on popup messages.",
+          "title": "Description"
+        },
+        "icon": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Path to the file representing or containing the icon.",
+          "markdownDescription": "Path to the file representing or containing the icon.",
+          "title": "Icon"
+        },
+        "command": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "minItems": 1,
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Command to run with the menu item, expressed as a list of strings where each string is an argument.",
+          "markdownDescription": "Command to run with the menu item, expressed as a list of strings where each string is an argument.",
+          "title": "Command"
+        },
+        "working_dir": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Working directory for the running process. Defaults to user directory on each platform.",
+          "markdownDescription": "Working directory for the running process. Defaults to user directory on each platform.",
+          "title": "Working Dir"
+        },
+        "precommand": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "(Simple, preferrably single-line) logic to run before the command is run. Runs before the environment is activated, if that applies.",
+          "markdownDescription": "(Simple, preferrably single-line) logic to run before the command is run. Runs before the environment is activated, if that applies.",
+          "title": "Precommand"
+        },
+        "precreate": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "(Simple, preferrably single-line) logic to run before the shortcut is created.",
+          "markdownDescription": "(Simple, preferrably single-line) logic to run before the shortcut is created.",
+          "title": "Precreate"
+        },
+        "activate": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Whether to activate the target environment before running `command`.",
+          "markdownDescription": "Whether to activate the target environment before running `command`.",
+          "title": "Activate"
+        },
+        "terminal": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Whether run the program in a terminal/console or not. On Windows, it only has an effect if `activate` is true. On MacOS, the application will ignore command-line arguments.",
+          "markdownDescription": "Whether run the program in a terminal/console or not. On Windows, it only has an effect if `activate` is true. On MacOS, the application will ignore command-line arguments.",
+          "title": "Terminal"
+        },
+        "desktop": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": true,
+          "description": "Whether to create a desktop icon in addition to the Start Menu item.",
+          "markdownDescription": "Whether to create a desktop icon in addition to the Start Menu item.",
+          "title": "Desktop"
+        },
+        "quicklaunch": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": false,
+          "deprecated": true,
+          "description": "DEPRECATED. Whether to create a quick launch icon in addition to the Start Menu item.",
+          "markdownDescription": "DEPRECATED. Whether to create a quick launch icon in addition to the Start Menu item.",
+          "title": "Quicklaunch"
+        },
+        "terminal_profile": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Name of the Windows Terminal profile to create. This name must be unique across multiple installations because menuinst will overwrite Terminal profiles with the same name.",
+          "markdownDescription": "Name of the Windows Terminal profile to create. This name must be unique across multiple installations because menuinst will overwrite Terminal profiles with the same name.",
+          "title": "Terminal Profile"
+        },
+        "url_protocols": {
+          "anyOf": [
+            {
+              "items": {
+                "pattern": "\\S+",
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "URL protocols that will be associated with this program.",
+          "markdownDescription": "URL protocols that will be associated with this program.",
+          "title": "Url Protocols"
+        },
+        "file_extensions": {
+          "anyOf": [
+            {
+              "items": {
+                "pattern": "\\.\\S*",
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "File extensions that will be associated with this program.",
+          "markdownDescription": "File extensions that will be associated with this program.",
+          "title": "File Extensions"
+        },
+        "app_user_model_id": {
+          "anyOf": [
+            {
+              "maxLength": 128,
+              "pattern": "\\S+\\.\\S+",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Identifier used in Windows 7 and above to associate processes, files and windows with a particular application. If your shortcut produces duplicated icons, you need to define this field. If not set, it will default to `Menuinst.<name>`.\n\nSee [AppUserModelID docs]( https://learn.microsoft.com/en-us/windows/win32/shell/appids#how-to-form-an-application-defined-appusermodelid) for more information on the required string format.",
+          "markdownDescription": "Identifier used in Windows 7 and above to associate processes, files and windows with a particular application. If your shortcut produces duplicated icons, you need to define this field. If not set, it will default to `Menuinst.<name>`.\n\nSee [AppUserModelID docs]( https://learn.microsoft.com/en-us/windows/win32/shell/appids#how-to-form-an-application-defined-appusermodelid) for more information on the required string format.",
+          "title": "App User Model Id"
+        }
+      },
+      "title": "Windows",
+      "type": "object"
+    }
+  },
+  "$id": "https://schemas.conda.org/menuinst-1-1-1.schema.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$version": "1-1-1",
+  "additionalProperties": false,
+  "description": "Metadata required to create menu items across operating systems with `menuinst`.",
+  "properties": {
+    "$id": {
+      "default": "https://schemas.conda.org/menuinst-1-1-1.schema.json",
+      "deprecated": true,
+      "description": "DEPRECATED. Use ``$schema``.",
+      "markdownDescription": "DEPRECATED. Use ``$schema``.",
+      "minLength": 1,
+      "title": "$Id",
+      "type": "string"
+    },
+    "$schema": {
+      "default": "https://schemas.conda.org/menuinst-1-1-1.schema.json",
+      "description": "Version of the menuinst schema to validate against.",
+      "markdownDescription": "Version of the menuinst schema to validate against.",
+      "minLength": 1,
+      "title": "$Schema",
+      "type": "string"
+    },
+    "menu_name": {
+      "description": "Name for the category containing the items specified in `menu_items`.",
+      "markdownDescription": "Name for the category containing the items specified in `menu_items`.",
+      "minLength": 1,
+      "title": "Menu Name",
+      "type": "string"
+    },
+    "menu_items": {
+      "description": "List of menu entries to create across main desktop systems.",
+      "items": {
+        "$ref": "#/$defs/MenuItem"
+      },
+      "markdownDescription": "List of menu entries to create across main desktop systems.",
+      "minItems": 1,
+      "title": "Menu Items",
+      "type": "array"
+    }
+  },
+  "required": [
+    "menu_name",
+    "menu_items"
+  ],
+  "title": "MenuInstSchema",
+  "type": "object"
+}

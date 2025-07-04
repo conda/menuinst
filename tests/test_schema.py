@@ -27,11 +27,11 @@ def test_examples(path):
 
 
 def test_MenuItemMetadata_synced_with_OptionalMenuItemMetadata():
-    fields_as_required = MenuItem.__fields__.copy()
+    fields_as_required = MenuItem.model_fields.copy()
     fields_as_required.pop("platforms", None)
-    fields_as_optional = BasePlatformSpecific.__fields__
+    fields_as_optional = BasePlatformSpecific.model_fields
     assert fields_as_required.keys() == fields_as_optional.keys()
     for (_, required), (_, optional) in zip(
         sorted(fields_as_required.items()), sorted(fields_as_optional.items())
     ):
-        assert required.field_info.description == optional.field_info.description
+        assert required.description == optional.description

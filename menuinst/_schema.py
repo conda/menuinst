@@ -12,23 +12,18 @@ from inspect import cleandoc
 from logging import getLogger
 from pathlib import Path
 from pprint import pprint
-from typing import Dict, List, Literal, Optional, Union
+from typing import Annotated, Dict, List, Literal, Optional, Union
 
-try:
-    from pydantic.v1 import BaseModel as _BaseModel
-    from pydantic.v1 import Field as _Field
-    from pydantic.v1 import conlist, constr
-except ImportError:
-    # pydantic v1
-    from pydantic import BaseModel as _BaseModel
-    from pydantic import Field as _Field
-    from pydantic import conlist, constr
+from pydantic import BaseModel as _BaseModel
+from pydantic import Field as _Field
+from pydantic import ConfigDict
+from pydantic.types import conlist
 
 
 log = getLogger(__name__)
 SCHEMA_DIALECT = "http://json-schema.org/draft-07/schema#"
 # We follow schemaver
-SCHEMA_VERSION = "1-1-0"
+SCHEMA_VERSION = "1-1-1"
 SCHEMA_URL = f"https://schemas.conda.org/menuinst-{SCHEMA_VERSION}.schema.json"
 
 
@@ -44,22 +39,24 @@ def _clean_description(description: str) -> str:
     return description
 
 
-class BaseModel(_BaseModel):
-    class Config:
-        extra = "forbid"
+def _patch_description(schema):
+    if description := schema.get("description"):
+        description = _clean_description(description)
+        schema["description"] = description
+        schema["markdownDescription"] = description
 
-        @staticmethod
-        def schema_extra(schema, model):
-            if description := schema.get("description"):
-                description = _clean_description(description)
-                schema["description"] = description
-                schema["markdownDescription"] = description
+
+class BaseModel(_BaseModel):
+    model_config: ConfigDict = ConfigDict(extra="forbid", json_schema_extra=_patch_description)
 
 
 def Field(*args, **kwargs):
     if description := kwargs.get("description"):
-        kwargs["description"] = kwargs["markdownDescription"] = _clean_description(description)
+        kwargs["description"] = _clean_description(description)
+        kwargs.setdefault("json_schema_extra", {})["markdownDescription"] = kwargs["description"]
     return _Field(*args, **kwargs)
+
+NonEmptyString = Annotated[str, Field(min_length=1)]
 
 
 class MenuItemNameDict(BaseModel):
@@ -69,11 +66,11 @@ class MenuItemNameDict(BaseModel):
     such as the target environment.
     """
 
-    target_environment_is_base: Optional[constr(min_length=1)] = Field(
+    target_environment_is_base: Optional[NonEmptyString] = Field(
         None,
         description=("Name when target environment is the base environment."),
     )
-    target_environment_is_not_base: Optional[constr(min_length=1)] = Field(
+    target_environment_is_not_base: Optional[NonEmptyString] = Field(
         None,
         description=("Name when target environment is not the base environment."),
     )
@@ -88,7 +85,7 @@ class BasePlatformSpecific(BaseModel):
     * Default value is always `None`.
     """
 
-    name: Optional[Union[constr(min_length=1), MenuItemNameDict]] = Field(
+    name: Optional[Union[NonEmptyString, MenuItemNameDict]] = Field(
         None,
         description=(
             """
@@ -101,11 +98,11 @@ class BasePlatformSpecific(BaseModel):
         None,
         description=("A longer description of the menu item. Shown on popup messages."),
     )
-    icon: Optional[constr(min_length=1)] = Field(
+    icon: Optional[NonEmptyString] = Field(
         None,
         description=("Path to the file representing or containing the icon."),
     )
-    command: Optional[conlist(str, min_items=1)] = Field(
+    command: Optional[conlist(str, min_length=1)] = Field(
         None,
         description=(
             """
@@ -114,7 +111,7 @@ class BasePlatformSpecific(BaseModel):
             """
         ),
     )
-    working_dir: Optional[constr(min_length=1)] = Field(
+    working_dir: Optional[NonEmptyString] = Field(
         None,
         description=(
             """
@@ -123,7 +120,7 @@ class BasePlatformSpecific(BaseModel):
             """
         ),
     )
-    precommand: Optional[constr(min_length=1)] = Field(
+    precommand: Optional[NonEmptyString] = Field(
         None,
         description=(
             """
@@ -132,7 +129,7 @@ class BasePlatformSpecific(BaseModel):
             """
         ),
     )
-    precreate: Optional[constr(min_length=1)] = Field(
+    precreate: Optional[NonEmptyString] = Field(
         None,
         description=(
             """(Simple, preferrably single-line) logic to run before the shortcut is created."""
@@ -170,7 +167,7 @@ class Windows(BasePlatformSpecific):
         ),
         deprecated=True,
     )
-    terminal_profile: constr(min_length=1) = Field(
+    terminal_profile: Optional[NonEmptyString] = Field(
         None,
         description=(
             """
@@ -180,15 +177,15 @@ class Windows(BasePlatformSpecific):
             """
         ),
     )
-    url_protocols: Optional[List[constr(regex=r"\S+")]] = Field(
+    url_protocols: Optional[List[Annotated[str, Field(pattern=r"\S+")]]] = Field(
         None,
         description=("URL protocols that will be associated with this program."),
     )
-    file_extensions: Optional[List[constr(regex=r"\.\S*")]] = Field(
+    file_extensions: Optional[List[Annotated[str, Field(pattern=r"\.\S*")]]] = Field(
         None,
         description=("File extensions that will be associated with this program."),
     )
-    app_user_model_id: Optional[constr(regex=r"\S+\.\S+", max_length=128)] = Field(
+    app_user_model_id: Optional[Annotated[str, Field(pattern=r"\S+\.\S+", max_length=128)]] = Field(
         None,
         description=(
             """
@@ -213,7 +210,7 @@ class Linux(BasePlatformSpecific):
     for more details.
     """
 
-    Categories: Optional[Union[List[str], constr(regex=r"^.+;$")]] = Field(
+    Categories: Optional[Union[List[str], Annotated[str, Field(pattern=r"^.+;$")]]] = Field(
         None,
         description=(
             """
@@ -244,7 +241,7 @@ class Linux(BasePlatformSpecific):
         None,
         description=("Disable shortcut, signaling a missing resource."),
     )
-    Implements: Optional[Union[List[str], constr(regex=r"^.+;$")]] = Field(
+    Implements: Optional[Union[List[str], Annotated[str, Field(pattern=r"^.+;$")]]] = Field(
         None,
         description=(
             """
@@ -253,11 +250,11 @@ class Linux(BasePlatformSpecific):
             """
         ),
     )
-    Keywords: Optional[Union[List[str], constr(regex=r"^.+;$")]] = Field(
+    Keywords: Optional[Union[List[str], Annotated[str, Field(pattern=r"^.+;$")]]] = Field(
         None,
         description=("Additional terms to describe this shortcut to aid in searching."),
     )
-    MimeType: Optional[Union[List[str], constr(regex=r"^.+;$")]] = Field(
+    MimeType: Optional[Union[List[str], Annotated[str, Field(pattern=r"^.+;$")]]] = Field(
         None,
         description=(
             """
@@ -279,7 +276,7 @@ class Linux(BasePlatformSpecific):
             """
         ),
     )
-    NotShowIn: Optional[Union[List[str], constr(regex=r"^.+;$")]] = Field(
+    NotShowIn: Optional[Union[List[str], Annotated[str, Field(pattern=r"^.+;$")]]] = Field(
         None,
         description=(
             """
@@ -288,7 +285,7 @@ class Linux(BasePlatformSpecific):
             """
         ),
     )
-    OnlyShowIn: Optional[Union[List[str], constr(regex=r"^.+;$")]] = Field(
+    OnlyShowIn: Optional[Union[List[str], Annotated[str, Field(pattern=r"^.+;$")]]] = Field(
         None,
         description=(
             """
@@ -341,7 +338,7 @@ class Linux(BasePlatformSpecific):
             """
         ),
     )
-    glob_patterns: Optional[Dict[str, constr(regex=r".*\*.*")]] = Field(
+    glob_patterns: Optional[Dict[str, Annotated[str, Field(pattern=r".*\*.*")]]] = Field(
         None,
         description=(
             """
@@ -456,7 +453,7 @@ class MacOS(BasePlatformSpecific):
             """
         ),
     )
-    CFBundleIdentifier: Optional[constr(regex=r"^[A-z0-9\-\.]+$")] = Field(
+    CFBundleIdentifier: Optional[Annotated[str, Field(pattern=r"^[A-z0-9\-\.]+$")]] = Field(
         None,
         description=(
             """
@@ -465,7 +462,7 @@ class MacOS(BasePlatformSpecific):
             """
         ),
     )
-    CFBundleName: Optional[constr(max_length=16)] = Field(
+    CFBundleName: Optional[Annotated[str, Field(max_length=16)]] = Field(
         None,
         description=(
             """
@@ -483,7 +480,7 @@ class MacOS(BasePlatformSpecific):
             """
         ),
     )
-    CFBundleVersion: Optional[constr(regex=r"^\S+$")] = Field(
+    CFBundleVersion: Optional[Annotated[str, Field(pattern=r"^\S+$")]] = Field(
         None,
         description=(
             """
@@ -511,7 +508,7 @@ class MacOS(BasePlatformSpecific):
             """
         ),
     )
-    LSApplicationCategoryType: Optional[constr(regex=r"^public\.app-category\.\S+$")] = Field(
+    LSApplicationCategoryType: Optional[Annotated[str, Field(pattern=r"^public\.app-category\.\S+$")]] = Field(
         None,
         description=(
             "The App Store uses this string to determine the appropriate categorization."
@@ -525,7 +522,7 @@ class MacOS(BasePlatformSpecific):
         None,
         description=("List of key-value pairs used to define environment variables."),
     )
-    LSMinimumSystemVersion: Optional[constr(regex=r"^\d+\.\d+\.\d+$")] = Field(
+    LSMinimumSystemVersion: Optional[Annotated[str, Field(pattern=r"^\d+\.\d+\.\d+$")]] = Field(
         None,
         description=(
             """
@@ -565,7 +562,7 @@ class MacOS(BasePlatformSpecific):
             "The uniform type identifiers inherently supported, but not owned, by the app."
         ),
     )
-    entitlements: Optional[List[constr(regex=r"[a-z0-9\.\-]+")]] = Field(
+    entitlements: Optional[List[Annotated[str, Field(pattern=r"[a-z0-9\.\-]+")]]] = Field(
         None,
         description=(
             """
@@ -575,7 +572,7 @@ class MacOS(BasePlatformSpecific):
             """
         ),
     )
-    link_in_bundle: Optional[Dict[constr(min_length=1), constr(regex=r"^(?!\/)(?!\.\./).*")]] = (
+    link_in_bundle: Optional[Dict[NonEmptyString, Annotated[str, Field(pattern=r"^[^/]+.*")]]] = (
         Field(
             None,
             description=(
@@ -587,7 +584,7 @@ class MacOS(BasePlatformSpecific):
             ),
         )
     )
-    event_handler: Optional[constr(min_length=1)] = Field(
+    event_handler: Optional[NonEmptyString] = Field(
         None,
         description=(
             """
@@ -607,12 +604,15 @@ class Platforms(BaseModel):
     """
 
     linux: Optional[Linux] = Field(
+        None,
         description=("Options for Linux. See `Linux` model for details."),
     )
     osx: Optional[MacOS] = Field(
+        None,
         description=("Options for macOS. See `MacOS` model for details."),
     )
     win: Optional[Windows] = Field(
+        None,
         description=("Options for Windows. See `Windows` model for details."),
     )
 
@@ -620,7 +620,7 @@ class Platforms(BaseModel):
 class MenuItem(BaseModel):
     "Instructions to create a menu item across operating systems."
 
-    name: Union[constr(min_length=1), MenuItemNameDict] = Field(
+    name: Union[NonEmptyString, MenuItemNameDict] = Field(
         ...,
         description=(
             """
@@ -633,7 +633,7 @@ class MenuItem(BaseModel):
         ...,
         description=("A longer description of the menu item. Shown on popup messages."),
     )
-    command: conlist(str, min_items=1) = Field(
+    command: conlist(str, min_length=1) = Field(
         ...,
         description=(
             """
@@ -642,11 +642,11 @@ class MenuItem(BaseModel):
             """
         ),
     )
-    icon: Optional[constr(min_length=1)] = Field(
+    icon: Optional[NonEmptyString] = Field(
         None,
         description=("Path to the file representing or containing the icon."),
     )
-    precommand: Optional[constr(min_length=1)] = Field(
+    precommand: Optional[NonEmptyString] = Field(
         None,
         description=(
             """
@@ -655,7 +655,7 @@ class MenuItem(BaseModel):
             """
         ),
     )
-    precreate: Optional[constr(min_length=1)] = Field(
+    precreate: Optional[NonEmptyString] = Field(
         None,
         description=(
             """
@@ -663,7 +663,7 @@ class MenuItem(BaseModel):
             """
         ),
     )
-    working_dir: Optional[constr(min_length=1)] = Field(
+    working_dir: Optional[NonEmptyString] = Field(
         None,
         description=(
             """
@@ -695,40 +695,41 @@ class MenuItem(BaseModel):
         ),
     )
 
-
 class MenuInstSchema(BaseModel):
     "Metadata required to create menu items across operating systems with `menuinst`."
 
-    class Config(BaseModel.Config):
-        schema_extra = {
+    model_config: ConfigDict = ConfigDict(
+        extra="forbid",
+        json_schema_extra={
             "$schema": SCHEMA_DIALECT,
             "$id": SCHEMA_URL,
             "$version": SCHEMA_VERSION,
-        }
+        },
+    )
 
-    id_: constr(min_length=1) = Field(
+    id_: NonEmptyString = Field(
         SCHEMA_URL,
         description="DEPRECATED. Use ``$schema``.",
         alias="$id",
         deprecated=True,
     )
-    schema_: constr(min_length=1) = Field(
+    schema_: NonEmptyString = Field(
         SCHEMA_URL,
         description="Version of the menuinst schema to validate against.",
         alias="$schema",
     )
-    menu_name: constr(min_length=1) = Field(
+    menu_name: NonEmptyString = Field(
         ...,
         description=("Name for the category containing the items specified in `menu_items`."),
     )
-    menu_items: conlist(MenuItem, min_items=1) = Field(
+    menu_items: conlist(MenuItem, min_length=1) = Field(
         ...,
         description=("List of menu entries to create across main desktop systems."),
     )
 
 
 def dump_schema_to_json(write=True):
-    schema = MenuInstSchema.schema()
+    schema = MenuInstSchema.model_json_schema()
     if write:
         here = Path(__file__).parent
         schema_str = json.dumps(schema, indent=2)
@@ -742,20 +743,22 @@ def dump_schema_to_json(write=True):
 def dump_default_to_json(write=True):
     here = Path(__file__).parent
     default_item = MenuItem(
-        name="REQUIRED", description="REQUIRED", command=["REQUIRED"], platforms={}
-    ).dict()
-    default_item["platforms"] = {
-        "win": Windows().dict(),
-        "osx": MacOS().dict(),
-        "linux": Linux().dict(),
-    }
-    default = MenuInstSchema(menu_name="REQUIRED", menu_items=[default_item]).dict()
+        name="REQUIRED",
+        description="REQUIRED",
+        command=["REQUIRED"],
+        platforms={
+            "win": Windows().model_dump(),
+            "osx": MacOS().model_dump(),
+            "linux": Linux().model_dump(),
+        },
+    )
+    default = MenuInstSchema(menu_name="REQUIRED", menu_items=[default_item]).model_dump()
     default["$schema"] = SCHEMA_URL
     default.pop("id_", None)
     default.pop("schema_", None)
     for platform_value in default["menu_items"][0]["platforms"].values():
         for key in list(platform_value.keys()):
-            if key in MenuItem.__fields__:
+            if key in MenuItem.model_fields:
                 platform_value.pop(key)
     if write:
         pprint(default)
