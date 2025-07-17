@@ -83,7 +83,12 @@ def test_conda_recent_enough():
 
 @pytest.mark.skipif(PLATFORM != "linux", reason="Linux only")
 def test_package_1_linux(tmpdir, conda_cli):
-    applications_menu = Path(tmpdir) / "config" / "menus" / "applications.menu"
+    applications_menu = (
+        Path(tmpdir)
+        / "config"
+        / "menus"
+        / f"{os.environ.get('XDG_MENU_PREFIX', '')}applications.menu"
+    )
     if applications_menu.is_file():
         original_xml = applications_menu.read_text()
     else:
