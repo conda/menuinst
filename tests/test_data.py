@@ -35,8 +35,4 @@ def test_links_point_to_latest_version(datatype: str):
     symlink = data_path(f"menuinst.{datatype}.json")
     assert latest_file.exists()
     assert symlink.exists()
-    if symlink.is_symlink():
-        assert symlink.samefile(latest_file)
-    else:
-        # GitHub runners do not support symlinks
-        assert symlink.read_text() == latest_file.name
+    assert symlink.read_text() == latest_file.read_text()
