@@ -1,5 +1,33 @@
 [//]: # (current developments)
 
+## 2.3.1 (2025-07-25)
+
+### Bug fixes
+
+* Restore behavior where the absence of a platform key in the MenuItem `platforms` dictionary disables shortcut creation for that platform. (#234, #240 via #350)
+* Allow `null` for `icon` and `platforms.(win|osx|linux)`. This bumps the schema version to `1-1-1`. (#345 via #351)
+* Restore `menuinst.default.json` and `menuinst.schema.json` to prevent errors during `conda update`. (#358 via #359)
+
+### Other
+
+* Update `_schema.py` to use `pydantic` v2. (#351)
+* Fix some type hints. (#352)
+
+### Contributors
+
+* @dbast
+* @larsoner
+* @JTignor-Raltron
+* @jaimergp
+* @zklaus
+* @marcoesters
+* @soapy1
+* @conda-bot
+* @dependabot[bot]
+* @pre-commit-ci[bot]
+
+
+
 ## 2.3.0 (2025-06-16)
 
 ### Enhancements
