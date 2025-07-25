@@ -28,6 +28,7 @@ Authors are sorted alphabetically.
 * Prabhu Ramachandran
 * Ray Donnelly
 * Shaun Walbridge
+* Sophia Castellarin
 * Trent Nelson
 * ccasey
 * conda-bot
