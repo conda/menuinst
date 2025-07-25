@@ -22,9 +22,6 @@
 * @zklaus
 * @marcoesters
 * @soapy1
-* @conda-bot
-* @dependabot[bot]
-* @pre-commit-ci[bot]
 
 
 
