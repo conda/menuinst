@@ -1,7 +1,7 @@
+import logging
 import os
 import time
 from pathlib import Path
-import logging
 
 import pytest
 
@@ -65,6 +65,7 @@ def test_unregister_file_extension_error(capsys, request):
     Unregister a file extension that has not been registered and check that the
     appropriate log message is reported.
     """
+
     def cleanup():
         registry.log.handlers.clear()
         registry.log.setLevel(logging.NOTSET)
@@ -80,7 +81,10 @@ def test_unregister_file_extension_error(capsys, request):
         extension=".menuinst-bar", identifier=identifier, mode="user"
     )
     captured = capsys.readouterr()
-    assert captured.err.strip() == "Handler 'menuinst.assoc.menuinst-foo' is not associated with extension '.menuinst-bar'"
+    assert (
+        captured.err.strip()
+        == "Handler 'menuinst.assoc.menuinst-foo' is not associated with extension '.menuinst-bar'"
+    )
 
 
 def test_protocols(tmp_path):

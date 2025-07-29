@@ -109,9 +109,7 @@ def unregister_file_extension(extension, identifier, mode="user"):
         ) as key:
             winreg.DeleteValue(key, identifier)
     except FileNotFoundError:
-        log.debug(
-            "Handler '%s' is not associated with extension '%s'", identifier, extension
-        )
+        log.debug("Handler '%s' is not associated with extension '%s'", identifier, extension)
     except Exception as exc:
         log.debug("Could not check key '%s' for deletion", extension, exc_info=exc)
         return False
