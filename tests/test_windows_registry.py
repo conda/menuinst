@@ -1,6 +1,7 @@
 import os
 import time
 from pathlib import Path
+import logging
 
 import pytest
 
@@ -57,6 +58,29 @@ def test_file_extensions(tmp_path: Path, request):
     while time.time() - t0 <= 3:  # wait up to 3 seconds
         time.sleep(1)
         assert not output_file.exists()
+
+
+def test_unregister_file_extension_error(capsys, request):
+    """
+    Unregister a file extension that has not been registered and check that the
+    appropriate log message is reported.
+    """
+    def cleanup():
+        registry.log.handlers.clear()
+        registry.log.setLevel(logging.NOTSET)
+
+    request.addfinalizer(cleanup)
+
+    registry.log.addHandler(logging.StreamHandler())
+    registry.log.setLevel("DEBUG")
+
+    identifier = "menuinst.assoc.menuinst-foo"
+
+    registry.unregister_file_extension(
+        extension=".menuinst-bar", identifier=identifier, mode="user"
+    )
+    captured = capsys.readouterr()
+    assert captured.err.strip() == "Handler 'menuinst.assoc.menuinst-foo' is not associated with extension '.menuinst-bar'"
 
 
 def test_protocols(tmp_path):
