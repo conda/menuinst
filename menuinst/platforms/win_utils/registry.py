@@ -107,16 +107,11 @@ def unregister_file_extension(extension, identifier, mode="user"):
         with winreg.OpenKey(
             root, rf"Software\Classes\{extension}\OpenWithProgids", 0, winreg.KEY_ALL_ACCESS
         ) as key:
-            try:
-                winreg.QueryValueEx(key, identifier)
-            except FileNotFoundError:
-                log.debug(
-                    "Handler '%s' is not associated with extension '%s'", identifier, extension
-                )
-            else:
-                winreg.DeleteValue(key, identifier)
+            winreg.DeleteValue(key, identifier)
+    except FileNotFoundError:
+        log.debug("Handler '%s' is not associated with extension '%s'", identifier, extension)
     except Exception as exc:
-        log.exception("Could not check key '%s' for deletion", extension, exc_info=exc)
+        log.debug("Could not check key '%s' for deletion", extension, exc_info=exc)
         return False
 
 
