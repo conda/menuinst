@@ -215,7 +215,11 @@ def test_placeholders_in_menu_name(delete_files):
             Path(os.environ.get("XDG_DATA_HOME", "~/.local/share")).expanduser()
             / "desktop-directories"
         )
-        menu_config_location = config_directory / "menus" / "applications.menu"
+        menu_config_location = (
+            config_directory
+            / "menus"
+            / f"{os.environ.get('XDG_MENU_PREFIX', '')}applications.menu"
+        )
         rendered_name = f"Sys.Prefix {Path(tmp_base_path).name}"
         slugified_name = slugify(rendered_name)
 
