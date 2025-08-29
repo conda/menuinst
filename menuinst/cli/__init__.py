@@ -13,18 +13,18 @@ def _add_install_group(parser: argparse.ArgumentParser) -> None:
     install_group.add_argument(
         "--install",
         nargs="*",
-        metavar="PKG_NAME",
+        metavar="PKG",
         help="create menu items for the given packages; "
         "if none are given, create menu items for all packages "
-        "in the environment",
+        "in the prefix",
     )
     install_group.add_argument(
         "--remove",
         nargs="*",
-        metavar="PKG_NAME",
+        metavar="PKG",
         help="remove menu items for the given packages; "
         "if none are given, remove menu items for all packages "
-        "in the environment",
+        "in the prefix",
     )
 
 
@@ -32,7 +32,7 @@ def _add_prefix(parser: argparse.ArgumentParser):
     parser.add_argument(
         "--prefix",
         required=True,
-        help="The prefix containing the shortcuts",
+        help="The prefix containing the shortcuts metadate inside `Menu`",
     )
 
 
@@ -44,8 +44,8 @@ def _add_root_prefix(parser: argparse.ArgumentParser):
 
 
 def configure_parser(parser: argparse.ArgumentParser) -> None:
-    _add_install_group(parser)
     _add_prefix(parser)
+    _add_install_group(parser)
     _add_root_prefix(parser)
 
 

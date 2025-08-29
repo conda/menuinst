@@ -31,6 +31,46 @@ shortcuts: false  # equivalent to always using --no-shortcuts
 - https://github.com/mamba-org/mamba/issues/923
 ```
 
+### The `menuinst` plug-in
+
+`menuinst` exposes its CLI also as a `conda` plug-in:
+
+```shell
+usage: conda menuinst (--install [PKG ...] | --remove [PKG ...]) [-n ENVIRONMENT | -p PATH]
+                      [--root-prefix ROOT_PREFIX] [-h]
+
+A subcommand for installing and removing shortcuts via menuinst.
+
+options:
+  --install [PKG ...]   create menu items for the given packages; if none are given, create menu items for all
+                        packages in the prefix
+  --remove [PKG ...]    remove menu items for the given packages; if none are given, remove menu items for all
+                        packages in the prefix
+  --root-prefix ROOT_PREFIX
+                        The menuinst base/root prefix
+  -h, --help            Show this help message and exit.
+
+Target Environment Specification:
+  -n ENVIRONMENT, --name ENVIRONMENT
+                        Name of environment.
+  -p PATH, --prefix PATH
+                        Full path to environment location (i.e. prefix).
+```
+
+It acts similarly to the [CLI](./getting-started) but the prefix can be chosen in three
+different ways:
+
+* Explictly via `-p`/`--prefix`.
+* Using the environment name via `-n`/`--name`.
+* Using the `CONDA_PREFIX` environment variable (typically set to the active environment).
+
+```{note}
+`PKG` is the name of the metadata file, not the package name.
+To make using the plug-in easier, package providers should name the metadata file in such
+a way that users can run `conda menuinst --remove <package name>`.
+This can be achieved, for example, by naming the metadata file `<package name>_menu.json`.
+```
+
 ### Removing shortcuts
 
 The shortcuts created by `menuinst` will be removed automatically by `conda` when you uninstall the associated package from an environment.
