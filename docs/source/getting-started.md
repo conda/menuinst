@@ -39,7 +39,7 @@ options:
 The CLI will look for [metadata files](./defining-shortcuts) inside the directory `${PREFIX}/Menu`.
 `PKG` is a set of metadata file names.
 
-For example, if `${PREFIX}/Menu` contains the file `package_menu.json`, the package can be
+For example, if `${PREFIX}/Menu` contains the file `package_menu.json`, its shortcuts can be
 installed with:
 
 ```shell

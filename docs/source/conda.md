@@ -31,9 +31,17 @@ shortcuts: false  # equivalent to always using --no-shortcuts
 - https://github.com/mamba-org/mamba/issues/923
 ```
 
-### The `menuinst` plug-in
+### Removing shortcuts
 
-`menuinst` exposes its CLI also as a `conda` plug-in:
+The shortcuts created by `menuinst` will be removed automatically by `conda` when you uninstall the associated package from an environment.
+
+```{warning}
+`conda` has a known issue with environment removals. If you run `conda env remove -n <YOUR_ENV>`, the pre-uninstall actions will NOT be executed, which means that `menuinst` won't be invoked and the shortcut artifacts won't be removed. To clear an environment fully in a clean way, you'd need to run `conda remove -n <YOUR_ENV> --all`.
+```
+
+## `menuinst` plug-in for `conda`
+
+`menuinst` proves a `conda` plug-in:
 
 ```shell
 usage: conda menuinst (--install [PKG ...] | --remove [PKG ...]) [-n ENVIRONMENT | -p PATH]
@@ -60,7 +68,7 @@ Target Environment Specification:
 It acts similarly to the [CLI](./getting-started) but the prefix can be chosen in three
 different ways:
 
-* Explictly via `-p`/`--prefix`.
+* As an explicit path via `-p`/`--prefix`.
 * Using the environment name via `-n`/`--name`.
 * Using the `CONDA_PREFIX` environment variable (typically set to the active environment).
 
@@ -69,14 +77,6 @@ different ways:
 To make using the plug-in easier, package providers should name the metadata file in such
 a way that users can run `conda menuinst --remove <package name>`.
 This can be achieved, for example, by naming the metadata file `<package name>_menu.json`.
-```
-
-### Removing shortcuts
-
-The shortcuts created by `menuinst` will be removed automatically by `conda` when you uninstall the associated package from an environment.
-
-```{warning}
-`conda` has a known issue with environment removals. If you run `conda env remove -n <YOUR_ENV>`, the pre-uninstall actions will NOT be executed, which means that `menuinst` won't be invoked and the shortcut artifacts won't be removed. To clear an environment fully in a clean way, you'd need to run `conda remove -n <YOUR_ENV> --all`.
 ```
 
 ## Adding shortcuts to `conda` packages
