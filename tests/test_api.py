@@ -45,7 +45,7 @@ def check_output_from_shortcut(
     action="run_shortcut",
     file_to_open=None,
     url_to_open=None,
-) -> Tuple[Path, Iterable[Path], str]:
+) -> Tuple[Path, Iterable[Path], Path, str]:
     assert action in ("run_shortcut", "open_file", "open_url", None)
 
     output = None
@@ -296,16 +296,31 @@ def test_info_plist(delete_files):
     json_path, paths, *_ = check_output_from_shortcut(
         delete_files, "entitlements.json", remove_after=False, expected_output="entitlements"
     )
+    metadata = json.loads(json_path.read_text())
+    menu_item = next((item for item in metadata.get("menu_items", [])), None)
+    assert menu_item
+    plist_data = menu_item.get("platforms", {}).get("osx", {})
+    assert plist_data
     app_dir = next(p for p in paths if p.name.endswith(".app"))
 
+    missing_items = []
+    incorrect_items = {}
     for path in app_dir.rglob("Info.plist"):
         plist = plistlib.loads(path.read_bytes())
         assert plist
+        for key, value in plist_data.items():
+            if key == "entitlements":
+                continue
+            if key not in plist:
+                missing_items.append(key)
+            elif plist[key] != value:
+                incorrect_items[key] = {"expected": value, "found": plist[key]}
         break
     else:
         raise AssertionError("Didn't find file")
 
-    assert plist["LSEnvironment"]["example_var"] == "example_value"
+    assert missing_items == []
+    assert incorrect_items == {}
 
     remove(json_path)
 
