@@ -17,9 +17,16 @@
           "entitlements": [
             "com.apple.security.files.user-selected.read-write"
           ],
+          "LSBackgroundOnly": false,
           "LSEnvironment": {
             "example_var": "example_value"
-          }
+          },
+          "LSMinimumSystemVersion": "10.4.0",
+          "NSAudioCaptureUsageDescription": "Audio test",
+          "NSCameraUsageDescription": "Camera test",
+          "NSMainCameraUsageDescription": "Main camera test",
+          "NSMicrophoneUsageDescription": "Mic check",
+          "NSSupportsAutomaticGraphicsSwitching": false
         }
       }
     }
