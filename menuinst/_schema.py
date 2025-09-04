@@ -23,7 +23,7 @@ from pydantic.types import conlist
 log = getLogger(__name__)
 SCHEMA_DIALECT = "http://json-schema.org/draft-07/schema#"
 # We follow schemaver
-SCHEMA_VERSION = "1-1-1"
+SCHEMA_VERSION = "1-1-2"
 SCHEMA_URL = f"https://schemas.conda.org/menuinst-{SCHEMA_VERSION}.schema.json"
 
 
@@ -546,6 +546,30 @@ class MacOS(BasePlatformSpecific):
             If true, prevent a universal binary from being run under
             Rosetta emulation on an Intel-based Mac.
             """
+        ),
+    )
+    NSAudioCaptureUsageDescription: Optional[str] = Field(
+        None,
+        description=(
+            "A message describing why an app is requesting access to capture system audio."
+        ),
+    )
+    NSCameraUsageDescription: Optional[str] = Field(
+        None,
+        description=(
+            "A message describing why an app is requesting access to the device's camera."
+        ),
+    )
+    NSMainCameraUsageDescription: Optional[str] = Field(
+        None,
+        description=(
+            "A message describing why an app is requesting access to the device's main camera."
+        ),
+    )
+    NSMicrophoneUsageDescription: Optional[str] = Field(
+        None,
+        description=(
+            "A message describing why an app is requesting access to the device's microphone."
         ),
     )
     NSSupportsAutomaticGraphicsSwitching: Optional[bool] = Field(
