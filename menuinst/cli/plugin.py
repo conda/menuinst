@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 from . import _add_install_group, _add_root_prefix, install
 
 try:
-    from conda.base.context import locate_prefix_by_name, reset_context
+    from conda.base.context import context, locate_prefix_by_name, reset_context
     from conda.cli.helpers import add_parser_prefix
     from conda.plugins.hookspec import hookimpl
     from conda.plugins.types import CondaSubcommand
@@ -35,7 +35,7 @@ def execute(args: Namespace):
     elif args.name:
         if root_prefix:
             os.environ["CONDA_ROOT_PREFIX"] = root_prefix
-            reset_context()
+            reset_context(search_path=context._search_path, argparse_args=context._argparse_args)
         prefix_raw = locate_prefix_by_name(args.name)
     elif not (prefix_raw := os.environ.get("CONDA_PREFIX")):
         raise ValueError("No active prefix found and no --prefix or --name given.")
