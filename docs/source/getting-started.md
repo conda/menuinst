@@ -46,13 +46,9 @@ installed with:
 menuinst --prefix ${PREFIX} --install package_menu.json
 ```
 
-The CLI accepts some shorthands and does not require the `.json` ending or the `_menu` suffix (the
-suffixes `-menu` and `.menu` are also ignored).
-So, the following commands are equivalent for `package_menu.json`:
+Alternatively, the package name of the `conda` package can be used:
 
 ```shell
-menuinst --prefix ${PREFIX} --install package_menu.json
-menuinst --prefix ${PREFIX} --install package_menu
 menuinst --prefix ${PREFIX} --install package
 ```
 

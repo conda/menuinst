@@ -16,7 +16,7 @@ def _add_install_group(parser: argparse.ArgumentParser) -> None:
         "--install",
         nargs="*",
         metavar="PKG",
-        help="create menu items for the given packages; "
+        help="create menu items for the given metadata JSON files or packages; "
         "if none are given, create menu items for all packages "
         "in the prefix",
     )
@@ -24,7 +24,7 @@ def _add_install_group(parser: argparse.ArgumentParser) -> None:
         "--remove",
         nargs="*",
         metavar="PKG",
-        help="remove menu items for the given packages; "
+        help="remove menu items for the given metadata JSON files or packages; "
         "if none are given, remove menu items for all packages "
         "in the prefix",
     )
