@@ -6,9 +6,9 @@ from typing import TYPE_CHECKING
 import pytest
 from conda.base.context import context
 from conftest import DATA
+from menuinst.cli.plugin import conda_subcommands
 
 from menuinst.api import install, remove
-from menuinst.cli.plugin import conda_subcommands
 
 if TYPE_CHECKING:
     from pathlib import Path
