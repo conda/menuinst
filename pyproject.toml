@@ -13,7 +13,7 @@ dynamic = [
 ]
 
 [project.scripts]
-menuinst = "menuinst.cli:main"
+menuinst = "menuinst.cli.cli:main"
 
 [project.entry-points.conda]
 menuinst = "menuinst.cli.plugin"
