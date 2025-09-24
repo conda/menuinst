@@ -4,7 +4,7 @@ import os
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from .cli import _add_install_group, _add_root_prefix, install
+from .cli.cli import _add_install_group, _add_root_prefix, install
 
 try:
     from conda.base.context import context, locate_prefix_by_name, reset_context
