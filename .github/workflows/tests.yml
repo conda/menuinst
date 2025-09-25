@@ -25,7 +25,7 @@ jobs:
   run_test_suite:
     name: ${{ matrix.os }}-py${{ matrix.python-version }}${{ matrix.miniforge-version != 'latest' && format('-miniforge-{0}', matrix.miniforge-version) || '' }}
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 60
+    timeout-minutes: 90
     env:
       CONDA_NUMBER_CHANNEL_NOTICES: 0
       PYTHONUNBUFFERED: 1
