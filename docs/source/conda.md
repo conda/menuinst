@@ -44,25 +44,24 @@ The shortcuts created by `menuinst` will be removed automatically by `conda` whe
 `menuinst` proves a `conda` plug-in:
 
 ```shell
-usage: conda menuinst (--install [PKG ...] | --remove [PKG ...]) [-n ENVIRONMENT | -p PATH]
-                      [--root-prefix ROOT_PREFIX] [-h]
+usage: conda menuinst (--install [PKG ...] | --remove [PKG ...]) [-n ENVIRONMENT | -p PATH] [--root-prefix ROOT_PREFIX]
+                      [-h]
 
 A subcommand for installing and removing shortcuts via menuinst.
 
 options:
-  --install [PKG ...]   create menu items for the given packages; if none are given, create menu items for all
-                        packages in the prefix
-  --remove [PKG ...]    remove menu items for the given packages; if none are given, remove menu items for all
-                        packages in the prefix
+  --install [PKG ...]   create menu items for the given metadata JSON files or packages; if none are given, create menu
+                        items for all packages in the prefix
+  --remove [PKG ...]    remove menu items for the given metadata JSON files or packages; if none are given, remove menu
+                        items for all packages in the prefix
   --root-prefix ROOT_PREFIX
                         The menuinst base/root prefix
   -h, --help            Show this help message and exit.
 
 Target Environment Specification:
-  -n ENVIRONMENT, --name ENVIRONMENT
+  -n, --name ENVIRONMENT
                         Name of environment.
-  -p PATH, --prefix PATH
-                        Full path to environment location (i.e. prefix).
+  -p, --prefix PATH     Full path to environment location (i.e. prefix).
 ```
 
 It acts similarly to the [CLI](./getting-started) but the prefix can be chosen in three

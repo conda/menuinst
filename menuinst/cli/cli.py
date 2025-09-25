@@ -82,7 +82,7 @@ def install(
         )
 
 
-def main(argv: list[str] | None = None):
+def main(argv: list[str] | None = None):
     argv = sys.argv[1:] if argv is None else argv
     parser = argparse.ArgumentParser()
     configure_parser(parser)

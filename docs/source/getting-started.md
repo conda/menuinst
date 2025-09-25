@@ -28,10 +28,10 @@ usage: menuinst [-h] --prefix PREFIX (--install [PKG ...] | --remove [PKG ...]) 
 options:
   -h, --help            show this help message and exit
   --prefix PREFIX       The prefix containing the shortcuts metadate inside `Menu`
-  --install [PKG ...]   create menu items for the given packages; if none are given, create menu items for all
-                        packages in the prefix
-  --remove [PKG ...]    remove menu items for the given packages; if none are given, remove menu items for all
-                        packages in the prefix
+  --install [PKG ...]   create menu items for the given metadata JSON files or packages; if none are given, create menu
+                        items for all packages in the prefix
+  --remove [PKG ...]    remove menu items for the given metadata JSON files or packages; if none are given, remove menu
+                        items for all packages in the prefix
   --root-prefix ROOT_PREFIX
                         The menuinst base/root prefix
 ```
