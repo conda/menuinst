@@ -494,8 +494,9 @@ class MacOS(BasePlatformSpecific):
         None,
         description=(
             """
-            URL types supported by this app. Requires setting `event_handler` too.
-            Note this feature requires macOS 10.14.4 or above.
+            URL types supported by this app. Requires macOS 10.14.4 or above.
+            Refer to `event_handler` if your application does not have support
+            for Apple Events handling.
             """
         ),
     )
@@ -503,8 +504,9 @@ class MacOS(BasePlatformSpecific):
         None,
         description=(
             """
-            Document types supported by this app. Requires setting `event_handler` too.
-            Requires macOS 10.14.4 or above.
+            Document types supported by this app. Requires macOS 10.14.4 or above.
+            Refer to `event_handler` if your application does not have support
+            for Apple Events handling.
             """
         ),
     )
@@ -614,6 +616,10 @@ class MacOS(BasePlatformSpecific):
             """
             Required shell script logic to handle opened URL payloads.
             Note this feature requires macOS 10.14.4 or above.
+            Using this key will inject a custom Swift launcher in the `.app` bundle
+            to listen to Apple Events and forward them to your application.
+            If your app is already handling Apple Events (e.g. via Qt's
+            `QFileOpenEvent`), you do not need this.
             """
         ),
     )
