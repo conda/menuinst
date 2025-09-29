@@ -36,7 +36,7 @@ jobs:
         python-version: ["3.9", "3.10", "3.11", "3.12"]
         miniforge-version: [latest]
         include:
-          - os: windows-latest
+          - os: windows-2022
             python-version: "3.12"
             # contains conda-standalone < 25.3.0
             miniforge-version: "25.3.0-3"
