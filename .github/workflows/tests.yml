@@ -25,14 +25,14 @@ jobs:
   run_test_suite:
     name: ${{ matrix.os }}-py${{ matrix.python-version }}${{ matrix.miniforge-version != 'latest' && format('-miniforge-{0}', matrix.miniforge-version) || '' }}
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 90
+    timeout-minutes: 60
     env:
       CONDA_NUMBER_CHANNEL_NOTICES: 0
       PYTHONUNBUFFERED: 1
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest, ubuntu-latest, macos-13]
+        os: [windows-2022, ubuntu-latest, macos-13]
         python-version: ["3.9", "3.10", "3.11", "3.12"]
         miniforge-version: [latest]
         include:
