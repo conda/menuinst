@@ -136,7 +136,7 @@ def _process_all(
 _api_remove = remove  # alias to prevent shadowing in the function below
 
 
-def _install_adapter(path: Path, remove: bool = False, prefix: str = DEFAULT_PREFIX, **kwargs):
+def _install_adapter(path: str, remove: bool = False, prefix: str = DEFAULT_PREFIX, **kwargs):
     """
     This function is only here as a legacy adapter for menuinst v1.x.
     Please use `menuinst.api` functions instead.

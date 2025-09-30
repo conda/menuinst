@@ -32,11 +32,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest, ubuntu-latest, macos-13]
+        os: [windows-2022, ubuntu-latest, macos-13]
         python-version: ["3.9", "3.10", "3.11", "3.12"]
         miniforge-version: [latest]
         include:
-          - os: windows-latest
+          - os: windows-2022
             python-version: "3.12"
             # contains conda-standalone < 25.3.0
             miniforge-version: "25.3.0-3"
@@ -124,7 +124,7 @@ jobs:
             subdir: osx-64
           - runner: macos-14
             subdir: osx-arm64
-          - runner: windows-latest
+          - runner: windows-2022
             subdir: win-64
     runs-on: ${{ matrix.runner }}
     steps:
