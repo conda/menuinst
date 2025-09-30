@@ -789,8 +789,8 @@
             }
           ],
           "default": null,
-          "description": "URL types supported by this app. Requires setting `event_handler` too. Note this feature requires macOS 10.14.4 or above.",
-          "markdownDescription": "URL types supported by this app. Requires setting `event_handler` too. Note this feature requires macOS 10.14.4 or above.",
+          "description": "URL types supported by this app. Requires macOS 10.14.4 or above. Refer to `event_handler` if your application does not have support for Apple Events handling.",
+          "markdownDescription": "URL types supported by this app. Requires macOS 10.14.4 or above. Refer to `event_handler` if your application does not have support for Apple Events handling.",
           "title": "Cfbundleurltypes"
         },
         "CFBundleDocumentTypes": {
@@ -806,8 +806,8 @@
             }
           ],
           "default": null,
-          "description": "Document types supported by this app. Requires setting `event_handler` too. Requires macOS 10.14.4 or above.",
-          "markdownDescription": "Document types supported by this app. Requires setting `event_handler` too. Requires macOS 10.14.4 or above.",
+          "description": "Document types supported by this app. Requires macOS 10.14.4 or above. Refer to `event_handler` if your application does not have support for Apple Events handling.",
+          "markdownDescription": "Document types supported by this app. Requires macOS 10.14.4 or above. Refer to `event_handler` if your application does not have support for Apple Events handling.",
           "title": "Cfbundledocumenttypes"
         },
         "LSApplicationCategoryType": {
@@ -913,20 +913,6 @@
           "markdownDescription": "A message describing why an app is requesting access to capture system audio.",
           "title": "Nsaudiocaptureusagedescription"
         },
-        "NSMainCameraUsageDescription": {
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "description": "A message describing why an app is requesting access to the device's main camera.",
-          "markdownDescription": "A message describing why an app is requesting access to the device's main camera.",
-          "title": "Nsmaincamerausagedescription"
-        },
         "NSCameraUsageDescription": {
           "anyOf": [
             {
@@ -940,6 +926,20 @@
           "description": "A message describing why an app is requesting access to the device's camera.",
           "markdownDescription": "A message describing why an app is requesting access to the device's camera.",
           "title": "Nscamerausagedescription"
+        },
+        "NSMainCameraUsageDescription": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A message describing why an app is requesting access to the device's main camera.",
+          "markdownDescription": "A message describing why an app is requesting access to the device's main camera.",
+          "title": "Nsmaincamerausagedescription"
         },
         "NSMicrophoneUsageDescription": {
           "anyOf": [
@@ -1053,8 +1053,8 @@
             }
           ],
           "default": null,
-          "description": "Required shell script logic to handle opened URL payloads. Note this feature requires macOS 10.14.4 or above.",
-          "markdownDescription": "Required shell script logic to handle opened URL payloads. Note this feature requires macOS 10.14.4 or above.",
+          "description": "Required shell script logic to handle opened URL payloads. Note this feature requires macOS 10.14.4 or above. Using this key will inject a custom Swift launcher in the `.app` bundle to listen to Apple Events and forward them to your application. If your app is already handling Apple Events (e.g. via Qt's `QFileOpenEvent`), you do not need this.",
+          "markdownDescription": "Required shell script logic to handle opened URL payloads. Note this feature requires macOS 10.14.4 or above. Using this key will inject a custom Swift launcher in the `.app` bundle to listen to Apple Events and forward them to your application. If your app is already handling Apple Events (e.g. via Qt's `QFileOpenEvent`), you do not need this.",
           "title": "Event Handler"
         }
       },
