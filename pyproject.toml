@@ -12,6 +12,12 @@ dynamic = [
   "version"
 ]
 
+[project.scripts]
+menuinst = "menuinst.cli:main"
+
+[project.entry-points.conda]
+menuinst = "menuinst.conda_plugin"
+
 [project.urls]
 repository = "https://github.com/conda/menuinst"
 

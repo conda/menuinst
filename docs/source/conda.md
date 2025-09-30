@@ -39,6 +39,45 @@ The shortcuts created by `menuinst` will be removed automatically by `conda` whe
 `conda` has a known issue with environment removals. If you run `conda env remove -n <YOUR_ENV>`, the pre-uninstall actions will NOT be executed, which means that `menuinst` won't be invoked and the shortcut artifacts won't be removed. To clear an environment fully in a clean way, you'd need to run `conda remove -n <YOUR_ENV> --all`.
 ```
 
+## `menuinst` plug-in for `conda`
+
+`menuinst` proves a `conda` plug-in:
+
+```shell
+usage: conda menuinst (--install [PKG ...] | --remove [PKG ...]) [-n ENVIRONMENT | -p PATH] [--root-prefix ROOT_PREFIX]
+                      [-h]
+
+A subcommand for installing and removing shortcuts via menuinst.
+
+options:
+  --install [PKG ...]   create menu items for the given metadata JSON files or packages; if none are given, create menu
+                        items for all packages in the prefix
+  --remove [PKG ...]    remove menu items for the given metadata JSON files or packages; if none are given, remove menu
+                        items for all packages in the prefix
+  --root-prefix ROOT_PREFIX
+                        The menuinst base/root prefix
+  -h, --help            Show this help message and exit.
+
+Target Environment Specification:
+  -n, --name ENVIRONMENT
+                        Name of environment.
+  -p, --prefix PATH     Full path to environment location (i.e. prefix).
+```
+
+It acts similarly to the [CLI](./getting-started) but the prefix can be chosen in three
+different ways:
+
+* As an explicit path via `-p`/`--prefix`.
+* Using the environment name via `-n`/`--name`.
+* Using the `CONDA_PREFIX` environment variable (typically set to the active environment).
+
+```{note}
+`PKG` is the name of the metadata file, not the package name.
+To make using the plug-in easier, package providers should name the metadata file in such
+a way that users can run `conda menuinst --remove <package name>`.
+This can be achieved, for example, by naming the metadata file `<package name>_menu.json`.
+```
+
 ## Adding shortcuts to `conda` packages
 
 To enable the native `conda` integrations, instruct the `conda-build` scripts to place the `menuinst` JSON configuration files in `$PREFIX/Menu`.
