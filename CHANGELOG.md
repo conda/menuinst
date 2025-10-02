@@ -1,5 +1,27 @@
 [//]: # (current developments)
 
+## 2.4.0 (2025-10-02)
+
+### Enhancements
+
+* Add a CLI and `conda` plug-in. (#368 via #372)
+* Support `NSCameraUsageDescription`, `NSMainCameraUsageDescription`, `NSMicrophoneUsageDescription`, and `NSAudioCaptureDescription` in macOS app bundles. (#362 via #375)
+
+### Bug fixes
+
+* Prepend `XDG_MENU_PREFIX` to filename when writing `applications.menu` file on Linux. (#340)
+
+### Contributors
+
+* @drammack
+* @jaimergp
+* @marcoesters
+* @mrclary
+* @dependabot[bot]
+* @pre-commit-ci[bot]
+
+
+
 ## 2.3.1 (2025-07-25)
 
 ### Bug fixes
