@@ -11,10 +11,15 @@
 
 * Prepend `XDG_MENU_PREFIX` to filename when writing `applications.menu` file on Linux. (#340)
 
+### Other
+
+* Replace deprecated `conda.cli.python_api` fixture with `conda.testing.fixtures` fixture. (#389)
+
 ### Contributors
 
 * @drammack
 * @jaimergp
+* @jrice1317
 * @marcoesters
 * @mrclary
 
