@@ -2,7 +2,6 @@ import os
 import sys
 
 import pytest
-from conda.testing.fixtures import conda_cli
 
 if sys.platform == "win32":
     import menuinst._legacy as menuinst
@@ -43,7 +42,7 @@ class TestWindowsShortcuts(object):
         if has_nonadmin:
             open(nonadmin, 'a').close()
 
-    def test_create_shortcut_env(self):
+    def test_create_shortcut_env(self, conda_cli):
         nonadmin = os.path.join(sys.prefix, ".nonadmin")
         open(nonadmin, 'a').close()
         shortcut = os.path.join(menu_dir, "menu-windows.json")
@@ -57,7 +56,7 @@ class TestWindowsShortcuts(object):
         assert not file_exist('user', name)
         conda_cli("remove", "-n", test_env_name, "--all")
 
-    def test_root_prefix(self):
+    def test_root_prefix(self, conda_cli):
         nonadmin = os.path.join(sys.prefix, ".nonadmin")
         open(nonadmin, 'a').close()
         shortcut = os.path.join(menu_dir, "menu-windows.json")
