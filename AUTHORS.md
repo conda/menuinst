@@ -6,12 +6,14 @@ Authors are sorted alphabetically.
 * Cheng H. Lee
 * Connor Martin
 * Daniel Bast
+* Daniel McCloy
 * David Li
 * Eric Larson
 * Eric Prestat
 * Ilan Schnell
 * Isuru Fernando
 * JTignor-Raltron
+* Jaida Rice
 * Jaime Rodríguez-Guerra
 * Jannis Leidel
 * Jason McCampbell
@@ -27,6 +29,7 @@ Authors are sorted alphabetically.
 * Pankaj Pandey
 * Prabhu Ramachandran
 * Ray Donnelly
+* Ryan Clary
 * Shaun Walbridge
 * Sophia Castellarin
 * Trent Nelson
