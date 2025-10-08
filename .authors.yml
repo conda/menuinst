@@ -28,7 +28,7 @@
   email: jaimergp@users.noreply.github.com
   aliases:
   - jaimergp
-  num_commits: 47
+  num_commits: 48
   first_commit: 2022-08-17 17:00:32
   github: jaimergp
 - name: Trent Nelson
@@ -112,7 +112,7 @@
   github: isuruf
 - name: pre-commit-ci[bot]
   email: 66853113+pre-commit-ci[bot]@users.noreply.github.com
-  num_commits: 28
+  num_commits: 38
   first_commit: 2023-08-21 19:22:51
   github: pre-commit-ci[bot]
 - name: Martin Chilvers
@@ -163,7 +163,7 @@
   github: katietz
 - name: dependabot[bot]
   email: 49699333+dependabot[bot]@users.noreply.github.com
-  num_commits: 42
+  num_commits: 50
   first_commit: 2024-05-06 08:12:56
   github: dependabot[bot]
 - name: JTignor-Raltron
@@ -173,7 +173,7 @@
   github: JTignor-Raltron
 - name: Marco Esters
   email: mesters@anaconda.com
-  num_commits: 24
+  num_commits: 26
   first_commit: 2024-01-26 08:11:25
   github: marcoesters
 - name: Klaus Zimmermann
@@ -191,3 +191,20 @@
   num_commits: 1
   first_commit: 2025-07-03 15:00:17
   github: soapy1
+- name: Daniel McCloy
+  email: dan@mccloy.info
+  num_commits: 1
+  first_commit: 2025-08-01 11:49:37
+  github: drammack
+- name: Ryan Clary
+  email: 9618975+mrclary@users.noreply.github.com
+  num_commits: 1
+  first_commit: 2025-08-01 11:50:16
+  github: mrclary
+- name: Jaida Rice
+  email: jaidarice@gmail.com
+  alternate_emails:
+  - 100002667+Jrice1317@users.noreply.github.com
+  num_commits: 1
+  first_commit: 2025-07-25 08:37:01
+  github: Jrice1317
