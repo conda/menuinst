@@ -74,8 +74,6 @@ jobs:
           echo > "$CONDA_PREFIX/conda-meta/history"
           conda install -yq --solver libmamba \
             --file tests/requirements.txt \
-            # see https://github.com/conda/conda/issues/15287
-            conda-libmamba-solver>=25.4.0 \
             python=${{ matrix.python-version }}
 
       - shell: bash -el {0}
