@@ -1,6 +1,8 @@
 python
 pip
 conda
+# see https://github.com/conda/conda/issues/15287
+conda-libmamba-solver>=25.4.0
 pydantic>=2
 pytest
 pytest-cov
