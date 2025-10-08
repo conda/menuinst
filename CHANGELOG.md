@@ -13,7 +13,7 @@
 
 ### Other
 
-* Replace deprecated `conda.cli.python_api` fixture with `conda.testing.fixtures` fixture. (#389)
+* Replace the deprecated `conda.cli.python_api` module with the `CondaCLIFixture`. (#389)
 
 ### Contributors
 
