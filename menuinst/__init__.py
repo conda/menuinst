@@ -42,5 +42,6 @@ if os.name == "nt":
         # Calling initpkg WILL CLEAR the 'menuinst' top-level namespace, and only then will add
         # the exportdefs contents! If we want to keep something defined in this module, we MUST
         # make sure it's added in the 'attr' dictionary below.
-        attr={"__version__": __version__, "install": install},
+        # __spec__ is needed for pyinstaller packaging
+        attr={"__version__": __version__, "install": install, "__spec__": __spec__},
     )
