@@ -18,8 +18,8 @@ build:
     # menuinst v1 expects cwp.py in PREFIX; backwards compat fix
     - copy "%SP_DIR%\\menuinst\\_legacy\cwp.py" "%PREFIX%\\"  # [win]
 
-  # entry_points:
-  #   - menuinst = menuinst.main:main
+  entry_points:
+    - menuinst = menuinst.cli:main
 
 requirements:
   build:
@@ -48,6 +48,7 @@ test:
   imports:
     - menuinst
   commands:
+    - menuinst --help
     - unset CI  # [unix]
     - set "CI="  # [win]
     - pytest --no-cov -vv -k "not elevation"
