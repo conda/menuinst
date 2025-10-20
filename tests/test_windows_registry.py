@@ -53,11 +53,16 @@ def test_file_extensions(tmp_path: Path, request):
         registry.unregister_file_extension(extension=extension, identifier=identifier, mode="user")
 
     output_file.unlink()
-    os.startfile(input_file)  # this will raise UI if not headless, ignore
-    t0 = time.time()
-    while time.time() - t0 <= 3:  # wait up to 3 seconds
-        time.sleep(1)
-        assert not output_file.exists()
+    try:
+        os.startfile(input_file)
+    except OSError as e:
+        # Windows may raise a COM error if the runner is not headless
+        assert e.winerror < 0, f"Unexpected error: {e}"
+    else:
+        t0 = time.time()
+        while time.time() - t0 <= 3:  # wait up to 3 seconds
+            time.sleep(1)
+            assert not output_file.exists()
 
 
 def test_unregister_file_extension_error(capsys, request):
@@ -124,8 +129,13 @@ def test_protocols(tmp_path):
         )
 
     output_file.unlink()
-    os.startfile(input_url)  # this will raise UI if not headless, ignore
-    t0 = time.time()
-    while time.time() - t0 <= 3:  # wait up to 3 seconds
-        time.sleep(1)
-        assert not output_file.exists()
+    try:
+        os.startfile(input_url)
+    except OSError as e:
+        # Windows may raise a COM error if the runner is not headless
+        assert e.winerror < 0, f"Unexpected error: {e}"
+    else:
+        t0 = time.time()
+        while time.time() - t0 <= 3:  # wait up to 3 seconds
+            time.sleep(1)
+            assert not output_file.exists()
