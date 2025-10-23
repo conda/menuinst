@@ -1,5 +1,20 @@
 [//]: # (current developments)
 
+## 2.4.1 (2025-10-20)
+
+### Bug fixes
+
+* Add entry point to recipe. (#395)
+* Pass `__spec__` to `apipkg` initializers to allow module discovery in PyInstaller. (#396)
+* Catch COM errors during registry tests. (#398)
+
+### Contributors
+
+* @jaimergp
+* @marcoesters
+
+
+
 ## 2.4.0 (2025-10-02)
 
 ### Enhancements
