@@ -166,7 +166,7 @@ class WinLex:
         # don't add quotes for minus or leading space
         if s[0] in ("-", " "):
             return s
-        if " " in s or "/" in s:
+        if " " in s or "/" in s or "%" in s:
             return '"%s"' % s
         return s
 
