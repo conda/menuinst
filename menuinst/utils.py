@@ -171,8 +171,11 @@ class WinLex:
         return s
 
     @classmethod
-    def ensure_pad(cls, name: str, pad: str = "_"):
+    def ensure_pad(cls, name: str, pad: str = "_") -> str:
         """
+        Pad the input set via 'name' with the string set via keyword-argument 'pad'.
+        If pad='"', then padding is only added if the input contains a space or
+        a percentage sign.
 
         Examples:
             >>> ensure_pad('conda')
@@ -181,8 +184,15 @@ class WinLex:
         """
         if not name or name[0] == name[-1] == pad:
             return name
-        else:
-            return "%s%s%s" % (pad, name, pad)
+
+        if pad == '"':
+            # If we are padding with quotes, only pad if the input contains a space or
+            # a percentage sign.
+            if (" " in name) or ("%" in name):
+                return f"{pad}{name}{pad}"
+            return name
+
+        return f"{pad}{name}{pad}"
 
 
 class UnixLex:
