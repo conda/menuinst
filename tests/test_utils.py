@@ -10,7 +10,7 @@ def test_quote_args_1():
     wl = WinLex()
     test_str = [r"%SystemRoot%\system32\foo.exe", "/pt", "%1", "%2", "%3", "%4"]
     output = wl.quote_args(test_str)
-    assert output == ['"%SystemRoot%\\system32\\foo.exe"', '"/pt"', '"%1"', '"%2"', '"%3"', '"%4"']
+    assert output == [r'"%SystemRoot%\system32\foo.exe"', '"/pt"', '"%1"', '"%2"', '"%3"', '"%4"']
 
 
 def test_quote_args_2():
@@ -36,4 +36,12 @@ def test_quote_args_3():
     args = ["cmd.exe", "/C", "echo", "Hello World"]
     wl = WinLex()
     output = wl.quote_args(args)
-    assert output == ['"cmd.exe"', "/C", '""echo" "Hello World""']
+    assert output == ['"cmd.exe"', "/C", '"echo "Hello World""']
+
+
+def test_quote_args_4():
+    """Verify special case with cmd.exe and /K many words with spaces and percentage signs."""
+    args = ["cmd.exe", "/K", "dir", "Hello World", "%1 %2 %foo% with spaces", "x", "y"]
+    wl = WinLex()
+    output = wl.quote_args(args)
+    assert output == ["cmd.exe", "/K", '"dir "Hello World" "%1 %2 %foo% with spaces" x y"']
