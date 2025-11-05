@@ -374,20 +374,36 @@ class LinuxMenuItem(MenuItem):
 
         subcommand = "install" if install else "uninstall"
         # Install the XML file and register it as default for our app
+        use_fallback = False
         try:
             with TemporaryDirectory() as tmp:
                 with open(os.path.join(tmp, os.path.basename(xml_path)), "wb") as f:
                     tree.write(f, encoding="UTF-8", xml_declaration=True)
-                logged_run(
-                    ["xdg-mime", subcommand, "--mode", self.menu.mode, "--novendor", f.name],
-                    check=True,
-                )
+
+                xdg_mime = shutil.which("xdg-mime")
+                if xdg_mime:
+                    logged_run(
+                        [xdg_mime, subcommand, "--mode", self.menu.mode, "--novendor", f.name],
+                        check=True,
+                    )
+                else:
+                    name = self.render_key("name")
+                    log.warning(
+                        "Unable to un/register MIME type '%s' "
+                        "for Desktop Entry of name '%s': "
+                        "'xdg-mime' is not present on the system.'",
+                        glob_pattern,
+                        name,
+                    )
+                    use_fallback = True
         except CalledProcessError:
-            log.debug(
-                "Could not un/register MIME type %s with xdg-mime. Writing to '%s' as a fallback.",
-                mime_type,
-                xml_path,
-            )
+            # Note that the error from 'xdg-mime' is already logged earlier via
+            # the call to 'logged_run'.
+            use_fallback = True
+            log.debug("Could not un/register MIME type %s with xdg-mime.", mime_type)
+
+        if use_fallback:
+            log.debug("Writing to '%s' as a fallback.", xml_path)
             tree.write(xml_path, encoding="UTF-8", xml_declaration=True)
 
     def _paths(self) -> Iterable[os.PathLike]:
