@@ -389,9 +389,11 @@ class LinuxMenuItem(MenuItem):
                 else:
                     name = self.render_key("name")
                     log.warning(
-                        f"Unable to un/register MIME type '{glob_pattern}' "
-                        f"for Desktop Entry of name '{name}', "
-                        "'xdg-mime' is not present on the system.'"
+                        "Unable to un/register MIME type '%s' "
+                        "for Desktop Entry of name '%s': "
+                        "'xdg-mime' is not present on the system.'",
+                        glob_pattern,
+                        name,
                     )
                     use_fallback = True
         except CalledProcessError:

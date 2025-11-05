@@ -4,7 +4,7 @@
 
 ### Bug fixes
 
-* For Linux platforms, a MimeType with defined glob patterns are now properly handled when 'xdg-mime' is not on the system. (#290 via #403)
+* For Linux platforms, MimeTypes with defined glob patterns are now properly handled when `xdg-mime` is not on the system. (#290 via #403)
 
 ### Deprecations
 
