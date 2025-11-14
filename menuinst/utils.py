@@ -165,16 +165,30 @@ class WinLex:
     @classmethod
     def quote_string(cls, s: Sequence[str]):
         """
-        quotes a string if necessary.
+        Quotes a string if necessary.
         """
-        # strip any existing quotes
+        # Strip any existing quotes
         s = s.strip('"')
-        # don't add quotes for minus or leading space
+
+        # Don't add quotes for minus or leading space
         if s[0] in ("-", " "):
             return s
-        if "/" in s or cls._needs_quotes_for_cmd(s):
+
+        # Don't touch shell meta tokens; quoting would change meaning.
+        # Example: echo %FOO%> output.txt
+        if cls._has_shell_meta(s):
+            return s
+
+        if " " in s or "/" in s or "%" in s:
             return '"%s"' % s
         return s
+
+    @classmethod
+    def _has_shell_meta(cls, a: str) -> bool:
+        """
+        Detect shell metacharacters that must remain unquoted to preserve meaning.
+        """
+        return any(ch in a for ch in (">", "<", "|", "&"))
 
     @classmethod
     def _needs_quotes_for_cmd(cls, s: str) -> bool:
