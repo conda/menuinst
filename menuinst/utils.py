@@ -147,11 +147,17 @@ class WinLex:
             and (args[1].upper() == "/K" or args[1].upper() == "/C")
             and any(" " in arg for arg in args[2:])
         ):
-            args = [
-                cls.ensure_pad(args[0], '"'),  # cmd.exe
-                args[1],  # /K or /C
-                '"%s"' % (" ".join(cls.ensure_pad(arg, '"') for arg in args[2:])),  # double-quoted
+            # Quote the call to cmd.exe only if it needs it
+            cmd0 = cls.ensure_pad(args[0], '"') if cls._needs_quotes_for_cmd(args[0]) else args[0]
+
+            # For the tail (the command string passed to cmd.exe), quote each
+            # sub-arg with " only if its needed; then join; then
+            # wrap the WHOLE tail in one pair of quotes.
+            tail_parts = [
+                (cls.ensure_pad(a, '"') if cls._needs_quotes_for_cmd(a) else a) for a in args[2:]
             ]
+            tail = " ".join(tail_parts)
+            return [cmd0, args[1], f'"{tail}"']
         else:
             args = [cls.quote_string(arg) for arg in args]
         return args
@@ -166,9 +172,16 @@ class WinLex:
         # don't add quotes for minus or leading space
         if s[0] in ("-", " "):
             return s
-        if " " in s or "/" in s or "%" in s:
+        if "/" in s or cls._needs_quotes_for_cmd(s):
             return '"%s"' % s
         return s
+
+    @classmethod
+    def _needs_quotes_for_cmd(s: str) -> bool:
+        """
+        Return True if input contains space or '%', otherwise False.
+        """
+        return (" " in s) or ("%" in s)
 
     @classmethod
     def ensure_pad(cls, name: str, pad: str = "_") -> str:
@@ -184,15 +197,8 @@ class WinLex:
         """
         if not name or name[0] == name[-1] == pad:
             return name
-
-        if pad == '"':
-            # If we are padding with quotes, only pad if the input contains a space or
-            # a percentage sign.
-            if (" " in name) or ("%" in name):
-                return f"{pad}{name}{pad}"
-            return name
-
-        return f"{pad}{name}{pad}"
+        else:
+            return "%s%s%s" % (pad, name, pad)
 
 
 class UnixLex:
