@@ -147,11 +147,17 @@ class WinLex:
             and (args[1].upper() == "/K" or args[1].upper() == "/C")
             and any(" " in arg for arg in args[2:])
         ):
-            args = [
-                cls.ensure_pad(args[0], '"'),  # cmd.exe
-                args[1],  # /K or /C
-                '"%s"' % (" ".join(cls.ensure_pad(arg, '"') for arg in args[2:])),  # double-quoted
+            # Quote the call to cmd.exe only if it needs it
+            cmd0 = cls.ensure_pad(args[0], '"') if cls._needs_quotes_for_cmd(args[0]) else args[0]
+
+            # For the tail (the command string passed to cmd.exe), quote each
+            # sub-arg with " only if its needed; then join; then
+            # wrap the WHOLE tail in one pair of quotes.
+            tail_parts = [
+                (cls.ensure_pad(a, '"') if cls._needs_quotes_for_cmd(a) else a) for a in args[2:]
             ]
+            tail = " ".join(tail_parts)
+            return [cmd0, args[1], f'"{tail}"']
         else:
             args = [cls.quote_string(arg) for arg in args]
         return args
@@ -159,20 +165,44 @@ class WinLex:
     @classmethod
     def quote_string(cls, s: Sequence[str]):
         """
-        quotes a string if necessary.
+        Quotes a string if necessary.
         """
-        # strip any existing quotes
+        # Strip any existing quotes
         s = s.strip('"')
-        # don't add quotes for minus or leading space
+
+        # Don't add quotes for minus or leading space
         if s[0] in ("-", " "):
             return s
-        if " " in s or "/" in s:
+
+        # Don't touch shell meta tokens; quoting would change meaning.
+        # Example: echo %FOO%> output.txt
+        if cls._has_shell_meta(s):
+            return s
+
+        if " " in s or "/" in s or "%" in s:
             return '"%s"' % s
         return s
 
     @classmethod
-    def ensure_pad(cls, name: str, pad: str = "_"):
+    def _has_shell_meta(cls, a: str) -> bool:
         """
+        Detect shell metacharacters that must remain unquoted to preserve meaning.
+        """
+        return any(ch in a for ch in (">", "<", "|", "&"))
+
+    @classmethod
+    def _needs_quotes_for_cmd(cls, s: str) -> bool:
+        """
+        Return True if input contains space or '%', otherwise False.
+        """
+        return (" " in s) or ("%" in s)
+
+    @classmethod
+    def ensure_pad(cls, name: str, pad: str = "_") -> str:
+        """
+        Pad the input set via 'name' with the string set via keyword-argument 'pad'.
+        If pad='"', then padding is only added if the input contains a space or
+        a percentage sign.
 
         Examples:
             >>> ensure_pad('conda')
