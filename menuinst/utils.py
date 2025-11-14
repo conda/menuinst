@@ -177,7 +177,7 @@ class WinLex:
         return s
 
     @classmethod
-    def _needs_quotes_for_cmd(s: str) -> bool:
+    def _needs_quotes_for_cmd(cls, s: str) -> bool:
         """
         Return True if input contains space or '%', otherwise False.
         """
