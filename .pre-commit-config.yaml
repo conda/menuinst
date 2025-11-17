@@ -26,7 +26,7 @@ repos:
       - id: check-merge-conflict
   - repo: https://github.com/astral-sh/ruff-pre-commit
     # Ruff version.
-    rev: v0.14.4
+    rev: v0.14.5
     hooks:
       # Run the linter.
       - id: ruff
@@ -36,7 +36,7 @@ repos:
       - id: ruff-format
         exclude: ^(menuinst|tests)/_legacy/.*$
   - repo: https://github.com/python-jsonschema/check-jsonschema
-    rev: 0.34.1
+    rev: 0.35.0
     hooks:
       - id: check-github-workflows
 exclude: ^menuinst/_vendor/.*$
