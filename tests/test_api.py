@@ -232,8 +232,12 @@ def test_placeholders_in_menu_name(tmp_path, delete_files):
             raise AssertionError("Didn't find Start Menu")
     elif PLATFORM == "linux":
         if user_is_admin():
-            config_directory = tmp_path / "system" / "config"
-            data_directory = tmp_path / "system" / "data"
+            if os.environ.get("CI"):
+                config_directory = Path("/etc/xdg")
+                data_directory = Path("/usr/share")
+            else:
+                config_directory = tmp_path / "system" / "config"
+                data_directory = tmp_path / "system" / "data"
         else:
             config_directory = Path(os.environ.get("XDG_CONFIG_HOME", "~/.config")).expanduser()
             data_directory = Path(os.environ.get("XDG_DATA_HOME", "~/.local/share")).expanduser()
