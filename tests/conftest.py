@@ -67,7 +67,7 @@ def mock_locations(monkeypatch, tmp_path):
         from menuinst.platforms.win_utils import knownfolders
 
         def windows_locations(preferred_mode, check_other_mode, key):
-            return tmp_path / key
+            return tmp_path / preferred_mode / key
 
         monkeypatch.setattr(knownfolders, "folder_path", windows_locations)
         monkeypatch.setattr(win_platform, "windows_folder_path", windows_locations)

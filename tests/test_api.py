@@ -392,7 +392,7 @@ def test_url_protocol_association(delete_files):
 @pytest.mark.skipif(PLATFORM != "win", reason="Windows only")
 def test_windows_terminal_profiles(tmp_path, run_as_user):
     settings_file = Path(
-        tmp_path, "localappdata", "Microsoft", "Windows Terminal", "settings.json"
+        tmp_path, "user", "localappdata", "Microsoft", "Windows Terminal", "settings.json"
     )
     settings_file.parent.mkdir(parents=True)
     (tmp_path / ".nonadmin").touch()
