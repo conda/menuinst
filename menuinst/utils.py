@@ -280,8 +280,7 @@ def needs_admin(target_prefix: os.PathLike, base_prefix: os.PathLike) -> bool:
     if os.name == "nt":
         # Absence of $base_prefix/.nonadmin in Windows means we need admin permissions
         return True
-
-    if os.name == "posix":
+    elif os.name == "posix":
         # Absence of $base_prefix/.nonadmin in Linux, macOS and other posix systems
         # has no meaning for historic reasons, so let's try to see if we can
         # write to the installation root
@@ -292,6 +291,8 @@ def needs_admin(target_prefix: os.PathLike, base_prefix: os.PathLike) -> bool:
             return True
         else:
             return False
+    else:
+        raise RuntimeError(f"Unsupported operating system: {os.name}")
 
 
 @lru_cache(maxsize=1)
