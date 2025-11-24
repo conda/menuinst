@@ -365,8 +365,8 @@ def elevate_as_needed(func: Callable) -> Callable:
     @wraps(func)
     def wrapper_elevate(
         *args,
-        target_prefix: os.PathLike = None,
-        base_prefix: os.PathLike = None,
+        target_prefix: os.PathLike | None = None,
+        base_prefix: os.PathLike | None = None,
         **kwargs,
     ):
         kwargs.pop("_mode", None)

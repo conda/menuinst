@@ -25,7 +25,7 @@ __all__ = [
 
 
 def _load(
-    metadata_or_path: Union[os.PathLike, dict],
+    metadata_or_path: os.PathLike | dict,
     target_prefix: str | None = None,
     base_prefix: str | None = None,
     _mode: _UserOrSystem = "user",
