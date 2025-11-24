@@ -11,7 +11,13 @@ from pathlib import Path
 from typing import Callable, Union
 
 from .platforms import Menu, MenuItem
-from .utils import DEFAULT_BASE_PREFIX, DEFAULT_PREFIX, _UserOrSystem, elevate_as_needed
+from .utils import (
+    DEFAULT_BASE_PREFIX,
+    DEFAULT_PREFIX,
+    _UserOrSystem,
+    elevate_as_needed,
+    user_is_admin,
+)
 
 log = getLogger(__name__)
 
@@ -22,6 +28,14 @@ __all__ = [
     "install_all",
     "remove_all",
 ]
+
+
+def _maybe_try_user(base_prefix: str, target_prefix: str) -> bool:
+    if not user_is_admin():
+        return False
+    if Path(target_prefix, ".nonadmin").exists():
+        return True
+    return Path(base_prefix, ".nonadmin").exists()
 
 
 def _load(
@@ -84,6 +98,12 @@ def remove(
     for menu_item in menu_items:
         paths += menu_item.remove()
     paths += menu.remove()
+
+    if not paths and _maybe_try_user(target_prefix, base_prefix):
+        menu, menu_items = _load(metadata_or_path, target_prefix, base_prefix, "user")
+        for menu_item in menu_items:
+            paths += menu_item.remove()
+        paths += menu.remove()
 
     return paths
 

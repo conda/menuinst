@@ -170,6 +170,27 @@ def test_install_remove(tmp_path, delete_files):
     assert files_found == set()
 
 
+def test_remove_for_user_as_admin(tmp_path, delete_files, monkeypatch):
+    from menuinst import api as menuinst_api
+    from menuinst import utils as menuinst_utils
+
+    metadata = DATA / "jsons" / "sys-prefix.json"
+    # Ensure that we install as user
+    monkeypatch.setattr(menuinst_utils, "user_is_admin", lambda: False)
+    (tmp_path / ".nonadmin").touch()
+    paths = set(install(metadata, target_prefix=tmp_path, base_prefix=tmp_path))
+    delete_files.extend(paths)
+    files_found = set(filter(lambda x: x.exists(), paths))
+    assert files_found == paths
+
+    # Ensure that menuinst thinks we uninstall as admin
+    monkeypatch.setattr(menuinst_utils, "user_is_admin", lambda: True)
+    monkeypatch.setattr(menuinst_api, "user_is_admin", lambda: True)
+    remove(metadata, target_prefix=tmp_path, base_prefix=tmp_path)
+    files_found = set(filter(lambda x: x.exists(), paths))
+    assert files_found == set()
+
+
 def test_overwrite_existing_shortcuts(delete_files, caplog):
     """Test that overwriting shortcuts works without errors by running installation twice."""
     check_output_from_shortcut(
