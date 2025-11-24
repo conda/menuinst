@@ -69,10 +69,12 @@ class LinuxMenu(Menu):
         for fn in os.listdir(self.desktop_entries_location):
             if fn.startswith(f"{self.render(self.name, slug=True)}_"):
                 # found one shortcut, so don't remove the name from menu
-                return (self.directory_entry_location,)
-        unlink(self.directory_entry_location, missing_ok=True)
+                return tuple()
         self._remove_this_menu()
-        return (self.directory_entry_location,)
+        if self.directory_entry_location.exists():
+            unlink(self.directory_entry_location, missing_ok=True)
+            return (self.directory_entry_location,)
+        return tuple()
 
     @property
     def placeholders(self) -> dict[str, str]:
@@ -201,12 +203,13 @@ class LinuxMenuItem(MenuItem):
         return self._paths()
 
     def remove(self) -> Iterable[os.PathLike]:
-        paths = self._paths()
+        paths = (path for path in self._paths() if Path(path).exists())
         self._maybe_register_mime_types(register=False)
-        for path in paths:
-            log.debug("Removing %s", path)
-            unlink(path, missing_ok=True)
-        self._update_desktop_database()
+        if paths:
+            for path in paths:
+                log.debug("Removing %s", path)
+                unlink(path)
+            self._update_desktop_database()
         return paths
 
     def _update_desktop_database(self):

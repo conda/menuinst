@@ -100,8 +100,10 @@ class MacOSMenuItem(MenuItem):
     def remove(self) -> tuple[Path]:
         log.debug("Removing %s", self.location)
         self._maybe_register_with_launchservices(register=False)
-        shutil.rmtree(self.location, ignore_errors=True)
-        return (self.location,)
+        if self.location.exists():
+            shutil.rmtree(self.location, ignore_errors=True)
+            return (self.location,)
+        return tuple()
 
     def _create_application_tree(self) -> tuple[Path]:
         paths = [
