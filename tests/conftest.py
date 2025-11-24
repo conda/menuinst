@@ -63,12 +63,14 @@ def mock_locations(monkeypatch, tmp_path):
     from menuinst.platforms.osx import MacOSMenuItem
 
     if os.name == "nt":
+        from menuinst.platforms import win as win_platform
         from menuinst.platforms.win_utils import knownfolders
 
         def windows_locations(preferred_mode, check_other_mode, key):
             return tmp_path / key
 
         monkeypatch.setattr(knownfolders, "folder_path", windows_locations)
+        monkeypatch.setattr(win_platform, "windows_folder_path", windows_locations)
 
     def osx_base_location(self):
         return tmp_path
