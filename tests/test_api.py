@@ -19,7 +19,7 @@ from conftest import DATA, PLATFORM
 from menuinst.api import install, remove
 from menuinst.platforms import MenuItem
 from menuinst.platforms.osx import _lsregister
-from menuinst.utils import DEFAULT_PREFIX, logged_run, slugify
+from menuinst.utils import DEFAULT_PREFIX, logged_run, slugify, user_is_admin
 
 
 def _poll_for_file_contents(path, timeout=30):
@@ -216,7 +216,7 @@ def test_overwrite_existing_shortcuts(delete_files, caplog):
 
 
 @pytest.mark.skipif(PLATFORM == "osx", reason="No menu names on MacOS")
-def test_placeholders_in_menu_name(delete_files):
+def test_placeholders_in_menu_name(tmp_path, delete_files):
     _, paths, tmp_base_path, _ = check_output_from_shortcut(
         delete_files,
         "sys-prefix.json",
@@ -231,11 +231,13 @@ def test_placeholders_in_menu_name(delete_files):
         else:
             raise AssertionError("Didn't find Start Menu")
     elif PLATFORM == "linux":
-        config_directory = Path(os.environ.get("XDG_CONFIG_HOME", "~/.config")).expanduser()
-        desktop_directory = (
-            Path(os.environ.get("XDG_DATA_HOME", "~/.local/share")).expanduser()
-            / "desktop-directories"
-        )
+        if user_is_admin():
+            config_directory = tmp_path / "system" / "config"
+            data_directory = tmp_path / "system" / "data"
+        else:
+            config_directory = Path(os.environ.get("XDG_CONFIG_HOME", "~/.config")).expanduser()
+            data_directory = Path(os.environ.get("XDG_DATA_HOME", "~/.local/share")).expanduser()
+        desktop_directory = data_directory / "desktop-directories"
         menu_config_location = (
             config_directory
             / "menus"

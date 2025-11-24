@@ -66,6 +66,8 @@ class LinuxMenu(Menu):
         return (path,)
 
     def remove(self) -> tuple[os.PathLike]:
+        if not Path(self.desktop_entries_location).exists():
+            return tuple()
         for fn in os.listdir(self.desktop_entries_location):
             if fn.startswith(f"{self.render(self.name, slug=True)}_"):
                 # found one shortcut, so don't remove the name from menu
