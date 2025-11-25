@@ -48,7 +48,8 @@ class WindowsMenu(Menu):
             except StopIteration:
                 log.debug("Removing %s", self.start_menu_location)
                 shutil.rmtree(self.start_menu_location, ignore_errors=True)
-        return (self.start_menu_location,)
+                return (self.start_menu_location,)
+        return tuple()
 
     @property
     def start_menu_location(self) -> Path:
@@ -214,10 +215,10 @@ class WindowsMenuItem(MenuItem):
         for location in self.menu.terminal_profile_locations:
             self._add_remove_windows_terminal_profile(location, remove=True)
 
-        paths = self._paths()
+        paths = tuple(path for path in self._paths() if Path(path).exists())
         for path in paths:
             log.debug("Removing %s", path)
-            unlink(path, missing_ok=True)
+            unlink(path)
 
         return paths
 
