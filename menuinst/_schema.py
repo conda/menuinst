@@ -601,7 +601,12 @@ class MacOS(BasePlatformSpecific):
     info_plist_extra: Optional[Dict[NonEmptyString, Any]] = (
         Field(
             None,
-            description="Set of extra properties for the Info.plist file.",
+            description=(
+                """
+                Set of extra properties for the Info.plist file.
+                These properties are not validated by `menuinst.`
+                """
+            ),
         )
     )
     link_in_bundle: Optional[Dict[NonEmptyString, Annotated[str, Field(pattern=r"^[^/]+.*")]]] = (

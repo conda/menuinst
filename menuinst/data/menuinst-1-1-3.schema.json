@@ -1035,8 +1035,8 @@
             }
           ],
           "default": null,
-          "description": "Set of extra properties for the Info.plist file.",
-          "markdownDescription": "Set of extra properties for the Info.plist file.",
+          "description": "Set of extra properties for the Info.plist file. These properties are not validated by `menuinst.`",
+          "markdownDescription": "Set of extra properties for the Info.plist file. These properties are not validated by `menuinst.`",
           "title": "Info Plist Extra"
         },
         "link_in_bundle": {
