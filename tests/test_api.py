@@ -225,7 +225,7 @@ def test_placeholders_in_menu_name(tmp_path, delete_files):
     )
     if PLATFORM == "win":
         for path in paths:
-            if path.suffix == ".lnk" and "Start Menu" in path.parts:
+            if path.suffix == ".lnk" and path.parent.parent == "start":
                 assert path.parent.name == f"Sys.Prefix {Path(tmp_base_path).name}"
                 break
         else:

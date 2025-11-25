@@ -116,6 +116,8 @@ class LinuxMenu(Menu):
     #
 
     def _remove_this_menu(self):
+        if not Path(self.menu_config_location).exists():
+            return
         log.debug(
             "Editing %s to remove %s config", self.menu_config_location, self.render(self.name)
         )
