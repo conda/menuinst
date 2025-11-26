@@ -164,7 +164,7 @@ class MacOSMenuItem(MenuItem):
 
         # Override defaults with (potentially) user provided values
         ignore_keys = (*menuitem_defaults, "entitlements", "link_in_bundle", "info_plist_extra")
-        info_plist_extra = self.metadata.get("info_plist_extra", {})
+        info_plist_extra = self.metadata.get("info_plist_extra") or {}
         for key in menuitem_defaults["platforms"]["osx"]:
             if key in ignore_keys:
                 continue
