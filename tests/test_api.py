@@ -17,7 +17,7 @@ import pytest
 from conftest import DATA, PLATFORM
 
 from menuinst.api import install, remove
-from menuinst.platforms import MenuItem
+from menuinst.platforms import Menu, MenuItem
 from menuinst.platforms.osx import _lsregister
 from menuinst.utils import DEFAULT_PREFIX, logged_run, slugify
 
@@ -301,6 +301,10 @@ def test_info_plist(delete_files):
     assert menu_item
     plist_data = menu_item.get("platforms", {}).get("osx", {})
     assert plist_data
+    assert "info_plist_extra" in plist_data
+    for key, val in plist_data["info_plist_extra"].items():
+        plist_data[key] = val
+    del plist_data["info_plist_extra"]
     app_dir = next(p for p in paths if p.name.endswith(".app"))
 
     missing_items = []
@@ -323,6 +327,28 @@ def test_info_plist(delete_files):
     assert incorrect_items == {}
 
     remove(json_path)
+
+
+@pytest.mark.skipif(PLATFORM != "osx", reason="macOS only")
+def test_info_plist_duplicate():
+    menu = Menu("")
+    menu_item = MenuItem(
+        menu,
+        {
+            "name": "plist_duplicate",
+            "command": [],
+            "platforms": {
+                "osx": {
+                    "LSBackgroundOnly": False,
+                    "info_plist_extra": {
+                        "LSBackgroundOnly": True,
+                    },
+                },
+            },
+        },
+    )
+    with pytest.raises(ValueError):
+        menu_item.create()
 
 
 @pytest.mark.skipif(PLATFORM != "osx", reason="macOS only")

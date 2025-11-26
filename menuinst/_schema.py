@@ -12,7 +12,7 @@ from inspect import cleandoc
 from logging import getLogger
 from pathlib import Path
 from pprint import pprint
-from typing import Annotated, Dict, List, Literal, Optional, Union
+from typing import Annotated, Any, Dict, List, Literal, Optional, Union
 
 from pydantic import BaseModel as _BaseModel
 from pydantic import Field as _Field
@@ -23,7 +23,7 @@ from pydantic.types import conlist
 log = getLogger(__name__)
 SCHEMA_DIALECT = "http://json-schema.org/draft-07/schema#"
 # We follow schemaver
-SCHEMA_VERSION = "1-1-2"
+SCHEMA_VERSION = "1-1-3"
 SCHEMA_URL = f"https://schemas.conda.org/menuinst-{SCHEMA_VERSION}.schema.json"
 
 
@@ -597,6 +597,17 @@ class MacOS(BasePlatformSpecific):
             list of possible values.
             """
         ),
+    )
+    info_plist_extra: Optional[Dict[NonEmptyString, Any]] = (
+        Field(
+            None,
+            description=(
+                """
+                Set of extra properties for the Info.plist file.
+                These properties are not validated by `menuinst.`
+                """
+            ),
+        )
     )
     link_in_bundle: Optional[Dict[NonEmptyString, Annotated[str, Field(pattern=r"^[^/]+.*")]]] = (
         Field(

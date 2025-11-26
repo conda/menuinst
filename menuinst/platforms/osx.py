@@ -163,10 +163,16 @@ class MacOSMenuItem(MenuItem):
             pl["CFBundleIdentifier"] = f"com.{slugname}-appkit-launcher"
 
         # Override defaults with (potentially) user provided values
-        ignore_keys = (*menuitem_defaults, "entitlements", "link_in_bundle")
+        ignore_keys = (*menuitem_defaults, "entitlements", "link_in_bundle", "info_plist_extra")
+        info_plist_extra = self.metadata.get("info_plist_extra") or {}
         for key in menuitem_defaults["platforms"]["osx"]:
             if key in ignore_keys:
                 continue
+            if key in info_plist_extra:
+                raise ValueError(
+                    f"Duplicate Info.plist property found: {key}. "
+                    "Remove the property from `info_plist_extra`."
+                )
             value = self.render_key(key)
             if value is None:
                 continue
@@ -175,6 +181,8 @@ class MacOSMenuItem(MenuItem):
                 pl["CFBundleShortVersionString"] = value
                 pl["CFBundleGetInfoString"] = f"{slugname}-{value}"
             pl[key] = value
+        for key, value in info_plist_extra.items():
+            pl[key] = self.render(value)
         with open(self.location / "Contents" / "Info.plist", "wb") as f:
             plistlib.dump(pl, f)
 

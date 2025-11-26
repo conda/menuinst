@@ -26,7 +26,11 @@
           "NSCameraUsageDescription": "Camera test",
           "NSMainCameraUsageDescription": "Main camera test",
           "NSMicrophoneUsageDescription": "Mic check",
-          "NSSupportsAutomaticGraphicsSwitching": false
+          "NSSupportsAutomaticGraphicsSwitching": false,
+          "info_plist_extra": {
+            "NSRequiresAquaSystemAppearance": "NO",
+            "NSHighResolutionCapable": true
+          }
         }
       }
     }

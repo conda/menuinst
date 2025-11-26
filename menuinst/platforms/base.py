@@ -23,7 +23,7 @@ from ..utils import (
 )
 
 log = getLogger(__name__)
-SCHEMA_VERSION = "1-1-2"
+SCHEMA_VERSION = "1-1-3"
 
 
 class Menu:
