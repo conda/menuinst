@@ -215,7 +215,7 @@ class WindowsMenuItem(MenuItem):
         for location in self.menu.terminal_profile_locations:
             self._add_remove_windows_terminal_profile(location, remove=True)
 
-        paths = tuple(path for path in self._paths() if Path(path).exists())
+        paths = tuple(path for path in self._paths() if Path(path).is_file())
         for path in paths:
             log.debug("Removing %s", path)
             unlink(path)

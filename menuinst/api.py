@@ -33,9 +33,9 @@ __all__ = [
 def _maybe_try_user(base_prefix: str, target_prefix: str) -> bool:
     if not user_is_admin():
         return False
-    if Path(target_prefix, ".nonadmin").exists():
+    if Path(target_prefix, ".nonadmin").is_file():
         return True
-    return Path(base_prefix, ".nonadmin").exists()
+    return Path(base_prefix, ".nonadmin").is_file()
 
 
 def _load(

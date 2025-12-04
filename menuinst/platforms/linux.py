@@ -207,7 +207,7 @@ class LinuxMenuItem(MenuItem):
         return self._paths()
 
     def remove(self) -> Iterable[os.PathLike]:
-        paths = (path for path in self._paths() if Path(path).exists())
+        paths = (path for path in self._paths() if Path(path).is_file())
         self._maybe_register_mime_types(register=False)
         if paths:
             for path in paths:
