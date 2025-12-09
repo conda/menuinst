@@ -87,7 +87,7 @@
   aliases:
   - Conda Bot
   - conda bot
-  num_commits: 42
+  num_commits: 45
   first_commit: 2022-01-25 22:53:19
   github: conda-bot
 - name: Aaron Meurer
@@ -112,7 +112,7 @@
   github: isuruf
 - name: pre-commit-ci[bot]
   email: 66853113+pre-commit-ci[bot]@users.noreply.github.com
-  num_commits: 39
+  num_commits: 46
   first_commit: 2023-08-21 19:22:51
   github: pre-commit-ci[bot]
 - name: Martin Chilvers
@@ -163,7 +163,7 @@
   github: katietz
 - name: dependabot[bot]
   email: 49699333+dependabot[bot]@users.noreply.github.com
-  num_commits: 52
+  num_commits: 54
   first_commit: 2024-05-06 08:12:56
   github: dependabot[bot]
 - name: JTignor-Raltron
@@ -173,7 +173,7 @@
   github: JTignor-Raltron
 - name: Marco Esters
   email: mesters@anaconda.com
-  num_commits: 28
+  num_commits: 31
   first_commit: 2024-01-26 08:11:25
   github: marcoesters
 - name: Klaus Zimmermann
@@ -208,3 +208,7 @@
   num_commits: 2
   first_commit: 2025-07-25 08:37:01
   github: Jrice1317
+- name: Robin
+  email: 34315751+lrandersson@users.noreply.github.com
+  num_commits: 1
+  first_commit: 2025-11-05 11:50:32
