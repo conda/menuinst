@@ -1,5 +1,25 @@
 [//]: # (current developments)
 
+## 2.4.2 (2025-12-09)
+
+### Enhancements
+
+* Allow for arbitrary `Info.plist` properties in macOS app bundles. (#195, #410 via #415)
+
+### Bug fixes
+
+* For Linux platforms, MimeTypes with defined glob patterns are now properly handled when `xdg-mime` is not on the system. (#290 via #403)
+* When uninstalling shortcuts as administrator, check user locations if no system shortcuts have
+  been found and prefixes contain `.nonadmin` files. This allows removing single-user shortcuts
+  as an administrator. (#341 via #414)
+
+### Contributors
+
+* @marcoesters
+* @lrandersson
+
+
+
 ## 2.4.1 (2025-10-20)
 
 ### Bug fixes

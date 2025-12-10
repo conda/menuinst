@@ -29,6 +29,7 @@ Authors are sorted alphabetically.
 * Pankaj Pandey
 * Prabhu Ramachandran
 * Ray Donnelly
+* Robin
 * Ryan Clary
 * Shaun Walbridge
 * Sophia Castellarin
