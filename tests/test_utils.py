@@ -2,7 +2,19 @@
 Tests for specific functions in the utils package.
 """
 
-from menuinst.utils import WinLex
+from typing import TYPE_CHECKING
+
+import pytest
+from conftest import PLATFORM
+
+pytestmark = pytest.mark.skipif(
+    PLATFORM != "win", reason="This file contains tests that are Windows only."
+)
+
+if TYPE_CHECKING:
+    from menuinst.utils import WinLex
+else:
+    WinLex = pytest.importorskip("menuinst.utils").WinLex
 
 
 def test_quote_args_1():
@@ -10,7 +22,7 @@ def test_quote_args_1():
     wl = WinLex()
     test_str = [r"%SystemRoot%\system32\foo.exe", "/pt", "%1", "%2", "%3", "%4"]
     output = wl.quote_args(test_str)
-    assert output == [r'"%SystemRoot%\system32\foo.exe"', '/pt', '"%1"', '"%2"', '"%3"', '"%4"']
+    assert output == [r'"%SystemRoot%\system32\foo.exe"', "/pt", '"%1"', '"%2"', '"%3"', '"%4"']
 
 
 def test_quote_args_2():
