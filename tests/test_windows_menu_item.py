@@ -1,10 +1,10 @@
 import os
 import subprocess
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pytest
 from conftest import PLATFORM
-from tpying import TYPE_CHECKING
 
 pytestmark = pytest.mark.skipif(
     PLATFORM != "win", reason="This file contains tests that are Windows only."
