@@ -213,7 +213,7 @@ class WinLex:
             return f'"{s}"'
 
         # Situation with %VAR%\\f.exe or %VAR%/f.exe
-        if '%' in s and ("/" in s or "\\" in s):
+        if "%" in s and ("/" in s or "\\" in s):
             return f'"{s}"'
 
         if " " in s:
