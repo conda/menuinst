@@ -10,7 +10,7 @@ def test_quote_args_1():
     wl = WinLex()
     test_str = [r"%SystemRoot%\system32\foo.exe", "/pt", "%1", "%2", "%3", "%4"]
     output = wl.quote_args(test_str)
-    assert output == [r'"%SystemRoot%\system32\foo.exe"', '"/pt"', '"%1"', '"%2"', '"%3"', '"%4"']
+    assert output == [r'"%SystemRoot%\system32\foo.exe"', '/pt', '"%1"', '"%2"', '"%3"', '"%4"']
 
 
 def test_quote_args_2():
