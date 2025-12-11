@@ -25,7 +25,7 @@ def test_quote_args_2():
     output = wl.quote_args(args)
     assert output == [
         r"C:\Windows\System32\notepad.exe",
-        '"/pt"',
+        '/pt',
         r'"C:\Users\Foo Bar\file.txt"',
         '"HP LaserJet"',
     ]

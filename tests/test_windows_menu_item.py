@@ -4,9 +4,20 @@ from pathlib import Path
 
 import pytest
 from conftest import PLATFORM
+from tpying import TYPE_CHECKING
 
-from menuinst.platforms.win import WindowsMenu, WindowsMenuItem
-from menuinst.utils import WinLex
+pytestmark = pytest.mark.skipif(
+    PLATFORM != "win", reason="This file contains tests that are Windows only."
+)
+
+# These imports don't execute at runtime → no E402 issues
+if TYPE_CHECKING:
+    from menuinst.platforms.win import WindowsMenu, WindowsMenuItem
+    from menuinst.utils import WinLex
+else:
+    WindowsMenu = pytest.importorskip("menuinst.platforms.win").WindowsMenu
+    WindowsMenuItem = pytest.importorskip("menuinst.platforms.win").WindowsMenuItem
+    WinLex = pytest.importorskip("menuinst.utils").WinLex
 
 # DEFAULT_PATH is actually not used to write any actual file,
 # just to mimic a real path
