@@ -338,35 +338,44 @@ class WindowsMenuItem(MenuItem):
         return script_path
 
     def _process_command(self, with_arg1: bool = False) -> tuple[str]:
+        """Process command and run it via WinLex.quote_args."""
         if self.metadata["activate"]:
             script = self._write_script()
             if self.metadata["terminal"]:
-                command = ["cmd", "/D", "/K", f'"{script}"']
+                command = ["cmd", "/D", "/K", str(script)]
                 if with_arg1:
-                    command.append("%1")
+                    command.append('"%1"')
             else:
-                system32 = Path(os.environ.get("SystemRoot", "C:\\Windows")) / "system32"
-                arg1 = "%1 " if with_arg1 else ""
                 # This is an UGLY hack to start the script in a hidden window
                 # We use CMD to call PowerShell to call the BAT file
                 # This flashes faster than Powershell -> BAT! Don't ask me why.
+                system32 = Path(os.environ.get("SystemRoot", "C:\\Windows")) / "system32"
+                pwsh = system32 / "WindowsPowerShell" / "v1.0" / "powershell.exe"
+
                 command = [
-                    f'"{system32 / "cmd.exe"}"',
+                    str(system32 / "cmd.exe"),
                     "/D",
                     "/C",
                     "START",
                     "/MIN",
-                    '""',
-                    f'"{system32 / "WindowsPowerShell" / "v1.0" / "powershell.exe"}"',
+                    '""',  # START requires this empty window title (must remain quoted)
+                    str(pwsh),
                     "-WindowStyle",
                     "hidden",
-                    f"\"start '{script}' {arg1}-WindowStyle hidden\"",
+                    "start",
+                    str(script),
                 ]
-            return command
+                if with_arg1:
+                    command.append('"%1"')
+                command += ["-WindowStyle", "hidden"]
+            return WinLex.quote_args(command)
 
+        # Continue below without the activation
         command = self.render_key("command")
+
+        # Ensure "%1" is present and quoted when requested
         if with_arg1 and all("%1" not in arg for arg in command):
-            command.append("%1")
+            command.append('"%1"')
         return WinLex.quote_args(command)
 
     def _add_remove_windows_terminal_profile(self, location: Path, remove: bool = False):

@@ -9,7 +9,7 @@ import xml.etree.ElementTree as XMLTree
 from contextlib import suppress
 from functools import lru_cache, wraps
 from logging import getLogger
-from pathlib import Path
+from pathlib import Path, PurePath
 from typing import Any, Callable, Iterable, Literal, Mapping, Optional, Sequence, Union
 from unicodedata import normalize
 
@@ -136,6 +136,8 @@ def add_xml_child(parent: XMLTree.Element, tag: str, text: Optional[str] = None)
 
 
 class WinLex:
+    _META_CHARS = (">", "<", "|", "&", "(", ")")
+
     @classmethod
     def quote_args(cls, args: Sequence[str]):
         # cmd.exe /K or /C expects a single string argument and requires
@@ -143,7 +145,7 @@ class WinLex:
         # https://stackoverflow.com/a/6378038/3257826
         if (
             len(args) > 2
-            and ("CMD.EXE" in args[0].upper() or "%COMSPEC%" in args[0].upper())
+            and cls._is_cmd(args[0])
             and (args[1].upper() == "/K" or args[1].upper() == "/C")
             and any(" " in arg for arg in args[2:])
         ):
@@ -163,23 +165,47 @@ class WinLex:
         return args
 
     @classmethod
-    def quote_string(cls, s: Sequence[str]):
+    def _is_cmd(cls, s: str) -> bool:
         """
-        Quotes a string if necessary.
+        Return True if input refers to cmd.exe or %COMSPEC%. Here, 'refers' implies variants of
+        cmd, cmd.exe, <some path>/cmd and accounting for quoted input.
         """
-        # Strip any existing quotes
-        s = s.strip('"')
+        t = s.strip('"')
+        # Accept %COMSPEC%
+        if t.upper() == "%COMSPEC%":
+            return True
+        # Accept bare name or any path whose basename startswith 'cmd' and
+        # endswith '.exe' (or no extension)
+        name = PurePath(t).name.upper()
+        return name == "CMD" or name == "CMD.EXE"
 
-        # Don't add quotes for minus or leading space
-        if s[0] in ("-", " "):
+    @classmethod
+    def quote_string(cls, s: str):
+        """
+        Quote given input if and only if it has spaces and no shell metacharacters.
+        This is based on the following rules:
+        * Preserve already-quoted input.
+        * Don't auto-quote shell metacharacters (>, <, |, &, (, )).
+        * Don't auto-quote just because of '%' (it changes observable output)
+        """
+        if s == "":
+            return '""'
+
+        # Don't quote already quoted input.
+        # Examples: '""', '"%1"', '"C:\\Path With Spaces"'
+        if len(s) >= 2 and s[0] == s[-1] == '"':
             return s
 
-        # Don't touch shell meta tokens; quoting would change meaning.
+        # Don't add quotes for minus or leading space
+        if s and s[0] in ("-", " "):
+            return s
+
+        # Don't quote shell meta tokens; quoting would change meaning.
         # Example: echo %FOO%> output.txt
         if cls._has_shell_meta(s):
             return s
 
-        if " " in s or "/" in s or "%" in s:
+        if " " in s:
             return '"%s"' % s
         return s
 
@@ -188,14 +214,14 @@ class WinLex:
         """
         Detect shell metacharacters that must remain unquoted to preserve meaning.
         """
-        return any(ch in a for ch in (">", "<", "|", "&"))
+        return any(ch in a for ch in cls._META_CHARS)
 
     @classmethod
     def _needs_quotes_for_cmd(cls, s: str) -> bool:
         """
-        Return True if input contains space or '%', otherwise False.
+        Return True if input contains space.
         """
-        return (" " in s) or ("%" in s)
+        return " " in s
 
     @classmethod
     def ensure_pad(cls, name: str, pad: str = "_") -> str:
@@ -209,6 +235,8 @@ class WinLex:
             '_conda_'
 
         """
+        if not name:
+            return name
         if not name or name[0] == name[-1] == pad:
             return name
         else:
