@@ -182,11 +182,14 @@ class WinLex:
     @classmethod
     def quote_string(cls, s: str):
         """
-        Quote given input if and only if it has spaces and no shell metacharacters.
+        Quote given input if necessary.
         This is based on the following rules:
-        * Preserve already-quoted input.
+        * Preserve already-quoted input..
+        * Quote args with spaces
+        * Quote path-like input with variables, for example %FOO%\\foo.exe.
+        * Quote positional args such as %1, %2, ..., %n where n is a positive integer.
         * Don't auto-quote shell metacharacters (>, <, |, &, (, )).
-        * Don't auto-quote just because of '%' (it changes observable output)
+        * Don't auto-quote just because of '%' (it changes observable output).
         """
         if s == "":
             return '""'
@@ -204,6 +207,14 @@ class WinLex:
         # Example: echo %FOO%> output.txt
         if cls._has_shell_meta(s):
             return s
+
+        # %1, %2, %3...
+        if len(s) >= 2 and s[0] == "%" and s[1:].isdigit():
+            return f'"{s}"'
+
+        # Situation with %VAR%\\f.exe or %VAR%/f.exe
+        if '%' in s and ("/" in s or "\\" in s):
+            return f'"{s}"'
 
         if " " in s:
             return '"%s"' % s
