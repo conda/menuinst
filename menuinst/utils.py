@@ -136,7 +136,10 @@ def add_xml_child(parent: XMLTree.Element, tag: str, text: Optional[str] = None)
 
 
 class WinLex:
-    _META_CHARS = (">", "<", "|", "&", "(", ")")
+    # Note that there are more characters, for example parenthesis,
+    # but in our case parenthesis are required to be quoted for example with
+    # python -c "print('foo')"
+    _META_CHARS = (">", "<", "|", "&")
 
     @classmethod
     def quote_args(cls, args: Sequence[str]):

@@ -352,6 +352,10 @@ class WindowsMenuItem(MenuItem):
                 system32 = Path(os.environ.get("SystemRoot", "C:\\Windows")) / "system32"
                 pwsh = system32 / "WindowsPowerShell" / "v1.0" / "powershell.exe"
 
+                arg1 = "%1 " if with_arg1 else ""
+                # Write the start 'script' as one string (instead of multiple args)
+                # below to simplify quoting of args later.
+                start_script = f"start '{script}' {arg1}-WindowStyle hidden"
                 command = [
                     str(system32 / "cmd.exe"),
                     "/D",
@@ -362,12 +366,9 @@ class WindowsMenuItem(MenuItem):
                     str(pwsh),
                     "-WindowStyle",
                     "hidden",
-                    "start",
-                    str(script),
+                    start_script
                 ]
-                if with_arg1:
-                    command.append('"%1"')
-                command += ["-WindowStyle", "hidden"]
+
             return WinLex.quote_args(command)
 
         # Continue below without the activation
