@@ -191,7 +191,7 @@ class WinLex:
         * Quote args with spaces
         * Quote path-like input with variables, for example %FOO%\\foo.exe.
         * Quote positional args such as %1, %2, ..., %n where n is a positive integer.
-        * Don't auto-quote shell metacharacters (>, <, |, &, (, )).
+        * Don't auto-quote shell metacharacters (>, <, |, &).
         * Don't auto-quote just because of '%' (it changes observable output).
         """
         if s == "":

@@ -366,7 +366,7 @@ class WindowsMenuItem(MenuItem):
                     str(pwsh),
                     "-WindowStyle",
                     "hidden",
-                    start_script
+                    start_script,
                 ]
 
             return WinLex.quote_args(command)

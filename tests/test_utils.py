@@ -32,14 +32,14 @@ def test_quote_args_2():
         r"C:\Windows\System32\notepad.exe",
         "/pt",
         r"C:\Users\Foo Bar\file.txt",
-        "HP LaserJet",
+        "S p a c e s",
     ]
     output = wl.quote_args(args)
     assert output == [
         r"C:\Windows\System32\notepad.exe",
         "/pt",
         r'"C:\Users\Foo Bar\file.txt"',
-        '"HP LaserJet"',
+        '"S p a c e s"',
     ]
 
 
