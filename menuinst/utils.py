@@ -146,29 +146,47 @@ class WinLex:
         # cmd.exe /K or /C expects a single string argument and requires
         # doubled-up quotes when any sub-arguments have spaces:
         # https://stackoverflow.com/a/6378038/3257826
-        if (
-            len(args) > 2
-            and cls._is_cmd(args[0])
-            and (args[1].upper() == "/K" or args[1].upper() == "/C")
-            and any(" " in arg for arg in args[2:])
-        ):
-            # Quote the call to cmd.exe only if it needs it
-            cmd0 = cls.ensure_pad(args[0], '"') if cls._needs_quotes_for_cmd(args[0]) else args[0]
 
-            # For the tail (the command string passed to cmd.exe), quote each
-            # sub-arg with " only if its needed; then join; then
-            # wrap the WHOLE tail in one pair of quotes.
-            tail_parts = [
-                (cls.ensure_pad(a, '"') if cls._needs_quotes_for_cmd(a) else a) for a in args[2:]
-            ]
-            tail = " ".join(tail_parts)
-            return [cmd0, args[1], f'"{tail}"']
-        else:
-            args = [cls.quote_string(arg) for arg in args]
+        if len(args) > 2 and cls._is_cmd_exe(args[0]):
+            # and (args[1].upper() == "/K" or args[1].upper() == "/C")
+            # and any(" " in arg for arg in args[2:])
+            switch_index = None
+            for index in range(1, len(args)):
+                a = args[index].upper()
+                if a == "/C" or a == "/K":
+                    switch_index = index
+                    break
+
+            # If we found /C or /K, proceed
+            if switch_index is not None:
+                tail = args[switch_index + 1 :]
+                if tail and any(" " in entry for entry in tail):
+                    # Quote the call to cmd.exe only if it needs it
+                    cmd0 = (
+                        cls.ensure_pad(args[0], '"')
+                        if cls._needs_quotes_for_cmd(args[0])
+                        else args[0]
+                    )
+
+                    # Preserve the flags between cmd and /C or /K
+                    pre_flags = args[1:switch_index]
+
+                    # For the tail (the command string passed to cmd.exe), quote each
+                    # sub-arg with " only if its needed; then join; then
+                    # wrap the WHOLE tail in one pair of quotes.
+                    tail_parts = [
+                        (cls.ensure_pad(a, '"') if cls._needs_quotes_for_cmd(a) else a)
+                        for a in tail
+                    ]
+                    tail_str = " ".join(tail_parts)
+                    return [cmd0, *pre_flags, args[switch_index], f'"{tail_str}"']
+
+        # Generic quoting for non-cmd
+        args = [cls.quote_string(arg) for arg in args]
         return args
 
     @classmethod
-    def _is_cmd(cls, s: str) -> bool:
+    def _is_cmd_exe(cls, s: str) -> bool:
         """
         Return True if input refers to cmd.exe or %COMSPEC%. Here, 'refers' implies variants of
         cmd, cmd.exe, <some path>/cmd and accounting for quoted input.
@@ -203,7 +221,7 @@ class WinLex:
             return s
 
         # Don't add quotes for minus or leading space
-        if s and s[0] in ("-", " "):
+        if s[0] in ("-", " "):
             return s
 
         # Don't quote shell meta tokens; quoting would change meaning.
@@ -220,7 +238,7 @@ class WinLex:
             return f'"{s}"'
 
         if " " in s:
-            return '"%s"' % s
+            return f'"{s}"'
         return s
 
     @classmethod
@@ -251,7 +269,7 @@ class WinLex:
         """
         if not name:
             return name
-        if not name or name[0] == name[-1] == pad:
+        if name[0] == name[-1] == pad:
             return name
         else:
             return "%s%s%s" % (pad, name, pad)

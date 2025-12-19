@@ -18,7 +18,7 @@ else:
 
 
 def test_quote_args_1():
-    """Verify the input arguments are quoted."""
+    """Verify that input arguments are quoted."""
     wl = WinLex()
     test_str = [r"%SystemRoot%\system32\foo.exe", "/pt", "%1", "%2", "%3", "%4"]
     output = wl.quote_args(test_str)
@@ -104,4 +104,26 @@ def test_quote_args_8():
         r'"C:\path with spaces\cmd.exe"',
         "/K",
         '"dir "Hello World" "%1 %2 %foo% with spaces" x y"',
+    ]
+
+
+@pytest.mark.parametrize("special_flag", ("/C", "/K"))
+def test_quote_args_special_flag(special_flag):
+    """Verify special case with spaces, cmd.exe, multiple flags and percentage sign."""
+    args = [
+        "cmd.exe",
+        "/A",
+        "/B",
+        special_flag,
+        r"C:\Foo Bar\bin.exe",
+        "%1",
+    ]
+    wl = WinLex()
+    output = wl.quote_args(args)
+    assert output == [
+        "cmd.exe",
+        "/A",
+        "/B",
+        special_flag,
+        '""C:\\Foo Bar\\bin.exe" %1"',
     ]
