@@ -9,7 +9,7 @@ import xml.etree.ElementTree as XMLTree
 from contextlib import suppress
 from functools import lru_cache, wraps
 from logging import getLogger
-from pathlib import Path
+from pathlib import Path, PurePath
 from typing import Any, Callable, Iterable, Literal, Mapping, Optional, Sequence, Union
 from unicodedata import normalize
 
@@ -136,50 +136,138 @@ def add_xml_child(parent: XMLTree.Element, tag: str, text: Optional[str] = None)
 
 
 class WinLex:
+    # Note that there are more characters, for example parenthesis,
+    # but in our case parenthesis are required to be quoted for example with
+    # python -c "print('foo')"
+    _META_CHARS = (">", "<", "|", "&")
+
     @classmethod
     def quote_args(cls, args: Sequence[str]):
         # cmd.exe /K or /C expects a single string argument and requires
         # doubled-up quotes when any sub-arguments have spaces:
         # https://stackoverflow.com/a/6378038/3257826
-        if (
-            len(args) > 2
-            and ("CMD.EXE" in args[0].upper() or "%COMSPEC%" in args[0].upper())
-            and (args[1].upper() == "/K" or args[1].upper() == "/C")
-            and any(" " in arg for arg in args[2:])
-        ):
-            args = [
-                cls.ensure_pad(args[0], '"'),  # cmd.exe
-                args[1],  # /K or /C
-                '"%s"' % (" ".join(cls.ensure_pad(arg, '"') for arg in args[2:])),  # double-quoted
-            ]
-        else:
-            args = [cls.quote_string(arg) for arg in args]
+
+        if len(args) > 2 and cls._is_cmd_exe(args[0]):
+            switch_index = None
+            for index in range(1, len(args)):
+                a = args[index].upper()
+                if a == "/C" or a == "/K":
+                    switch_index = index
+                    break
+
+            # If we found /C or /K, proceed
+            if switch_index is not None:
+                tail = args[switch_index + 1 :]
+                if tail and any(" " in entry for entry in tail):
+                    # Quote the call to cmd.exe only if it needs it
+                    cmd0 = (
+                        cls.ensure_pad(args[0], '"')
+                        if cls._needs_quotes_for_cmd(args[0])
+                        else args[0]
+                    )
+
+                    # Preserve the flags between cmd and /C or /K
+                    pre_flags = args[1:switch_index]
+
+                    # For the tail (the command string passed to cmd.exe), quote each
+                    # sub-arg with " only if its needed; then join; then
+                    # wrap the WHOLE tail in one pair of quotes.
+                    tail_parts = [
+                        (cls.ensure_pad(a, '"') if cls._needs_quotes_for_cmd(a) else a)
+                        for a in tail
+                    ]
+                    tail_str = " ".join(tail_parts)
+                    return [cmd0, *pre_flags, args[switch_index], f'"{tail_str}"']
+
+        # Generic quoting for non-cmd
+        args = [cls.quote_string(arg) for arg in args]
         return args
 
     @classmethod
-    def quote_string(cls, s: Sequence[str]):
+    def _is_cmd_exe(cls, s: str) -> bool:
         """
-        quotes a string if necessary.
+        Return True if input refers to cmd.exe or %COMSPEC%. Here, 'refers' implies variants of
+        cmd, cmd.exe, <some path>/cmd and accounting for quoted input.
         """
-        # strip any existing quotes
-        s = s.strip('"')
-        # don't add quotes for minus or leading space
+        t = s.strip('"')
+        # Accept %COMSPEC%
+        if t.upper() == "%COMSPEC%":
+            return True
+        # Accept bare name or any path whose basename startswith 'cmd' and
+        # endswith '.exe' (or no extension)
+        name = PurePath(t).name.upper()
+        return name == "CMD" or name == "CMD.EXE"
+
+    @classmethod
+    def quote_string(cls, s: str):
+        """
+        Quote given input if necessary.
+        This is based on the following rules:
+        * Preserve already-quoted input..
+        * Quote args with spaces
+        * Quote path-like input with variables, for example %FOO%\\foo.exe.
+        * Quote positional args such as %1, %2, ..., %n where n is a positive integer.
+        * Don't auto-quote shell metacharacters (>, <, |, &).
+        * Don't auto-quote just because of '%' (it changes observable output).
+        """
+        if s == "":
+            return '""'
+
+        # Don't quote already quoted input.
+        # Examples: '""', '"%1"', '"C:\\Path With Spaces"'
+        if len(s) >= 2 and s[0] == s[-1] == '"':
+            return s
+
+        # Don't add quotes for minus or leading space
         if s[0] in ("-", " "):
             return s
-        if " " in s or "/" in s:
-            return '"%s"' % s
+
+        # Don't quote shell meta tokens; quoting would change meaning.
+        # Example: echo %FOO%> output.txt
+        if cls._has_shell_meta(s):
+            return s
+
+        # %1, %2, %3...
+        if len(s) >= 2 and s[0] == "%" and s[1:].isdigit():
+            return f'"{s}"'
+
+        # Situation with %VAR%\\f.exe or %VAR%/f.exe
+        if "%" in s and ("/" in s or "\\" in s):
+            return f'"{s}"'
+
+        if " " in s:
+            return f'"{s}"'
         return s
 
     @classmethod
-    def ensure_pad(cls, name: str, pad: str = "_"):
+    def _has_shell_meta(cls, a: str) -> bool:
         """
+        Detect shell metacharacters that must remain unquoted to preserve meaning.
+        """
+        return any(ch in a for ch in cls._META_CHARS)
+
+    @classmethod
+    def _needs_quotes_for_cmd(cls, s: str) -> bool:
+        """
+        Return True if input contains space.
+        """
+        return " " in s
+
+    @classmethod
+    def ensure_pad(cls, name: str, pad: str = "_") -> str:
+        """
+        Pad the input set via 'name' with the string set via keyword-argument 'pad'.
+        If pad='"', then padding is only added if the input contains a space or
+        a percentage sign.
 
         Examples:
             >>> ensure_pad('conda')
             '_conda_'
 
         """
-        if not name or name[0] == name[-1] == pad:
+        if not name:
+            return name
+        if name[0] == name[-1] == pad:
             return name
         else:
             return "%s%s%s" % (pad, name, pad)
