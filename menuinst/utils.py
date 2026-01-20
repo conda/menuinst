@@ -148,8 +148,6 @@ class WinLex:
         # https://stackoverflow.com/a/6378038/3257826
 
         if len(args) > 2 and cls._is_cmd_exe(args[0]):
-            # and (args[1].upper() == "/K" or args[1].upper() == "/C")
-            # and any(" " in arg for arg in args[2:])
             switch_index = None
             for index in range(1, len(args)):
                 a = args[index].upper()
