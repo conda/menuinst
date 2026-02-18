@@ -64,8 +64,7 @@ class MacOSMenuItem(MenuItem):
         super()._precreate()
         for src, dest in (self.metadata["link_in_bundle"] or {}).items():
             rendered_dest: Path = (self.location / self.render(dest)).resolve()
-            # if not rendered_dest.is_relative_to(self.location):  # FUTURE: Only for 3.9+
-            if not str(rendered_dest).startswith(str(self.location)):
+            if not rendered_dest.is_relative_to(self.location):
                 raise ValueError(
                     "'link_in_bundle' destinations MUST be created "
                     f"inside the .app bundle ({self.location}), but it points to '{rendered_dest}."
