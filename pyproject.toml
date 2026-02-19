@@ -7,7 +7,7 @@ name = "menuinst"
 description = "cross platform install of menu items"
 readme = "README.md"
 license = {file = "LICENSE.txt"}
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 dynamic = [
   "version"
 ]
