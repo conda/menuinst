@@ -16,5 +16,5 @@
 
 ### Other
 
-* Remove support for Python 3.9.
+* Remove support for Python 3.9. (#445)
 * Update Python versions in canary builds: remove version 3.9 and add 3.13. (#445)
