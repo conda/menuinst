@@ -2,6 +2,7 @@ import os
 
 import pytest
 
+from menuinst import utils as menuinst_utils
 from menuinst.utils import _test_elevation, elevate_as_needed, user_is_admin
 
 
@@ -67,7 +68,7 @@ def test_elevation_nonadmin_marker_when_admin(
     if create_nonadmin:
         (tmp_path / ".nonadmin").touch()
 
-    monkeypatch.setattr("menuinst.utils.user_is_admin", lambda: True)
+    monkeypatch.setattr(menuinst_utils, "user_is_admin", lambda: True)
 
     elevate_as_needed(_test_elevation)(target_prefix=str(tmp_path), base_prefix=str(tmp_path))
 
