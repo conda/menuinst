@@ -508,7 +508,7 @@ def elevate_as_needed(func: Callable) -> Callable:
                     return
         elif user_is_admin():
             # We are already running as admin, but check if .nonadmin marker exists
-            # which signals a user-mode install (e.g., per-user MSI install running elevated)
+            # which signals a user-mode install.
             nonadmin_exists = (
                 Path(target_prefix, ".nonadmin").is_file()
                 or Path(base_prefix, ".nonadmin").is_file()
