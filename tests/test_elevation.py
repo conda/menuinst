@@ -1,5 +1,7 @@
 import os
 
+import pytest
+
 from menuinst.utils import _test_elevation, elevate_as_needed, user_is_admin
 
 
@@ -44,3 +46,31 @@ def test_elevation(tmp_path, capfd):
         elevate_as_needed(_test_elevation)(target_prefix=str(tmp_path), base_prefix=str(tmp_path))
         assert capfd.readouterr().out.strip() == "user_is_admin(): False env_var: TEST _mode: user"
         assert (tmp_path / ".nonadmin").exists()
+
+
+@pytest.mark.parametrize(
+    "create_nonadmin,expected_mode",
+    [
+        (True, "user"),
+        (False, "system"),
+    ],
+)
+def test_elevation_nonadmin_marker_when_admin(
+    tmp_path, monkeypatch, create_nonadmin, expected_mode
+):
+    """
+    Test that .nonadmin marker is respected when running as admin.
+    See https://github.com/conda/menuinst/issues/453
+    """
+    os.environ["MENUINST_TEST"] = "TEST"
+
+    if create_nonadmin:
+        (tmp_path / ".nonadmin").touch()
+
+    monkeypatch.setattr("menuinst.utils.user_is_admin", lambda: True)
+
+    elevate_as_needed(_test_elevation)(target_prefix=str(tmp_path), base_prefix=str(tmp_path))
+
+    if os.name == "nt":
+        output = (tmp_path / "_test_output.txt").read_text().strip()
+        assert f"_mode: {expected_mode}" in output
