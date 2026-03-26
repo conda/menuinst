@@ -4,7 +4,7 @@
 
 ### Bug fixes
 
-* On Windows, the `@elevate_as_needed` decorator now respects the `.nonadmin` marker file when running as admin, using user mode instead of system mode. (#453 via #454)
+* The `@elevate_as_needed` decorator now respects the `.nonadmin` marker file when running as admin/root, using user mode instead of system mode. (#453 via #454)
 
 ### Deprecations
 
