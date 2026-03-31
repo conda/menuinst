@@ -50,17 +50,18 @@ def test_elevation(tmp_path, capfd):
 
 
 @pytest.mark.parametrize(
-    "create_nonadmin,expected_mode",
+    "create_nonadmin,expected_mode_win",
     [
         (True, "user"),
         (False, "system"),
     ],
 )
 def test_elevation_nonadmin_marker_when_admin(
-    tmp_path, monkeypatch, create_nonadmin, expected_mode
+    tmp_path, monkeypatch, capfd, create_nonadmin, expected_mode_win
 ):
     """
-    Test that .nonadmin marker is respected when running as admin.
+    Test that .nonadmin marker is respected when running as admin on Windows.
+    On non-Windows, admin always uses system mode.
     See https://github.com/conda/menuinst/issues/453
     """
     os.environ["MENUINST_TEST"] = "TEST"
@@ -74,4 +75,8 @@ def test_elevation_nonadmin_marker_when_admin(
 
     if os.name == "nt":
         output = (tmp_path / "_test_output.txt").read_text().strip()
-        assert f"_mode: {expected_mode}" in output
+        assert f"_mode: {expected_mode_win}" in output
+    else:
+        # On non-Windows, admin always uses system mode regardless of .nonadmin
+        output = capfd.readouterr().out.strip()
+        assert "_mode: system" in output

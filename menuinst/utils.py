@@ -507,8 +507,7 @@ def elevate_as_needed(func: Callable) -> Callable:
                 if return_code == 0:  # success, we are done
                     return
         elif user_is_admin():
-            # We are already running as admin, but check if .nonadmin marker exists
-            # which signals a user-mode install.
+            # On Windows, check if .nonadmin marker exists which signals a user-mode install.
             nonadmin_exists = (
                 Path(target_prefix, ".nonadmin").is_file()
                 or Path(base_prefix, ".nonadmin").is_file()
@@ -516,7 +515,7 @@ def elevate_as_needed(func: Callable) -> Callable:
             return func(
                 target_prefix=target_prefix,
                 base_prefix=base_prefix,
-                _mode="user" if nonadmin_exists else "system",
+                _mode="user" if nonadmin_exists and os.name == "nt" else "system",
                 *args,
                 **kwargs,
             )
