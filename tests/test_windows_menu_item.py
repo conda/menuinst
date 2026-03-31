@@ -137,7 +137,9 @@ def test_command_quotes_paths_with_spaces(conda_exe_path, prefix_path, monkeypat
 
     # Create a fake .env file
     fake_env_file = tmp_path / "activate.env"
-    fake_env_content = f"_CONDA_SCRIPT={prefix_path}\\Scripts\\activate.bat\nCONDA_PREFIX={prefix_path}"
+    fake_env_content = (
+        f"_CONDA_SCRIPT={prefix_path}\\Scripts\\activate.bat\nCONDA_PREFIX={prefix_path}"
+    )
     fake_env_file.write_text(fake_env_content)
 
     # Create a menu item with activate=True to trigger the activation code path
@@ -184,14 +186,14 @@ def test_command_quotes_paths_with_spaces(conda_exe_path, prefix_path, monkeypat
     lines = command.split("\r\n")
 
     # Find the @CALL line for _CONDA_SCRIPT
-    call_lines = [l for l in lines if l.startswith("@CALL")]
+    call_lines = [line for line in lines if line.startswith("@CALL")]
     assert len(call_lines) >= 1, f"Expected @CALL line in command, got: {lines}"
 
     # The path in @CALL should be quoted if it contains spaces
     if " " in prefix_path:
         call_line = call_lines[0]
         # The path should be wrapped in quotes
-        assert f'"{prefix_path}' in call_line or f'@CALL "' in call_line, (
+        assert f'"{prefix_path}' in call_line or '@CALL "' in call_line, (
             f"Path with spaces should be quoted in @CALL. Got: {call_line}"
         )
 
