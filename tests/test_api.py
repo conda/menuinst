@@ -16,7 +16,7 @@ from xml.etree import ElementTree
 import pytest
 from conftest import DATA, PLATFORM
 
-from menuinst.api import install, remove
+from menuinst.api import install, remove, remove_all
 from menuinst.platforms import Menu, MenuItem
 from menuinst.platforms.osx import _lsregister
 from menuinst.utils import DEFAULT_PREFIX, logged_run, slugify, user_is_admin
@@ -525,3 +525,37 @@ def test_platforms():
     assert menu_item.enabled_for_platform("win32")
     assert not menu_item.enabled_for_platform("linux")
     assert not menu_item.enabled_for_platform("darwin")
+
+
+def test_malformed_json_skipped_in_process_all(tmp_path, caplog):
+    """Test that malformed JSON files are skipped with a warning in install_all/remove_all."""
+    menu_dir = tmp_path / "Menu"
+    menu_dir.mkdir()
+
+    # Create a malformed JSON file
+    malformed = menu_dir / "malformed.json"
+    malformed.write_text("")
+
+    # Create a valid JSON file
+    valid = menu_dir / "valid.json"
+    valid.write_text(
+        json.dumps(
+            {
+                "$schema": "https://json-schema.org/draft-07/schema",
+                "menu_name": "Test",
+                "menu_items": [
+                    {
+                        "name": "Test Item",
+                        "command": ["echo", "test"],
+                    }
+                ],
+            }
+        )
+    )
+
+    # remove_all should skip malformed file and continue
+    caplog.clear()
+    remove_all(target_prefix=str(tmp_path), base_prefix=str(tmp_path), filter=lambda x: True)
+
+    # Check that warning was logged for malformed file
+    assert any("malformed.json" in msg and "malformed JSON" in msg for msg in caplog.messages)

@@ -149,7 +149,17 @@ def _process_all(
     results = []
     for path in jsons:
         if filter is not None and filter(path):
-            results.append(function(path, target_prefix, base_prefix, _mode))
+            try:
+                results.append(
+                    function(
+                        path,
+                        target_prefix=target_prefix,
+                        base_prefix=base_prefix,
+                        _mode=_mode,
+                    )
+                )
+            except json.JSONDecodeError as exc:
+                log.warning(f"Skipping {path}: malformed JSON ({exc})")
     return results
 
 
