@@ -271,7 +271,7 @@ class WindowsMenuItem(MenuItem):
             lines.append(precommand)
         if self.metadata["activate"]:
             if self.menu._is_micromamba(self.menu.conda_exe):
-                activator = f'{self.menu.conda_exe} shell activate "{self.menu.prefix}"'
+                activator = f'"{self.menu.conda_exe}" shell activate "{self.menu.prefix}"'
                 activation_lines = [
                     f'@FOR /F "usebackq tokens=*" %%i IN (`{activator}`) do set "ACTIVATOR=%%i"',
                     "@CALL %ACTIVATOR%",
@@ -293,7 +293,7 @@ class WindowsMenuItem(MenuItem):
                 filetype = activation_file.suffix
                 if filetype == ".bat":
                     activator = (
-                        f'{self.menu.conda_exe} shell.cmd.exe activate "{self.menu.prefix}"'
+                        f'"{self.menu.conda_exe}" shell.cmd.exe activate "{self.menu.prefix}"'
                     )
                     activation_lines = [
                         f'@FOR /F "usebackq tokens=*" %%i IN (`{activator}`) do set "ACTIVATOR=%%i"',  # noqa
@@ -304,7 +304,7 @@ class WindowsMenuItem(MenuItem):
                     for line in activation_file.read_text().splitlines():
                         keyword, value = line.strip().split("=", 1)
                         if keyword == "_CONDA_SCRIPT":
-                            activation_lines.append(f"@CALL {value}")
+                            activation_lines.append(f'@CALL "{value}"')
                         else:
                             activation_lines.append(f'@SET "{keyword}={value}"')
                 else:
