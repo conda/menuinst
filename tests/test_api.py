@@ -529,7 +529,8 @@ def test_platforms(tmp_path):
 
     # And now some more complete tests:
 
-    # No platforms
+
+def test_no_platforms(tmp_path, delete_files):
     datafile = str(DATA / "jsons" / "no-platforms.json")
     try:
         item_names = install(datafile, base_prefix=tmp_path, target_prefix=tmp_path)
@@ -540,7 +541,8 @@ def test_platforms(tmp_path):
     finally:
         remove(datafile, base_prefix=tmp_path, target_prefix=tmp_path)
 
-    # Conditional platforms
+
+def test_conditional_platforms(tmp_path, delete_files):
     datafile = str(DATA / "jsons" / "conditional-platforms.json")
     want_names = []
     if PLATFORM != "osx":
