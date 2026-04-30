@@ -104,7 +104,8 @@ def remove(
     if not paths and _maybe_try_user(target_prefix, base_prefix):
         menu, menu_items = _load(metadata_or_path, target_prefix, base_prefix, "user")
         for menu_item in menu_items:
-            paths += menu_item.remove()
+            if menu_item.enabled_for_platform():
+                paths += menu_item.remove()
         paths += menu.remove()
 
     return paths
