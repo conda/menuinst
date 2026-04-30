@@ -4,6 +4,7 @@
   "menu_items": [
     {
       "name": "b-all-platforms",
+      "description": "Shortcut on all platforms",
       "command": [
         "foo"
       ],
@@ -19,6 +20,7 @@
     },
     {
       "name": "c-linux-only",
+      "description": "Shortcut only on Linux",
       "activate": false,
       "terminal": false,
       "command": [
