@@ -86,7 +86,7 @@ class WindowsMenu(Menu):
         not when it is installed.
         """
         if self.mode == "system":
-            log.warning("Terminal profiles are not available for system level installs")
+            log.warning("%s: Terminal profiles are not available for system level installs", self.name)
             return []
         return windows_terminal_settings_files(self.mode)
 
@@ -185,7 +185,7 @@ class WindowsMenuItem(MenuItem):
             # winshortcut.create_shortcut(path, description, filename, arguments="",
             #                             workdir=None, iconpath=None, iconindex=0, app_id="")
             if Path(path).exists():
-                log.warning("Overwriting existing link at %s.", path)
+                log.warning("%s: Overwriting existing link at %s.", self._log_name, path)
             create_shortcut(
                 target_path,
                 self._shortcut_filename(ext=""),
@@ -422,7 +422,7 @@ class WindowsMenuItem(MenuItem):
                     settings["profiles"]["list"] = []
                 settings["profiles"]["list"].append(profile_data)
             else:
-                log.warning(f"Overwriting terminal profile for {name}.")
+                log.warning(f"{self._log_name}: Overwriting terminal profile for {name}.")
                 settings["profiles"]["list"][index] = profile_data
         location.write_text(json.dumps(settings, indent=4))
 

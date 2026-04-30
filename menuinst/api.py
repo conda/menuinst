@@ -74,7 +74,8 @@ def install(
     paths = []
     paths += menu.create()
     for menu_item in menu_items:
-        paths += menu_item.create()
+        if menu_item.enabled_for_platform():
+            paths += menu_item.create()
 
     return paths
 
@@ -96,7 +97,8 @@ def remove(
 
     paths = []
     for menu_item in menu_items:
-        paths += menu_item.remove()
+        if menu_item.enabled_for_platform():
+            paths += menu_item.remove()
     paths += menu.remove()
 
     if not paths and _maybe_try_user(target_prefix, base_prefix):

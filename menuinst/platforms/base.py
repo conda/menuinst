@@ -169,6 +169,14 @@ class MenuItem:
             "MENU_ITEM_LOCATION": str(self.location),
         }
 
+    @property
+    def _log_name(self) -> str:
+        name = self.menu.name
+        item_name = self.render_key("name")
+        if item_name:
+            name = f"{name}->{item_name}"
+        return name
+
     def render_key(self, key: str, slug: bool = False, extra: dict[str, str] | None = None) -> Any:
         value = self.metadata.get(key)
         return self.render(value, slug=slug, extra=extra)

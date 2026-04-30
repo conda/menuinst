@@ -1,0 +1,28 @@
+{
+  "$schema": "https://raw.githubusercontent.com/conda/menuinst/refs/heads/main/menuinst/data/menuinst.schema.json",
+  "menu_name": "a-platform-test",
+  "menu_items": [
+    {
+      "name": "b-all-platforms",
+      "command": ["foo"],
+      "activate": false,
+      "terminal": false,
+      "platforms": {
+        "win": {"desktop": false},
+        "linux": {},
+        "osx": {}
+      }
+    },
+    {
+      "name": "c-linux-only",
+      "activate": false,
+      "terminal": false,
+      "command": [""],
+      "platforms": {
+        "linux": {
+          "command": ["foo"]
+        }
+      }
+    }
+  ]
+}
