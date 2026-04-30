@@ -527,8 +527,6 @@ def test_platforms(tmp_path):
     assert not menu_item.enabled_for_platform("linux")
     assert not menu_item.enabled_for_platform("darwin")
 
-    # And now some more complete tests:
-
 
 def test_no_platforms(tmp_path, delete_files):
     datafile = str(DATA / "jsons" / "no-platforms.json")
