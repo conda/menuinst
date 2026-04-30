@@ -548,7 +548,7 @@ def test_platforms(tmp_path):
     want_names.append("b-all-platforms")
     if PLATFORM == "linux":
         want_names.append("c-linux-only")
-        want_names = [want_names[0]]+ [f"{want_names[0]}_{name}" for name in want_names[1:]]
+        want_names = [want_names[0]] + [f"{want_names[0]}_{name}" for name in want_names[1:]]
     try:
         item_names = install(datafile, base_prefix=tmp_path, target_prefix=tmp_path)
     except Exception:
