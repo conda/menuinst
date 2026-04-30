@@ -86,7 +86,9 @@ class WindowsMenu(Menu):
         not when it is installed.
         """
         if self.mode == "system":
-            log.warning("%s: Terminal profiles are not available for system level installs", self.name)
+            log.warning(
+                "%s: Terminal profiles are not available for system level installs", self.name
+            )
             return []
         return windows_terminal_settings_files(self.mode)
 

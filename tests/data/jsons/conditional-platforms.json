@@ -4,11 +4,15 @@
   "menu_items": [
     {
       "name": "b-all-platforms",
-      "command": ["foo"],
+      "command": [
+        "foo"
+      ],
       "activate": false,
       "terminal": false,
       "platforms": {
-        "win": {"desktop": false},
+        "win": {
+          "desktop": false
+        },
         "linux": {},
         "osx": {}
       }
@@ -17,10 +21,14 @@
       "name": "c-linux-only",
       "activate": false,
       "terminal": false,
-      "command": [""],
+      "command": [
+        ""
+      ],
       "platforms": {
         "linux": {
-          "command": ["foo"]
+          "command": [
+            "foo"
+          ]
         }
       }
     }
