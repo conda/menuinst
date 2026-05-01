@@ -1,0 +1,19 @@
+### Enhancements
+
+* Improved logging of warnings during installation (#464 via #475)
+
+### Bug fixes
+
+* Fix bug where menus containing some platform-specific shortcuts would lead to install and removal errors (#463 via #475)
+
+### Deprecations
+
+* <news item>
+
+### Docs
+
+* <news item>
+
+### Other
+
+* <news item>

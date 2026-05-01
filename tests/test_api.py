@@ -212,7 +212,8 @@ def test_overwrite_existing_shortcuts(delete_files, caplog):
             "precommands.json",
             remove_after=True,
         )
-        assert any(line.startswith("Overwriting existing") for line in caplog.messages)
+        want_msg = "Example with precommands->Precommands: Overwriting existing"
+        assert any(line.startswith(want_msg) for line in caplog.messages)
 
 
 @pytest.mark.skipif(PLATFORM == "osx", reason="No menu names on MacOS")
@@ -513,7 +514,7 @@ def test_vars_in_working_dir(tmp_path, monkeypatch, delete_files):
         remove(datafile, base_prefix=tmp_path, target_prefix=tmp_path)
 
 
-def test_platforms():
+def test_platforms(tmp_path):
     menu_item = MenuItem(
         None,
         {
@@ -525,6 +526,38 @@ def test_platforms():
     assert menu_item.enabled_for_platform("win32")
     assert not menu_item.enabled_for_platform("linux")
     assert not menu_item.enabled_for_platform("darwin")
+
+
+def test_no_platforms(tmp_path, delete_files):
+    datafile = str(DATA / "jsons" / "no-platforms.json")
+    try:
+        item_names = install(datafile, base_prefix=tmp_path, target_prefix=tmp_path)
+    except Exception:
+        raise
+    else:
+        assert item_names == []
+    finally:
+        remove(datafile, base_prefix=tmp_path, target_prefix=tmp_path)
+
+
+def test_conditional_platforms(tmp_path, delete_files):
+    datafile = str(DATA / "jsons" / "conditional-platforms.json")
+    want_names = []
+    if PLATFORM != "osx":
+        want_names.append("a-platform-test")
+    want_names.append("b-all-platforms")
+    if PLATFORM == "linux":
+        want_names.append("c-linux-only")
+        want_names = [want_names[0]] + [f"{want_names[0]}_{name}" for name in want_names[1:]]
+    try:
+        item_names = install(datafile, base_prefix=tmp_path, target_prefix=tmp_path)
+    except Exception:
+        raise
+    else:
+        item_names = sorted(item.stem for item in item_names)
+        assert item_names == want_names
+    finally:
+        remove(datafile, base_prefix=tmp_path, target_prefix=tmp_path)
 
 
 def test_malformed_json_skipped_in_process_all(tmp_path, caplog):

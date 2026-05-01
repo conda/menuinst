@@ -241,7 +241,7 @@ class LinuxMenuItem(MenuItem):
 
     def _write_desktop_file(self):
         if self.location.exists():
-            log.warning("Overwriting existing file at %s.", self.location)
+            log.warning("%s: Overwriting existing file at %s.", self._log_name, self.location)
 
         lines = [
             "[Desktop Entry]",
@@ -394,13 +394,12 @@ class LinuxMenuItem(MenuItem):
                         check=True,
                     )
                 else:
-                    name = self.render_key("name")
                     log.warning(
-                        "Unable to un/register MIME type '%s' "
-                        "for Desktop Entry of name '%s': "
+                        "%s: Unable to un/register MIME type '%s' "
+                        "for Desktop Entry: "
                         "'xdg-mime' is not present on the system.'",
+                        self._log_name,
                         glob_pattern,
-                        name,
                     )
                     use_fallback = True
         except CalledProcessError:

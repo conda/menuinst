@@ -67,7 +67,8 @@ def install(
     target_prefix = target_prefix or DEFAULT_PREFIX
     base_prefix = base_prefix or DEFAULT_BASE_PREFIX
     menu, menu_items = _load(metadata_or_path, target_prefix, base_prefix, _mode)
-    if not any(item.enabled_for_platform() for item in menu_items):
+    menu_items = [item for item in menu_items if item.enabled_for_platform()]
+    if not menu_items:
         warnings.warn(f"Metadata for {menu.name} is not enabled for {sys.platform}")
         return []
 
@@ -90,7 +91,8 @@ def remove(
     target_prefix = target_prefix or DEFAULT_PREFIX
     base_prefix = base_prefix or DEFAULT_BASE_PREFIX
     menu, menu_items = _load(metadata_or_path, target_prefix, base_prefix, _mode)
-    if not any(item.enabled_for_platform() for item in menu_items):
+    menu_items = [item for item in menu_items if item.enabled_for_platform()]
+    if not menu_items:
         warnings.warn(f"Metadata for {menu.name} is not enabled for {sys.platform}")
         return []
 
@@ -101,6 +103,7 @@ def remove(
 
     if not paths and _maybe_try_user(target_prefix, base_prefix):
         menu, menu_items = _load(metadata_or_path, target_prefix, base_prefix, "user")
+        menu_items = [item for item in menu_items if item.enabled_for_platform()]
         for menu_item in menu_items:
             paths += menu_item.remove()
         paths += menu.remove()
