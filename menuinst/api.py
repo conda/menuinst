@@ -80,7 +80,12 @@ def record_shortcuts(
 
 
 def remove_shortcut_records(prefix: Path, source: str) -> None:
-    """Remove shortcut entries matching source from menuinst.toml."""
+    """Remove shortcut entries matching source from menuinst.toml.
+
+    TODO: Use the recorded paths as the source of truth for shortcut removal,
+    instead of recomputing paths from menu JSON metadata. This would handle
+    cases where shortcuts were moved or the menu JSON changed.
+    """
     data = read_menuinst_toml(prefix)
     if not data:
         return
