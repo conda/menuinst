@@ -10,23 +10,20 @@ from logging import getLogger
 from pathlib import Path
 from typing import Callable, Union
 
-try:
-    import tomllib
-except ImportError:
-    import tomli as tomllib
 import tomli_w
 
 from .platforms import Menu, MenuItem
 from .utils import (
     DEFAULT_BASE_PREFIX,
     DEFAULT_PREFIX,
+    MENUINST_TOML_SCHEMA_VERSION,
     _UserOrSystem,
     elevate_as_needed,
+    read_menuinst_toml,
     user_is_admin,
 )
 
 log = getLogger(__name__)
-MENUINST_TOML_SCHEMA_VERSION = 1
 
 
 __all__ = [
@@ -43,29 +40,6 @@ def _maybe_try_user(base_prefix: str, target_prefix: str) -> bool:
     if Path(target_prefix, ".nonadmin").is_file():
         return True
     return Path(base_prefix, ".nonadmin").is_file()
-
-
-def read_menuinst_toml(prefix: Path) -> dict:
-    """Read menuinst.toml from prefix, returning empty dict if missing/invalid."""
-    toml_path = prefix / "Menu" / "menuinst.toml"
-    if not toml_path.exists():
-        return {}
-    try:
-        with open(toml_path, "rb") as f:
-            data = tomllib.load(f)
-        version = data.get("schema_version", 1)
-        if version > MENUINST_TOML_SCHEMA_VERSION:
-            log.warning(
-                "menuinst.toml at %s has schema_version %d, "
-                "but this menuinst only understands version %d",
-                toml_path,
-                version,
-                MENUINST_TOML_SCHEMA_VERSION,
-            )
-        return data
-    except Exception as e:
-        log.warning("Failed to read menuinst.toml from %s: %s", toml_path, e)
-        return {}
 
 
 def write_menuinst_toml(prefix: Path, data: dict) -> None:
@@ -116,8 +90,11 @@ def remove_shortcut_records(prefix: Path, source: str) -> None:
         return
 
     # Filter out entries matching this source
-    data["shortcuts"] = [s for s in shortcuts if s.get("source") != source]
+    filtered = [s for s in shortcuts if s.get("source") != source]
+    if len(filtered) == len(shortcuts):
+        return  # Nothing was removed
 
+    data["shortcuts"] = filtered
     write_menuinst_toml(prefix, data)
 
 

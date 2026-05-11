@@ -12,11 +12,6 @@ from subprocess import check_output
 from tempfile import NamedTemporaryFile
 from typing import Any, Iterable, Mapping
 
-try:
-    import tomllib
-except ImportError:
-    import tomli as tomllib
-
 from ..utils import (
     DEFAULT_BASE_PREFIX,
     DEFAULT_PREFIX,
@@ -24,6 +19,7 @@ from ..utils import (
     data_path,
     deep_update,
     logged_run,
+    read_menuinst_toml,
     slugify,
 )
 
@@ -79,15 +75,9 @@ class Menu:
         if name := os.environ.get("MENUINST_DISTRIBUTION_NAME"):
             return name
 
-        toml_path = self.base_prefix / "Menu" / "menuinst.toml"
-        if toml_path.exists():
-            try:
-                with open(toml_path, "rb") as f:
-                    data = tomllib.load(f)
-                if name := data.get("distribution_name"):
-                    return name
-            except Exception as e:
-                log.warning("Failed to read menuinst.toml from %s: %s", toml_path, e)
+        data = read_menuinst_toml(self.base_prefix)
+        if name := data.get("distribution_name"):
+            return name
 
         return self.base_prefix.name
 

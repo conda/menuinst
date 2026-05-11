@@ -1,12 +1,12 @@
-"""Tests for distribution_name resolution and menuinst.toml tracking."""
+"""Tests for distribution_name resolution and menuinst.toml tracking.
 
-from menuinst.api import (
-    read_menuinst_toml,
-    record_shortcuts,
-    remove_shortcut_records,
-    write_menuinst_toml,
-)
+TODO: Add integration tests that call install()/remove() with real menu JSON
+to verify end-to-end TOML recording through the full shortcut lifecycle.
+"""
+
+from menuinst.api import record_shortcuts, remove_shortcut_records, write_menuinst_toml
 from menuinst.platforms import Menu
+from menuinst.utils import read_menuinst_toml
 
 # Placeholder distribution names for tests
 DIST_NAME = "Something"

@@ -13,7 +13,13 @@ from pathlib import Path, PurePath
 from typing import Any, Callable, Iterable, Literal, Mapping, Optional, Sequence, Union
 from unicodedata import normalize
 
+try:
+    import tomllib
+except ImportError:
+    import tomli as tomllib
+
 logger = getLogger(__name__)
+MENUINST_TOML_SCHEMA_VERSION = 1
 _TargetOrBase = Union[Literal["target"], Literal["base"]]
 _UserOrSystem = Union[Literal["user"], Literal["system"]]
 
@@ -68,6 +74,29 @@ def _default_prefix(which: _TargetOrBase = "target") -> str:
 
 DEFAULT_PREFIX = _default_prefix("target")
 DEFAULT_BASE_PREFIX = _default_prefix("base")
+
+
+def read_menuinst_toml(prefix: Path) -> dict:
+    """Read menuinst.toml from prefix, returning empty dict if missing/invalid."""
+    toml_path = prefix / "Menu" / "menuinst.toml"
+    if not toml_path.exists():
+        return {}
+    try:
+        with open(toml_path, "rb") as f:
+            data = tomllib.load(f)
+        version = data.get("schema_version", 1)
+        if version > MENUINST_TOML_SCHEMA_VERSION:
+            logger.warning(
+                "menuinst.toml at %s has schema_version %d, "
+                "but this menuinst only understands version %d",
+                toml_path,
+                version,
+                MENUINST_TOML_SCHEMA_VERSION,
+            )
+        return data
+    except Exception as e:
+        logger.warning("Failed to read menuinst.toml from %s: %s", toml_path, e)
+        return {}
 
 
 def slugify(text: str):
