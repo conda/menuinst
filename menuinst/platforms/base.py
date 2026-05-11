@@ -12,6 +12,11 @@ from subprocess import check_output
 from tempfile import NamedTemporaryFile
 from typing import Any, Iterable, Mapping
 
+try:
+    import tomllib
+except ImportError:
+    import tomli as tomllib
+
 from ..utils import (
     DEFAULT_BASE_PREFIX,
     DEFAULT_PREFIX,
@@ -64,6 +69,28 @@ class Menu:
             value = slugify(value)
         return value
 
+    def _get_distribution_name(self) -> str:
+        """
+        Get distribution name with resolution order:
+        1. MENUINST_DISTRIBUTION_NAME env var
+        2. $BASE_PREFIX/Menu/menuinst.toml
+        3. base_prefix.name (fallback)
+        """
+        if name := os.environ.get("MENUINST_DISTRIBUTION_NAME"):
+            return name
+
+        toml_path = self.base_prefix / "Menu" / "menuinst.toml"
+        if toml_path.exists():
+            try:
+                with open(toml_path, "rb") as f:
+                    data = tomllib.load(f)
+                if name := data.get("distribution_name"):
+                    return name
+            except Exception as e:
+                log.warning("Failed to read menuinst.toml from %s: %s", toml_path, e)
+
+        return self.base_prefix.name
+
     @property
     def placeholders(self) -> dict[str, str]:
         """
@@ -74,7 +101,7 @@ class Menu:
         """
         return {
             "BASE_PREFIX": str(self.base_prefix),
-            "DISTRIBUTION_NAME": self.base_prefix.name,
+            "DISTRIBUTION_NAME": self._get_distribution_name(),
             "BASE_PYTHON": str(self.base_prefix / "bin" / "python"),
             "PREFIX": str(self.prefix),
             "ENV_NAME": self.env_name,

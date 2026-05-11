@@ -34,6 +34,8 @@ requirements:
     - setuptools_scm >=6.2
   run:
     - python
+    - tomli  # [py<311]
+    - tomli-w
 
 test:
   requires:

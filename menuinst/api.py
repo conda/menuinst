@@ -10,6 +10,12 @@ from logging import getLogger
 from pathlib import Path
 from typing import Callable, Union
 
+try:
+    import tomllib
+except ImportError:
+    import tomli as tomllib
+import tomli_w
+
 from .platforms import Menu, MenuItem
 from .utils import (
     DEFAULT_BASE_PREFIX,
@@ -20,6 +26,7 @@ from .utils import (
 )
 
 log = getLogger(__name__)
+MENUINST_TOML_SCHEMA_VERSION = 1
 
 
 __all__ = [
@@ -36,6 +43,82 @@ def _maybe_try_user(base_prefix: str, target_prefix: str) -> bool:
     if Path(target_prefix, ".nonadmin").is_file():
         return True
     return Path(base_prefix, ".nonadmin").is_file()
+
+
+def read_menuinst_toml(prefix: Path) -> dict:
+    """Read menuinst.toml from prefix, returning empty dict if missing/invalid."""
+    toml_path = prefix / "Menu" / "menuinst.toml"
+    if not toml_path.exists():
+        return {}
+    try:
+        with open(toml_path, "rb") as f:
+            data = tomllib.load(f)
+        version = data.get("schema_version", 1)
+        if version > MENUINST_TOML_SCHEMA_VERSION:
+            log.warning(
+                "menuinst.toml at %s has schema_version %d, "
+                "but this menuinst only understands version %d",
+                toml_path,
+                version,
+                MENUINST_TOML_SCHEMA_VERSION,
+            )
+        return data
+    except Exception as e:
+        log.warning("Failed to read menuinst.toml from %s: %s", toml_path, e)
+        return {}
+
+
+def write_menuinst_toml(prefix: Path, data: dict) -> None:
+    """Write menuinst.toml atomically."""
+    data.setdefault("schema_version", MENUINST_TOML_SCHEMA_VERSION)
+    menu_dir = prefix / "Menu"
+    menu_dir.mkdir(parents=True, exist_ok=True)
+    toml_path = menu_dir / "menuinst.toml"
+    tmp_path = menu_dir / "menuinst.toml.tmp"
+    with open(tmp_path, "wb") as f:
+        tomli_w.dump(data, f)
+    tmp_path.replace(toml_path)
+
+
+def record_shortcuts(
+    prefix: Path,
+    base_prefix: Path,
+    source: str,
+    paths: list[os.PathLike],
+    distribution_name: str | None = None,
+) -> None:
+    """Record created shortcuts to menuinst.toml."""
+    if not paths:
+        return
+
+    data = read_menuinst_toml(prefix)
+
+    # Write distribution_name only to base prefix, and only if not already set
+    if prefix.samefile(base_prefix) and distribution_name:
+        data.setdefault("distribution_name", distribution_name)
+
+    # Append shortcuts
+    shortcuts = data.setdefault("shortcuts", [])
+    for path in paths:
+        shortcuts.append({"source": source, "path": str(path)})
+
+    write_menuinst_toml(prefix, data)
+
+
+def remove_shortcut_records(prefix: Path, source: str) -> None:
+    """Remove shortcut entries matching source from menuinst.toml."""
+    data = read_menuinst_toml(prefix)
+    if not data:
+        return
+
+    shortcuts = data.get("shortcuts", [])
+    if not shortcuts:
+        return
+
+    # Filter out entries matching this source
+    data["shortcuts"] = [s for s in shortcuts if s.get("source") != source]
+
+    write_menuinst_toml(prefix, data)
 
 
 def _load(
@@ -77,6 +160,19 @@ def install(
     for menu_item in menu_items:
         paths += menu_item.create()
 
+    # Record shortcuts to menuinst.toml
+    if isinstance(metadata_or_path, (str, Path)):
+        source = Path(metadata_or_path).name
+    else:
+        source = f"{menu.name}.json"
+    record_shortcuts(
+        Path(target_prefix),
+        Path(base_prefix),
+        source,
+        paths,
+        distribution_name=menu.placeholders.get("DISTRIBUTION_NAME"),
+    )
+
     return paths
 
 
@@ -107,6 +203,13 @@ def remove(
         for menu_item in menu_items:
             paths += menu_item.remove()
         paths += menu.remove()
+
+    # Remove shortcut records from menuinst.toml
+    if isinstance(metadata_or_path, (str, Path)):
+        source = Path(metadata_or_path).name
+    else:
+        source = f"{menu.name}.json"
+    remove_shortcut_records(Path(target_prefix), source)
 
     return paths
 
