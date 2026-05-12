@@ -160,6 +160,7 @@ class TestInstallAdapter:
                         {
                             "name": "Foo Bar",
                             "command": ["echo", "test"],
+                            "activate": False,
                             "platforms": {"linux": {}, "win": {}, "osx": {}},
                         }
                     ],
