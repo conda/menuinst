@@ -283,7 +283,8 @@ def _install_adapter(path: str, remove: bool = False, prefix: str = DEFAULT_PREF
         kwargs.setdefault("base_prefix", kwargs.pop("root_prefix", DEFAULT_BASE_PREFIX))
         if kwargs["base_prefix"] is None:
             kwargs["base_prefix"] = DEFAULT_BASE_PREFIX
+        # Pass path so install/remove records the actual filename in menuinst.toml
         if remove:
-            _api_remove(metadata, target_prefix=prefix, **kwargs)
+            _api_remove(json_path, target_prefix=prefix, **kwargs)
         else:
-            install(metadata, target_prefix=prefix, **kwargs)
+            install(json_path, target_prefix=prefix, **kwargs)

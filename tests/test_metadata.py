@@ -1,10 +1,13 @@
-"""Tests for distribution_name resolution and menuinst.toml tracking.
+"""Tests for distribution_name resolution and menuinst.toml tracking."""
 
-TODO: Add integration tests that call install()/remove() with real menu JSON
-to verify end-to-end TOML recording through the full shortcut lifecycle.
-"""
+import json
 
-from menuinst.api import record_shortcuts, remove_shortcut_records, write_menuinst_toml
+from menuinst.api import (
+    _install_adapter,
+    record_shortcuts,
+    remove_shortcut_records,
+    write_menuinst_toml,
+)
 from menuinst.platforms import Menu
 from menuinst.utils import read_menuinst_toml
 
@@ -134,3 +137,38 @@ class TestShortcutRecording:
         data = read_menuinst_toml(env_prefix)
         assert "distribution_name" not in data
         assert len(data["shortcuts"]) == 1
+
+
+class TestInstallAdapter:
+    """Tests for _install_adapter recording correct source filename."""
+
+    def test_records_actual_filename_not_menu_name(self, tmp_path, monkeypatch):
+        """_install_adapter should record JSON filename, not rendered menu_name."""
+        monkeypatch.delenv("MENUINST_DISTRIBUTION_NAME", raising=False)
+        (tmp_path / ".nonadmin").touch()
+        menu_dir = tmp_path / "Menu"
+        menu_dir.mkdir()
+
+        # Create JSON with menu_name containing placeholder
+        json_file = menu_dir / "test_shortcut.json"
+        json_file.write_text(
+            json.dumps(
+                {
+                    "$schema": "https://json-schema.org/draft-07/schema",
+                    "menu_name": "{{ DISTRIBUTION_NAME }} Foo Bar",
+                    "menu_items": [
+                        {
+                            "name": "Foo Bar",
+                            "command": ["echo", "test"],
+                            "platforms": {"linux": {}, "win": {}, "osx": {}},
+                        }
+                    ],
+                }
+            )
+        )
+
+        _install_adapter(str(json_file), prefix=str(tmp_path), root_prefix=str(tmp_path))
+
+        data = read_menuinst_toml(tmp_path)
+        # Source should be the filename, not "{{ DISTRIBUTION_NAME }} Foo Bar.json"
+        assert data["shortcuts"][0]["source"] == "test_shortcut.json"
