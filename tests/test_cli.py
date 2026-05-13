@@ -123,7 +123,7 @@ def test_cli_errors(argv: list[str]) -> None:
 def test_cli_env_var_persistence(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, env_var_set: bool, expect_toml: bool
 ) -> None:
-    """Test that MENUINST_DISTRIBUTION_NAME env var is persisted to menuinst.toml."""
+    """Test that MENUINST_DISTRIBUTION_NAME env var persists in menuinst.toml."""
     (tmp_path / ".nonadmin").touch()
     (tmp_path / "Menu").mkdir()
 

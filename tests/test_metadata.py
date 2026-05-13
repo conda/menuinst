@@ -2,6 +2,8 @@
 
 import json
 
+import pytest
+
 from menuinst.api import (
     _install_adapter,
     record_shortcuts,
@@ -46,15 +48,14 @@ class TestGetDistributionName:
         menu = Menu("test", prefix=str(tmp_path), base_prefix=str(tmp_path))
         assert menu._get_distribution_name() == DIST_NAME
 
-    def test_malformed_toml_graceful_fallback(self, tmp_path, monkeypatch, caplog):
-        """Malformed TOML should log warning and fall back to base_prefix.name."""
+    def test_malformed_toml_raises(self, tmp_path, monkeypatch):
+        """Malformed TOML should raise an exception."""
         monkeypatch.delenv("MENUINST_DISTRIBUTION_NAME", raising=False)
         toml_path = tmp_path / "Menu" / "menuinst.toml"
         toml_path.parent.mkdir(parents=True, exist_ok=True)
         toml_path.write_text("this is not valid toml {{{{")
-        menu = Menu("test", prefix=str(tmp_path), base_prefix=str(tmp_path))
-        assert menu._get_distribution_name() == tmp_path.name
-        assert "Failed to read menuinst.toml" in caplog.text
+        with pytest.raises(ValueError, match="Failed to read"):
+            Menu("test", prefix=str(tmp_path), base_prefix=str(tmp_path))
 
 
 class TestShortcutRecording:

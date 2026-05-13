@@ -77,26 +77,28 @@ DEFAULT_BASE_PREFIX = _default_prefix("base")
 
 
 def read_menuinst_toml(prefix: Path) -> dict:
-    """Read menuinst.toml from prefix, returning empty dict if missing/invalid."""
+    """Read menuinst.toml from prefix, returning empty dict if missing.
+
+    Raises an exception if the file exists but is invalid.
+    """
     toml_path = prefix / "Menu" / "menuinst.toml"
     if not toml_path.exists():
         return {}
     try:
         with open(toml_path, "rb") as f:
             data = tomllib.load(f)
-        version = data.get("schema_version", 1)
-        if version > MENUINST_TOML_SCHEMA_VERSION:
-            logger.warning(
-                "menuinst.toml at %s has schema_version %d, "
-                "but this menuinst only understands version %d",
-                toml_path,
-                version,
-                MENUINST_TOML_SCHEMA_VERSION,
-            )
-        return data
-    except Exception as e:
-        logger.warning("Failed to read menuinst.toml from %s: %s", toml_path, e)
-        return {}
+    except Exception as exc:
+        raise ValueError(f"Failed to read {toml_path}") from exc
+    version = data.get("schema_version", 1)
+    if version > MENUINST_TOML_SCHEMA_VERSION:
+        logger.warning(
+            "menuinst.toml at %s has schema_version %d, "
+            "but this menuinst only understands version %d",
+            toml_path,
+            version,
+            MENUINST_TOML_SCHEMA_VERSION,
+        )
+    return data
 
 
 def slugify(text: str):

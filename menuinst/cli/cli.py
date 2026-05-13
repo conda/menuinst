@@ -76,11 +76,11 @@ def install(
     # The env var allows installers to set distribution_name dynamically at
     # install time. We must persist it here because the env var is transient
     # and may not be set when packages with shortcuts are installed later.
-    if env_name := os.environ.get("MENUINST_DISTRIBUTION_NAME"):
+    if distribution_name := os.environ.get("MENUINST_DISTRIBUTION_NAME"):
         base = Path(root_prefix) if root_prefix else prefix
         data = read_menuinst_toml(base)
         if "distribution_name" not in data:
-            data["distribution_name"] = env_name
+            data["distribution_name"] = distribution_name
             write_menuinst_toml(base, data)
 
     for json_path in (prefix / "Menu").glob("*.json"):
