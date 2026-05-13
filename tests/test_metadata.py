@@ -55,7 +55,11 @@ class TestGetDistributionName:
         toml_path.parent.mkdir(parents=True, exist_ok=True)
         toml_path.write_text("this is not valid toml {{{{")
         with pytest.raises(ValueError, match="Failed to read"):
-            Menu("test", prefix=str(tmp_path), base_prefix=str(tmp_path))
+            # On Linux, Menu() triggers _get_distribution_name() during __init__,
+            # but on Windows/macOS it's lazy. Call it explicitly to ensure the
+            # error is raised on all platforms.
+            menu = Menu("test", prefix=str(tmp_path), base_prefix=str(tmp_path))
+            menu._get_distribution_name()
 
 
 class TestShortcutRecording:
