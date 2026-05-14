@@ -6,8 +6,8 @@ import re
 import sys
 from pathlib import Path
 
-from ..api import _install_adapter, write_menuinst_toml
-from ..utils import read_menuinst_toml
+from ..api import _install_adapter
+from ..utils import read_menuinst_toml, write_menuinst_toml
 
 _MENU_RE = re.compile(r"(?:[-\._]menu)?\.json$", re.IGNORECASE)
 

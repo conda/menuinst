@@ -11,7 +11,7 @@ from menuinst.api import (
     write_menuinst_toml,
 )
 from menuinst.platforms import Menu
-from menuinst.utils import read_menuinst_toml
+from menuinst.utils import MENUINST_TOML_SCHEMA_VERSION, parse_schemaver, read_menuinst_toml
 
 # Placeholder distribution names for tests
 DIST_NAME = "Something"
@@ -178,3 +178,44 @@ class TestInstallAdapter:
         data = read_menuinst_toml(tmp_path)
         # Source should be the filename, not "{{ DISTRIBUTION_NAME }} Foo Bar.json"
         assert data["shortcuts"][0]["source"] == "test_shortcut.json"
+
+
+class TestSchemaVersion:
+    """Tests for SchemaVer parsing and TOML schema version handling."""
+
+    @pytest.mark.parametrize(
+        "version,expected",
+        [
+            ("1-0-0", (1, 0, 0)),
+            ("1-1-3", (1, 1, 3)),
+            ("2-0-0", (2, 0, 0)),
+            ("10-20-30", (10, 20, 30)),
+        ],
+    )
+    def test_parse_schemaver_valid(self, version, expected):
+        """Valid SchemaVer strings should parse correctly."""
+        assert parse_schemaver(version) == expected
+
+    @pytest.mark.parametrize(
+        "version",
+        [
+            "1",
+            "1-0",
+            "1.0.0",
+            "1-0-0-0",
+            "a-b-c",
+            "",
+        ],
+    )
+    def test_parse_schemaver_invalid(self, version):
+        """Invalid SchemaVer strings should raise ValueError."""
+        with pytest.raises(ValueError):
+            parse_schemaver(version)
+
+    def test_toml_writes_schemaver_format(self, tmp_path):
+        """write_menuinst_toml should write schema_version in SchemaVer format."""
+        write_menuinst_toml(tmp_path, {"distribution_name": "Test"})
+        data = read_menuinst_toml(tmp_path)
+        assert data["schema_version"] == MENUINST_TOML_SCHEMA_VERSION
+        # Verify it's a valid SchemaVer string
+        parse_schemaver(data["schema_version"])

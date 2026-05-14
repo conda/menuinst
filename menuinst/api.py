@@ -10,17 +10,15 @@ from logging import getLogger
 from pathlib import Path
 from typing import Callable, Union
 
-import tomli_w
-
 from .platforms import Menu, MenuItem
 from .utils import (
     DEFAULT_BASE_PREFIX,
     DEFAULT_PREFIX,
-    MENUINST_TOML_SCHEMA_VERSION,
     _UserOrSystem,
     elevate_as_needed,
     read_menuinst_toml,
     user_is_admin,
+    write_menuinst_toml,
 )
 
 log = getLogger(__name__)
@@ -40,18 +38,6 @@ def _maybe_try_user(base_prefix: str, target_prefix: str) -> bool:
     if Path(target_prefix, ".nonadmin").is_file():
         return True
     return Path(base_prefix, ".nonadmin").is_file()
-
-
-def write_menuinst_toml(prefix: Path, data: dict) -> None:
-    """Write menuinst.toml atomically."""
-    data.setdefault("schema_version", MENUINST_TOML_SCHEMA_VERSION)
-    menu_dir = prefix / "Menu"
-    menu_dir.mkdir(parents=True, exist_ok=True)
-    toml_path = menu_dir / "menuinst.toml"
-    tmp_path = menu_dir / "menuinst.toml.tmp"
-    with open(tmp_path, "wb") as f:
-        tomli_w.dump(data, f)
-    tmp_path.replace(toml_path)
 
 
 def record_shortcuts(
