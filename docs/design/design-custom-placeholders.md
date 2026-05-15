@@ -8,13 +8,25 @@
 
 ## Problem Statement
 
-Installers need to set `DISTRIBUTION_NAME` dynamically at install time (derived from installation directory). This is particularly important for MSI installers on Windows, but the feature applies cross-platform to all installer types (shell scripts on Linux/macOS, PKG on macOS, NSIS/MSI on Windows).
+### What are placeholders?
 
-The current implementation in PR #477 special-cases `distribution_name` as a root-level key in `menuinst.toml`. A general-purpose mechanism for custom placeholders would:
+Menu JSON files use `{{ PLACEHOLDER }}` syntax for dynamic values. For example, `{{ DISTRIBUTION_NAME }}` in a shortcut name becomes "Miniconda3" or "Anaconda" depending on the installation. This allows a single menu JSON to work across different conda distributions.
+
+### The problem
+
+`DISTRIBUTION_NAME` defaults to the installation directory name (e.g., `miniconda3`). This works for most installers, but MSI installers use a `base/` subdirectory layout, causing `DISTRIBUTION_NAME` to resolve to "base" instead of the product name. This results in confusing shortcuts like "Anaconda Prompt (base)" instead of "Anaconda Prompt (Miniconda3)".
+
+PR #477 fixes this by allowing installers to set `distribution_name` in `menuinst.toml`. However, it special-cases this single value at the root level of the TOML file.
+
+### Why generalize?
+
+A general-purpose mechanism for custom placeholders would:
 
 - Eliminate special-casing for `DISTRIBUTION_NAME`
 - Enable future custom placeholders without code changes
 - Provide a clean CLI interface for constructor and other installers
+
+This feature applies cross-platform to all installer types (shell scripts on Linux/macOS, PKG on macOS, NSIS/MSI on Windows).
 
 ## Scope
 
