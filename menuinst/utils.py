@@ -13,8 +13,26 @@ from pathlib import Path, PurePath
 from typing import Any, Callable, Iterable, Literal, Mapping, Optional, Sequence, Union
 from unicodedata import normalize
 
+try:
+    import tomllib
+except ImportError:
+    import tomli as tomllib
+
+import tomli_w
+
 logger = getLogger(__name__)
+MENUINST_TOML_SCHEMA_VERSION = "1-0-0"
 _TargetOrBase = Union[Literal["target"], Literal["base"]]
+
+
+def parse_schemaver(version: str) -> tuple[int, int, int]:
+    """Parse SchemaVer string 'MODEL-REVISION-ADDITION' into tuple of ints."""
+    parts = version.split("-")
+    if len(parts) != 3:
+        raise ValueError(f"Invalid SchemaVer format: {version}")
+    return int(parts[0]), int(parts[1]), int(parts[2])
+
+
 _UserOrSystem = Union[Literal["user"], Literal["system"]]
 
 
@@ -68,6 +86,53 @@ def _default_prefix(which: _TargetOrBase = "target") -> str:
 
 DEFAULT_PREFIX = _default_prefix("target")
 DEFAULT_BASE_PREFIX = _default_prefix("base")
+
+
+def read_menuinst_toml(prefix: Path) -> dict:
+    """Read menuinst.toml from prefix, returning empty dict if missing.
+
+    Raises an exception if the file exists but is invalid.
+    """
+    toml_path = prefix / "Menu" / "menuinst.toml"
+    if not toml_path.exists():
+        return {}
+    try:
+        with open(toml_path, "rb") as f:
+            data = tomllib.load(f)
+    except Exception as exc:
+        raise ValueError(f"Failed to read {toml_path}") from exc
+    version = data.get("schema_version", "1-0-0")
+    try:
+        file_ver = parse_schemaver(version)
+        current_ver = parse_schemaver(MENUINST_TOML_SCHEMA_VERSION)
+    except ValueError:
+        logger.warning(
+            "menuinst.toml at %s has invalid schema_version %r",
+            toml_path,
+            version,
+        )
+        return data
+    if file_ver > current_ver:
+        logger.warning(
+            "menuinst.toml at %s has schema_version %s, "
+            "but this menuinst only understands version %s",
+            toml_path,
+            version,
+            MENUINST_TOML_SCHEMA_VERSION,
+        )
+    return data
+
+
+def write_menuinst_toml(prefix: Path, data: dict) -> None:
+    """Write menuinst.toml atomically."""
+    data.setdefault("schema_version", MENUINST_TOML_SCHEMA_VERSION)
+    menu_dir = prefix / "Menu"
+    menu_dir.mkdir(parents=True, exist_ok=True)
+    toml_path = menu_dir / "menuinst.toml"
+    tmp_path = menu_dir / "menuinst.toml.tmp"
+    with open(tmp_path, "wb") as f:
+        tomli_w.dump(data, f)
+    tmp_path.replace(toml_path)
 
 
 def slugify(text: str):

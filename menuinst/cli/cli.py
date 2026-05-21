@@ -1,11 +1,13 @@
 from __future__ import annotations
 
 import argparse
+import os
 import re
 import sys
 from pathlib import Path
 
 from ..api import _install_adapter
+from ..utils import read_menuinst_toml, write_menuinst_toml
 
 _MENU_RE = re.compile(r"(?:[-\._]menu)?\.json$", re.IGNORECASE)
 
@@ -69,6 +71,17 @@ def install(
 
     if root_prefix:
         root_prefix = str(Path(root_prefix).expanduser().resolve())
+
+    # Persist distribution_name from env var before processing shortcuts.
+    # The env var allows installers to set distribution_name dynamically at
+    # install time. We must persist it here because the env var is transient
+    # and may not be set when packages with shortcuts are installed later.
+    if distribution_name := os.environ.get("MENUINST_DISTRIBUTION_NAME"):
+        base = Path(root_prefix) if root_prefix else prefix
+        data = read_menuinst_toml(base)
+        if "distribution_name" not in data:
+            data["distribution_name"] = distribution_name
+            write_menuinst_toml(base, data)
 
     for json_path in (prefix / "Menu").glob("*.json"):
         if (

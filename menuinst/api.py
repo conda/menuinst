@@ -16,7 +16,9 @@ from .utils import (
     DEFAULT_PREFIX,
     _UserOrSystem,
     elevate_as_needed,
+    read_menuinst_toml,
     user_is_admin,
+    write_menuinst_toml,
 )
 
 log = getLogger(__name__)
@@ -36,6 +38,55 @@ def _maybe_try_user(base_prefix: str, target_prefix: str) -> bool:
     if Path(target_prefix, ".nonadmin").is_file():
         return True
     return Path(base_prefix, ".nonadmin").is_file()
+
+
+def record_shortcuts(
+    prefix: Path,
+    base_prefix: Path,
+    source: str,
+    paths: list[os.PathLike],
+    distribution_name: str | None = None,
+) -> None:
+    """Record created shortcuts to menuinst.toml."""
+    if not paths:
+        return
+
+    data = read_menuinst_toml(prefix)
+
+    # Write distribution_name only to base prefix, and only if not already set
+    if prefix.samefile(base_prefix) and distribution_name:
+        data.setdefault("distribution_name", distribution_name)
+
+    # Append shortcuts
+    shortcuts = data.setdefault("shortcuts", [])
+    for path in paths:
+        shortcuts.append({"source": source, "path": str(path)})
+
+    write_menuinst_toml(prefix, data)
+
+
+def remove_shortcut_records(prefix: Path, source: str) -> None:
+    """Remove shortcut entries matching source from menuinst.toml.
+
+    TODO: Use the recorded paths as the source of truth for shortcut removal,
+    instead of recomputing paths from menu JSON metadata. This would handle
+    cases where shortcuts were moved or the menu JSON changed.
+    """
+    data = read_menuinst_toml(prefix)
+    if not data:
+        return
+
+    shortcuts = data.get("shortcuts", [])
+    if not shortcuts:
+        return
+
+    # Filter out entries matching this source
+    filtered = [s for s in shortcuts if s.get("source") != source]
+    if len(filtered) == len(shortcuts):
+        return  # Nothing was removed
+
+    data["shortcuts"] = filtered
+    write_menuinst_toml(prefix, data)
 
 
 def _load(
@@ -77,6 +128,19 @@ def install(
     for menu_item in menu_items:
         paths += menu_item.create()
 
+    # Record shortcuts to menuinst.toml
+    if isinstance(metadata_or_path, (str, Path)):
+        source = Path(metadata_or_path).name
+    else:
+        source = f"{menu.name}.json"
+    record_shortcuts(
+        Path(target_prefix),
+        Path(base_prefix),
+        source,
+        paths,
+        distribution_name=menu.placeholders.get("DISTRIBUTION_NAME"),
+    )
+
     return paths
 
 
@@ -107,6 +171,13 @@ def remove(
         for menu_item in menu_items:
             paths += menu_item.remove()
         paths += menu.remove()
+
+    # Remove shortcut records from menuinst.toml
+    if isinstance(metadata_or_path, (str, Path)):
+        source = Path(metadata_or_path).name
+    else:
+        source = f"{menu.name}.json"
+    remove_shortcut_records(Path(target_prefix), source)
 
     return paths
 
@@ -198,7 +269,8 @@ def _install_adapter(path: str, remove: bool = False, prefix: str = DEFAULT_PREF
         kwargs.setdefault("base_prefix", kwargs.pop("root_prefix", DEFAULT_BASE_PREFIX))
         if kwargs["base_prefix"] is None:
             kwargs["base_prefix"] = DEFAULT_BASE_PREFIX
+        # Pass path so install/remove records the actual filename in menuinst.toml
         if remove:
-            _api_remove(metadata, target_prefix=prefix, **kwargs)
+            _api_remove(json_path, target_prefix=prefix, **kwargs)
         else:
-            install(metadata, target_prefix=prefix, **kwargs)
+            install(json_path, target_prefix=prefix, **kwargs)

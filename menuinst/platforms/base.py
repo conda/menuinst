@@ -19,6 +19,7 @@ from ..utils import (
     data_path,
     deep_update,
     logged_run,
+    read_menuinst_toml,
     slugify,
 )
 
@@ -64,6 +65,22 @@ class Menu:
             value = slugify(value)
         return value
 
+    def _get_distribution_name(self) -> str:
+        """
+        Get distribution name with resolution order:
+        1. MENUINST_DISTRIBUTION_NAME env var
+        2. $BASE_PREFIX/Menu/menuinst.toml
+        3. base_prefix.name (fallback)
+        """
+        if name := os.environ.get("MENUINST_DISTRIBUTION_NAME"):
+            return name
+
+        data = read_menuinst_toml(self.base_prefix)
+        if name := data.get("distribution_name"):
+            return name
+
+        return self.base_prefix.name
+
     @property
     def placeholders(self) -> dict[str, str]:
         """
@@ -74,7 +91,7 @@ class Menu:
         """
         return {
             "BASE_PREFIX": str(self.base_prefix),
-            "DISTRIBUTION_NAME": self.base_prefix.name,
+            "DISTRIBUTION_NAME": self._get_distribution_name(),
             "BASE_PYTHON": str(self.base_prefix / "bin" / "python"),
             "PREFIX": str(self.prefix),
             "ENV_NAME": self.env_name,

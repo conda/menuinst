@@ -41,7 +41,7 @@ def _setup_menu_directory(prefix: Path) -> dict[str, set[Path]]:
     return menu_files
 
 
-def test_cli_packages(tmp_path: Path, delete_files: list[Path], run_as_user: None):
+def test_cli_packages(tmp_path: Path, delete_files: list[Path], run_as_user: None) -> None:
     (tmp_path / ".nonadmin").touch()
     menu_files = _setup_menu_directory(tmp_path)
     for files in menu_files.values():
@@ -114,3 +114,33 @@ def test_cli_errors(argv: list[str]) -> None:
     with pytest.raises(SystemExit) as exc:
         menuinst_main(argv)
     assert exc.value.code == 2
+
+
+@pytest.mark.parametrize(
+    "env_var_set,expect_toml",
+    [
+        pytest.param(True, True, id="env_var_set_creates_toml"),
+        pytest.param(False, False, id="no_env_var_no_toml"),
+    ],
+)
+def test_cli_env_var_persistence(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, env_var_set: bool, expect_toml: bool
+) -> None:
+    """Test that MENUINST_DISTRIBUTION_NAME env var persists in menuinst.toml."""
+    (tmp_path / ".nonadmin").touch()
+    (tmp_path / "Menu").mkdir()
+
+    if env_var_set:
+        monkeypatch.setenv("MENUINST_DISTRIBUTION_NAME", "TestApp")
+    else:
+        monkeypatch.delenv("MENUINST_DISTRIBUTION_NAME", raising=False)
+
+    menuinst_main(["--install", "--prefix", str(tmp_path), "--root-prefix", str(tmp_path)])
+
+    toml_path = tmp_path / "Menu" / "menuinst.toml"
+    if expect_toml:
+        assert toml_path.exists(), "menuinst.toml should be created when env var is set"
+        content = toml_path.read_text()
+        assert 'distribution_name = "TestApp"' in content
+    else:
+        assert not toml_path.exists(), "menuinst.toml should not be created without env var"
