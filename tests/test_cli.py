@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import json
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pytest
 from conftest import DATA
@@ -9,6 +9,8 @@ from conftest import DATA
 from menuinst.api import install, remove
 from menuinst.cli import main as menuinst_main
 
+if TYPE_CHECKING:
+    from pathlib import Path
 
 def _setup_menu_directory(prefix: Path) -> dict[str, set[Path]]:
     packages = {
