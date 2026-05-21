@@ -12,6 +12,7 @@ from menuinst.cli import main as menuinst_main
 if TYPE_CHECKING:
     from pathlib import Path
 
+
 def _setup_menu_directory(prefix: Path) -> dict[str, set[Path]]:
     packages = {
         "sys-prefix": "sys-prefix.json",
@@ -40,7 +41,7 @@ def _setup_menu_directory(prefix: Path) -> dict[str, set[Path]]:
     return menu_files
 
 
-def test_cli_packages(tmp_path: Path, delete_files: list[Path], run_as_user: None):
+def test_cli_packages(tmp_path: Path, delete_files: list[Path], run_as_user: None) -> None:
     (tmp_path / ".nonadmin").touch()
     menu_files = _setup_menu_directory(tmp_path)
     for files in menu_files.values():
