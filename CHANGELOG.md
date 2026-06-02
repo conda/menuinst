@@ -12,7 +12,7 @@
 * On Windows, the `@elevate_as_needed` decorator now respects the `.nonadmin` marker file when running as admin, using user mode instead of system mode. (#453 via #454)
 * On Windows, fixed path quoting in activation scripts for installations with spaces in the path. (#454)
 * `install_all` and `remove_all` now skip malformed JSON files with a warning instead of crashing. (#459 via #460)
-* Fix bug where menus containing some platform-specific shortcuts would lead to install and removal errors (#463 via #475)
+* Resolved an issue where menus containing some platform-specific shortcuts would lead to install and removal errors (#463 via #475)
 
 ### Other
 
