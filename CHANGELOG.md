@@ -1,5 +1,32 @@
 [//]: # (current developments)
 
+## 2.5.0 (2026-06-02)
+
+### Enhancements
+
+* Improved logging of warnings during installation (#464 via #475)
+
+### Bug fixes
+
+* Registry entries are now properly quoted. This resolves an issue where opening files associated with a program could fail if its path included blank spaces. (#290 via #404)
+* On Windows, the `@elevate_as_needed` decorator now respects the `.nonadmin` marker file when running as admin, using user mode instead of system mode. (#453 via #454)
+* On Windows, fixed path quoting in activation scripts for installations with spaces in the path. (#454)
+* `install_all` and `remove_all` now skip malformed JSON files with a warning instead of crashing. (#459 via #460)
+* Resolved an issue where menus containing some platform-specific shortcuts would lead to install and removal errors (#463 via #475)
+
+### Other
+
+* Remove support for Python 3.9. (#445)
+* Update Python versions in canary builds: remove version 3.9 and add 3.13. (#445)
+
+### Contributors
+
+* @larsoner
+* @jaimergp
+* @lrandersson
+
+
+
 ## 2.4.2 (2025-12-09)
 
 ### Enhancements
