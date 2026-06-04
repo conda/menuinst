@@ -51,6 +51,12 @@ test:
     - menuinst
   commands:
     - menuinst --help
+    # Point menuinst at the test env's conda to avoid ABI mismatch when
+    # conda-build's tooling env uses a different Python version.
+    - export CONDA_EXE="${CONDA_PREFIX}/bin/conda"  # [unix]
+    - export CONDA_ROOT_PREFIX="${CONDA_PREFIX}"  # [unix]
+    - set "CONDA_EXE=%CONDA_PREFIX%\Scripts\conda.exe"  # [win]
+    - set "CONDA_ROOT_PREFIX=%CONDA_PREFIX%"  # [win]
     - unset CI  # [unix]
     - set "CI="  # [win]
     - pytest --no-cov -vv -k "not elevation"
