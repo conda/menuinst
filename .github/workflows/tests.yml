@@ -102,6 +102,18 @@ jobs:
   build:
     name: Canary Build
     needs: [run_test_suite]
+    # only build canary build if
+    # - prior steps succeeded,
+    # - this is the main repo, and
+    # - we are on the main, feature, or release branch
+    if: >-
+      always()
+      && !github.event.repository.fork
+      && (
+        github.ref_name == 'main'
+        || startsWith(github.ref_name, 'feature/')
+        || endsWith(github.ref_name, '.x')
+      )
     strategy:
       fail-fast: false
       matrix:
