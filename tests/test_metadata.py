@@ -3,6 +3,9 @@
 from __future__ import annotations
 
 import json
+import logging
+import os
+import sys
 from typing import TYPE_CHECKING
 
 import pytest
@@ -154,6 +157,65 @@ class TestShortcutRecording:
         data = read_menuinst_toml(env_prefix)
         assert "distribution_name" not in data
         assert len(data["shortcuts"]) == 1
+
+    @pytest.mark.skipif(sys.platform == "win32", reason="chmod doesn't work on Windows")
+    def test_record_shortcuts_handles_permission_error(
+        self, tmp_path: Path, caplog
+    ) -> None:
+        """record_shortcuts() should not raise when prefix is read-only."""
+        # Create a read-only directory
+        readonly_prefix = tmp_path / "readonly"
+        readonly_prefix.mkdir()
+        os.chmod(readonly_prefix, 0o555)
+
+        try:
+            with caplog.at_level(logging.DEBUG):
+                # This should NOT raise PermissionError
+                record_shortcuts(
+                    prefix=readonly_prefix,
+                    base_prefix=readonly_prefix,
+                    source="test.json",
+                    paths=[tmp_path / "fake" / "path" / "shortcut.desktop"],
+                )
+
+            # Should log a debug message about permission denied
+            assert "permission denied" in caplog.text.lower()
+        finally:
+            # Restore permissions for cleanup
+            os.chmod(readonly_prefix, 0o755)
+
+    @pytest.mark.skipif(sys.platform == "win32", reason="chmod doesn't work on Windows")
+    def test_remove_shortcut_records_handles_permission_error(
+        self, tmp_path: Path, caplog
+    ) -> None:
+        """remove_shortcut_records() should not raise when prefix is read-only."""
+        # Create a prefix with a menuinst.toml
+        prefix = tmp_path / "prefix"
+        prefix.mkdir()
+        menu_dir = prefix / "Menu"
+        menu_dir.mkdir()
+
+        # Write initial TOML data
+        write_menuinst_toml(
+            prefix,
+            {"shortcuts": [{"source": "test.json", "path": "/fake/path"}]},
+        )
+
+        # Make the directory read-only
+        os.chmod(menu_dir, 0o555)
+        os.chmod(prefix, 0o555)
+
+        try:
+            with caplog.at_level(logging.DEBUG):
+                # This should NOT raise PermissionError
+                remove_shortcut_records(prefix, "test.json")
+
+            # Should log a debug message about permission denied
+            assert "permission denied" in caplog.text.lower()
+        finally:
+            # Restore permissions for cleanup
+            os.chmod(prefix, 0o755)
+            os.chmod(menu_dir, 0o755)
 
 
 class TestInstallAdapter:

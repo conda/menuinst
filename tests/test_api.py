@@ -63,7 +63,7 @@ def check_output_from_shortcut(
     tmp_base_path = mkdtemp()
     delete_files.append(tmp_base_path)
     (Path(tmp_base_path) / ".nonadmin").touch()
-    paths = install(abs_json_path, base_prefix=tmp_base_path)
+    paths = install(abs_json_path, target_prefix=sys.prefix, base_prefix=tmp_base_path)
     try:
         if action == "run_shortcut":
             if PLATFORM == "win":
@@ -114,7 +114,7 @@ def check_output_from_shortcut(
         if paths:
             delete_files += list(paths)
         if remove_after:
-            remove(abs_json_path, base_prefix=tmp_base_path)
+            remove(abs_json_path, target_prefix=sys.prefix, base_prefix=tmp_base_path)
         if PLATFORM == "osx" and action in ("open_file", "open_url"):
             _lsregister(
                 "-kill",
