@@ -159,9 +159,7 @@ class TestShortcutRecording:
         assert len(data["shortcuts"]) == 1
 
     @pytest.mark.skipif(sys.platform == "win32", reason="chmod doesn't work on Windows")
-    def test_record_shortcuts_handles_permission_error(
-        self, tmp_path: Path, caplog
-    ) -> None:
+    def test_record_shortcuts_handles_permission_error(self, tmp_path: Path, caplog) -> None:
         """record_shortcuts() should not raise when prefix is read-only."""
         # Create a read-only directory
         readonly_prefix = tmp_path / "readonly"
