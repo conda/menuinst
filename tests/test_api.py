@@ -73,7 +73,8 @@ def check_output_from_shortcut(
         (Path(tmp_base_path) / ".nonadmin").touch()
         # conda-meta makes conda treat this as a valid environment for activation
         (Path(tmp_base_path) / "conda-meta").mkdir(exist_ok=True)
-        # Symlink to real Python so {{ PYTHON }} placeholder works
+        # Shortcuts use {{ PYTHON }} which resolves to prefix/python.exe or prefix/bin/python.
+        # We symlink to sys.executable; copying doesn't work (can't find runtime libraries).
         if PLATFORM == "win":
             python_path = Path(tmp_base_path) / "python.exe"
         else:
