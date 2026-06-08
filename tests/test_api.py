@@ -77,11 +77,18 @@ def check_output_from_shortcut(
         # We symlink to sys.executable; copying doesn't work (can't find runtime libraries).
         if PLATFORM == "win":
             python_path = Path(tmp_base_path) / "python.exe"
+            try:
+                python_path.symlink_to(sys.executable)
+            except OSError:
+                # If symlinks are not available;
+                # fall back to sys.prefix; tests lose isolation but still run.
+                delete_files.remove(tmp_base_path)
+                tmp_base_path = sys.prefix
         else:
             bin_dir = Path(tmp_base_path) / "bin"
             bin_dir.mkdir(exist_ok=True)
             python_path = bin_dir / "python"
-        python_path.symlink_to(sys.executable)
+            python_path.symlink_to(sys.executable)
 
     paths = install(abs_json_path, target_prefix=tmp_base_path, base_prefix=tmp_base_path)
     try:
