@@ -62,7 +62,14 @@ def record_shortcuts(
     for path in paths:
         shortcuts.append({"source": source, "path": str(path)})
 
-    write_menuinst_toml(prefix, data)
+    try:
+        write_menuinst_toml(prefix, data)
+    except PermissionError:
+        log.debug(
+            "Cannot write menuinst.toml to %s (permission denied). "
+            "Shortcut tracking will not be available for this prefix.",
+            prefix / "Menu",
+        )
 
 
 def remove_shortcut_records(prefix: Path, source: str) -> None:
@@ -86,7 +93,13 @@ def remove_shortcut_records(prefix: Path, source: str) -> None:
         return  # Nothing was removed
 
     data["shortcuts"] = filtered
-    write_menuinst_toml(prefix, data)
+    try:
+        write_menuinst_toml(prefix, data)
+    except PermissionError:
+        log.debug(
+            "Cannot update menuinst.toml at %s (permission denied).",
+            prefix / "Menu",
+        )
 
 
 def _load(

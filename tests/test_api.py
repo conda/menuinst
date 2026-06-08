@@ -60,10 +60,37 @@ def check_output_from_shortcut(
         abs_json_path = tmp.name
         delete_files.append(abs_json_path)
 
-    tmp_base_path = mkdtemp()
-    delete_files.append(tmp_base_path)
-    (Path(tmp_base_path) / ".nonadmin").touch()
-    paths = install(abs_json_path, base_prefix=tmp_base_path)
+    # Windows file/URL association tests need sys.prefix because symlinked Python
+    # doesn't work through the file association handler (registry lookup -> cmd -> batch).
+    # These tests only run on CI where sys.prefix is a writable conda environment.
+    use_real_prefix = PLATFORM == "win" and action in ("open_file", "open_url")
+
+    if use_real_prefix:
+        tmp_base_path = sys.prefix
+    else:
+        tmp_base_path = mkdtemp()
+        delete_files.append(tmp_base_path)
+        (Path(tmp_base_path) / ".nonadmin").touch()
+        # conda-meta makes conda treat this as a valid environment for activation
+        (Path(tmp_base_path) / "conda-meta").mkdir(exist_ok=True)
+        # Shortcuts use {{ PYTHON }} which resolves to prefix/python.exe or prefix/bin/python.
+        # We symlink to sys.executable; copying doesn't work (can't find runtime libraries).
+        if PLATFORM == "win":
+            python_path = Path(tmp_base_path) / "python.exe"
+            try:
+                python_path.symlink_to(sys.executable)
+            except OSError:
+                # If symlinks are not available;
+                # fall back to sys.prefix; tests lose isolation but still run.
+                delete_files.remove(tmp_base_path)
+                tmp_base_path = sys.prefix
+        else:
+            bin_dir = Path(tmp_base_path) / "bin"
+            bin_dir.mkdir(exist_ok=True)
+            python_path = bin_dir / "python"
+            python_path.symlink_to(sys.executable)
+
+    paths = install(abs_json_path, target_prefix=tmp_base_path, base_prefix=tmp_base_path)
     try:
         if action == "run_shortcut":
             if PLATFORM == "win":
@@ -114,7 +141,7 @@ def check_output_from_shortcut(
         if paths:
             delete_files += list(paths)
         if remove_after:
-            remove(abs_json_path, base_prefix=tmp_base_path)
+            remove(abs_json_path, target_prefix=tmp_base_path, base_prefix=tmp_base_path)
         if PLATFORM == "osx" and action in ("open_file", "open_url"):
             _lsregister(
                 "-kill",
@@ -273,7 +300,7 @@ def test_precommands(delete_files):
 
 @pytest.mark.skipif(PLATFORM != "osx", reason="macOS only")
 def test_entitlements(delete_files):
-    json_path, paths, *_ = check_output_from_shortcut(
+    json_path, paths, tmp_base_path, _ = check_output_from_shortcut(
         delete_files, "entitlements.json", remove_after=False, expected_output="entitlements"
     )
     # verify signature
@@ -300,12 +327,12 @@ def test_entitlements(delete_files):
     else:
         raise AssertionError("Didn't find Entitlements.plist")
 
-    remove(json_path)
+    remove(json_path, target_prefix=tmp_base_path, base_prefix=tmp_base_path)
 
 
 @pytest.mark.skipif(PLATFORM != "osx", reason="macOS only")
 def test_no_entitlements_no_signature(delete_files):
-    json_path, paths, *_ = check_output_from_shortcut(
+    json_path, paths, tmp_base_path, _ = check_output_from_shortcut(
         delete_files, "sys-prefix.json", remove_after=False, expected_output=sys.prefix
     )
     app_dir = next(p for p in paths if p.name.endswith(".app"))
@@ -316,12 +343,12 @@ def test_no_entitlements_no_signature(delete_files):
         subprocess.check_call(["/usr/bin/codesign", "--verbose", "--verify", str(app_dir)])
     with pytest.raises(subprocess.CalledProcessError):
         subprocess.check_call(["/usr/bin/codesign", "--verbose", "--verify", str(launcher)])
-    remove(json_path)
+    remove(json_path, target_prefix=tmp_base_path, base_prefix=tmp_base_path)
 
 
 @pytest.mark.skipif(PLATFORM != "osx", reason="macOS only")
 def test_info_plist(delete_files):
-    json_path, paths, *_ = check_output_from_shortcut(
+    json_path, paths, tmp_base_path, _ = check_output_from_shortcut(
         delete_files, "entitlements.json", remove_after=False, expected_output="entitlements"
     )
     metadata = json.loads(json_path.read_text())
@@ -354,7 +381,7 @@ def test_info_plist(delete_files):
     assert missing_items == []
     assert incorrect_items == {}
 
-    remove(json_path)
+    remove(json_path, target_prefix=tmp_base_path, base_prefix=tmp_base_path)
 
 
 @pytest.mark.skipif(PLATFORM != "osx", reason="macOS only")
@@ -381,14 +408,14 @@ def test_info_plist_duplicate():
 
 @pytest.mark.skipif(PLATFORM != "osx", reason="macOS only")
 def test_osx_symlinks(delete_files):
-    json_path, paths, _, output = check_output_from_shortcut(
+    json_path, paths, tmp_base_path, output = check_output_from_shortcut(
         delete_files, "osx_symlinks.json", remove_after=False
     )
     app_dir = next(p for p in paths if p.name.endswith(".app"))
     symlinked_python = app_dir / "Contents" / "Resources" / "python"
     assert output.strip() == str(symlinked_python)
     assert symlinked_python.resolve() == (Path(DEFAULT_PREFIX) / "bin" / "python").resolve()
-    remove(json_path)
+    remove(json_path, target_prefix=tmp_base_path, base_prefix=tmp_base_path)
 
 
 def _dump_ls_services():
@@ -423,7 +450,9 @@ def test_file_type_association_no_event_handler(delete_files, request):
         file_to_open=test_file,
         remove_after=False,
     )
-    request.addfinalizer(lambda: remove(abs_json_path, base_prefix=tmp_base_path))
+    request.addfinalizer(
+        lambda: remove(abs_json_path, target_prefix=tmp_base_path, base_prefix=tmp_base_path)
+    )
     app_dir = next(p for p in paths if p.name.endswith(".app"))
     info = app_dir / "Contents" / "Info.plist"
     plist = plistlib.loads(info.read_bytes())

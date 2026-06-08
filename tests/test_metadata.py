@@ -3,12 +3,14 @@
 from __future__ import annotations
 
 import json
+import logging
+import os
+import subprocess
+import sys
+from contextlib import contextmanager
 from typing import TYPE_CHECKING
 
 import pytest
-
-if TYPE_CHECKING:
-    from pathlib import Path
 
 from menuinst.api import (
     _install_adapter,
@@ -19,9 +21,29 @@ from menuinst.api import (
 from menuinst.platforms import Menu
 from menuinst.utils import MENUINST_TOML_SCHEMA_VERSION, parse_schemaver, read_menuinst_toml
 
+if TYPE_CHECKING:
+    from pathlib import Path
+
 # Placeholder distribution names for tests
 DIST_NAME = "Something"
 DIST_NAME_ALT = "SomethingElse"
+
+
+@contextmanager
+def make_readonly(path: "Path"):
+    """Make a path read-only, restoring permissions on exit."""
+    if sys.platform == "win32":
+        subprocess.run(["icacls", str(path), "/deny", f"{os.getlogin()}:(W)"], check=True)
+        try:
+            yield
+        finally:
+            subprocess.run(["icacls", str(path), "/remove:d", os.getlogin()], check=True)
+    else:
+        os.chmod(path, 0o555)
+        try:
+            yield
+        finally:
+            os.chmod(path, 0o755)
 
 
 class TestGetDistributionName:
@@ -154,6 +176,47 @@ class TestShortcutRecording:
         data = read_menuinst_toml(env_prefix)
         assert "distribution_name" not in data
         assert len(data["shortcuts"]) == 1
+
+    def test_record_shortcuts_handles_permission_error(self, tmp_path: Path, caplog) -> None:
+        """record_shortcuts() should not raise when prefix is read-only."""
+        prefix = tmp_path / "readonly"
+        prefix.mkdir()
+        menu_dir = prefix / "Menu"
+        menu_dir.mkdir()
+
+        # Pre-create empty TOML so the test is consistent with test_remove_* below
+        write_menuinst_toml(prefix, {})
+
+        with make_readonly(menu_dir), make_readonly(prefix), caplog.at_level(logging.DEBUG):
+            # This should NOT raise PermissionError
+            record_shortcuts(
+                prefix=prefix,
+                base_prefix=prefix,
+                source="test.json",
+                paths=[tmp_path / "fake" / "path" / "shortcut.desktop"],
+            )
+
+        assert "permission denied" in caplog.text.lower()
+
+    def test_remove_shortcut_records_handles_permission_error(
+        self, tmp_path: Path, caplog
+    ) -> None:
+        """remove_shortcut_records() should not raise when prefix is read-only."""
+        prefix = tmp_path / "prefix"
+        prefix.mkdir()
+        menu_dir = prefix / "Menu"
+        menu_dir.mkdir()
+
+        write_menuinst_toml(
+            prefix,
+            {"shortcuts": [{"source": "test.json", "path": "/fake/path"}]},
+        )
+
+        with make_readonly(menu_dir), make_readonly(prefix), caplog.at_level(logging.DEBUG):
+            # This should NOT raise PermissionError
+            remove_shortcut_records(prefix, "test.json")
+
+        assert "permission denied" in caplog.text.lower()
 
 
 class TestInstallAdapter:
