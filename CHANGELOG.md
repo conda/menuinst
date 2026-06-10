@@ -1,5 +1,24 @@
 [//]: # (current developments)
 
+## 2.5.1 (2026-06-10)
+
+### Bug fixes
+
+* Gracefully handle permission errors when writing `menuinst.toml` in read-only environments. (#496)
+
+### Other
+
+* Refactor some tests to use temporary directories instead of using `sys.prefix`. (#496)
+
+### Contributors
+
+* @lrandersson
+* @conda-bot
+* @dependabot[bot]
+* @pre-commit-ci[bot]
+
+
+
 ## 2.5.0 (2026-06-02)
 
 ### Enhancements
