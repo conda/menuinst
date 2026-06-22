@@ -15,8 +15,10 @@ if TYPE_CHECKING:
     from menuinst.platforms.win import WindowsMenu, WindowsMenuItem
     from menuinst.utils import WinLex
 else:
-    WindowsMenu = pytest.importorskip("menuinst.platforms.win").WindowsMenu
-    WindowsMenuItem = pytest.importorskip("menuinst.platforms.win").WindowsMenuItem
+    WindowsMenu = pytest.importorskip("menuinst.platforms.win", exc_type=ImportError).WindowsMenu
+    WindowsMenuItem = pytest.importorskip(
+        "menuinst.platforms.win", exc_type=ImportError
+    ).WindowsMenuItem
     WinLex = pytest.importorskip("menuinst.utils").WinLex
 
 # DEFAULT_PATH is actually not used to write any actual file,
