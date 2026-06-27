@@ -621,3 +621,19 @@ def test_malformed_json_skipped_in_process_all(tmp_path, caplog):
 
     # Check that warning was logged for malformed file
     assert any("malformed.json" in msg and "malformed JSON" in msg for msg in caplog.messages)
+
+
+def test_render_expands_placeholders_in_lists(tmp_path):
+    """`Menu.render` expands placeholders in lists/tuples of strings, not just scalars."""
+    menu = Menu("Test", prefix=str(tmp_path), base_prefix=str(tmp_path))
+    extra = {"FOO": "bar"}
+
+    # Scalar strings still work as before.
+    assert menu.render("{{ FOO }}", extra=extra) == "bar"
+
+    # Lists and tuples have placeholders expanded element-wise.
+    assert menu.render(["{{ FOO }}", "{{ FOO }}/baz"], extra=extra) == ["bar", "bar/baz"]
+    assert menu.render(("{{ FOO }}",), extra=extra) == ["bar"]
+
+    # Non-string items inside a list are returned untouched.
+    assert menu.render([1, "{{ FOO }}", None], extra=extra) == [1, "bar", None]
