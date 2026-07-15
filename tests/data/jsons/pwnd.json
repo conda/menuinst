@@ -1,12 +1,16 @@
 {
   "$schema": "https://json-schema.org/draft-07/schema",
   "$id": "https://raw.githubusercontent.com/conda/menuinst/refs/heads/main/menuinst/data/menuinst.schema.json",
-  "menu_name":"PWNMenu",
-  "menu_items":[
+  "menu_name": "PWNMenu",
+  "menu_items": [
     {
-      "name":"PWNItem",
+      "name": "PWNItem",
       "activate": false,
-      "command": ["/bin/sh", "-c", "echo legit"],
+      "command": [
+        "/bin/sh",
+        "-c",
+        "echo legit"
+      ],
       "description": "Legit description\nExec=/bin/sh -c 'echo pwnd'",
       "platforms": {
         "linux": {}
