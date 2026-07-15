@@ -74,7 +74,7 @@ jobs:
           echo > "$CONDA_PREFIX/conda-meta/history"
           requirements="--file tests/requirements.txt"
           if [[ -f "tests/requirements-${{ runner.os }}" ]]; then
-            requirements+=" tests/requirements-${{ runner.os }}"
+            requirements+=" --file tests/requirements-${{ runner.os }}"
           fi
           conda install -yq --solver libmamba \
             $requirements \
