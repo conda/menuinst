@@ -40,11 +40,12 @@ requirements:
 test:
   requires:
     - conda
-    - pytest
-    - pytest-cov
-    - pydantic >=2
     - hypothesis
     - hypothesis-jsonschema
+    - pydantic >=2
+    - pygobject  # [linux]
+    - pytest
+    - pytest-cov
   source_files:
     - tests
   imports:

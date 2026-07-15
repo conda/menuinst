@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import configparser
 import os
 import shlex
 import shutil
@@ -18,6 +19,16 @@ from ..utils import UnixLex, add_xml_child, indent_xml_tree, logged_run, unlink
 from .base import Menu, MenuItem, menuitem_defaults
 
 log = getLogger(__name__)
+
+
+def _escape_desktop_string(value: str) -> str:
+    """
+    Escape a string value per the freedesktop.org Desktop Entry spec.
+    https://specifications.freedesktop.org/desktop-entry-spec/latest/value-types.html
+    """
+    return (
+        value.replace("\\", "\\\\").replace("\n", "\\n").replace("\r", "\\r").replace("\t", "\\t")
+    )
 
 
 class LinuxMenu(Menu):
@@ -99,15 +110,16 @@ class LinuxMenu(Menu):
     #
 
     def _write_directory_entry(self) -> Path:
-        lines = [
-            "[Desktop Entry]",
-            "Type=Directory",
-            "Encoding=UTF-8",
-            f"Name={self.render(self.name)}",
-        ]
+        config = configparser.ConfigParser()
+        config.optionxform = str  # preserve key case
+        config["Desktop Entry"] = {
+            "Type": "Directory",
+            "Encoding": "UTF-8",
+            "Name": _escape_desktop_string(self.render(self.name)),
+        }
         log.debug("Writing directory entry at %s", self.directory_entry_location)
         with open(self.directory_entry_location, "w") as f:
-            f.write("\n".join(lines))
+            config.write(f, space_around_delimiters=False)
 
         return self.directory_entry_location
 
@@ -243,27 +255,30 @@ class LinuxMenuItem(MenuItem):
         if self.location.exists():
             log.warning("%s: Overwriting existing file at %s.", self._log_name, self.location)
 
-        lines = [
-            "[Desktop Entry]",
-            "Type=Application",
-            "Encoding=UTF-8",
-            f"Name={self.render_key('name')}",
-            f"Exec={self._command()}",
-            f"Terminal={str(self.render_key('terminal')).lower()}",
-        ]
+        config = configparser.ConfigParser()
+        config.optionxform = str  # preserve key case
+        config["Desktop Entry"] = {
+            "Type": "Application",
+            "Encoding": "UTF-8",
+            "Name": _escape_desktop_string(self.render_key("name")),
+            "Exec": _escape_desktop_string(self._command()),
+            "Terminal": str(self.render_key("terminal")).lower(),
+        }
 
         icon = self.render_key("icon")
         if icon:
-            lines.append(f"Icon={self.render_key('icon')}")
+            config["Desktop Entry"]["Icon"] = _escape_desktop_string(self.render_key("icon"))
 
         description = self.render_key("description")
         if description:
-            lines.append(f"Comment={self.render_key('description')}")
+            config["Desktop Entry"]["Comment"] = _escape_desktop_string(
+                self.render_key("description")
+            )
 
         working_dir = self.render_key("working_dir")
         if working_dir:
             Path(os.path.expandvars(working_dir)).mkdir(parents=True, exist_ok=True)
-            lines.append(f"Path={working_dir}")
+            config["Desktop Entry"]["Path"] = _escape_desktop_string(str(working_dir))
 
         for key in menuitem_defaults["platforms"]["linux"]:
             if key in (*menuitem_defaults, "glob_patterns"):
@@ -275,11 +290,12 @@ class LinuxMenuItem(MenuItem):
                 value = str(value).lower()
             elif isinstance(value, (list, tuple)):
                 value = ";".join(value) + ";"
-            lines.append(f"{key}={value}")
+            config["Desktop Entry"][key] = (
+                _escape_desktop_string(value) if isinstance(value, str) else value
+            )
 
         with open(self.location, "w") as f:
-            f.write("\n".join(lines))
-            f.write("\n")
+            config.write(f, space_around_delimiters=False)
 
     def _maybe_register_mime_types(self, register: bool = True):
         mime_types = self.render_key("MimeType")

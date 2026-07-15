@@ -101,13 +101,16 @@ def check_output_from_shortcut(
             else:
                 if PLATFORM == "linux":
                     desktop = next(p for p in paths if p.suffix == ".desktop")
-                    with open(desktop) as f:
-                        for line in f:
-                            if line.startswith("Exec="):
-                                cmd = shlex.split(line.split("=", 1)[1].strip())
-                                break
-                        else:
-                            raise ValueError("Didn't find Exec line")
+                    # Parse .desktop file using GLib's key-file parser, which correctly
+                    # implements the freedesktop.org spec (last-key-wins for duplicate keys).
+                    try:
+                        from gi.repository import GLib
+                    except ImportError:
+                        pytest.skip("Test requires pygobject.")
+                    keyfile = GLib.KeyFile()
+                    keyfile.load_from_file(str(desktop), GLib.KeyFileFlags.NONE)
+                    exec_line = keyfile.get_string("Desktop Entry", "Exec")
+                    cmd = shlex.split(exec_line)
                 elif PLATFORM == "osx":
                     app_location = paths[0]
                     executable = next(
@@ -621,3 +624,8 @@ def test_malformed_json_skipped_in_process_all(tmp_path, caplog):
 
     # Check that warning was logged for malformed file
     assert any("malformed.json" in msg and "malformed JSON" in msg for msg in caplog.messages)
+
+
+@pytest.mark.skipif(PLATFORM != "linux", reason="Only relevant to .desktop files")
+def test_desktop_files_escaping(delete_files):
+    check_output_from_shortcut(delete_files, "pwnd.json", expected_output="legit")
