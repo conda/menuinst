@@ -7,7 +7,7 @@
 * Escape white characters in Linux desktop files.
   The [freedesktop.org](https://specifications.freedesktop.org/desktop-entry/latest/value-types.html)
   specification allows for white space, which can be used to inject a malicious `Exec` instruction
-  into unrelated fields such as `Description`. (ghsa-fqh4-w37r-x339)
+  into unrelated fields such as `Description`. (ghsa-fqh4-w37r-x339, #514)
 
 ### Deprecations
 
