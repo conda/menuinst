@@ -75,6 +75,7 @@ jobs:
           requirements="--file tests/requirements.txt"
           if [[ -f "tests/requirements-${{ runner.os }}" ]]; then
             requirements+=" tests/requirements-${{ runner.os }}"
+          fi
           conda install -yq --solver libmamba \
             $requirements \
             python=${{ matrix.python-version }}
