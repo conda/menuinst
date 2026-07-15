@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import configparser
 import os
 import shlex
 import shutil
@@ -110,16 +109,15 @@ class LinuxMenu(Menu):
     #
 
     def _write_directory_entry(self) -> Path:
-        config = configparser.ConfigParser()
-        config.optionxform = str  # preserve key case
-        config["Desktop Entry"] = {
-            "Type": "Directory",
-            "Encoding": "UTF-8",
-            "Name": _escape_desktop_string(self.render(self.name)),
-        }
+        lines = [
+            "[Desktop Entry]",
+            "Type=Directory",
+            "Encoding=UTF-8",
+            f"Name={self.render(self.name)}",
+        ]
         log.debug("Writing directory entry at %s", self.directory_entry_location)
         with open(self.directory_entry_location, "w") as f:
-            config.write(f, space_around_delimiters=False)
+            f.write("\n".join(lines))
 
         return self.directory_entry_location
 
@@ -255,30 +253,27 @@ class LinuxMenuItem(MenuItem):
         if self.location.exists():
             log.warning("%s: Overwriting existing file at %s.", self._log_name, self.location)
 
-        config = configparser.ConfigParser()
-        config.optionxform = str  # preserve key case
-        config["Desktop Entry"] = {
-            "Type": "Application",
-            "Encoding": "UTF-8",
-            "Name": _escape_desktop_string(self.render_key("name")),
-            "Exec": _escape_desktop_string(self._command()),
-            "Terminal": str(self.render_key("terminal")).lower(),
-        }
+        lines = [
+            "[Desktop Entry]",
+            "Type=Application",
+            "Encoding=UTF-8",
+            f"Name={_escape_desktop_string(self.render_key('name'))}",
+            f"Exec={_escape_desktop_string(self._command())}",
+            f"Terminal={str(self.render_key('terminal')).lower()}",
+        ]
 
         icon = self.render_key("icon")
         if icon:
-            config["Desktop Entry"]["Icon"] = _escape_desktop_string(self.render_key("icon"))
+            lines.append("Icon={_escape_desktop_string(self.render_key('icon')}")
 
         description = self.render_key("description")
         if description:
-            config["Desktop Entry"]["Comment"] = _escape_desktop_string(
-                self.render_key("description")
-            )
+            lines.append(f"Comment={_escape_desktop_string(self.render_key('description'))}")
 
         working_dir = self.render_key("working_dir")
         if working_dir:
             Path(os.path.expandvars(working_dir)).mkdir(parents=True, exist_ok=True)
-            config["Desktop Entry"]["Path"] = _escape_desktop_string(str(working_dir))
+            lines.append(f"Path={_escape_desktop_string(str(working_dir))}")
 
         for key in menuitem_defaults["platforms"]["linux"]:
             if key in (*menuitem_defaults, "glob_patterns"):
@@ -290,12 +285,12 @@ class LinuxMenuItem(MenuItem):
                 value = str(value).lower()
             elif isinstance(value, (list, tuple)):
                 value = ";".join(value) + ";"
-            config["Desktop Entry"][key] = (
-                _escape_desktop_string(value) if isinstance(value, str) else value
-            )
+            value = _escape_desktop_string(value) if isinstance(value, str) else value
+            lines.append(f"{key}={value}")
 
         with open(self.location, "w") as f:
-            config.write(f, space_around_delimiters=False)
+            f.write("\n".join(lines))
+            f.write("\n")
 
     def _maybe_register_mime_types(self, register: bool = True):
         mime_types = self.render_key("MimeType")
