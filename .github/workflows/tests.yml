@@ -70,10 +70,13 @@ jobs:
       - name: Add dependencies
         shell: bash -el {0}
         run: |
-          # Clear history in base env so there are no pins
+          # Clear history in base env so there are no pins
           echo > "$CONDA_PREFIX/conda-meta/history"
+          requirements="--file tests/requirements.txt"
+          if [[ -f "tests/requirements-${{ runner.os }}" ]]; then
+            requirements+=" tests/requirements-${{ runner.os }}"
           conda install -yq --solver libmamba \
-            --file tests/requirements.txt \
+            $requirements \
             python=${{ matrix.python-version }}
 
       - shell: bash -el {0}
