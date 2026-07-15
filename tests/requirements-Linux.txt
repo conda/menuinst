@@ -1,1 +1,1 @@
-pyobject
+pygobject
