@@ -1,5 +1,21 @@
 [//]: # (current developments)
 
+## 2.5.2 (2026-07-15)
+
+### Bug fixes
+
+* Escape white characters in Linux desktop files.
+  The [freedesktop.org](https://specifications.freedesktop.org/desktop-entry/latest/value-types.html)
+  specification allows for white space, which can be used to inject a malicious `Exec` instruction
+  into unrelated fields such as `Description`. (ghsa-fqh4-w37r-x339, #514)
+
+### Contributors
+
+* @marcoesters
+* @jaimergp
+
+
+
 ## 2.5.1 (2026-06-10)
 
 ### Bug fixes
