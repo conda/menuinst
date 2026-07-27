@@ -123,7 +123,7 @@ def test_package_1_linux(tmpdir, conda_cli):
 def test_package_1_osx(tmpdir, conda_cli):
     with install_package_1(tmpdir, conda_cli) as (prefix, menu_file):
         meta = validate(menu_file)
-        menu_items = [item.dict() for item in meta.menu_items]
+        menu_items = [item.model_dump() for item in meta.menu_items]
         menu = Menu(meta.menu_name, str(prefix), BASE_PREFIX)
         items = [menu]
         # First case, activation is on, output should be the prefix path
