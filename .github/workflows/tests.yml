@@ -32,7 +32,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-2022, ubuntu-latest, macos-15-intel]
+        os: [windows-11-arm, windows-2022, ubuntu-latest, macos-15-intel]
         python-version: ["3.10", "3.11", "3.12", "3.13"]
         miniforge-version: [latest]
         include:
@@ -130,6 +130,8 @@ jobs:
             subdir: osx-arm64
           - runner: windows-2022
             subdir: win-64
+          - runner: windows-11-arm
+            subdir: win-arm64
     runs-on: ${{ matrix.runner }}
     steps:
       # Clean checkout of specific git ref needed for package metadata version
