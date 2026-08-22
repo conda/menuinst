@@ -264,7 +264,7 @@ class LinuxMenuItem(MenuItem):
 
         icon = self.render_key("icon")
         if icon:
-            lines.append("Icon={_escape_desktop_string(self.render_key('icon')}")
+            lines.append(f"Icon={_escape_desktop_string(self.render_key('icon'))}")
 
         description = self.render_key("description")
         if description:
