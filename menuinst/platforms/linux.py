@@ -19,6 +19,9 @@ from .base import Menu, MenuItem, menuitem_defaults
 
 log = getLogger(__name__)
 
+# https://specifications.freedesktop.org/desktop-entry-spec/latest/exec-variables.html
+FIELD_CODES = ("%f", "%F", "%u", "%U")
+
 
 def _escape_desktop_string(value: str) -> str:
     """
@@ -234,7 +237,24 @@ class LinuxMenuItem(MenuItem):
                 check=False,
             )
 
-    def _command(self) -> str:
+    def _field_code(self) -> str:
+        """
+        Field code to append to ``Exec`` so file managers can pass the opened
+        file or URL to the shortcut, or an empty string if none is needed.
+        """
+        command = self.render_key("command") or ()
+        if any(code in arg for arg in command for code in FIELD_CODES):
+            # The item supplies its own field code; adding a second one would
+            # make the launcher pass the argument twice.
+            return ""
+        mime_types = self.render_key("MimeType") or ()
+        if not mime_types:
+            return ""
+        if all(mime_type.startswith("x-scheme-handler/") for mime_type in mime_types):
+            return "%u"
+        return "%f"
+
+    def _command(self, field_code: str = "") -> str:
         parts = []
         precommand = self.render_key("precommand")
         if precommand:
@@ -246,8 +266,15 @@ class LinuxMenuItem(MenuItem):
             else:
                 activate = "shell.bash activate"
             parts.append(f'eval "$("{conda_exe}" {activate} "{self.menu.prefix}")"')
-        parts.append(" ".join(UnixLex.quote_args(self.render_key("command"))))
-        return "bash -c " + shlex.quote(" && ".join(parts))
+        command = " ".join(UnixLex.quote_args(self.render_key("command")))
+        if not field_code:
+            parts.append(command)
+            return "bash -c " + shlex.quote(" && ".join(parts))
+        # `bash -c SCRIPT NAME ARGS...` assigns NAME to $0, so the field code
+        # must be preceded by a placeholder or the launcher's argument would be
+        # swallowed by $0 instead of reaching "$@".
+        parts.append(f'{command} "$@"')
+        return "bash -c " + shlex.quote(" && ".join(parts)) + f" bash {field_code}"
 
     def _write_desktop_file(self):
         if self.location.exists():
@@ -258,7 +285,7 @@ class LinuxMenuItem(MenuItem):
             "Type=Application",
             "Encoding=UTF-8",
             f"Name={_escape_desktop_string(self.render_key('name'))}",
-            f"Exec={_escape_desktop_string(self._command())}",
+            f"Exec={_escape_desktop_string(self._command(self._field_code()))}",
             f"Terminal={str(self.render_key('terminal')).lower()}",
         ]
 
