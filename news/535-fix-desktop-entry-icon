@@ -1,0 +1,21 @@
+### Enhancements
+
+* <news item>
+
+### Bug fixes
+
+* Write the rendered icon path to the `Icon=` line of Linux `.desktop` files.
+  A missing f-string prefix caused the literal source expression to be written
+  instead. (#535)
+
+### Deprecations
+
+* <news item>
+
+### Docs
+
+* <news item>
+
+### Other
+
+* <news item>
