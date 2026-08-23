@@ -88,20 +88,41 @@ DEFAULT_PREFIX = _default_prefix("target")
 DEFAULT_BASE_PREFIX = _default_prefix("base")
 
 
+def _same_path(path: os.PathLike, other: os.PathLike) -> bool:
+    """
+    Whether two paths name the same location.
+
+    ``Path.samefile`` needs both paths to exist and raises otherwise. menuinst is
+    handed prefixes that may already be gone -- removing shortcuts for a prefix
+    that is being torn down, for instance -- so fall back to comparing normalized
+    paths, which also gets the case-insensitive filesystems on Windows right.
+    """
+    try:
+        return os.path.samefile(path, other)
+    except OSError:
+        return os.path.normcase(os.path.abspath(path)) == os.path.normcase(
+            os.path.abspath(other)
+        )
+
+
 def _is_base_prefix(prefix: os.PathLike, base_prefix: os.PathLike) -> bool:
     """
     Whether ``prefix`` is the base environment of its installation.
 
     ``base_prefix`` alone cannot answer this. A conda installed *into* an
     environment reports that environment as its own base, so a caller driven by
-    such a conda passes the environment as both prefix and base prefix. conda
-    lays named environments out as ``<root>/envs/<name>``, which never names a
-    base prefix, so that layout is taken as authoritative.
+    such a conda passes the environment as both prefix and base prefix.
+
+    conda lays named environments out as ``<root>/envs/<name>``, and ``<root>``
+    is itself a conda prefix, so it carries ``conda-meta``. A prefix matching
+    that layout is a named environment whatever ``base_prefix`` claims. Requiring
+    ``conda-meta`` keeps the rule from firing on an installation that merely
+    happens to live under a directory called ``envs``.
     """
     prefix = Path(prefix)
-    if prefix.parent.name == "envs":
+    if prefix.parent.name == "envs" and (prefix.parent.parent / "conda-meta").is_dir():
         return False
-    return prefix.samefile(base_prefix)
+    return _same_path(prefix, base_prefix)
 
 
 def read_menuinst_toml(prefix: Path) -> dict:
