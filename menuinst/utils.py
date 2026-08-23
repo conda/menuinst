@@ -88,6 +88,22 @@ DEFAULT_PREFIX = _default_prefix("target")
 DEFAULT_BASE_PREFIX = _default_prefix("base")
 
 
+def _is_base_prefix(prefix: os.PathLike, base_prefix: os.PathLike) -> bool:
+    """
+    Whether ``prefix`` is the base environment of its installation.
+
+    ``base_prefix`` alone cannot answer this. A conda installed *into* an
+    environment reports that environment as its own base, so a caller driven by
+    such a conda passes the environment as both prefix and base prefix. conda
+    lays named environments out as ``<root>/envs/<name>``, which never names a
+    base prefix, so that layout is taken as authoritative.
+    """
+    prefix = Path(prefix)
+    if prefix.parent.name == "envs":
+        return False
+    return prefix.samefile(base_prefix)
+
+
 def read_menuinst_toml(prefix: Path) -> dict:
     """Read menuinst.toml from prefix, returning empty dict if missing.
 
