@@ -18,6 +18,7 @@ from conftest import DATA, PLATFORM
 
 from menuinst.api import install, remove, remove_all
 from menuinst.platforms import Menu, MenuItem
+from menuinst.platforms.linux import LinuxMenu, LinuxMenuItem
 from menuinst.platforms.osx import _lsregister
 from menuinst.utils import DEFAULT_PREFIX, logged_run, slugify, user_is_admin
 
@@ -629,3 +630,19 @@ def test_malformed_json_skipped_in_process_all(tmp_path, caplog):
 @pytest.mark.skipif(PLATFORM != "linux", reason="Only relevant to .desktop files")
 def test_desktop_files_escaping(delete_files):
     check_output_from_shortcut(delete_files, "pwnd.json", expected_output="legit")
+
+
+@pytest.mark.skipif(PLATFORM != "linux", reason="Only relevant to .desktop files")
+def test_desktop_entry_icon(tmp_path, monkeypatch):
+    """The Icon= line must hold the rendered icon path, not the f-string source text."""
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path / "config"))
+    monkeypatch.setenv("XDG_DATA_HOME", str(tmp_path / "data"))
+    menu = LinuxMenu("Test Menu", prefix=sys.prefix, base_prefix=sys.prefix)
+    menu._ensure_directories_exist()
+    item = LinuxMenuItem(
+        menu,
+        {"name": "Test Item", "command": ["echo", "hi"], "icon": "{{ MENU_DIR }}/icon.png"},
+    )
+    item._write_desktop_file()
+    expected = Path(sys.prefix) / "Menu" / "icon.png"
+    assert f"Icon={expected}" in item.location.read_text().splitlines()
