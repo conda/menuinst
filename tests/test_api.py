@@ -632,6 +632,7 @@ def test_desktop_files_escaping(delete_files):
     check_output_from_shortcut(delete_files, "pwnd.json", expected_output="legit")
 
 
+@pytest.mark.skipif(PLATFORM != "linux", reason="Only relevant to .desktop files")
 def test_desktop_entry_icon(tmp_path, monkeypatch):
     """The Icon= line must hold the rendered icon path, not the f-string source text."""
     monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path / "config"))
