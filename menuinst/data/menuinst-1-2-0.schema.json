@@ -1696,14 +1696,14 @@
       "type": "object"
     }
   },
-  "$id": "https://schemas.conda.org/menuinst-1-1-4.schema.json",
+  "$id": "https://schemas.conda.org/menuinst-1-2-0.schema.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$version": "1-1-4",
+  "$version": "1-2-0",
   "additionalProperties": false,
   "description": "Metadata required to create menu items across operating systems with `menuinst`.",
   "properties": {
     "$id": {
-      "default": "https://schemas.conda.org/menuinst-1-1-4.schema.json",
+      "default": "https://schemas.conda.org/menuinst-1-2-0.schema.json",
       "deprecated": true,
       "description": "DEPRECATED. Use ``$schema``.",
       "markdownDescription": "DEPRECATED. Use ``$schema``.",
@@ -1712,7 +1712,7 @@
       "type": "string"
     },
     "$schema": {
-      "default": "https://schemas.conda.org/menuinst-1-1-4.schema.json",
+      "default": "https://schemas.conda.org/menuinst-1-2-0.schema.json",
       "description": "Version of the menuinst schema to validate against.",
       "markdownDescription": "Version of the menuinst schema to validate against.",
       "minLength": 1,

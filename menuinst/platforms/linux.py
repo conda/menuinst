@@ -258,7 +258,7 @@ class LinuxMenuItem(MenuItem):
             else:
                 command = command.get("target_environment_is_not_base", "")
         parts.append(" ".join(UnixLex.quote_args(command)))
-        return " && ".join(parts)
+        return "bash -c " + shlex.quote(" && ".join(parts))
 
     def _write_desktop_file(self):
         if self.location.exists():

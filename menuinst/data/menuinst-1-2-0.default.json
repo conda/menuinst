@@ -69,5 +69,5 @@
       }
     }
   ],
-  "$schema": "https://schemas.conda.org/menuinst-1-1-4.schema.json"
+  "$schema": "https://schemas.conda.org/menuinst-1-2-0.schema.json"
 }
