@@ -364,10 +364,6 @@ class Linux(BasePlatformSpecific):
             """
         ),
     )
-    run_in_bash: Optional[bool] = Field(
-        True,
-        description=("Whether to wrap `command` in a `bash -c` invocation."),
-    )
 
 
 class MacOS(BasePlatformSpecific):

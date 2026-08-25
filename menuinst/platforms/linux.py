@@ -258,15 +258,7 @@ class LinuxMenuItem(MenuItem):
             else:
                 command = command.get("target_environment_is_not_base", "")
         parts.append(" ".join(UnixLex.quote_args(command)))
-        # `run_in_bash` is a linux-only key, so it is absent whenever the menu item
-        # carries no `platforms.linux` block at all.
-        run_in_bash = self.metadata.get("run_in_bash")
-        if run_in_bash is None:
-            run_in_bash = True
-        if run_in_bash:
-            return "bash -c " + shlex.quote(" && ".join(parts))
-        else:
-            return " && ".join(parts)
+        return " && ".join(parts)
 
     def _write_desktop_file(self):
         if self.location.exists():

@@ -564,20 +564,6 @@
           "description": "Map of custom MIME types to their corresponding glob patterns (e.g. `*.txt`). Only needed if you define custom MIME types in `MimeType`.",
           "markdownDescription": "Map of custom MIME types to their corresponding glob patterns (e.g. `*.txt`). Only needed if you define custom MIME types in `MimeType`.",
           "title": "Glob Patterns"
-        },
-        "run_in_bash": {
-          "anyOf": [
-            {
-              "type": "boolean"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": true,
-          "description": "Whether to wrap `command` in a `bash -c` invocation.",
-          "markdownDescription": "Whether to wrap `command` in a `bash -c` invocation.",
-          "title": "Run In Bash"
         }
       },
       "title": "Linux",

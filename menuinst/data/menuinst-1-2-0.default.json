@@ -30,8 +30,7 @@
           "StartupNotify": null,
           "StartupWMClass": null,
           "TryExec": null,
-          "glob_patterns": null,
-          "run_in_bash": true
+          "glob_patterns": null
         },
         "osx": {
           "CFBundleDisplayName": null,
