@@ -162,8 +162,8 @@
             }
           ],
           "default": null,
-          "description": "The name of the menu item. Can be a dictionary if the name depends on installation parameters. See `TargetIsBaseConStr` for details.",
-          "markdownDescription": "The name of the menu item. Can be a dictionary if the name depends on installation parameters. See `TargetIsBaseConStr` for details.",
+          "description": "The name of the menu item. Can be a dictionary if the name depends on whether the target environment is the base environment. See `TargetIsBaseConStr` for details.",
+          "markdownDescription": "The name of the menu item. Can be a dictionary if the name depends on whether the target environment is the base environment. See `TargetIsBaseConStr` for details.",
           "title": "Name"
         },
         "description": {
@@ -212,8 +212,8 @@
             }
           ],
           "default": null,
-          "description": "Command to run with the menu item, expressed as a list of strings where each string is an argument.",
-          "markdownDescription": "Command to run with the menu item, expressed as a list of strings where each string is an argument.",
+          "description": "Command to run with the menu item, expressed as a list of strings where each string is an argument. Can be a dictionary if the command depends on whether the target environment is the base environment. See `TargetIsBaseConList` for details.",
+          "markdownDescription": "Command to run with the menu item, expressed as a list of strings where each string is an argument. Can be a dictionary if the command depends on whether the target environment is the base environment. See `TargetIsBaseConList` for details.",
           "title": "Command"
         },
         "working_dir": {
@@ -238,12 +238,15 @@
               "type": "string"
             },
             {
+              "$ref": "#/$defs/TargetIsBaseConStr"
+            },
+            {
               "type": "null"
             }
           ],
           "default": null,
-          "description": "(Simple, preferrably single-line) logic to run before the command is run. Runs before the environment is activated, if that applies.",
-          "markdownDescription": "(Simple, preferrably single-line) logic to run before the command is run. Runs before the environment is activated, if that applies.",
+          "description": "(Simple, preferrably single-line) logic to run before the command is run. Runs before the environment is activated, if that applies. Can be a dictionary if the logic depends on whether the target environment is the base environment. See `TargetIsBaseConStr` for details.",
+          "markdownDescription": "(Simple, preferrably single-line) logic to run before the command is run. Runs before the environment is activated, if that applies. Can be a dictionary if the logic depends on whether the target environment is the base environment. See `TargetIsBaseConStr` for details.",
           "title": "Precommand"
         },
         "precreate": {
@@ -526,8 +529,8 @@
             }
           ],
           "default": null,
-          "description": "Advanced. See [Startup Notification spec]( https://www.freedesktop.org/wiki/Specifications/startup-notification-spec/).",
-          "markdownDescription": "Advanced. See [Startup Notification spec]( https://www.freedesktop.org/wiki/Specifications/startup-notification-spec/).",
+          "description": "Advanced. See [Startup Notification spec]( https://www.freedesktop.org/wiki/Specifications/startup-notification-spec/). Can be a dictionary if the value depends on whether the target environment is the base environment. See `TargetIsBaseConStr` for details.",
+          "markdownDescription": "Advanced. See [Startup Notification spec]( https://www.freedesktop.org/wiki/Specifications/startup-notification-spec/). Can be a dictionary if the value depends on whether the target environment is the base environment. See `TargetIsBaseConStr` for details.",
           "title": "Startupwmclass"
         },
         "TryExec": {
@@ -543,8 +546,8 @@
             }
           ],
           "default": null,
-          "description": "Filename or absolute path to an executable file on disk used to determine if the program is actually installed and can be run. If the test fails, the shortcut might be ignored / hidden.",
-          "markdownDescription": "Filename or absolute path to an executable file on disk used to determine if the program is actually installed and can be run. If the test fails, the shortcut might be ignored / hidden.",
+          "description": "Filename or absolute path to an executable file on disk used to determine if the program is actually installed and can be run. If the test fails, the shortcut might be ignored / hidden. Can be a dictionary if the value depends on whether the target environment is the base environment. See `TargetIsBaseConStr` for details.",
+          "markdownDescription": "Filename or absolute path to an executable file on disk used to determine if the program is actually installed and can be run. If the test fails, the shortcut might be ignored / hidden. Can be a dictionary if the value depends on whether the target environment is the base environment. See `TargetIsBaseConStr` for details.",
           "title": "Tryexec"
         },
         "glob_patterns": {
@@ -588,8 +591,8 @@
             }
           ],
           "default": null,
-          "description": "The name of the menu item. Can be a dictionary if the name depends on installation parameters. See `TargetIsBaseConStr` for details.",
-          "markdownDescription": "The name of the menu item. Can be a dictionary if the name depends on installation parameters. See `TargetIsBaseConStr` for details.",
+          "description": "The name of the menu item. Can be a dictionary if the name depends on whether the target environment is the base environment. See `TargetIsBaseConStr` for details.",
+          "markdownDescription": "The name of the menu item. Can be a dictionary if the name depends on whether the target environment is the base environment. See `TargetIsBaseConStr` for details.",
           "title": "Name"
         },
         "description": {
@@ -638,8 +641,8 @@
             }
           ],
           "default": null,
-          "description": "Command to run with the menu item, expressed as a list of strings where each string is an argument.",
-          "markdownDescription": "Command to run with the menu item, expressed as a list of strings where each string is an argument.",
+          "description": "Command to run with the menu item, expressed as a list of strings where each string is an argument. Can be a dictionary if the command depends on whether the target environment is the base environment. See `TargetIsBaseConList` for details.",
+          "markdownDescription": "Command to run with the menu item, expressed as a list of strings where each string is an argument. Can be a dictionary if the command depends on whether the target environment is the base environment. See `TargetIsBaseConList` for details.",
           "title": "Command"
         },
         "working_dir": {
@@ -664,12 +667,15 @@
               "type": "string"
             },
             {
+              "$ref": "#/$defs/TargetIsBaseConStr"
+            },
+            {
               "type": "null"
             }
           ],
           "default": null,
-          "description": "(Simple, preferrably single-line) logic to run before the command is run. Runs before the environment is activated, if that applies.",
-          "markdownDescription": "(Simple, preferrably single-line) logic to run before the command is run. Runs before the environment is activated, if that applies.",
+          "description": "(Simple, preferrably single-line) logic to run before the command is run. Runs before the environment is activated, if that applies. Can be a dictionary if the logic depends on whether the target environment is the base environment. See `TargetIsBaseConStr` for details.",
+          "markdownDescription": "(Simple, preferrably single-line) logic to run before the command is run. Runs before the environment is activated, if that applies. Can be a dictionary if the logic depends on whether the target environment is the base environment. See `TargetIsBaseConStr` for details.",
           "title": "Precommand"
         },
         "precreate": {
@@ -1106,8 +1112,8 @@
               "$ref": "#/$defs/TargetIsBaseConStr"
             }
           ],
-          "description": "The name of the menu item. Can be a dictionary if the name depends on installation parameters. See `TargetIsBaseConStr` for details.",
-          "markdownDescription": "The name of the menu item. Can be a dictionary if the name depends on installation parameters. See `TargetIsBaseConStr` for details.",
+          "description": "The name of the menu item. Can be a dictionary if the name depends on whether the target environment is the base environment. See `TargetIsBaseConStr` for details.",
+          "markdownDescription": "The name of the menu item. Can be a dictionary if the name depends on whether the target environment is the base environment. See `TargetIsBaseConStr` for details.",
           "title": "Name"
         },
         "description": {
@@ -1129,8 +1135,8 @@
               "$ref": "#/$defs/TargetIsBaseConList"
             }
           ],
-          "description": "Command to run with the menu item, expressed as a list of strings where each string is an argument.",
-          "markdownDescription": "Command to run with the menu item, expressed as a list of strings where each string is an argument.",
+          "description": "Command to run with the menu item, expressed as a list of strings where each string is an argument. Can be a dictionary if the command depends on whether the target environment is the base environment. See `TargetIsBaseConList` for details.",
+          "markdownDescription": "Command to run with the menu item, expressed as a list of strings where each string is an argument. Can be a dictionary if the command depends on whether the target environment is the base environment. See `TargetIsBaseConList` for details.",
           "title": "Command"
         },
         "icon": {
@@ -1155,12 +1161,15 @@
               "type": "string"
             },
             {
+              "$ref": "#/$defs/TargetIsBaseConStr"
+            },
+            {
               "type": "null"
             }
           ],
           "default": null,
-          "description": "(Simple, preferrably single-line) logic to run before the command is run. Runs before the environment is activated, if that applies.",
-          "markdownDescription": "(Simple, preferrably single-line) logic to run before the command is run. Runs before the environment is activated, if that applies.",
+          "description": "(Simple, preferrably single-line) logic to run before the command is run. Runs before the environment is activated, if that applies. Can be a dictionary if the logic depends on whether the target environment is the base environment. See `TargetIsBaseConStr` for details.",
+          "markdownDescription": "(Simple, preferrably single-line) logic to run before the command is run. Runs before the environment is activated, if that applies. Can be a dictionary if the logic depends on whether the target environment is the base environment. See `TargetIsBaseConStr` for details.",
           "title": "Precommand"
         },
         "precreate": {
@@ -1286,8 +1295,8 @@
     },
     "TargetIsBaseConList": {
       "additionalProperties": false,
-      "description": "Variable that depends on whether or not the the installation is in the base env.\n\nThis can help configure the menu item on if the system is in a base environment.",
-      "markdownDescription": "Variable that depends on whether or not the the installation is in the base env.\n\nThis can help configure the menu item on if the system is in a base environment.",
+      "description": "A list of strings that depends on whether the target environment is the base environment.\n\nOnly the branch that applies to the installation is used; the other one may be omitted. Omitting the branch that ends up applying is an error.",
+      "markdownDescription": "A list of strings that depends on whether the target environment is the base environment.\n\nOnly the branch that applies to the installation is used; the other one may be omitted. Omitting the branch that ends up applying is an error.",
       "properties": {
         "target_environment_is_base": {
           "anyOf": [
@@ -1303,8 +1312,8 @@
             }
           ],
           "default": null,
-          "description": "Name when target environment is the base environment.",
-          "markdownDescription": "Name when target environment is the base environment.",
+          "description": "Value to use when the target environment is the base environment.",
+          "markdownDescription": "Value to use when the target environment is the base environment.",
           "title": "Target Environment Is Base"
         },
         "target_environment_is_not_base": {
@@ -1321,8 +1330,8 @@
             }
           ],
           "default": null,
-          "description": "Name when target environment is not the base environment.",
-          "markdownDescription": "Name when target environment is not the base environment.",
+          "description": "Value to use when the target environment is not the base environment.",
+          "markdownDescription": "Value to use when the target environment is not the base environment.",
           "title": "Target Environment Is Not Base"
         }
       },
@@ -1331,8 +1340,8 @@
     },
     "TargetIsBaseConStr": {
       "additionalProperties": false,
-      "description": "Variable that depends on whether or not the the installation is in the base env.\n\nThis can help configure the menu item on if the system is in a base environment.",
-      "markdownDescription": "Variable that depends on whether or not the the installation is in the base env.\n\nThis can help configure the menu item on if the system is in a base environment.",
+      "description": "A string that depends on whether the target environment is the base environment.\n\nOnly the branch that applies to the installation is used; the other one may be omitted. Omitting the branch that ends up applying is an error.",
+      "markdownDescription": "A string that depends on whether the target environment is the base environment.\n\nOnly the branch that applies to the installation is used; the other one may be omitted. Omitting the branch that ends up applying is an error.",
       "properties": {
         "target_environment_is_base": {
           "anyOf": [
@@ -1345,8 +1354,8 @@
             }
           ],
           "default": null,
-          "description": "Name when target environment is the base environment.",
-          "markdownDescription": "Name when target environment is the base environment.",
+          "description": "Value to use when the target environment is the base environment.",
+          "markdownDescription": "Value to use when the target environment is the base environment.",
           "title": "Target Environment Is Base"
         },
         "target_environment_is_not_base": {
@@ -1360,8 +1369,8 @@
             }
           ],
           "default": null,
-          "description": "Name when target environment is not the base environment.",
-          "markdownDescription": "Name when target environment is not the base environment.",
+          "description": "Value to use when the target environment is not the base environment.",
+          "markdownDescription": "Value to use when the target environment is not the base environment.",
           "title": "Target Environment Is Not Base"
         }
       },
@@ -1468,8 +1477,8 @@
             }
           ],
           "default": null,
-          "description": "The name of the menu item. Can be a dictionary if the name depends on installation parameters. See `TargetIsBaseConStr` for details.",
-          "markdownDescription": "The name of the menu item. Can be a dictionary if the name depends on installation parameters. See `TargetIsBaseConStr` for details.",
+          "description": "The name of the menu item. Can be a dictionary if the name depends on whether the target environment is the base environment. See `TargetIsBaseConStr` for details.",
+          "markdownDescription": "The name of the menu item. Can be a dictionary if the name depends on whether the target environment is the base environment. See `TargetIsBaseConStr` for details.",
           "title": "Name"
         },
         "description": {
@@ -1518,8 +1527,8 @@
             }
           ],
           "default": null,
-          "description": "Command to run with the menu item, expressed as a list of strings where each string is an argument.",
-          "markdownDescription": "Command to run with the menu item, expressed as a list of strings where each string is an argument.",
+          "description": "Command to run with the menu item, expressed as a list of strings where each string is an argument. Can be a dictionary if the command depends on whether the target environment is the base environment. See `TargetIsBaseConList` for details.",
+          "markdownDescription": "Command to run with the menu item, expressed as a list of strings where each string is an argument. Can be a dictionary if the command depends on whether the target environment is the base environment. See `TargetIsBaseConList` for details.",
           "title": "Command"
         },
         "working_dir": {
@@ -1544,12 +1553,15 @@
               "type": "string"
             },
             {
+              "$ref": "#/$defs/TargetIsBaseConStr"
+            },
+            {
               "type": "null"
             }
           ],
           "default": null,
-          "description": "(Simple, preferrably single-line) logic to run before the command is run. Runs before the environment is activated, if that applies.",
-          "markdownDescription": "(Simple, preferrably single-line) logic to run before the command is run. Runs before the environment is activated, if that applies.",
+          "description": "(Simple, preferrably single-line) logic to run before the command is run. Runs before the environment is activated, if that applies. Can be a dictionary if the logic depends on whether the target environment is the base environment. See `TargetIsBaseConStr` for details.",
+          "markdownDescription": "(Simple, preferrably single-line) logic to run before the command is run. Runs before the environment is activated, if that applies. Can be a dictionary if the logic depends on whether the target environment is the base environment. See `TargetIsBaseConStr` for details.",
           "title": "Precommand"
         },
         "precreate": {

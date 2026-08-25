@@ -61,35 +61,37 @@ NonEmptyString = Annotated[str, Field(min_length=1)]
 
 class TargetIsBaseConStr(BaseModel):
     """
-    Variable that depends on whether or not the the installation is in the base env.
+    A string that depends on whether the target environment is the base environment.
 
-    This can help configure the menu item on if the system is in a base environment.
+    Only the branch that applies to the installation is used; the other one may be
+    omitted. Omitting the branch that ends up applying is an error.
     """
 
     target_environment_is_base: Optional[NonEmptyString] = Field(
         None,
-        description=("Name when target environment is the base environment."),
+        description=("Value to use when the target environment is the base environment."),
     )
     target_environment_is_not_base: Optional[NonEmptyString] = Field(
         None,
-        description=("Name when target environment is not the base environment."),
+        description=("Value to use when the target environment is not the base environment."),
     )
 
 
 class TargetIsBaseConList(BaseModel):
     """
-    Variable that depends on whether or not the the installation is in the base env.
+    A list of strings that depends on whether the target environment is the base environment.
 
-    This can help configure the menu item on if the system is in a base environment.
+    Only the branch that applies to the installation is used; the other one may be
+    omitted. Omitting the branch that ends up applying is an error.
     """
 
     target_environment_is_base: Optional[conlist(str, min_length=1)] = Field(
         None,
-        description=("Name when target environment is the base environment."),
+        description=("Value to use when the target environment is the base environment."),
     )
     target_environment_is_not_base: Optional[conlist(str, min_length=1)] = Field(
         None,
-        description=("Name when target environment is not the base environment."),
+        description=("Value to use when the target environment is not the base environment."),
     )
 
 
@@ -107,7 +109,8 @@ class BasePlatformSpecific(BaseModel):
         description=(
             """
             The name of the menu item. Can be a dictionary if the name depends on
-            installation parameters. See `TargetIsBaseConStr` for details.
+            whether the target environment is the base environment.
+            See `TargetIsBaseConStr` for details.
             """
         ),
     )
@@ -124,7 +127,9 @@ class BasePlatformSpecific(BaseModel):
         description=(
             """
             Command to run with the menu item, expressed as a
-            list of strings where each string is an argument.
+            list of strings where each string is an argument. Can be a dictionary
+            if the command depends on whether the target environment is the base
+            environment. See `TargetIsBaseConList` for details.
             """
         ),
     )
@@ -137,12 +142,14 @@ class BasePlatformSpecific(BaseModel):
             """
         ),
     )
-    precommand: Optional[NonEmptyString] = Field(
+    precommand: Optional[Union[NonEmptyString, TargetIsBaseConStr]] = Field(
         None,
         description=(
             """
             (Simple, preferrably single-line) logic to run before the command is run.
-            Runs before the environment is activated, if that applies.
+            Runs before the environment is activated, if that applies. Can be a
+            dictionary if the logic depends on whether the target environment is the
+            base environment. See `TargetIsBaseConStr` for details.
             """
         ),
     )
@@ -342,6 +349,8 @@ class Linux(BasePlatformSpecific):
             """
             Advanced. See [Startup Notification spec](
             https://www.freedesktop.org/wiki/Specifications/startup-notification-spec/).
+            Can be a dictionary if the value depends on whether the target environment
+            is the base environment. See `TargetIsBaseConStr` for details.
             """
         ),
     )
@@ -351,7 +360,9 @@ class Linux(BasePlatformSpecific):
             """
             Filename or absolute path to an executable file on disk used to
             determine if the program is actually installed and can be run. If the test
-            fails, the shortcut might be ignored / hidden.
+            fails, the shortcut might be ignored / hidden. Can be a dictionary if the
+            value depends on whether the target environment is the base environment.
+            See `TargetIsBaseConStr` for details.
             """
         ),
     )
@@ -683,7 +694,8 @@ class MenuItem(BaseModel):
         description=(
             """
             The name of the menu item. Can be a dictionary if the name depends on
-            installation parameters. See `TargetIsBaseConStr` for details.
+            whether the target environment is the base environment.
+            See `TargetIsBaseConStr` for details.
             """
         ),
     )
@@ -696,7 +708,9 @@ class MenuItem(BaseModel):
         description=(
             """
             Command to run with the menu item, expressed as a
-            list of strings where each string is an argument.
+            list of strings where each string is an argument. Can be a dictionary
+            if the command depends on whether the target environment is the base
+            environment. See `TargetIsBaseConList` for details.
             """
         ),
     )
@@ -704,12 +718,14 @@ class MenuItem(BaseModel):
         None,
         description=("Path to the file representing or containing the icon."),
     )
-    precommand: Optional[NonEmptyString] = Field(
+    precommand: Optional[Union[NonEmptyString, TargetIsBaseConStr]] = Field(
         None,
         description=(
             """
             (Simple, preferrably single-line) logic to run before the command is run.
-            Runs before the environment is activated, if that applies.
+            Runs before the environment is activated, if that applies. Can be a
+            dictionary if the logic depends on whether the target environment is the
+            base environment. See `TargetIsBaseConStr` for details.
             """
         ),
     )
