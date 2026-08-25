@@ -274,7 +274,7 @@ class LinuxMenuItem(MenuItem):
         # must be preceded by a placeholder or the launcher's argument would be
         # swallowed by $0 instead of reaching "$@".
         parts.append(f'{command} "$@"')
-        return "bash -c " + shlex.quote(" && ".join(parts)) + f" bash {field_code}"
+        return "bash -c " + shlex.quote(" && ".join(parts)) + f" name_placeholder {field_code}"
 
     def _write_desktop_file(self):
         if self.location.exists():
