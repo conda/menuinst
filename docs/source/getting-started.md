@@ -60,6 +60,7 @@ The `menuinst` package can be used as an API:
 
 ```python
 from menuinst.api import install
+
 install("path/to/menu.json")
 ```
 
