@@ -15,6 +15,7 @@ from typing import Any, Iterable, Mapping
 from ..utils import (
     DEFAULT_BASE_PREFIX,
     DEFAULT_PREFIX,
+    _is_base_prefix,
     _UserOrSystem,
     data_path,
     deep_update,
@@ -41,7 +42,8 @@ class Menu:
         self.prefix = Path(prefix)
         self.base_prefix = Path(base_prefix)
 
-        if self.prefix.samefile(self.base_prefix):
+        self.is_base_environment = _is_base_prefix(self.prefix, self.base_prefix)
+        if self.is_base_environment:
             self.env_name = "base"
         else:
             self.env_name = self.prefix.name
@@ -170,7 +172,7 @@ class MenuItem:
         self._data = self._initialize_on_defaults(metadata)
         self.metadata = self._flatten_for_platform(self._data)
         if isinstance(self.metadata["name"], dict):
-            if self.menu.prefix.samefile(self.menu.base_prefix):
+            if self.menu.is_base_environment:
                 name = self.metadata["name"].get("target_environment_is_base", "")
             else:
                 name = self.metadata["name"].get("target_environment_is_not_base", "")
