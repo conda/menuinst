@@ -1,0 +1,22 @@
+### Enhancements
+
+* Allow `command`, `precommand`, and the Linux-only `StartupWMClass` and `TryExec`
+  fields to be given as a `{"target_environment_is_base": ..., "target_environment_is_not_base": ...}`
+  dictionary, the same form `name` already accepted. This bumps the schema version
+  to `1-2-0`. (#334)
+
+### Bug fixes
+
+* <news item>
+
+### Deprecations
+
+* <news item>
+
+### Docs
+
+* Document which fields can vary between base and non-base environments, and how. (#334)
+
+### Other
+
+* <news item>
