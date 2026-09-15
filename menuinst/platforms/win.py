@@ -181,11 +181,19 @@ class WindowsMenuItem(MenuItem):
                 working_dir = "%HOMEDRIVE%%HOMEPATH%"
 
             icon = self.render_key("icon") or ""
+            # Activation with a terminal will still need to launch cmd.exe so that
+            # the activation logic can be run. This leads to a brief terminal flash
+            # on the screen. Setting cmd_show to 7 starts the terminal minimized, so
+            # there is no flash on the screen, just a brief appearance in the task bar.
+            # The latter is less obtrusive. See also:
+            # https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-showwindow
+            cmd_show = 1 if (self.metadata["terminal"] or not self.metadata["activate"]) else 7
 
             # winshortcut is a windows-only C extension! create_shortcut has this API
             # Notice args must be passed as positional, no keywords allowed!
             # winshortcut.create_shortcut(path, description, filename, arguments="",
-            #                             workdir=None, iconpath=None, iconindex=0, app_id="")
+            #                             workdir=None, iconpath=None, iconindex=0, app_id="",
+            #                             cmd_show=1)
             if Path(path).exists():
                 log.warning("%s: Overwriting existing link at %s.", self._log_name, path)
             create_shortcut(
@@ -197,6 +205,7 @@ class WindowsMenuItem(MenuItem):
                 icon,
                 0,
                 self._app_user_model_id(),
+                cmd_show,
             )
 
         for location in self.menu.terminal_profile_locations:
