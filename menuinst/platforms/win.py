@@ -302,11 +302,19 @@ class WindowsMenuItem(MenuItem):
                 ":: This below is the user command",
             ]
 
-        user_command = " ".join(WinLex.quote_args(self.render_key("command")))
+        command_quoted = WinLex.quote_args(self.render_key("command"))
+        user_command = " ".join(command_quoted)
         if self.metadata["activate"] and not self.metadata["terminal"]:
-            # Launch the app detached so the console closes right after activation.
-            # START requires this empty window title (must remain quoted).
-            user_command = f'START "" {user_command}'
+            # START cannot forward redirections or pipes to the launched process;
+            # commands using shell syntax must run in this console instead.
+            shell_syntax = any(
+                WinLex._has_shell_meta(arg) and not (arg.startswith('"') and arg.endswith('"'))
+                for arg in command_quoted
+            )
+            if not shell_syntax:
+                # Launch the app detached so the console closes right after activation.
+                # START requires this empty window title (must remain quoted).
+                user_command = f'START "" {user_command}'
         lines.append(user_command)
 
         return "\r\n".join(lines)
