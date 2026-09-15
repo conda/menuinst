@@ -302,7 +302,12 @@ class WindowsMenuItem(MenuItem):
                 ":: This below is the user command",
             ]
 
-        lines.append(" ".join(WinLex.quote_args(self.render_key("command"))))
+        user_command = " ".join(WinLex.quote_args(self.render_key("command")))
+        if self.metadata["activate"] and not self.metadata["terminal"]:
+            # Launch the app detached so the console closes right after activation.
+            # START requires this empty window title (must remain quoted).
+            user_command = f'START "" {user_command}'
+        lines.append(user_command)
 
         return "\r\n".join(lines)
 
