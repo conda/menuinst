@@ -181,11 +181,19 @@ class WindowsMenuItem(MenuItem):
                 working_dir = "%HOMEDRIVE%%HOMEPATH%"
 
             icon = self.render_key("icon") or ""
+            # Activation with a terminal will still need to launch cmd.exe so that
+            # the activation logic can be run. This leads to a brief terminal flash
+            # on the screen. Setting cmd_show to 7 starts the terminal minimized, so
+            # there is no flash on the screen, just a brief appearance in the task bar.
+            # The latter is less obtrusive. See also:
+            # https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-showwindow
+            cmd_show = 1 if (self.metadata["terminal"] or not self.metadata["activate"]) else 7
 
             # winshortcut is a windows-only C extension! create_shortcut has this API
             # Notice args must be passed as positional, no keywords allowed!
             # winshortcut.create_shortcut(path, description, filename, arguments="",
-            #                             workdir=None, iconpath=None, iconindex=0, app_id="")
+            #                             workdir=None, iconpath=None, iconindex=0, app_id="",
+            #                             cmd_show=1)
             if Path(path).exists():
                 log.warning("%s: Overwriting existing link at %s.", self._log_name, path)
             create_shortcut(
@@ -197,6 +205,7 @@ class WindowsMenuItem(MenuItem):
                 icon,
                 0,
                 self._app_user_model_id(),
+                cmd_show,
             )
 
         for location in self.menu.terminal_profile_locations:
@@ -279,48 +288,34 @@ class WindowsMenuItem(MenuItem):
                     "@CALL %ACTIVATOR%",
                 ]
             else:
-                # conda >= 25.3.0 does not use .bat files to activate environments anymore.
-                # Instead, it produces .env files that are consumed inside
-                # conda/shell/condabin/_conda_activate.bat. There is no direct activator for this
-                # filetype, so menuinst has to parse the file and add the activator to the
-                # activation script directly.
+                # cmd.exe can activate an environment without shell hooks,
+                # so call activate.bat directly.
                 activator_cmd = [
-                    str(self.menu.conda_exe),
-                    "shell.cmd.exe",
-                    "activate",
+                    "@CALL",
+                    str(self.menu.base_prefix / "condabin" / "activate.bat"),
                     str(self.menu.prefix),
                 ]
-                activator_run = logged_run(activator_cmd, check=True, log=False)
-                activation_file = Path(activator_run.stdout.strip())
-                filetype = activation_file.suffix
-                if filetype == ".bat":
-                    activator = (
-                        f'"{self.menu.conda_exe}" shell.cmd.exe activate "{self.menu.prefix}"'
-                    )
-                    activation_lines = [
-                        f'@FOR /F "usebackq tokens=*" %%i IN (`{activator}`) do set "ACTIVATOR=%%i"',  # noqa
-                        "@CALL %ACTIVATOR%",
-                    ]
-                elif filetype == ".env":
-                    activation_lines = []
-                    for line in activation_file.read_text().splitlines():
-                        keyword, value = line.strip().split("=", 1)
-                        if keyword == "_CONDA_SCRIPT":
-                            activation_lines.append(f'@CALL "{value}"')
-                        else:
-                            activation_lines.append(f'@SET "{keyword}={value}"')
-                else:
-                    raise NotImplementedError(
-                        f"Menuinst cannot parse activation scripts of type '{filetype}': '{activation_file}'"  # noqa
-                    )
-                activation_file.unlink()
+                activation_lines = [" ".join(WinLex.quote_args(activator_cmd))]
             lines += [
                 "@SETLOCAL ENABLEDELAYEDEXPANSION",
                 *activation_lines,
                 ":: This below is the user command",
             ]
 
-        lines.append(" ".join(WinLex.quote_args(self.render_key("command"))))
+        command_quoted = WinLex.quote_args(self.render_key("command"))
+        user_command = " ".join(command_quoted)
+        if self.metadata["activate"] and not self.metadata["terminal"]:
+            # START cannot forward redirections or pipes to the launched process;
+            # commands using shell syntax must run in this console instead.
+            shell_syntax = any(
+                WinLex._has_shell_meta(arg) and not (arg.startswith('"') and arg.endswith('"'))
+                for arg in command_quoted
+            )
+            if not shell_syntax:
+                # Launch the app detached so the console closes right after activation.
+                # START requires this empty window title (must remain quoted).
+                user_command = f'START "" {user_command}'
+        lines.append(user_command)
 
         return "\r\n".join(lines)
 
@@ -339,38 +334,15 @@ class WindowsMenuItem(MenuItem):
 
         return script_path
 
-    def _process_command(self, with_arg1: bool = False) -> tuple[str]:
+    def _process_command(self, with_arg1: bool = False) -> list[str]:
         """Process command and run it via WinLex.quote_args."""
         if self.metadata["activate"]:
             script = self._write_script()
-            if self.metadata["terminal"]:
-                command = ["cmd", "/D", "/K", str(script)]
-                if with_arg1:
-                    command.append('"%1"')
-            else:
-                # This is an UGLY hack to start the script in a hidden window
-                # We use CMD to call PowerShell to call the BAT file
-                # This flashes faster than Powershell -> BAT! Don't ask me why.
-                system32 = Path(os.environ.get("SystemRoot", "C:\\Windows")) / "system32"
-                pwsh = system32 / "WindowsPowerShell" / "v1.0" / "powershell.exe"
-
-                arg1 = "%1 " if with_arg1 else ""
-                # Write the start 'script' as one string (instead of multiple args)
-                # below to simplify quoting of args later.
-                start_script = f"start '{script}' {arg1}-WindowStyle hidden"
-                command = [
-                    str(system32 / "cmd.exe"),
-                    "/D",
-                    "/C",
-                    "START",
-                    "/MIN",
-                    '""',  # START requires this empty window title (must remain quoted)
-                    str(pwsh),
-                    "-WindowStyle",
-                    "hidden",
-                    start_script,
-                ]
-
+            cmd_exe = Path(os.environ.get("SystemRoot", "C:\\Windows")) / "system32" / "cmd.exe"
+            cmd_flag = "/K" if self.metadata["terminal"] else "/C"
+            command = [str(cmd_exe), "/D", cmd_flag, str(script)]
+            if with_arg1:
+                command.append('"%1"')
             return WinLex.quote_args(command)
 
         # Continue below without the activation
