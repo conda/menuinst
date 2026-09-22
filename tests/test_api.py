@@ -529,6 +529,103 @@ def test_name_dictionary(target_env_is_base):
         remove(abs_json_path, target_prefix=tmp_target_path, base_prefix=tmp_base_path)
 
 
+def _target_environment_prefixes(tmp_path, target_env_is_base):
+    base_prefix = tmp_path / "base"
+    base_prefix.mkdir(exist_ok=True)
+    if target_env_is_base:
+        return base_prefix, base_prefix
+    target_prefix = tmp_path / "someenv"
+    target_prefix.mkdir(exist_ok=True)
+    return base_prefix, target_prefix
+
+
+def _target_environment_item():
+    metadata = json.loads((DATA / "jsons" / "target-environment.json").read_text())
+    return metadata["menu_items"][0]
+
+
+@pytest.mark.parametrize("target_env_is_base", (True, False))
+def test_target_environment_dictionary(tmp_path, target_env_is_base):
+    """`name`, `precommand` and `command` each pick the branch that applies."""
+    base_prefix, target_prefix = _target_environment_prefixes(tmp_path, target_env_is_base)
+    menu = Menu("Target environment", prefix=str(target_prefix), base_prefix=str(base_prefix))
+    item = MenuItem(menu, _target_environment_item())
+
+    if target_env_is_base:
+        assert item.render_key("name") == "Target environment is base"
+        assert item.render_key("command") == ["echo", "in base"]
+    else:
+        assert item.render_key("name") == "Target environment is someenv"
+        assert item.render_key("command") == ["echo", "not in base"]
+
+    if PLATFORM == "win":
+        # The `platforms.win` block overrides the top-level `precommand`, and is
+        # itself a base-or-not dictionary.
+        expected = 'set "TEST_VAR=base"' if target_env_is_base else 'set "TEST_VAR=not-base"'
+    else:
+        expected = "export TEST_VAR=base" if target_env_is_base else "export TEST_VAR=not-base"
+    assert item.render_key("precommand") == expected
+
+
+@pytest.mark.skipif(PLATFORM != "linux", reason="Only relevant to .desktop files")
+@pytest.mark.parametrize("target_env_is_base", (True, False))
+def test_target_environment_desktop_entry(tmp_path, monkeypatch, target_env_is_base):
+    """Linux-only keys resolve too, and are rendered after the branch is picked."""
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path / "config"))
+    monkeypatch.setenv("XDG_DATA_HOME", str(tmp_path / "data"))
+    base_prefix, target_prefix = _target_environment_prefixes(tmp_path, target_env_is_base)
+    menu = LinuxMenu("Target environment", prefix=str(target_prefix), base_prefix=str(base_prefix))
+    menu._ensure_directories_exist()
+    item = LinuxMenuItem(menu, _target_environment_item())
+    item._write_desktop_file()
+    entry = item.location.read_text().splitlines()
+
+    if target_env_is_base:
+        assert "StartupWMClass=base-wm-class" in entry
+        assert f"TryExec={base_prefix / 'bin' / 'python'}" in entry
+        assert "Name=Target environment is base" in entry
+    else:
+        assert "StartupWMClass=not-base-wm-class" in entry
+        assert f"TryExec={target_prefix / 'bin' / 'python'}" in entry
+        assert "Name=Target environment is someenv" in entry
+
+    (exec_line,) = [line for line in entry if line.startswith("Exec=")]
+    if target_env_is_base:
+        assert "TEST_VAR=base" in exec_line
+        assert "in base" in exec_line and "not in base" not in exec_line
+    else:
+        assert "TEST_VAR=not-base" in exec_line
+        assert "not in base" in exec_line
+
+
+def test_target_environment_missing_branch(tmp_path):
+    """The branch that ends up applying must be present."""
+    base_prefix, target_prefix = _target_environment_prefixes(tmp_path, False)
+    menu = Menu("Target environment", prefix=str(target_prefix), base_prefix=str(base_prefix))
+    metadata = _target_environment_item()
+    metadata["command"] = {"target_environment_is_base": ["echo", "in base"]}
+    with pytest.raises(ValueError, match="Cannot parse `command`"):
+        MenuItem(menu, metadata)
+
+
+def test_target_environment_leaves_other_dicts_alone(tmp_path):
+    """Only mappings shaped like a base-or-not branch are collapsed."""
+    base_prefix, target_prefix = _target_environment_prefixes(tmp_path, False)
+    menu = Menu("Target environment", prefix=str(target_prefix), base_prefix=str(base_prefix))
+    item = MenuItem(menu, {"name": "Item", "command": ["echo", "hi"], "platforms": {}})
+    metadata = {
+        "glob_patterns": {"text/x-menuinst": "*.menuinst"},
+        "empty": {},
+        "partial": {"target_environment_is_base": "a", "unrelated": "b"},
+    }
+    item._resolve_target_environment_keys(metadata)
+    assert metadata == {
+        "glob_patterns": {"text/x-menuinst": "*.menuinst"},
+        "empty": {},
+        "partial": {"target_environment_is_base": "a", "unrelated": "b"},
+    }
+
+
 def test_vars_in_working_dir(tmp_path, monkeypatch, delete_files):
     if PLATFORM == "win":
         expected_directory = Path(os.environ["TEMP"], "working_dir_test")
