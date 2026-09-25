@@ -1,0 +1,22 @@
+### Enhancements
+
+* <news item>
+
+### Bug fixes
+
+* Do not treat a named environment as the base environment. A conda installed
+  into an environment reports that environment as its own base, which made
+  `{{ ENV_NAME }}` render as `base` and resolved a base/non-base `name` object
+  to its `target_environment_is_base` value. (#538)
+
+### Deprecations
+
+* <news item>
+
+### Docs
+
+* <news item>
+
+### Other
+
+* <news item>
