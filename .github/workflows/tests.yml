@@ -167,7 +167,7 @@ jobs:
           Path(environ["GITHUB_ENV"]).write_text(f"ANACONDA_ORG_LABEL={label}")
 
       - name: Create and upload canary build
-        uses: conda/actions/canary-release@c88b9c76ebfbebd6c39ea713f8fa3b0e08fd7e80 #v26.9.2
+        uses: conda/actions/canary-release@ade1a3a5e5b7d3d124a03bf5d8c841645fb92a37 #v26.9.4
         env:
           # Run conda-build in isolated activation to properly package conda
           _CONDA_BUILD_ISOLATED_ACTIVATION: 1
