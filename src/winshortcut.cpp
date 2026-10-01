@@ -44,6 +44,8 @@ static PyObject *CreateShortcut(PyObject *self, PyObject *args)
     int iconindex = 0;
     PyObject *py_workdir = NULL;
     PyObject *py_app_id = NULL;
+    // https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-showwindow
+    int nCmdShow = 1;
 
     IShellLink *pShellLink = NULL;
     IPersistFile *pPersistFile = NULL;
@@ -59,9 +61,9 @@ static PyObject *CreateShortcut(PyObject *self, PyObject *args)
         goto error;
     }
 
-    if (!PyArg_ParseTuple(args, "UUU|UUUiU",
-                          &py_path, &py_description, &py_filename,
-                          &py_arguments, &py_workdir, &py_iconpath, &iconindex, &py_app_id)) {
+    if (!PyArg_ParseTuple(args, "UUU|UUUiUi",
+                          &py_path, &py_description, &py_filename, &py_arguments,
+                          &py_workdir, &py_iconpath, &iconindex, &py_app_id, &nCmdShow)) {
         goto error;
     }
 
@@ -107,6 +109,11 @@ static PyObject *CreateShortcut(PyObject *self, PyObject *args)
     if (FAILED(hres)) {
         PyErr_Format(PyExc_OSError,
                        "SetDescription() failed, error 0x%x", hres);
+        goto error;
+    }
+    hres = pShellLink->SetShowCmd(nCmdShow);
+    if (FAILED(hres)) {
+        PyErr_Format(PyExc_OSError, "SetShowCmd() failed, error 0x%x", hres);
         goto error;
     }
 
