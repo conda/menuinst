@@ -23,7 +23,7 @@ from pydantic.types import conlist
 log = getLogger(__name__)
 SCHEMA_DIALECT = "http://json-schema.org/draft-07/schema#"
 # We follow schemaver
-SCHEMA_VERSION = "1-1-3"
+SCHEMA_VERSION = "1-2-0"
 SCHEMA_URL = f"https://schemas.conda.org/menuinst-{SCHEMA_VERSION}.schema.json"
 
 
@@ -59,20 +59,39 @@ def Field(*args, **kwargs):
 NonEmptyString = Annotated[str, Field(min_length=1)]
 
 
-class MenuItemNameDict(BaseModel):
+class TargetIsBaseConStr(BaseModel):
     """
-    Variable menu item name.
-    Use this dictionary if the menu item name depends on installation parameters
-    such as the target environment.
+    A string that depends on whether the target environment is the base environment.
+
+    Only the branch that applies to the installation is used; the other one may be
+    omitted. Omitting the branch that ends up applying is an error.
     """
 
     target_environment_is_base: Optional[NonEmptyString] = Field(
         None,
-        description=("Name when target environment is the base environment."),
+        description=("Value to use when the target environment is the base environment."),
     )
     target_environment_is_not_base: Optional[NonEmptyString] = Field(
         None,
-        description=("Name when target environment is not the base environment."),
+        description=("Value to use when the target environment is not the base environment."),
+    )
+
+
+class TargetIsBaseConList(BaseModel):
+    """
+    A list of strings that depends on whether the target environment is the base environment.
+
+    Only the branch that applies to the installation is used; the other one may be
+    omitted. Omitting the branch that ends up applying is an error.
+    """
+
+    target_environment_is_base: Optional[conlist(str, min_length=1)] = Field(
+        None,
+        description=("Value to use when the target environment is the base environment."),
+    )
+    target_environment_is_not_base: Optional[conlist(str, min_length=1)] = Field(
+        None,
+        description=("Value to use when the target environment is not the base environment."),
     )
 
 
@@ -85,12 +104,13 @@ class BasePlatformSpecific(BaseModel):
     * Default value is always `None`.
     """
 
-    name: Optional[Union[NonEmptyString, MenuItemNameDict]] = Field(
+    name: Optional[Union[NonEmptyString, TargetIsBaseConStr]] = Field(
         None,
         description=(
             """
             The name of the menu item. Can be a dictionary if the name depends on
-            installation parameters. See `MenuItemNameDict` for details.
+            whether the target environment is the base environment.
+            See `TargetIsBaseConStr` for details.
             """
         ),
     )
@@ -102,12 +122,14 @@ class BasePlatformSpecific(BaseModel):
         None,
         description=("Path to the file representing or containing the icon."),
     )
-    command: Optional[conlist(str, min_length=1)] = Field(
+    command: Optional[Union[conlist(str, min_length=1), TargetIsBaseConList]] = Field(
         None,
         description=(
             """
             Command to run with the menu item, expressed as a
-            list of strings where each string is an argument.
+            list of strings where each string is an argument. Can be a dictionary
+            if the command depends on whether the target environment is the base
+            environment. See `TargetIsBaseConList` for details.
             """
         ),
     )
@@ -120,12 +142,14 @@ class BasePlatformSpecific(BaseModel):
             """
         ),
     )
-    precommand: Optional[NonEmptyString] = Field(
+    precommand: Optional[Union[NonEmptyString, TargetIsBaseConStr]] = Field(
         None,
         description=(
             """
             (Simple, preferrably single-line) logic to run before the command is run.
-            Runs before the environment is activated, if that applies.
+            Runs before the environment is activated, if that applies. Can be a
+            dictionary if the logic depends on whether the target environment is the
+            base environment. See `TargetIsBaseConStr` for details.
             """
         ),
     )
@@ -319,22 +343,26 @@ class Linux(BasePlatformSpecific):
             """
         ),
     )
-    StartupWMClass: Optional[str] = Field(
+    StartupWMClass: Optional[Union[str, TargetIsBaseConStr]] = Field(
         None,
         description=(
             """
             Advanced. See [Startup Notification spec](
             https://www.freedesktop.org/wiki/Specifications/startup-notification-spec/).
+            Can be a dictionary if the value depends on whether the target environment
+            is the base environment. See `TargetIsBaseConStr` for details.
             """
         ),
     )
-    TryExec: Optional[str] = Field(
+    TryExec: Optional[Union[str, TargetIsBaseConStr]] = Field(
         None,
         description=(
             """
             Filename or absolute path to an executable file on disk used to
             determine if the program is actually installed and can be run. If the test
-            fails, the shortcut might be ignored / hidden.
+            fails, the shortcut might be ignored / hidden. Can be a dictionary if the
+            value depends on whether the target environment is the base environment.
+            See `TargetIsBaseConStr` for details.
             """
         ),
     )
@@ -661,12 +689,13 @@ class Platforms(BaseModel):
 class MenuItem(BaseModel):
     "Instructions to create a menu item across operating systems."
 
-    name: Union[NonEmptyString, MenuItemNameDict] = Field(
+    name: Union[NonEmptyString, TargetIsBaseConStr] = Field(
         ...,
         description=(
             """
             The name of the menu item. Can be a dictionary if the name depends on
-            installation parameters. See `MenuItemNameDict` for details.
+            whether the target environment is the base environment.
+            See `TargetIsBaseConStr` for details.
             """
         ),
     )
@@ -674,12 +703,14 @@ class MenuItem(BaseModel):
         ...,
         description=("A longer description of the menu item. Shown on popup messages."),
     )
-    command: conlist(str, min_length=1) = Field(
+    command: Union[conlist(str, min_length=1), TargetIsBaseConList] = Field(
         ...,
         description=(
             """
             Command to run with the menu item, expressed as a
-            list of strings where each string is an argument.
+            list of strings where each string is an argument. Can be a dictionary
+            if the command depends on whether the target environment is the base
+            environment. See `TargetIsBaseConList` for details.
             """
         ),
     )
@@ -687,12 +718,14 @@ class MenuItem(BaseModel):
         None,
         description=("Path to the file representing or containing the icon."),
     )
-    precommand: Optional[NonEmptyString] = Field(
+    precommand: Optional[Union[NonEmptyString, TargetIsBaseConStr]] = Field(
         None,
         description=(
             """
             (Simple, preferrably single-line) logic to run before the command is run.
-            Runs before the environment is activated, if that applies.
+            Runs before the environment is activated, if that applies. Can be a
+            dictionary if the logic depends on whether the target environment is the
+            base environment. See `TargetIsBaseConStr` for details.
             """
         ),
     )

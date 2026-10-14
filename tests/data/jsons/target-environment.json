@@ -1,0 +1,48 @@
+{
+  "$schema": "https://raw.githubusercontent.com/conda/menuinst/refs/heads/main/menuinst/data/menuinst.schema.json",
+  "menu_name": "Target environment",
+  "menu_items": [
+    {
+      "name": {
+        "target_environment_is_base": "Target environment is base",
+        "target_environment_is_not_base": "Target environment is {{ ENV_NAME }}"
+      },
+      "description": "Every base-or-not field at once, so the branches can be told apart.",
+      "icon": null,
+      "activate": false,
+      "precommand": {
+        "target_environment_is_base": "export TEST_VAR=base",
+        "target_environment_is_not_base": "export TEST_VAR=not-base"
+      },
+      "command": {
+        "target_environment_is_base": [
+          "echo",
+          "in base"
+        ],
+        "target_environment_is_not_base": [
+          "echo",
+          "not in base"
+        ]
+      },
+      "platforms": {
+        "win": {
+          "precommand": {
+            "target_environment_is_base": "set \"TEST_VAR=base\"",
+            "target_environment_is_not_base": "set \"TEST_VAR=not-base\""
+          }
+        },
+        "linux": {
+          "StartupWMClass": {
+            "target_environment_is_base": "base-wm-class",
+            "target_environment_is_not_base": "not-base-wm-class"
+          },
+          "TryExec": {
+            "target_environment_is_base": "{{ BASE_PYTHON }}",
+            "target_environment_is_not_base": "{{ PYTHON }}"
+          }
+        },
+        "osx": {}
+      }
+    }
+  ]
+}
