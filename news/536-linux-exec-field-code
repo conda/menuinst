@@ -1,0 +1,22 @@
+### Enhancements
+
+* Add a `%f` (or `%u` for URL scheme handlers) field code to the `Exec` line of
+  Linux `.desktop` files when the menu item declares a `MimeType`, so file
+  managers can pass the opened file or URL to the shortcut. Items that already
+  carry a field code in their own `command` are left untouched. (#536)
+
+### Bug fixes
+
+* <news item>
+
+### Deprecations
+
+* <news item>
+
+### Docs
+
+* <news item>
+
+### Other
+
+* <news item>
