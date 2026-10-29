@@ -8,7 +8,7 @@
 
 ### Deprecations
 
-* Drop Python 3.10 support. (#579)
+* Drop Python 3.10 support. (#579, #580)
 
 ### Docs
 
