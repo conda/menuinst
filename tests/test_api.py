@@ -148,7 +148,6 @@ def check_output_from_shortcut(
             remove(abs_json_path, target_prefix=tmp_base_path, base_prefix=tmp_base_path)
         if PLATFORM == "osx" and action in ("open_file", "open_url"):
             _lsregister(
-                "-kill",
                 "-r",
                 "-domain",
                 "local",

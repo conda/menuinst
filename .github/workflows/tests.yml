@@ -32,7 +32,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-2022, ubuntu-latest, macos-15-intel, macos-latest, ubuntu-26.04-arm64]
+        os: [windows-2022, ubuntu-latest, macos-15-intel, macos-latest, ubuntu-26.04-arm]
         python-version: ["3.11", "3.12", "3.13", "3.14"]
         miniforge-version: [latest]
         include:
