@@ -102,10 +102,23 @@ jobs:
           name: ${{ matrix.os }}-py${{ matrix.python-version }}
           token: ${{ secrets.CODECOV_TOKEN }}  # required
 
+  analyze:
+    needs: [run_test_suite]
+    if: '!cancelled()'
+    runs-on: ubuntu-slim
+    steps:
+      - name: Determine Success
+        uses: re-actors/alls-green@b5b5b37504aa4183270bd3d855c52a67f212be35 # v1.3.0
+        id: alls-green
+        with:
+          # permit jobs to be skipped if there are no code changes (see changes job)
+          allowed-skips: ${{ toJSON(needs) }}
+          jobs: ${{ toJSON(needs) }}
+
   # canary builds
   build:
     name: Canary Build
-    needs: [run_test_suite]
+    needs: [run_test_suite, analyze]
     # only build canary build if
     # - prior steps succeeded,
     # - this is the main repo, and
