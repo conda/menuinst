@@ -4,6 +4,7 @@ import json
 import os
 import plistlib
 import shlex
+import shutil
 import subprocess
 import sys
 import warnings
@@ -148,7 +149,6 @@ def check_output_from_shortcut(
             remove(abs_json_path, target_prefix=tmp_base_path, base_prefix=tmp_base_path)
         if PLATFORM == "osx" and action in ("open_file", "open_url"):
             _lsregister(
-                "-kill",
                 "-r",
                 "-domain",
                 "local",
@@ -432,6 +432,10 @@ def _dump_ls_services():
 
 
 @pytest.mark.skipif("CI" not in os.environ, reason="Only run on CI. Export CI=1 to run locally.")
+@pytest.mark.skipif(
+    PLATFORM == "linux" and not shutil.which("xdg-mime"),
+    reason="Test requires xdg-mime",
+)
 def test_file_type_association(delete_files):
     test_file = "test.menuinst"
     *_, output = check_output_from_shortcut(
@@ -465,6 +469,10 @@ def test_file_type_association_no_event_handler(delete_files, request):
 
 
 @pytest.mark.skipif("CI" not in os.environ, reason="Only run on CI. Export CI=1 to run locally.")
+@pytest.mark.skipif(
+    PLATFORM == "linux" and not shutil.which("xdg-open"),
+    reason="Test requires xdg-open",
+)
 def test_url_protocol_association(delete_files):
     url = "menuinst://test/"
     check_output_from_shortcut(
