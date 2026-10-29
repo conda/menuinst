@@ -1,6 +1,6 @@
 ### Enhancements
 
-* Drop Python 3.10 support. (#579)
+* <news item>
 
 ### Bug fixes
 
@@ -8,7 +8,7 @@
 
 ### Deprecations
 
-* <news item>
+* Drop Python 3.10 support. (#579)
 
 ### Docs
 
