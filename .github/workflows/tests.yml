@@ -60,7 +60,7 @@ jobs:
           echo "XDG_CURRENT_DESKTOP=GNOME" >> $GITHUB_ENV
 
       - name: Install miniforge
-        uses: conda-incubator/setup-miniconda@8ee1f361103df19b6f8c8655fd3967a8ecb162d5 #v4.0.1
+        uses: conda-incubator/setup-miniconda@be893c923ea9cf1cf7cd510fbdde27c7e18cbdcb #v4.1.0
         with:
           miniforge-version: latest
           # Use base environment
@@ -167,7 +167,7 @@ jobs:
           Path(environ["GITHUB_ENV"]).write_text(f"ANACONDA_ORG_LABEL={label}")
 
       - name: Create and upload canary build
-        uses: conda/actions/canary-release@d88418cd4e36358ba51e7c88f2d2d5edb9ac49e7 #v26.8.1
+        uses: conda/actions/canary-release@c8ad4261cc1d49709cb774289c68e63663bdc9d5 #v26.9.5
         env:
           # Run conda-build in isolated activation to properly package conda
           _CONDA_BUILD_ISOLATED_ACTIVATION: 1
