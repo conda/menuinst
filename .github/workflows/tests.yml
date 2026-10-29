@@ -32,19 +32,19 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-2022, ubuntu-latest, macos-15-intel]
-        python-version: ["3.10", "3.11", "3.12", "3.13"]
+        os: [windows-2022, ubuntu-latest, macos-15-intel, macos-latest, ubuntu-26.04-arm]
+        python-version: ["3.11", "3.12", "3.13", "3.14"]
         miniforge-version: [latest]
         include:
           - os: windows-2022
-            python-version: "3.13"
+            python-version: "3.14"
             # contains conda-standalone < 25.3.0
             miniforge-version: "25.3.0-3"
         exclude:
           - os: macos-15-intel
-            python-version: "3.11"
+            python-version: "3.12"
           - os: macos-15-intel
-            python-version: "3.10"
+            python-version: "3.13"
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 #v7.0.1
@@ -102,10 +102,23 @@ jobs:
           name: ${{ matrix.os }}-py${{ matrix.python-version }}
           token: ${{ secrets.CODECOV_TOKEN }}  # required
 
+  analyze:
+    needs: [run_test_suite]
+    if: '!cancelled()'
+    runs-on: ubuntu-slim
+    steps:
+      - name: Determine Success
+        uses: re-actors/alls-green@b5b5b37504aa4183270bd3d855c52a67f212be35 # v1.3.0
+        id: alls-green
+        with:
+          # permit jobs to be skipped if there are no code changes (see changes job)
+          allowed-skips: ${{ toJSON(needs) }}
+          jobs: ${{ toJSON(needs) }}
+
   # canary builds
   build:
     name: Canary Build
-    needs: [run_test_suite]
+    needs: [run_test_suite, analyze]
     # only build canary build if
     # - prior steps succeeded,
     # - this is the main repo, and
