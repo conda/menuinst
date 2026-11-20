@@ -24,7 +24,13 @@ from ..utils import (
 )
 
 log = getLogger(__name__)
-SCHEMA_VERSION = "1-1-3"
+SCHEMA_VERSION = "1-2-0"
+#: Keys of the mappings accepted by the schema fields whose value depends on
+#: whether the target environment is the base environment or not. See
+#: `menuinst._schema.TargetIsBaseConStr` and `menuinst._schema.TargetIsBaseConList`.
+TARGET_ENVIRONMENT_KEYS = frozenset(
+    ("target_environment_is_base", "target_environment_is_not_base")
+)
 
 
 class Menu:
@@ -169,14 +175,32 @@ class MenuItem:
         self.menu = menu
         self._data = self._initialize_on_defaults(metadata)
         self.metadata = self._flatten_for_platform(self._data)
-        if isinstance(self.metadata["name"], dict):
-            if self.menu.prefix.samefile(self.menu.base_prefix):
-                name = self.metadata["name"].get("target_environment_is_base", "")
+        self._resolve_target_environment_keys(self.metadata)
+
+    def _resolve_target_environment_keys(self, metadata: dict[str, Any]) -> None:
+        """
+        Replace, in place, the values given as a `target_environment_is(_not)_base`
+        mapping with the branch that applies to this installation.
+
+        Fields opt into this by accepting `TargetIsBaseConStr`/`TargetIsBaseConList`
+        in the schema; here we only look at the shape of the value, so a field that
+        opts in later needs no change on this side.
+        """
+        is_base = None
+        for key, value in metadata.items():
+            if not isinstance(value, dict) or not value:
+                continue
+            if not TARGET_ENVIRONMENT_KEYS.issuperset(value):
+                continue
+            if is_base is None:
+                is_base = self.menu.prefix.samefile(self.menu.base_prefix)
+            if is_base:
+                resolved = value.get("target_environment_is_base")
             else:
-                name = self.metadata["name"].get("target_environment_is_not_base", "")
-            if not name:
-                raise ValueError("Cannot parse `name` from dictionary representation.")
-            self.metadata["name"] = name
+                resolved = value.get("target_environment_is_not_base")
+            if not resolved:
+                raise ValueError(f"Cannot parse `{key}` from dictionary representation.")
+            metadata[key] = resolved
 
     @property
     def location(self) -> Path:

@@ -60,22 +60,54 @@ The full list of available placeholders is available at {ref}`placeholders`.
 This is not using any customization options or advanced features. It's the bare minimum to make it
 work: a name, the command, and the target platforms.
 
-## Specifying different shortcut names for base and non-base environments
+(base-or-not)=
 
-If environments are supported, different naming schemes can be specified for installations into
-the base environment and non-base environments.
-To do this, the `name` property must be a dictionary with the keys `target_environment_is_base`
-and `target_environment_is_not_base` for installations into the base and non-base environment,
-respectively.
+## Varying a field on base vs non-base environments
 
+Some fields can take a different value depending on whether the shortcut is being installed
+into the base environment or into a named environment. To do that, give the field a dictionary
+with the keys `target_environment_is_base` and `target_environment_is_not_base` instead of a
+plain value:
 
-The example below creates a shortcut called with the name "Launch Turtle" if installed into the
+```json
+"name": {
+  "target_environment_is_base": "Launch Turtle",
+  "target_environment_is_not_base": "Launch Turtle ({{ ENV_NAME }})"
+}
+```
+
+Only the branch that applies is used, and the value it holds is what the field would normally
+take: a string for `name`, a list of strings for `command`, and so on. Placeholders are expanded
+after the branch is chosen, so each branch can use its own. The branch that does not apply may be
+omitted; leaving out the one that _does_ apply is an error.
+
+The fields that accept this form are:
+
+| Field | Applies to | Type of each branch |
+|-------|------------|---------------------|
+| `name` | all platforms | string, see {class}`menuinst._schema.TargetIsBaseConStr` |
+| `command` | all platforms | list of strings, see {class}`menuinst._schema.TargetIsBaseConList` |
+| `precommand` | all platforms | string, see {class}`menuinst._schema.TargetIsBaseConStr` |
+| `StartupWMClass` | Linux | string, see {class}`menuinst._schema.TargetIsBaseConStr` |
+| `TryExec` | Linux | string, see {class}`menuinst._schema.TargetIsBaseConStr` |
+
+Like any other field, these can also be set inside a `platforms` block, in which case the
+platform-specific value overrides the top-level one.
+
+```{note}
+This is deliberately a small, fixed set of fields rather than a general conditional mechanism.
+If you need a field that is not listed above, please open an issue describing the use case.
+```
+
+### Naming shortcuts after the environment
+
+The example below creates a shortcut named "Launch Turtle" if installed into the
 base environment. If installed into an environment called, e.g., `turtle`, the name of the shortcut
 is "Launch Turtle (turtle)". This was the default behavior of `menuinst` version 1.
 
 ```json
 {
-  "$schema": "https://schemas.conda.org/menuinst/menuinst-1-1-0.schema.json",
+  "$schema": "https://schemas.conda.org/menuinst/menuinst-1-2-0.schema.json",
   "menu_name": "Python {{ PY_VER }}",
   "menu_items": [
     {
@@ -87,6 +119,39 @@ is "Launch Turtle (turtle)". This was the default behavior of `menuinst` version
       "activate": true,
       "platforms": {
         "linux": {},
+        "osx": {},
+        "win": {}
+      }
+    }
+  ]
+}
+```
+
+### Running a different command outside the base environment
+
+The same form works for `command` and `precommand`. Here, the shortcut launches the bundled
+`turtle` demo when installed in the base environment, and the environment's own `turtle` module
+otherwise:
+
+```json
+{
+  "$schema": "https://schemas.conda.org/menuinst/menuinst-1-2-0.schema.json",
+  "menu_name": "Python {{ PY_VER }}",
+  "menu_items": [
+    {
+      "name": "Launch Turtle",
+      "command": {
+        "target_environment_is_base": ["{{ BASE_PYTHON }}", "-m", "turtledemo"],
+        "target_environment_is_not_base": ["{{ PYTHON }}", "-m", "turtle"]
+      },
+      "activate": true,
+      "platforms": {
+        "linux": {
+          "TryExec": {
+            "target_environment_is_base": "{{ BASE_PYTHON }}",
+            "target_environment_is_not_base": "{{ PYTHON }}"
+          }
+        },
         "osx": {},
         "win": {}
       }
