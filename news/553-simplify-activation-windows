@@ -1,0 +1,19 @@
+### Enhancements
+
+* Replace chaining of `cmd.exe` and PowerShell for activation scripts in Windows shortcuts with a simple, minimized `cmd.exe` call. This is less likely to trigger Windows security software. (#468 via #553)
+
+### Bug fixes
+
+* Use `activate.bat` for Windows shortcuts instead of using an activator command so that shortcut behavior does not depend on environment state during install time. (#321, #545 via #553)
+
+### Deprecations
+
+* <news item>
+
+### Docs
+
+* <news item>
+
+### Other
+
+* <news item>
